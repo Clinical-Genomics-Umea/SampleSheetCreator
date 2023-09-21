@@ -1,0 +1,28 @@
+-  N:
+        constraints: False
+-  Group:
+        constraints: False
+-  Sample_ID:
+        constraints: False
+-  Library_ID:
+        constraints: False
+-  Sex:
+        constraints: ['m','f']
+-  I5_Index_ID:
+        constraints: False
+-  I7_Index_ID+I5_Index_ID:
+        constraints: False
+-  I7_Index_ID:
+        constraints: False
+-  index2:
+        constraints: False
+-  index:
+        constraints: False
+-  Definition:
+        constraints: False
+-  Panel:
+        constraints: False,
+-  Analysis:
+        constraints: False
+-  Comment:
+        constraints: False

@@ -1,0 +1,8 @@
+build
+dist
+output
+stylesheets
+.idea
+__pycache__
+
+

@@ -1,0 +1,11 @@
+{
+  "fields":
+    [
+      "Lane",
+      "Sample_ID",
+      "Application Profile",
+      "Index Well Position",
+      "I7 index",
+      "I5 index"
+    ]
+}

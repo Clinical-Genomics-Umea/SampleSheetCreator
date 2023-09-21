@@ -1,0 +1,173 @@
+schema:
+    'N':
+        'width': 20
+        'samplesheet_alias': 'N'
+        'samplesheet_visible': TRUE
+        'construct_required': FALSE
+        'allow_duplicate_values': TRUE
+        'allow_paste': FALSE
+        'inheritance': FALSE
+        'value_constraints': FALSE
+        'source': '
+
+    'Batch': 
+        'width': 60
+        'samplesheet_alias': 'Batch'
+        'construct_visible': TRUE
+        'samplesheet_visible': TRUE
+        'construct_required': TRUE
+        'allow_duplicate_values': TRUE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': FALSE
+
+    'Sample_ID': 
+        'width': 128
+        'construct_visible': TRUE
+        'samplesheet_visible': TRUE
+        'construct_required': TRUE
+        'allow_duplicate_values': FALSE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': FALSE
+
+    'Sample_Name': 
+        'width': -1
+        'construct_visible': FALSE
+        'samplesheet_visible': TRUE
+        'construct_required': FALSE
+        'allow_duplicate_values': FALSE
+        'allow_paste': TRUE
+        'inheritance': ['Sample_ID']
+        'value_constraints': FALSE
+
+    'Prep_ID': 
+        'width': 128
+        'construct_visible': TRUE
+        'samplesheet_visible': TRUE
+        'construct_required': TRUE
+        'allow_duplicate_values': TRUE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': FALSE
+
+    'Sex': 
+        'width': 30
+        'construct_visible': TRUE
+        'samplesheet_visible': TRUE
+        'construct_required': TRUE
+        'allow_duplicate_values': TRUE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': ['m', 'f']
+
+    'I5_Index_ID': 
+        'width': 128
+        'construct_visible': TRUE
+        'samplesheet_visible': TRUE
+        'construct_required': FALSE
+        'allow_duplicate_values': TRUE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': FALSE
+
+    'index2': 
+        'width': -1
+        'samplesheet_col_no': 7
+        'construct_visible': FALSE
+        'samplesheet_visible': TRUE
+        'construct_required': FALSE
+        'allow_duplicate_values': TRUE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': FALSE
+
+    'I7_Index_ID': 
+        'width': 128
+        'construct_visible': TRUE
+        'samplesheet_visible': TRUE
+        'construct_required': TRUE
+        'allow_duplicate_values': TRUE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': FALSE
+
+    'index': 
+        'width': -1
+        'construct_visible': FALSE
+        'samplesheet_visible': TRUE
+        'construct_required': FALSE
+        'allow_duplicate_values': TRUE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': FALSE
+
+    'I7_Index_ID+I5_Index_ID': 
+        'width': -1
+        'construct_visible': FALSE
+        'samplesheet_visible': FALSE
+        'construct_required': TRUE
+        'allow_duplicate_values': FALSE
+        'allow_paste': FALSE
+        'inheritance': ['I7_Index_ID','I5_Index_ID']
+        'value_constraints': FALSE
+
+    'Analysis_Definition': 
+        'width': 128
+        'construct_visible': TRUE
+        'samplesheet_visible': TRUE
+        'construct_required': TRUE
+        'allow_duplicate_values': TRUE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': FALSE
+
+    'Panel_Target': 
+        'width': 128
+        'construct_visible': FALSE
+        'samplesheet_visible': TRUE
+        'construct_required': FALSE
+        'allow_duplicate_values': TRUE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': FALSE
+
+    'Method': 
+        'width': 128
+        'construct_visible': FALSE
+        'samplesheet_visible': TRUE
+        'construct_required': FALSE
+        'allow_duplicate_values': TRUE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': FALSE
+
+    'Panel': 
+        'width': 128
+        'construct_visible': TRUE
+        'samplesheet_visible': TRUE
+        'construct_required': TRUE
+        'allow_duplicate_values': TRUE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': FALSE
+
+    'Analysis': 
+        'width': 128
+        'construct_visible': TRUE
+        'samplesheet_visible': TRUE
+        'construct_required': TRUE
+        'allow_duplicate_values': TRUE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': FALSE
+
+    'Comment': 
+        'width': 128
+        'construct_visible': TRUE
+        'samplesheet_visible': TRUE
+        'construct_required': FALSE
+        'allow_duplicate_values': TRUE
+        'allow_paste': TRUE
+        'inheritance': FALSE
+        'value_constraints': FALSE

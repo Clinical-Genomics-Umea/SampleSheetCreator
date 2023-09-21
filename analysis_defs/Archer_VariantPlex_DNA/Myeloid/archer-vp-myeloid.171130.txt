@@ -1,0 +1,6 @@
+>MPN
+JAK2	+	snp_indel
+CALR	+	snp_indel
+MPL	+	snp_indel
+>TP53
+TP53	+	snp_indel

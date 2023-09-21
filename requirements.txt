@@ -1,0 +1,14 @@
+pandera
+jellyfish~=1.0.0
+Jinja2
+packaging
+pandas_schema
+PyYAML~=6.0.1
+sample_sheet
+schema
+pyside6~=6.5.2
+pywin32
+pandas~=2.0.3
+numpy~=1.25.2
+pathlib~=1.0.1
+QtAwesome~=1.2.3

@@ -1,0 +1,32 @@
+---
+
+IndexAdapterKitName: IDTIlmnDNARNAUDISetADTagmentation_DNAPCRFree
+IndexAdapterKitNameReadable: "IDT-Ilmn DNA-RNA UD Indexes Set ABCD Tagmentation"
+
+ShownFields: [Plate, WellPos, IndexName]
+
+FieldCorrespondence:
+  Plate: Plate
+  WellPos: WellPos
+  IndexName: [I7_IndexName, I5_IndexName]
+  I7_Index: I7_Index
+  I5_Index: I5_Index
+  AdapterRead1: AdapterRead1
+  AdapterRead2: AdapterRead2
+  UsedCycles: UsedCycles
+  BarcodeMismatchesIndex1: BarcodeMismatchesIndex1
+  BarcodeMismatchesIndex2: BarcodeMismatchesIndex2
+
+RequiredIndexFileFields:
+  - Plate
+  - WellPos
+  - IndexName
+  - I7_Index
+  - I5_Index
+
+IndexMetaData:
+  AdapterRead1: "CTGTCTCTTATACACATCT+ATGTGTATAAGAGACA"
+  AdapterRead2: "CTGTCTCTTATACACATCT+ATGTGTATAAGAGACA"
+  UsedCycles: "151;10;10;151"
+  BarcodeMismatchesIndex1: 1
+  BarcodeMismatchesIndex2: 1

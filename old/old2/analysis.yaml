@@ -1,0 +1,726 @@
+---
+# config file for SampleSheetCreator
+
+changelog:
+  203330: "initial definition"
+
+# definitions levels
+# definitions
+#   Method
+#     Panel
+#       Analysis
+#         source: where gene sets came from
+
+
+documentation:
+  Archer:
+    Solid_tumor:
+      mCRC:
+        source: "archer-vp-solid.181221.txt"
+      nSCLC:
+        source: "archer-vp-solid.181221.txt"
+      GIST:
+        source: "archer-vp-solid.181221.txt"
+      melanom:
+        source: "archer-vp-solid.181221.txt"
+      NGS-Solid:
+        source: "archer-vp-solid.181221.txt"
+    Myeloid:
+      MPN:
+        source: "archer-vp-myeloid.180608.txt"
+      TP53:
+        source: "archer-vp-myeloid.180608.txt"
+      NGS-Myeloid:
+        source: "archer-vp-myeloid.180608.txt"
+      NGS-KIT:
+        source: "archer-vp-myeloid.180608.txt"
+    Fusion:
+      Lung:
+        source: "archer-fp-lung.181108.txt"
+  Agilent_Haloplex_DNA:
+    Cardio:
+      SQTS:
+        source: "agilent-hp-cardio.170607.txt"
+      LQTS:
+        source: "agilent-hp-cardio.170607.txt"
+      CPVT:
+        source: "agilent-hp-cardio.170607.txt"
+      LQTS_CPVT:
+        source: "agilent-hp-cardio.170607.txt"
+      Brugada:
+        source: "agilent-hp-cardio.170607.txt"
+      Formaksflimmer:
+        source: "agilent-hp-cardio.170607.txt"
+      Pan_Arrytmi:
+        source: "agilent-hp-cardio.170607.txt"
+      FH:
+        source: "agilent-hp-cardio.170607.txt"
+      HCM:
+        source: "agilent-hp-cardio.170607.txt"
+      DCM_LVNC:
+        source: "agilent-hp-cardio.170607.txt"
+      ARVC:
+        source: "agilent-hp-cardio.170607.txt"
+      Pan_Kardiomyopati:
+        source: "agilent-hp-cardio.170607.txt"
+      HCM_Stellan:
+        source: "agilent-hp-cardio.170607.txt"
+      FTAAD_ALL:
+        source: "agilent-hp-cardio.170607.txt"
+      FTAAD:
+        source: "agilent-hp-cardio.170607.txt"
+      Beals:
+        source: "agilent-hp-cardio.170607.txt"
+      LDS:
+        source: "agilent-hp-cardio.170607.txt"
+      Halskarlsdissektion:
+        source: "agilent-hp-cardio.170607.txt"
+      Marfan:
+        source: "agilent-hp-cardio.170607.txt"
+      LDS_Marfan:
+        source: "agilent-hp-cardio.170607.txt"
+      Klassisk_vaskular_EDS:
+        source: "agilent-hp-cardio.170607.txt"
+      Klassisk_EDS:
+        source: "agilent-hp-cardio.170607.txt"
+      Vaskular_EDS:
+        source: "agilent-hp-cardio.170607.txt"
+      ALL:
+        source: "agilent-hp-cardio.170607.txt"
+      ALL_CORE_NEXTseq_test:
+        source: "agilent-hp-cardio.170607.txt"
+
+# definitions levels
+# definitions
+#   Method
+#     Panel
+#       Analysis
+#         hgnc gene_id
+definitions:
+  Archer:
+    VariantPlex_Solid_Tumor:
+      FOXL2:
+        - FOXL2
+      mCRC:
+        - KRAS
+        - NRAS
+        - BRAF
+      nSCLC:
+        - EGFR
+        - KRAS
+        - BRAF
+      GIST:
+        - KIT
+        - PDGFRA
+      Melanom:
+        - BRAF
+      NGS_Solid:
+        - CCND1
+        - MDM2
+        - MYC
+        - MYCN
+        - AKT1
+        - BRAF
+        - CSF1R
+        - CTNNB1
+        - ESR1
+        - EZH2
+        - FOXL2
+        - GNA11
+        - GNAQ
+        - H3F3A
+        - HNF1A
+        - HRAS
+        - IDH1
+        - IDH2
+        - MAP2K1
+        - MLH1
+        - MPL
+        - NPM1
+        - PTPN11
+        - RHOA
+        - ROS1
+        - SRC
+        - TERT
+        - ABL1
+        - ALK
+        - APC
+        - ATM
+        - AURKA
+        - CCNE1
+        - CDH1
+        - CDK4
+        - CDKN2A
+        - DDR2
+        - EGFR
+        - ERBB2
+        - ERBB3
+        - ERBB4
+        - FBXW7
+        - FGFR1
+        - FGFR2
+        - FGFR3
+        - FLT3
+        - GNAS
+        - JAK2
+        - JAK3
+        - KDR
+        - KIT
+        - KRAS
+        - MET
+        - NOTCH1
+        - NRAS
+        - PDGFRA
+        - PIK3CA
+        - PIK3R1
+        - PTEN
+        - RB1
+        - RET
+        - SMAD4
+        - SMARCB1
+        - SMO
+        - STK11
+        - TP53
+        - VHL
+    VariantPlex_Myeloid:
+      MRD: True
+      PV:
+        - JAK2
+      MPN:
+        - JAK2
+        - CALR
+      TP53:
+        - TP53
+      NGS_Myeloid:
+        - ABL1
+        - ANKRD26
+        - ASXL1
+        - ATRX
+        - BCOR
+        - BCORL1
+        - BRAF
+        - BTK
+        - CALR
+        - CBL
+        - CBLB
+        - CBLC
+        - CCND2
+        - CDC25C
+        - CDKN2A
+        - CEBPA
+        - CSF3R
+        - CUX1
+        - CXCR4
+        - DCK
+        - DDX41
+        - DHX15
+        - DNMT3A
+        - ETNK1
+        - ETV6
+        - EZH2
+        - FBXW7
+        - FLT3
+        - GATA1
+        - GATA2
+        - GNAS
+        - HRAS
+        - IDH1
+        - IDH2
+        - IKZF1
+        - JAK2
+        - JAK3
+        - KDM6A
+        - KIT
+        - KMT2A
+        - KRAS
+        - LUC7L2
+        - MAP2K1
+        - MPL
+        - MYC
+        - MYD88
+        - NF1
+        - NOTCH1
+        - NPM1
+        - NRAS
+        - PDGFRA
+        - PHF6
+        - PPM1D
+        - PTEN
+        - PTPN11
+        - RAD21
+        - RBBP6
+        - RPS14*
+        - RUNX1
+        - SF3B1
+        - SH2B3
+        - SLC29A1
+        - SMC1A
+        - SMC3
+        - SRSF2
+        - STAG2
+        - STAT3
+        - TET2
+        - TP53
+        - U2AF1
+        - U2AF2
+        - WT1
+        - XPO1
+        - ZRSR2
+      Mastocytos:
+        - KIT
+    FusionPlex_Lung:
+      Lung:
+        - ALK
+        - BRAF
+        - EGFR
+        - FGFR1
+        - FGFR2
+        - FGFR3
+        - KRAS
+        - MET
+        - NRG1
+        - NTRK1
+        - NTRK2
+        - NTRK3
+        - RET
+        - ROS1
+      Brain: True
+      NTRK: True
+  Agilent_Haloplex_DNA:
+    Cardio:
+      SQTS:
+        - KCNQ1
+        - KCNH2
+        - KCNJ2
+        - CACNA1C
+        - CACNA2D1
+        - CACNB2
+      LQTS:
+        - KCNQ1
+        - KCNH2
+        - SCN5A
+        - KCNE1
+        - KCNE2
+        - ANK2
+        - CAV3
+        - SCN4B
+        - AKAP9
+        - SNTA1
+        - KCNJ5
+        - KCNJ2
+        - CACNA1C
+      CPVT:
+        - CASQ2
+        - KCNJ2
+        - RYR2
+      LQTS_CPVT:
+        - KCNQ1
+        - KCNH2
+        - SCN5A
+        - KCNE1
+        - KCNE2
+        - ANK2
+        - CAV3
+        - SCN4B
+        - AKAP9
+        - SNTA1
+        - KCNJ5
+        - KCNJ2
+        - CACNA1C
+        - CASQ2
+        - RYR2
+      Brugada:
+        - CACNA1C
+        - CACNA2D1
+        - CACNB2
+        - GPD1L
+        - KCNE3
+        - KCNJ8
+        - SCN1B
+        - SCN3B
+        - SCN5A
+      Formaksflimmer:
+        - KCNQ1
+        - KCNE1
+        - KCNE2
+        - KCNJ2
+        - LMNA
+        - SCN1B
+        - SCN3B
+        - SCN4B
+        - SCN5A
+        - TTR
+      Pan_Arrytmi:
+        - AKAP9
+        - ANK2
+        - CACNA1C
+        - CACNA2D1
+        - CACNB2
+        - CASQ2
+        - CAV3
+        - GPD1L
+        - KCNE1
+        - KCNE2
+        - KCNE3
+        - KCNH2
+        - KCNJ2
+        - KCNJ5
+        - KCNJ8
+        - KCNQ1
+        - RYR2
+        - SCN1B
+        - SCN3B
+        - SCN4B
+        - SCN5A
+        - SNTA1
+      FH:
+        - APOB
+        - LDLR
+        - LDLRAP1
+        - PCSK9
+      HCM:
+        - MYBPC3
+        - MYH7
+        - TNNI3
+        - TNNT2
+        - TPM1
+        - MYH6
+        - MYL3
+        - TCAP
+        - PRKAG2
+        - ACTC1
+        - ACTN2
+        - CSRP3
+        - PLN
+        - TNNC1
+        - MYL2
+        - MYOZ2
+        - TTR
+        - LAMP2
+        - GLA
+      DCM_LVNC:
+        - ACTC1
+        - ACTN2
+        - BAG3
+        - DES
+        - DSP
+        - LDB3
+        - LMNA
+        - MYBPC3
+        - MYH6
+        - MYH7
+        - NEXN
+        - RBM20
+        - SCN5A
+        - TAZ
+        - TCAP
+        - TMPO
+        - TNNC1
+        - TNNI3
+        - TNNT2
+        - TPM1
+        - TTN
+        - VCL
+        - DMD
+      ARVC:
+        - DSC2
+        - DSG2
+        - DSP
+        - JUP
+        - PKP2
+        - RYR2
+        - TGFB3
+        - TMEM43
+        - PKP2
+      Pan_Kardiomyopati:
+        - ACTC1
+        - ABCC9
+        - ACTN2
+        - ANKRD1
+        - BAG3
+        - CAV3
+        - CSRP3
+        - DES
+        - DMD
+        - DSC2
+        - DSG2
+        - DSP
+        - EMD
+        - FHL1
+        - FHL2
+        - GLA
+        - JUP
+        - LAMP2
+        - LDB3
+        - LMNA
+        - MYBPC3
+        - MYH6
+        - MYH7
+        - MYL2
+        - MYL3
+        - MYLK2
+        - MYOZ2
+        - NEBL
+        - NEXN
+        - PKP2
+        - PLN
+        - PRKAG2
+        - RBM20
+        - RYR2
+        - SCN5A
+        - TAZ
+        - TCAP
+        - TGFB3
+        - TMEM43
+        - TMPO
+        - TNNC1
+        - TNNI3
+        - TNNT2
+        - TPM1
+        - TTN
+        - TTR
+        - VCL
+      HCM_Stellan:
+        - ACTC1
+        - ACTN2
+        - CSRP3
+        - GLA
+        - LAMP2
+        - MYBPC3
+        - MYH6
+        - MYH7
+        - MYL2
+        - MYL3
+        - MYOZ2
+        - PLN
+        - PRKAG2
+        - TCAP
+        - TNNC1
+        - TNNI3
+        - TNNT2
+        - TPM1
+        - TTR
+        - CAV3
+      FTAAD_ALL:
+        - ACTA2
+        - CBS
+        - COL3A1
+        - COL5A1
+        - COL5A2
+        - FBN1
+        - FBN2
+        - MYH11
+        - MYLK
+        - SLC2A10
+        - SMAD3
+        - TGFB2
+        - TGFB3
+        - TGFBR1
+        - TGFBR2
+      FTAAD:
+        - ACTA2
+        - MYH11
+        - MYLK
+        - SMAD3
+        - TGFB2
+        - TGFB3
+        - TGFBR1
+        - TGFBR2
+      Beals:
+        - FBN2
+      LDS:
+        - FBN1
+        - SMAD3
+        - TGFB2
+        - TGFB3
+        - TGFBR1
+        - TGFBR2
+      Halskarlsdissektion:
+        - COL3A1
+        - COL5A1
+        - COL5A2
+        - FBN1
+        - TGFBR1
+        - TGFBR2
+      Marfan:
+        - FBN1
+      LDS_Marfan:
+        - CBS
+        - FBN1
+        - SMAD3
+        - TGFB2
+        - TGFB3
+        - TGFBR1
+        - TGFBR2
+      Klassisk_vaskular_EDS:
+        - COL5A1
+        - COL5A2
+        - COL3A1
+      Klassisk_EDS:
+        - COL5A1
+        - COL5A2
+      Vaskular_EDS:
+        - COL3A1
+      ALL:
+        - ABCC9
+        - ACTA2
+        - ACTC1
+        - ACTN2
+        - AKAP9
+        - ANK2
+        - ANKRD1
+        - BAG3
+        - CACNA1C
+        - CACNA2D1
+        - CACNB2
+        - CASQ2
+        - CAV3
+        - CBS
+        - COL3A1
+        - COL5A1
+        - COL5A2
+        - CSRP3
+        - DES
+        - DMD
+        - DSC2
+        - DSG2
+        - DSP
+        - EMD
+        - FBN1
+        - FBN2
+        - FHL1
+        - FHL2
+        - GLA
+        - GPD1L
+        - JUP
+        - KCNE1
+        - KCNE2
+        - KCNE3
+        - KCNH2
+        - KCNJ2
+        - KCNJ5
+        - KCNJ8
+        - KCNQ1
+        - LAMP2
+        - LDB3
+        - LMNA
+        - MYBPC3
+        - MYH11
+        - MYH6
+        - MYH7
+        - MYL2
+        - MYL3
+        - MYLK
+        - MYLK2
+        - MYOZ2
+        - NEBL
+        - NEXN
+        - PKP2
+        - PLN
+        - PRKAG2
+        - RBM20
+        - RYR2
+        - SCN1B
+        - SCN3B
+        - SCN4B
+        - SCN5A
+        - SLC2A10
+        - SMAD3
+        - SNTA1
+        - TAZ
+        - TCAP
+        - TGFB2
+        - TGFB3
+        - TGFBR1
+        - TGFBR2
+        - TMEM43
+        - TMPO
+        - TNNC1
+        - TNNI3
+        - TNNT2
+        - TPM1
+        - TTN
+        - TTR
+        - VCL
+      ALL_CORE_NEXTseq_test:
+        - ABCC9
+        - ACTA2
+        - ACTC1
+        - ACTN2
+        - AKAP9
+        - ANK2
+        - ANKRD1
+        - BAG3
+        - CACNA1C
+        - CACNA2D1
+        - CACNB2
+        - CASQ2
+        - CAV3
+        - CBS
+        - COL3A1
+        - COL5A1
+        - COL5A2
+        - CSRP3
+        - DES
+        - DMD
+        - DSC2
+        - DSG2
+        - DSP
+        - EMD
+        - FBN1
+        - FBN2
+        - FHL1
+        - FHL2
+        - GLA
+        - GPD1L
+        - JUP
+        - KCNE1
+        - KCNE2
+        - KCNE3
+        - KCNH2
+        - KCNJ2
+        - KCNJ5
+        - KCNJ8
+        - KCNQ1
+        - LAMP2
+        - LDB3
+        - LMNA
+        - MYBPC3
+        - MYH11
+        - MYH6
+        - MYH7
+        - MYL2
+        - MYL3
+        - MYLK
+        - MYLK2
+        - MYOZ2
+        - NEBL
+        - NEXN
+        - PKP2
+        - PLN
+        - PRKAG2
+        - RBM20
+        - RYR2
+        - SCN1B
+        - SCN3B
+        - SCN4B
+        - SCN5A
+        - SLC2A10
+        - SMAD3
+        - SNTA1
+        - TAZ
+        - TCAP
+        - TGFB2
+        - TGFB3
+        - TGFBR1
+        - TGFBR2
+        - TMEM43
+        - TMPO
+        - TNNC1
+        - TNNI3
+        - TNNT2
+        - TPM1
+        - TTN
+        - TTR
+        - VCL
+

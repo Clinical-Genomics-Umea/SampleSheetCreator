@@ -1,0 +1,9 @@
+>mCRC
+KRAS	+	snp_indel
+NRAS	+	snp_indel
+BRAF	+	snp_indel
+>nSCLC
+EGFR	+	snp_indel
+KRAS	+	snp_indel
+>melanom
+BRAF	+	snp_indel

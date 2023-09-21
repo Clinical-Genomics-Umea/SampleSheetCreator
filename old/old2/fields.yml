@@ -1,0 +1,292 @@
+---
+model_fields:
+  N:
+    multiple_values_ok: True
+    width: 20
+    required: False
+    duplicates_ok: True
+    combine: False
+    value_constraints: ['','n']
+    value_validate_regex: "^n{0,1}$"
+    value_color:
+      n: [204, 230, 255]
+    tooltip: "Specify a sample as NORMAL \nAccepted values: <empty> or 'n'\nNot required field "
+    constraints: False
+    complex_constraints: False
+    precedents: False
+    dependents: False
+  Group:
+    multiple_values_ok: True
+    width: 70
+    required: True
+    duplicates_ok: True
+    combine: False
+    value_constraints: False
+    value_validate_regex: '^$|^\d$|^(\d),(\d)$|^\d,$'
+    complex_constraints: complex_validation_group
+    value_color: False
+    tooltip: "Specify group that a sample belongs to \nAccepted values: '0'-'9'\nA sample can belong to multiple groups separated by comma, i.e. '1,2'\nRequired field "
+    constraints: False
+    precedents: False
+    dependents: False
+  Sample_ID:
+    multiple_values_ok: True
+    width: 128
+    required: True
+    duplicates_ok: False
+    combine': False
+    value_constraints: False
+    value_validate_regex: '^[a-zA-Z0-9_-]{1,12}$'
+    complex_constraints: False
+    value_color: False
+    tooltip: "Specify Sample_ID \nMust be unique \nRequired field "
+    constraints: False
+    precedents: False
+    dependents: False
+  Sample_Name:
+    multiple_values_ok: True
+    width: 128
+    required: False
+    duplicates_ok: True
+    combine': False
+    value_constraints: False
+    value_validate_regex: False
+    complex_constraints: False
+    value_color: False
+    tooltip: "Specify Sample_Name \nMust be unique \nRequired field "
+    constraints: False
+    precedents: ['Sample_ID']
+    dependents: False
+  Library_ID:
+    multiple_values_ok: True
+    width: 128
+    required: True
+    duplicates_ok: True
+    combine: False
+    value_constraints: False
+    value_color: False
+    value_validate_regex: False
+    complex_constraints: False
+    tooltip: "Specify Library_ID \nRequired field"
+    constraints: False
+    precedents: False
+    dependents: False
+  External_RID:
+    multiple_values_ok: True
+    width: 128
+    required: False
+    duplicates_ok: True
+    combine: False
+    value_constraints: False
+    value_color: False
+    value_validate_regex: False
+    complex_constraints: False
+    tooltip: "Specify Library_ID \nNot required field"
+    constraints: False
+    precedents: False
+    dependents: False
+  Referral_Type:
+    multiple_values_ok: True
+    width: 128
+    required: False
+    duplicates_ok: True
+    combine: False
+    value_constraints: False
+    value_color: False
+    value_validate_regex: False
+    complex_constraints: False
+    tooltip: "Specify Library_ID \nNot required field"
+    constraints: False
+    precedents: False
+    dependents: False
+  Sex:
+    multiple_values_ok: True
+    width: 30
+    construct: True
+    required: True
+    duplicates_ok: True
+    combine: False
+    value_constraints: ["M","F"]
+    value_validate_regex: "^[M,F]{0,1}$"
+    complex_constraints: False
+    value_color:
+      M: [204, 230, 255]
+      F: [255, 230, 242]
+    tooltip: "Sex of sample \nAccepted values: 'M'/'F' \nRequired field"
+    constraints: False
+    precedents: False
+    dependents: False
+  I5_Index_ID:
+    multiple_values_ok: True
+    width: 128
+    required: False
+    duplicates_ok: True
+    combine: False
+    value_constraints: False
+    value_validate_regex: False
+    complex_constraints: False
+    value_color: False
+    tooltip: "Combination of I5_Index_ID and I7_Index_ID \nMust be unique for each sample\nNot required field"
+    constraints: False
+    precedents: False
+    dependents: index2
+  I7_Index_ID:
+    multiple_values_ok: True
+    width: 128
+    required: True
+    duplicates_ok: True
+    combine: False
+    value_constraints: False
+    value_validate_regex: False
+    complex_constraints: False
+    value_color: False
+    tooltip: "I7_Index_ID \nIf I5_Index_ID is not populated, I7_Index_ID must be unique \nRequired field"
+    constraints: False
+    precedents: False
+    dependents: ['index']
+  Panel:
+    multiple_values_ok: True
+    width: 128
+    required: True
+    duplicates_ok: True
+    combine: False
+    value_constraints: False
+    value_validate_regex: False
+    value_color: False
+    complex_constraints: False
+    tooltip: "Selected panel for a sample \nOnly values in the Panel combobox are allowed \nRequired field"
+    constraints: False
+    precedents: False
+    dependents: False
+  Analysis:
+    multiple_values_ok: True
+    width: 128
+    required: True
+    duplicates_ok: True
+    combine: False
+    value_constraints: False
+    value_validate_regex: False
+    value_color: False
+    complex_constraints: False
+    tooltip: "Selected analysis for a sample \nOnly values in the Panel combobox are allowed \nRequired field"
+    constraints: False
+    precedents: False
+    dependents: False
+  Comment:
+    multiple_values_ok: True
+    width: 128
+    required: False
+    duplicates_ok: True
+    combine: False
+    value_constraints: False
+    value_validate_regex: False
+    complex_constraints: False
+    value_color: False
+    tooltip: "Comment."
+    precedents: False
+    dependents: False
+  index:
+    multiple_values_ok: True
+    width: 128
+    required: False
+    duplicates_ok: True
+    combine: False
+    value_constraints: False
+    value_validate_regex: False
+    complex_constraints: False
+    value_color: False
+    tooltip: "index seq for P7_index_ID"
+    constraints: False
+    precedents: ['I7_Index_ID']
+    dependents: ['index+index2']
+  index2:
+    multiple_values_ok: True
+    width: 128
+    required: False
+    duplicates_ok: True
+    combine: False
+    value_constraints: False
+    value_validate_regex: False
+    complex_constraints: False
+    value_color: False
+    tooltip: "index2 seq for P5_index_ID"
+    constraints: False
+    precedents: ['I5_Index_ID']
+    dependents: ['index+index2']
+  index+index2:
+    multiple_values_ok: True
+    width: False
+    required: True
+    duplicates_ok: True
+    combine: False
+    value_constraints: False
+    value_validate_regex: False
+    complex_constraints: False
+    value_color: False
+    tooltip: "Concat of index and index2. Only index if index2 does not exist"
+    constraints: False
+    precedents: ['index', 'index2']
+    dependents: False
+  Method:
+    multiple_values_ok: False
+    width: 128
+    required: True
+    duplicates_ok: True
+    combine: False
+    value_constraints: False
+    value_validate_regex: False
+    complex_constraints: False
+    value_color: False
+    tooltip: "Only one method allowed in a samplesheet"
+    constraints: False
+    precedents: False
+    dependents: False
+
+review_fields_order:
+  - Group
+  - N
+  - Sample_ID
+  - Sample_Name
+  - Sex
+  - External_RID
+  - Referral_Type
+  - Library_ID
+  - I5_Index_ID
+  - index2
+  - I7_Index_ID
+  - index
+  - Method
+  - Panel
+  - Analysis
+  - Comment
+samplesheet_fields_order:
+  - Sample_ID
+  - Sample_Name
+  - Group
+  - N
+  - Sex
+  - External_RID
+  - Referral_Type
+  - Library_ID
+  - I5_Index_ID
+  - index2
+  - I7_Index_ID
+  - index
+  - Method
+  - Panel
+  - Analysis
+  - Comment
+input_fields_order:
+  - N
+  - Group
+  - Sample_ID
+  - Sex
+  - External_RID
+  - Referral_Type
+  - Library_ID
+  - I5_Index_ID
+  - I7_Index_ID
+  - Method
+  - Panel
+  - Analysis
+  - Comment
