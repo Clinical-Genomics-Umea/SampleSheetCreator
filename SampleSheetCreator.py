@@ -29,10 +29,8 @@ __author__ = "Pär Larsson"
 __version__ = "2.0.0.a"
 
 
-def _get_dlg_options():
-    options = QFileDialog.Options()
-    options |= QFileDialog.DontUseNativeDialog
-    return options
+def get_dialog_options():
+    return QFileDialog.Options() | QFileDialog.DontUseNativeDialog
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -55,14 +53,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.config_action = QAction("config", self)
         self.manual_edit_action = QAction("manual_edit", self)
 
-        self.profile_toolbox = QToolBox()
-        self.profile_manager = ProfileMGR()
+        self.column_visibility_mapper = ColumnVisibilityMapper()
+
+        self.action2tab = {}
+        self.setup_tool_actions()
+        self.file_tab_setup()
+
+        self.run_info_widget = RunInfo()
+        self.run_setup_widget = RunSetup(Path("config/run_settings/run_settings.yaml"))
 
         self.indexes_toolbox = QToolBox()
         self.indexes_manager = IndexesMGR(Path("config/indexes"))
         self.indexes_widgets = {}
 
-        self.column_visibility_mapper = ColumnVisibilityMapper()
+        self.profile_toolbox = QToolBox()
+        self.profile_manager = ProfileMGR()
+
 
         self.sample_model = SampleSheetModel()
         self.samples_tableview = SampleTableView()
@@ -71,36 +77,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sidemenu_setup()
         self.hide_tabwidget_headers()
 
-        self.run_info = RunInfo()
-        run_config = Path("config/run_settings/run_settings.yaml")
-        self.run_setup = RunSetup(run_config)
 
-        self.action2tab = {}
-        self.setup_tool_actions()
-        self.file_tab_setup()
-        self.run_setup_setup()
-        self.sample_tableview_setup()
-        self.profile_widgets = {}
-        self.profiles_setup()
+        # self.run_setup()
+        # self.sample_tableview_setup()
+        # self.profile_widgets = {}
+        # self.profiles_setup()
 
     def sample_tableview_setup(self):
         cb = CheckableComboBox()
         self.samples_tableview.setModel(self.sample_model)
 
-        self.run_info.add_widget(cb)
+        self.run_info_widget.add_widget(cb)
         self.verticalLayout.addWidget(self.samples_tableview)
         self.samples_tableview.setContextMenuPolicy(Qt.CustomContextMenu)
         self.samples_tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.column_visibility_mapper.set_map(cb, self.samples_tableview)
 
-    def run_setup_setup(self):
-        self.run_setup_tab.layout().addWidget(self.run_setup)
-        self.verticalLayout.addWidget(self.run_info)
-        self.run_info.setup(self.run_setup.get_data())
-        self.run_setup.set_button.clicked.connect(self.on_run_set_button_click)
+    def run_setup(self):
+        self.run_setup_tab.layout().addWidget(self.run_setup_widget)
+        self.verticalLayout.addWidget(self.run_info_widget)
+        self.run_info_widget.setup(self.run_setup_widget.get_data())
+        self.run_setup_widget.set_button.clicked.connect(self.on_run_set_button_click)
 
     def on_run_set_button_click(self):
-        self.run_info.set_data(self.run_setup.get_data())
+        self.run_info_widget.set_data(self.run_setup_widget.get_data())
 
     def indexes_setup(self):
         layout = self.indexes_tab.layout()
@@ -194,7 +194,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.profiles_action.setChecked(False)
         self.profiles_action.triggered.connect(self.on_toolaction_click)
 
-        self.indexes_action.setIcon(qta.icon('ph.barcode-thin', options=[{'draw': 'image'}]))
+        self.indexes_action.setIcon(qta.icon('ei.barcode', options=[{'draw': 'image'}]))
         self.indexes_action.setCheckable(True)
         self.indexes_action.setChecked(False)
         self.indexes_action.triggered.connect(self.on_toolaction_click)
@@ -265,10 +265,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.load_worklist_toolButton.clicked.connect(self.load_worklist)
 
     def load_worklist(self):
-        options = _get_dlg_options()
-        return self._get_dlg(options)
-
-    def _get_dlg(self, options):
+        options = get_dialog_options()
         return QFileDialog.getOpenFileName(self,
                                            "Open worklist file...",
                                            "",

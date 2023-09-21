@@ -205,15 +205,14 @@ def create_chained_sort_filter_proxies(model_names: list) -> dict:
 
     for i in range(len(model_names)):
         model_name = model_names[i]
+        chained_models[model_name] = QSortFilterProxyModel()
+
         print(chained_models)
 
         if i > 0:
-            previous_model = chained_models[i - 1]
-            proxy_model = QSortFilterProxyModel()
-            proxy_model.setSourceModel(previous_model)
-            model_name.setSourceModel(proxy_model)
-
-        chained_models[model_name] = model_name
+            chained_keys = list(chained_models.keys())
+            previous_model_name = chained_keys[i - 1]
+            chained_models[model_name].setSourceModel(chained_models[previous_model_name])
 
     return chained_models
 
