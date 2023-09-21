@@ -1,7 +1,7 @@
 ---
 
 IndexAdapterKitName: IDTIlmnDNARNAUDISetADTagmentation_DNAPCRFree
-IndexAdapterKitNameReadable: "IDT-Ilmn DNA-RNA UD Indexes Set ABCD Tagmentation"
+IndexAdapterKitNameReadable: "IDT-Ilmn UD ABCD Tag DNA PCR Free v2"
 
 ShownFields: [Plate, WellPos, IndexName]
 
@@ -17,7 +17,8 @@ FieldCorrespondence:
   BarcodeMismatchesIndex1: BarcodeMismatchesIndex1
   BarcodeMismatchesIndex2: BarcodeMismatchesIndex2
 
-RequiredIndexFileFields:
+#RequiredIndexFileFields
+RequiredIndexesSourcefileFields:
   - Plate
   - WellPos
   - IndexName

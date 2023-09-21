@@ -61,7 +61,7 @@ class ProfileMGR:
         return self.profiles[profile_name]
 
     def get_index_widget(self, index_set):
-        return self.index_modules[index_set].IndexWidget()
+        return self.index_modules[index_set].IndexesWidget()
 
     def get_profile_widget(self, profile_name):
         widget = QWidget()
@@ -72,7 +72,7 @@ class ProfileMGR:
         self.add_buttons[profile_name] = button
 
         index_set = self.profiles[profile_name]["IndexAdapterKitName"]
-        index_widget = self.index_modules[index_set].IndexWidget(self.profiles[profile_name])
+        index_widget = self.index_modules[index_set].IndexesWidget(self.profiles[profile_name])
 
         layout.addWidget(index_widget)
 

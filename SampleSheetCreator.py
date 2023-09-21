@@ -57,45 +57,51 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.action2tab = {}
         self.setup_tool_actions()
+
+        self.sample_model = SampleSheetModel()
+        self.samples_tableview = SampleTableView()
+        self.sample_tableview_setup()
+
         self.file_tab_setup()
 
-        self.run_info_widget = RunInfo()
         self.run_setup_widget = RunSetup(Path("config/run_settings/run_settings.yaml"))
+        self.run_info_widget = RunInfo()
+        self.run_setup()
 
         self.indexes_toolbox = QToolBox()
         self.indexes_manager = IndexesMGR(Path("config/indexes"))
         self.indexes_widgets = {}
+        self.indexes_setup()
+        #
+        # self.profile_toolbox = QToolBox()
+        # self.profile_manager = ProfileMGR()
+        #
 
-        self.profile_toolbox = QToolBox()
-        self.profile_manager = ProfileMGR()
-
-
-        self.sample_model = SampleSheetModel()
-        self.samples_tableview = SampleTableView()
 
         self.tab_anim = {}
-        self.sidemenu_setup()
+        self.sidemenu_animation_setup()
         self.hide_tabwidget_headers()
-
+        self.column_visibility_combobox_setup()
 
         # self.run_setup()
-        # self.sample_tableview_setup()
+        #
         # self.profile_widgets = {}
         # self.profiles_setup()
 
-    def sample_tableview_setup(self):
+    def column_visibility_combobox_setup(self):
         cb = CheckableComboBox()
-        self.samples_tableview.setModel(self.sample_model)
-
+        self.column_visibility_mapper.set_map(cb, self.samples_tableview)
         self.run_info_widget.add_widget(cb)
+
+    def sample_tableview_setup(self):
+        self.samples_tableview.setModel(self.sample_model)
         self.verticalLayout.addWidget(self.samples_tableview)
         self.samples_tableview.setContextMenuPolicy(Qt.CustomContextMenu)
         self.samples_tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.column_visibility_mapper.set_map(cb, self.samples_tableview)
 
     def run_setup(self):
         self.run_setup_tab.layout().addWidget(self.run_setup_widget)
-        self.verticalLayout.addWidget(self.run_info_widget)
+        self.verticalLayout.insertWidget(0, self.run_info_widget)
         self.run_info_widget.setup(self.run_setup_widget.get_data())
         self.run_setup_widget.set_button.clicked.connect(self.on_run_set_button_click)
 
@@ -112,7 +118,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         for name in indexes_names:
             self.indexes_widgets[name] = self.indexes_manager.get_indexes_widget(name)
-            self.indexes_toolbox.addItem(self.indexes_widgets[name], name)
+            name2 = self.indexes_widgets[name].get_name()
+
+            readable_name = self.indexes_widgets[name].get_name_readable()
+            self.indexes_toolbox.addItem(self.indexes_widgets[name], readable_name)
 
     def profiles_setup(self):
 
@@ -145,12 +154,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.profile_widgets[-1].hide()
 
     def hide_tabwidget_headers(self):
-        tabmenu = self.menu_tabWidget.tabBar()
-        tabmenu.setHidden(True)
-        tabmain = self.main_tabWidget.tabBar()
-        tabmain.setHidden(True)
+        self.menu_tabWidget.tabBar().setHidden(True)
+        self.main_tabWidget.tabBar().setHidden(True)
 
-    def sidemenu_setup(self):
+    def sidemenu_animation_setup(self):
         self.tab_anim["open"] = self.mk_animation(0, 300)
         self.tab_anim["close"] = self.mk_animation(300, 0)
 
@@ -182,22 +189,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.file_action.setIcon(qta.icon('msc.files', options=[{'draw': 'image'}]))
         self.file_action.setCheckable(True)
         self.file_action.setChecked(False)
-        self.file_action.triggered.connect(self.on_toolaction_click)
+        self.file_action.triggered.connect(self.on_toolgroup_click)
 
         self.run_action.setIcon(qta.icon('msc.symbol-misc', options=[{'draw': 'image'}]))
         self.run_action.setCheckable(True)
         self.run_action.setChecked(False)
-        self.run_action.triggered.connect(self.on_toolaction_click)
+        self.run_action.triggered.connect(self.on_toolgroup_click)
 
         self.profiles_action.setIcon(qta.icon('msc.type-hierarchy-sub', options=[{'draw': 'image'}]))
         self.profiles_action.setCheckable(True)
         self.profiles_action.setChecked(False)
-        self.profiles_action.triggered.connect(self.on_toolaction_click)
+        self.profiles_action.triggered.connect(self.on_toolgroup_click)
 
-        self.indexes_action.setIcon(qta.icon('ei.barcode', options=[{'draw': 'image'}]))
+        self.indexes_action.setIcon(qta.icon('mdi6.barcode', options=[{'draw': 'image'}]))
         self.indexes_action.setCheckable(True)
         self.indexes_action.setChecked(False)
-        self.indexes_action.triggered.connect(self.on_toolaction_click)
+        self.indexes_action.triggered.connect(self.on_toolgroup_click)
 
         self.config_action.setIcon(qta.icon('msc.settings-gear', options=[{'draw': 'image'}]))
         self.config_action.setCheckable(True)
@@ -236,17 +243,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_manual_edit_click(self):
         pass
 
-    def on_toolaction_click(self):
+    def on_toolgroup_click(self):
         button = self.sender()
         button_text = button.text()
-        is_checked = button.isChecked()
-        is_menu_hidden = self.menu_tabWidget.width() == 0
-        is_menu_shown = self.menu_tabWidget.width() == 300
 
-        if is_checked and is_menu_hidden:
+        is_checked = button.isChecked()
+        menu_width = self.menu_tabWidget.width()
+        menu_shown = menu_width > 0
+        if is_checked and not menu_shown:
             self.tab_anim["open"].start()
             self.menu_tabWidget.setCurrentWidget(self.action2tab[button_text])
-        elif not is_checked and is_menu_shown:
+        elif not is_checked and menu_shown:
             self.tab_anim["close"].start()
         else:
             self.menu_tabWidget.setCurrentWidget(self.action2tab[button_text])

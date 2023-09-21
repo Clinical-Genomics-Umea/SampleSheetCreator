@@ -3,10 +3,21 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-from PySide6.QtWidgets import QPushButton, QVBoxLayout, QWidget, QLineEdit, QTableView, QHeaderView, \
+from PySide6.QtWidgets import QVBoxLayout, QWidget, QLineEdit, QTableView, QHeaderView, \
     QHBoxLayout, QSizePolicy, QSpacerItem, QAbstractItemView
 
 from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt
+
+# import json
+# from pathlib import Path
+# import pandas as pd
+# import yaml
+#
+# from PySide6.QtWidgets import QPushButton, QVBoxLayout, QWidget, QLineEdit, QTableView, QHeaderView, \
+#     QHBoxLayout, QSizePolicy, QSpacerItem, QAbstractItemView
+#
+# from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt
+
 
 
 def reorder_dataframe_fields(dataframe: pd.DataFrame, field_order: list) -> pd.DataFrame:
@@ -62,7 +73,7 @@ def import_csv_file(file_path: Path) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The Pandas DataFrame containing the CSV file data.
     """
-    return pd.read_csv(file_path)
+    return pd.read_csv(file_path, delimiter=';', quotechar='|')
 
 
 def verify_directory_contents(directory_path: Path) -> bool:
@@ -85,7 +96,8 @@ def verify_directory_contents(directory_path: Path) -> bool:
     return True
 
 
-def validate_meta_data(data: dict) -> bool:
+def validate_metadata(data: dict) -> bool:
+    # sourcery skip: assign-if-exp, boolean-if-exp-identity, reintroduce-else
     """
     Validates the metadata dictionary.
 
@@ -96,18 +108,22 @@ def validate_meta_data(data: dict) -> bool:
         bool: True if the metadata is valid, False otherwise.
     """
     required_keys = ['IndexAdapterKitName', 'IndexAdapterKitNameReadable', 
-                     'ShownFields', 'FieldCorrespondence', 'IndexMetaData', 'RequiredIndexFileFields']
+                     'ShownFields', 'FieldCorrespondence', 'IndexMetaData', 'RequiredIndexesSourcefileFields']
 
     if any(key not in data for key in required_keys):
+        print(f"Metadata is missing the following keys: {required_keys}")
         return False
 
     if not validate_list_items_as_dict_keys(data['ShownFields'], data['FieldCorrespondence']):
+        print("Metadata is missing keys in FieldCorrespondence")
         return False
     
-    if not validate_dict_keys_in_another_dict(data['IndexMetaData'], data['RequiredIndexFileFields']):
+    if not validate_dict_keys_present_in_another_dict(data['IndexMetaData'], data['FieldCorrespondence']):
+        print("Metadata IndexMetaData missing keys")
         return False
 
-    if not validate_list_items_in_another_list(data['ShownFields'], data['RequiredIndexFileFields']):
+    if not validate_list_items_in_another_list(data['ShownFields'], data['RequiredIndexesSourcefileFields']):
+        print("Metadata is missing keys in ShownFields")
         return False
 
     return True
@@ -140,7 +156,8 @@ def validate_list_items_as_dict_keys(items: list, data: dict) -> bool:
     """
     return all(item in data for item in items)
 
-def validate_dict_keys_in_another_dict(data_keys: dict, reference_dict: dict) -> bool:
+
+def validate_dict_keys_present_in_another_dict(data_keys: dict, reference_dict: dict) -> bool:
     """
     Validates if all keys in one dictionary exist as keys in another dictionary.
 
@@ -167,9 +184,12 @@ def validate_dataframe(dataframe: pd.DataFrame, items: list) -> bool:
     """
 
     if not validate_dataframe_rows(dataframe):
+        print("DataFrame does not have more than one row")
         return False
 
-    header = list(dataframe.columns)
+    header = dataframe.columns.tolist()
+    print(items)
+    print(header)
 
     return all(item in header for item in items)
 
@@ -206,8 +226,9 @@ def create_chained_sort_filter_proxies(model_names: list) -> dict:
     for i in range(len(model_names)):
         model_name = model_names[i]
         chained_models[model_name] = QSortFilterProxyModel()
+        chained_models[model_name].setFilterKeyColumn(i)
 
-        print(chained_models)
+        # print(chained_models)
 
         if i > 0:
             chained_keys = list(chained_models.keys())
@@ -217,19 +238,19 @@ def create_chained_sort_filter_proxies(model_names: list) -> dict:
     return chained_models
 
 
-class IndexWidget(QWidget):
+class IndexesWidget(QWidget):
     def __init__(self, index_dirpath: Path):
 
         super().__init__()
 
         # initial imports and validations
-        verify_directory_contents(index_dirpath)
+        # print("validate directory contents", verify_directory_contents(index_dirpath))
 
         self.meta = import_yaml_file(index_dirpath / "meta.yaml")
-        validate_meta_data(self.meta)
+        # print("validate metadata", validate_metadata(self.meta))
         
         self.indexes = import_csv_file(index_dirpath / "indexes.csv")
-        validate_dataframe(self.indexes, self.meta['RequiredIndexFileFields'])
+        # print("validate dataframe", validate_dataframe(self.indexes, self.meta['RequiredIndexesSourcefileFields']))
 
         self.indexes = reorder_dataframe_fields(self.indexes, self.meta['ShownFields'])
 
@@ -237,20 +258,23 @@ class IndexWidget(QWidget):
         self.sortfilterproxy = {field: QSortFilterProxyModel() for field in self.meta['ShownFields']}
 
         # create filter lineedits
-        self.filters_layout = QHBoxLayout()
+        self.filter_editlines_layout = QHBoxLayout()
         self.filter_editlines = {field: QLineEdit() for field in self.meta['ShownFields']}
 
         # Add lineedits to filter layout
         for field, editline in self.filter_editlines.items():
             editline.setObjectName(field)
-            self.filters_layout.addWidget(editline)
+            self.filter_editlines_layout.addWidget(editline)
 
-        self.filters_layout.addItem(QSpacerItem(16, 16, QSizePolicy.Fixed, QSizePolicy.Fixed))
+        self.filter_editlines_layout.addItem(QSpacerItem(16, 16, QSizePolicy.Fixed, QSizePolicy.Fixed))
 
-        # setup tableview
+        # setup main layout
         self.layout = QVBoxLayout()
         self.layout.setSpacing(5)
         self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addLayout(self.filter_editlines_layout)
+        self.layout.setSpacing(5)
+
 
         # create model and chained proxies
         self.model = TableModel(self.indexes, self.meta)
@@ -259,27 +283,23 @@ class IndexWidget(QWidget):
         # setup tableview
         self.tableview = QTableView()
         self.tableview.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-
-        # link tableview to model via chained proxies
-        self.chained_proxies[self.meta['ShownFields'][0]].setSourceModel(self.model)
-        self.tableview.setModel(self.chained_proxies[self.meta['ShownFields'][-1]])
-        
-        self.hide_columns_not_in_list(self.meta['ShownFields'])
-        
-        self.layout.addLayout(self.filters_layout)
-        self.layout.addWidget(self.tableview)
-        self.setLayout(self.layout)
-        self.layout.setSpacing(5)
-
         self.tableview.verticalHeader().hide()
         self.tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-
-        for editline in self.filter_editlines.values():
-            editline.textChanged.connect(self.filter)
-
         self.tableview.setDragEnabled(True)
         self.tableview.setDragDropMode(QAbstractItemView.DragOnly)
         self.tableview.setSelectionBehavior(QAbstractItemView.SelectRows)
+
+        #link tableview to model via chained proxies
+        self.chained_proxies[self.meta['ShownFields'][0]].setSourceModel(self.model)
+        self.tableview.setModel(self.chained_proxies[self.meta['ShownFields'][-1]])
+
+        self.hide_columns_not_in_list(self.meta['ShownFields'])
+
+        self.layout.addWidget(self.tableview)
+        self.setLayout(self.layout)
+
+        for editline in self.filter_editlines.values():
+            editline.textChanged.connect(self.filter)
 
     def get_name(self):
         return self.meta['IndexAdapterKitName']
@@ -300,7 +320,7 @@ class IndexWidget(QWidget):
         header = self.tableview.horizontalHeader()
 
         for column in range(model.columnCount()):
-            header_item = header.model().headerData(column, Qt.Horizontal)
+            header_item = header.model().headerData(column, Qt.Horizontal, Qt.DisplayRole)
 
             if header_item not in shown_fields:
                 self.tableview.setColumnHidden(column, True)
@@ -317,6 +337,9 @@ class IndexWidget(QWidget):
         """
         sender = self.sender()
         name = sender.objectName()
+
+        print(name)
+
         self.chained_proxies[name].setFilterFixedString(filter_text)
 
     def data_to_model(self, data_path):
@@ -327,10 +350,10 @@ class IndexWidget(QWidget):
 
 
 class TableModel(QAbstractTableModel):
-    def __init__(self, data: pd.DataFrame, meta: dict):
+    def __init__(self, dataframe: pd.DataFrame, meta: dict):
         super(TableModel, self).__init__()
 
-        self.data = data
+        self.dataframe = dataframe
         self.meta = meta
         self.field_translation = self.meta['FieldCorrespondence']
 
@@ -344,7 +367,7 @@ class TableModel(QAbstractTableModel):
             str: The retrieved data as a string.
         """
         if role == Qt.DisplayRole:
-            value = self.data.iloc[index.row(), index.column()]
+            value = self.dataframe.iloc[index.row(), index.column()]
             return str(value)
 
     def rowCount(self, index):
@@ -355,7 +378,7 @@ class TableModel(QAbstractTableModel):
         Returns:
             int: The number of rows in the data.
         """
-        return self.data.shape[0]
+        return self.dataframe.shape[0]
 
     def columnCount(self, index):
         """
@@ -365,7 +388,7 @@ class TableModel(QAbstractTableModel):
         Returns:
             int: The number of columns in the data.
         """
-        return self.data.shape[1]
+        return self.dataframe.shape[1]
 
     def headerData(self, section, orientation, role):
         """
@@ -380,10 +403,10 @@ class TableModel(QAbstractTableModel):
         # section is the index of the column/row.
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                return str(self.data.columns[section])
+                return str(self.dataframe.columns[section])
 
             if orientation == Qt.Vertical:
-                return str(self.data.index[section])
+                return str(self.dataframe.index[section])
 
     def flags(self, index):
         """
@@ -414,7 +437,7 @@ class TableModel(QAbstractTableModel):
         row_indexes = {index.row() for index in indexes}
 
         # Create a temporary DataFrame with the selected rows
-        df = pd.DataFrame(self.data, index=list(row_indexes)).copy()
+        df = pd.DataFrame(self.dataframe, index=list(row_indexes))
         df['IndexAdapterKitName'] = self.meta['IndexAdapterKitName']
 
         # Add the data from the profile to the DataFrame
@@ -436,23 +459,14 @@ class TableModel(QAbstractTableModel):
 
         return mime_data
 
-import json
-from pathlib import Path
-import pandas as pd
-import yaml
 
-from PySide6.QtWidgets import QPushButton, QVBoxLayout, QWidget, QLineEdit, QTableView, QHeaderView, \
-    QHBoxLayout, QSizePolicy, QSpacerItem, QAbstractItemView
-
-from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt
-
-
-class ProfileButton(QPushButton):
-    def __init__(self, profile_name):
-        super().__init__()
-
-        self.profile_name = profile_name
-        self.setText(f"Add {profile_name}")
+#
+# class ProfileButton(QPushButton):
+#     def __init__(self, profile_name):
+#         super().__init__()
+#
+#         self.profile_name = profile_name
+#         self.setText(f"Add {profile_name}")
 
 
 def read_yaml_file(file):
@@ -477,16 +491,16 @@ class IndexesMGR:
         self.indexes_widgets = {}
 
         for indexes_folder in indexes_folders:
-            indexes_widget = IndexWidget(indexes_folder)
+            indexes_widget = IndexesWidget(indexes_folder)
             indexes_name = indexes_widget.get_name()
             self.indexes_widgets[indexes_name] = indexes_widget
 
     def get_indexes_widget(self, indexes_name):
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        layout.addWidget(self.indexes_widgets[indexes_name])
+        # widget = QWidget()
+        # layout = QVBoxLayout(widget)
+        # layout.addWidget()
 
-        return widget
+        return self.indexes_widgets[indexes_name]
 
     def get_indexes_names(self):
         return self.indexes_widgets.keys()
