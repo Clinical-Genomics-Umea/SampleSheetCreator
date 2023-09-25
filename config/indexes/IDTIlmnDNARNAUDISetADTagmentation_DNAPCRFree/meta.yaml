@@ -16,6 +16,7 @@ FieldCorrespondence:
   UsedCycles: UsedCycles
   BarcodeMismatchesIndex1: BarcodeMismatchesIndex1
   BarcodeMismatchesIndex2: BarcodeMismatchesIndex2
+  FastqCompressionFormat: FastqCompressionFormat
 
 #RequiredIndexFileFields
 RequiredIndexesSourcefileFields:
@@ -31,3 +32,5 @@ IndexMetaData:
   UsedCycles: "151;10;10;151"
   BarcodeMismatchesIndex1: 1
   BarcodeMismatchesIndex2: 1
+  FastqCompressionFormat: gzip
+  SoftwareVersion: '4.1.7'

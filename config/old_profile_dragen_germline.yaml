@@ -6,6 +6,16 @@ IndexAdapterKitName: IDTIlmnDNARNAUDISetADTagmentation_DNAPCRFree
 IndexAdapterKitNameReadable: "IDT-Ilmn DNA-RNA UD Indexes Set ABCD Tagmentation"
 
 Profile:
+  BCLConvert:
+    Settings:
+      SoftwareVersion: '4.1.7'
+      FastqCompressionFormat: gzip
+    Data:
+      AdapterRead1: "CTGTCTCTTATACACATCT+ATGTGTATAAGAGACA"
+      AdapterRead2: "CTGTCTCTTATACACATCT+ATGTGTATAAGAGACA"
+      UsedCycles: "151;10;10;151"
+      BarcodeMismatchesIndex1: 1
+      BarcodeMismatchesIndex2: 1
   DragenGermline:
     Settings:
       KeepFastQ: true
@@ -14,4 +24,3 @@ Profile:
     Data:
       ReferenceGenomeDir: hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2
       VariantCallingMode: AllVariantCallers
-
