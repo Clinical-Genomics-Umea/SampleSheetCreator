@@ -1,7 +1,7 @@
 from PySide6.QtGui import QKeyEvent, QClipboard, QCursor, QStandardItemModel, QStandardItem, QFont
-from PySide6.QtCore import Qt, QEvent, Signal, QPoint, Slot
+from PySide6.QtCore import Qt, QEvent, Signal, QPoint, Slot, QItemSelectionModel, QItemSelection
 from PySide6.QtWidgets import QTableView, QAbstractItemView, QApplication, QMenu, QComboBox, \
-    QStyledItemDelegate, QGroupBox, QHBoxLayout, QVBoxLayout, QFormLayout, QLabel, QFrame
+    QStyledItemDelegate, QGroupBox, QHBoxLayout, QVBoxLayout, QFormLayout, QLabel, QFrame, QHeaderView
 
 
 def calculate_index_range(indexes):
@@ -94,6 +94,8 @@ def regular_paste(selected_indexes, source_model, model):
 class SampleTableView(QTableView):
 
     columnHiddenChanged = Signal(int, bool)
+    #
+    cell_selected = Signal(str)
 
     def __init__(self):
         super().__init__()
@@ -103,7 +105,7 @@ class SampleTableView(QTableView):
 
         self.setSelectionBehavior(QTableView.SelectItems)
 
-        self.setSelectionMode(QTableView.ContiguousSelection)
+        self.setSelectionMode(QTableView.ExtendedSelection)
 
         self.clipboard = QClipboard()
 
@@ -117,6 +119,20 @@ class SampleTableView(QTableView):
         header = self.horizontalHeader()
         header.setContextMenuPolicy(Qt.CustomContextMenu)
         header.customContextMenuRequested.connect(self.header_popup)
+
+    def setModel(self, model):
+        super().setModel(model)
+        # Execute the method after the model has been set
+        self.executeAfterModelSet()
+
+    def executeAfterModelSet(self):
+        self.selectionModel().selectionChanged.connect(self.on_selection_changed)
+        # self.model().dataChanged.connect(self.on_selection_changed)
+
+    def on_selection_changed(self):
+        selection_model = self.selectionModel()
+        selected_indexes = selection_model.selectedIndexes()
+        print(selected_indexes)
 
     def table_popup(self):
         self.table_context_menu.exec(QCursor.pos())
@@ -238,17 +254,91 @@ class SampleTableView(QTableView):
             model.setData(idx, "", Qt.EditRole)
 
     def keyPressEvent(self, event: QKeyEvent):
-        if event.key() == Qt.Key_C:
-            self.copy_selection()
-            return True
-        elif event.key() == Qt.Key_V:
-            self.paste_clipboard_content()
-            return True
-        elif event.key() == Qt.Key_Delete:
-            self.delete_selection()
-            return True
+        current_index = self.selectionModel().currentIndex()
+        if not current_index.isValid():
+            return
 
-        return False
+        match event.modifiers(), event.key():
+
+        #     case Qt.ShiftModifier, Qt.Key_Up:
+        #         selection_model = self.selectionModel()
+        #         if indexes := selection_model.selectedIndexes():
+        #             first_index = indexes[0]
+        #             last_index = indexes[-1]
+        #
+        #             new_index = self.model().index(first_index.row() - 1, first_index.column())
+        #             if new_index.isValid():
+        #                 selection_model.select(QItemSelection(new_index, last_index), QItemSelectionModel.Select)
+        #
+        #     case Qt.ShiftModifier, Qt.Key_Right:
+        #         selection_model = self.selectionModel()
+        #         if indexes := selection_model.selectedIndexes():
+        #             first_index = indexes[0]
+        #             last_index = indexes[-1]
+        #
+        #             new_index = self.model().index(first_index.row(), first_index.column() + 1)
+        #             if new_index.isValid():
+        #                 selection_model.select(QItemSelection(new_index, last_index), QItemSelectionModel.Select)
+        #
+        #     case Qt.ShiftModifier, Qt.Key_Down:
+        #         selection_model = self.selectionModel()
+        #         if indexes := selection_model.selectedIndexes():
+        #             first_index = indexes[0]
+        #             last_index = indexes[-1]
+        #
+        #             new_index = self.model().index(first_index.row() + 1, first_index.column())
+        #             if new_index.isValid():
+        #                 selection_model.select(QItemSelection(new_index, last_index), QItemSelectionModel.Select)
+        #
+        #     case Qt.ShiftModifier, Qt.Key_Left:
+        #         selection_model = self.selectionModel()
+        #         if indexes := selection_model.selectedIndexes():
+        #             first_index = indexes[0]
+        #             last_index = indexes[-1]
+        #
+        #             new_index = self.model().index(first_index.row(), first_index.column() - 1)
+        #             if new_index.isValid():
+        #                 selection_model.select(QItemSelection(new_index, last_index), QItemSelectionModel.Select)
+
+            case Qt.Key_C:
+                self.copy_selection()
+                return True
+
+            case Qt.Key_V:
+                self.paste_clipboard_content()
+                return True
+
+            case Qt.Key_Delete:
+                self.delete_selection()
+                return True
+
+            case Qt.Key_Return, Qt.Key_Enter:
+                if self.state() != QAbstractItemView.EditingState:
+                    self.edit(self.currentIndex())
+                    return True
+
+            case Qt.Key_Left:
+                new_index = self.selectionModel().index(current_index.row(), current_index.column() - 1)
+                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
+                self.scrollTo(new_index)
+
+            case Qt.Key_Right:
+                new_index = self.selectionModel().index(current_index.row(), current_index.column() + 1)
+                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
+                self.scrollTo(new_index)
+
+            case Qt.Key_Up:
+                new_index = self.selectionModel().index(current_index.row() - 1, current_index.column())
+                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
+                self.scrollTo(new_index)
+
+            case Qt.Key_Down:
+                new_index = self.selectionModel().index(current_index.row() + 1, current_index.column())
+                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
+                self.scrollTo(new_index)
+
+            case _:
+                super().keyPressEvent(event)
 
     def paste_clipboard_content(self):
         model = self.model()
@@ -262,10 +352,10 @@ class SampleTableView(QTableView):
                 return False
 
             if len(selected_indexes) == 1:
+                regular_paste(selected_indexes, source_model, model)
+                self.selectionModel().clearSelection()
+                return True
 
-                return regular_paste(
-                    selected_indexes, source_model, model
-                )
             if len(selected_indexes) > 1:
                 if source_model.rowCount() == 1 and source_model.columnCount() == 1:
                     source_index = source_model.index(0, 0)

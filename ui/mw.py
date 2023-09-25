@@ -17,16 +17,16 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFormLayout, QFrame, QHBoxLayout,
     QLabel, QLineEdit, QMainWindow, QPushButton,
-    QSizePolicy, QTabWidget, QToolBar, QToolButton,
-    QVBoxLayout, QWidget)
+    QSizePolicy, QSpacerItem, QTabWidget, QToolBar,
+    QToolButton, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(1319, 405)
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
+        MainWindow.resize(1319, 610)
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
@@ -35,7 +35,7 @@ class Ui_MainWindow(object):
         MainWindow.setDockNestingEnabled(False)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
@@ -43,14 +43,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QHBoxLayout(self.centralwidget)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(5, 5, 5, 5)
-        self.menu_tabWidget = QTabWidget(self.centralwidget)
-        self.menu_tabWidget.setObjectName(u"menu_tabWidget")
+        self.leftmenu_tabWidget = QTabWidget(self.centralwidget)
+        self.leftmenu_tabWidget.setObjectName(u"leftmenu_tabWidget")
         sizePolicy2 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.menu_tabWidget.sizePolicy().hasHeightForWidth())
-        self.menu_tabWidget.setSizePolicy(sizePolicy2)
-        self.menu_tabWidget.setMaximumSize(QSize(300, 16777215))
+        sizePolicy2.setHeightForWidth(self.leftmenu_tabWidget.sizePolicy().hasHeightForWidth())
+        self.leftmenu_tabWidget.setSizePolicy(sizePolicy2)
+        self.leftmenu_tabWidget.setMaximumSize(QSize(300, 16777215))
         self.config_tab = QWidget()
         self.config_tab.setObjectName(u"config_tab")
         self.verticalLayout_4 = QVBoxLayout(self.config_tab)
@@ -96,7 +96,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addWidget(self.frame_6)
 
-        self.menu_tabWidget.addTab(self.config_tab, "")
+        self.leftmenu_tabWidget.addTab(self.config_tab, "")
         self.file_tab = QWidget()
         self.file_tab.setObjectName(u"file_tab")
         self.verticalLayout_8 = QVBoxLayout(self.file_tab)
@@ -141,29 +141,31 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addLayout(self.verticalLayout_7)
 
-        self.menu_tabWidget.addTab(self.file_tab, "")
+        self.leftmenu_tabWidget.addTab(self.file_tab, "")
         self.run_setup_tab = QWidget()
         self.run_setup_tab.setObjectName(u"run_setup_tab")
         self.verticalLayout_5 = QVBoxLayout(self.run_setup_tab)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
-        self.menu_tabWidget.addTab(self.run_setup_tab, "")
+        self.leftmenu_tabWidget.addTab(self.run_setup_tab, "")
         self.indexes_tab = QWidget()
         self.indexes_tab.setObjectName(u"indexes_tab")
         self.verticalLayout_6 = QVBoxLayout(self.indexes_tab)
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
-        self.menu_tabWidget.addTab(self.indexes_tab, "")
+        self.leftmenu_tabWidget.addTab(self.indexes_tab, "")
         self.profiles_tab = QWidget()
         self.profiles_tab.setObjectName(u"profiles_tab")
         self.verticalLayout_2 = QVBoxLayout(self.profiles_tab)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.menu_tabWidget.addTab(self.profiles_tab, "")
+        self.leftmenu_tabWidget.addTab(self.profiles_tab, "")
 
-        self.horizontalLayout_2.addWidget(self.menu_tabWidget)
+        self.horizontalLayout_2.addWidget(self.leftmenu_tabWidget)
 
         self.verticalLayout_12 = QVBoxLayout()
         self.verticalLayout_12.setObjectName(u"verticalLayout_12")
         self.main_tabWidget = QTabWidget(self.centralwidget)
         self.main_tabWidget.setObjectName(u"main_tabWidget")
+        sizePolicy2.setHeightForWidth(self.main_tabWidget.sizePolicy().hasHeightForWidth())
+        self.main_tabWidget.setSizePolicy(sizePolicy2)
         self.data_tab = QWidget()
         self.data_tab.setObjectName(u"data_tab")
         self.verticalLayout = QVBoxLayout(self.data_tab)
@@ -175,16 +177,49 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2.addLayout(self.verticalLayout_12)
 
+        self.rightmenu_tabWidget = QTabWidget(self.centralwidget)
+        self.rightmenu_tabWidget.setObjectName(u"rightmenu_tabWidget")
+        sizePolicy2.setHeightForWidth(self.rightmenu_tabWidget.sizePolicy().hasHeightForWidth())
+        self.rightmenu_tabWidget.setSizePolicy(sizePolicy2)
+        self.columns_settings_tab = QWidget()
+        self.columns_settings_tab.setObjectName(u"columns_settings_tab")
+        self.verticalLayout_9 = QVBoxLayout(self.columns_settings_tab)
+        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
+        self.rightmenu_tabWidget.addTab(self.columns_settings_tab, "")
+
+        self.horizontalLayout_2.addWidget(self.rightmenu_tabWidget)
+
+        self.right_sidebar_widget = QWidget(self.centralwidget)
+        self.right_sidebar_widget.setObjectName(u"right_sidebar_widget")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.right_sidebar_widget.sizePolicy().hasHeightForWidth())
+        self.right_sidebar_widget.setSizePolicy(sizePolicy3)
+        self.right_sidebar_widget.setMinimumSize(QSize(32, 0))
+        self.right_sidebar_widget.setMaximumSize(QSize(32, 16777215))
+        self.verticalLayout_3 = QVBoxLayout(self.right_sidebar_widget)
+        self.verticalLayout_3.setSpacing(4)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.verticalSpacer = QSpacerItem(3, 404, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_3.addItem(self.verticalSpacer)
+
+
+        self.horizontalLayout_2.addWidget(self.right_sidebar_widget)
+
         MainWindow.setCentralWidget(self.centralwidget)
-        self.toolBar = QToolBar(MainWindow)
-        self.toolBar.setObjectName(u"toolBar")
-        self.toolBar.setMinimumSize(QSize(70, 0))
-        MainWindow.addToolBar(Qt.LeftToolBarArea, self.toolBar)
+        self.left_toolBar = QToolBar(MainWindow)
+        self.left_toolBar.setObjectName(u"left_toolBar")
+        self.left_toolBar.setMinimumSize(QSize(70, 0))
+        MainWindow.addToolBar(Qt.LeftToolBarArea, self.left_toolBar)
 
         self.retranslateUi(MainWindow)
 
-        self.menu_tabWidget.setCurrentIndex(4)
+        self.leftmenu_tabWidget.setCurrentIndex(2)
         self.main_tabWidget.setCurrentIndex(0)
+        self.rightmenu_tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -195,16 +230,17 @@ class Ui_MainWindow(object):
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Config file", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Index file", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Analysis file", None))
-        self.menu_tabWidget.setTabText(self.menu_tabWidget.indexOf(self.config_tab), QCoreApplication.translate("MainWindow", u"config_tab_h", None))
+        self.leftmenu_tabWidget.setTabText(self.leftmenu_tabWidget.indexOf(self.config_tab), QCoreApplication.translate("MainWindow", u"config_tab_h", None))
         self.new_samplesheet_pushButton.setText(QCoreApplication.translate("MainWindow", u"New Samplesheet", None))
         self.open_samplesheet_pushButton.setText(QCoreApplication.translate("MainWindow", u"Open Samplesheet", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Load Worklist", None))
         self.load_worklist_toolButton.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.menu_tabWidget.setTabText(self.menu_tabWidget.indexOf(self.file_tab), QCoreApplication.translate("MainWindow", u"file_tab_h", None))
-        self.menu_tabWidget.setTabText(self.menu_tabWidget.indexOf(self.run_setup_tab), QCoreApplication.translate("MainWindow", u"run_setup_tab_h", None))
-        self.menu_tabWidget.setTabText(self.menu_tabWidget.indexOf(self.indexes_tab), QCoreApplication.translate("MainWindow", u"indexes_tab_h", None))
-        self.menu_tabWidget.setTabText(self.menu_tabWidget.indexOf(self.profiles_tab), QCoreApplication.translate("MainWindow", u"profiles_tab_h", None))
+        self.leftmenu_tabWidget.setTabText(self.leftmenu_tabWidget.indexOf(self.file_tab), QCoreApplication.translate("MainWindow", u"file_tab_h", None))
+        self.leftmenu_tabWidget.setTabText(self.leftmenu_tabWidget.indexOf(self.run_setup_tab), QCoreApplication.translate("MainWindow", u"run_setup_tab_h", None))
+        self.leftmenu_tabWidget.setTabText(self.leftmenu_tabWidget.indexOf(self.indexes_tab), QCoreApplication.translate("MainWindow", u"indexes_tab_h", None))
+        self.leftmenu_tabWidget.setTabText(self.leftmenu_tabWidget.indexOf(self.profiles_tab), QCoreApplication.translate("MainWindow", u"profiles_tab_h", None))
         self.main_tabWidget.setTabText(self.main_tabWidget.indexOf(self.data_tab), QCoreApplication.translate("MainWindow", u"data_tab_h", None))
-        self.toolBar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))
+        self.rightmenu_tabWidget.setTabText(self.rightmenu_tabWidget.indexOf(self.columns_settings_tab), QCoreApplication.translate("MainWindow", u"columns_settings_tab_h", None))
+        self.left_toolBar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))
     # retranslateUi
 

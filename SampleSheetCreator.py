@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 import qtawesome as qta
 
+from modules.columns_visibility import ColumnsWidget
 from modules.data_model.sample_model import SampleSheetModel
 from modules.indexes import IndexesMGR
 from modules.mapper import ColumnVisibilityMapper
@@ -12,13 +13,14 @@ from modules.models import read_fields_from_json
 from modules.run_classes import RunSetup, RunInfo
 from modules.profiles import ProfileMGR
 
-from PySide6.QtGui import QAction, QActionGroup, QStandardItem
-from PySide6.QtCore import QPropertyAnimation, Qt
+from PySide6.QtGui import QAction, QActionGroup, QStandardItem, QPainter, QFont
+from PySide6.QtCore import QPropertyAnimation, Qt, Slot
 
 from PySide6.QtCore import QSize
 from PySide6 import QtGui, QtCore
 from PySide6.QtWidgets import QMainWindow, QApplication, QSizePolicy, QFileDialog, \
-    QWidget, QHeaderView, QToolBox
+    QWidget, QHeaderView, QToolBox, QPushButton, QGraphicsScene, QGraphicsView, QFrame, QToolButton, QSpacerItem, \
+    QLineEdit
 
 from modules.sample_view import SampleTableView, CheckableComboBox
 from ui.mw import Ui_MainWindow
@@ -41,10 +43,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.main_version = __version__
         self.setWindowTitle(f"SampleSheetCreator {self.main_version}")
         self.setWindowIcon(QtGui.QIcon('old/icons/cog.png'))
-        self.toolBar.setMovable(False)
-        self.toolBar.setIconSize(QSize(40, 40))
-        self.menu_tabWidget.setMaximumWidth(0)
+        self.setMinimumWidth(1000)
+        self.left_toolBar.setMovable(False)
+        self.left_toolBar.setIconSize(QSize(40, 40))
 
+        # left sidemenu options
         self.file_action = QAction("file", self)
         self.run_action = QAction("run", self)
         self.profiles_action = QAction("profiles", self)
@@ -53,10 +56,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.config_action = QAction("config", self)
         self.manual_edit_action = QAction("manual_edit", self)
 
+        # right sidemenu options
+        self.columns_settings_button = QPushButton("Columns")
+        self.columns_settings_button.setObjectName("columns_settings")
+
+        # columns settings widget
+        self.columns_listview = ColumnsWidget()
+        self.columns_listview_setup()
+
         self.column_visibility_mapper = ColumnVisibilityMapper()
 
-        self.action2tab = {}
-        self.setup_tool_actions()
+        self.left_action2tab = {}
+        self.setup_lefttool_actions()
+
+        self.right_action2tab = {}
+        self.setup_righttool_actions()
 
         self.sample_model = SampleSheetModel()
         self.samples_tableview = SampleTableView()
@@ -68,6 +82,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.run_info_widget = RunInfo()
         self.run_setup()
 
+        self.field_view = QLineEdit()
+        self.field_view_setup()
+
         self.indexes_toolbox = QToolBox()
         self.indexes_manager = IndexesMGR(Path("config/indexes"))
         self.indexes_widgets = {}
@@ -77,16 +94,93 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.profile_manager = ProfileMGR()
         #
 
+        self.left_tab_anim = {}
+        self.right_tab_anim = {}
 
-        self.tab_anim = {}
-        self.sidemenu_animation_setup()
+        # self.sidemenu_right_animation_setup()
+        self.menu_animations_setup()
         self.hide_tabwidget_headers()
-        self.column_visibility_combobox_setup()
+        # self.column_visibility_combobox_setup()
 
         # self.run_setup()
         #
         # self.profile_widgets = {}
         # self.profiles_setup()
+
+        self.leftmenu_tabWidget.setMaximumWidth(0)
+        self.rightmenu_tabWidget.setMaximumWidth(0)
+
+    def columns_listview_setup(self):
+        layout = self.columns_settings_tab.layout()
+        layout.addWidget(self.columns_listview)
+        self.columns_listview.set_items({'test': True, 'test2': False})
+        self.columns_listview.itemChecked.connect(self.handle_item_checked)
+
+    @Slot()
+    def handle_item_checked(self, item, checked):
+        print(f"Item '{item}' checked: {checked}")
+
+    def field_view_setup(self):
+        self.verticalLayout.insertWidget(1, self.field_view)
+        self.field_view.setFont(QFont("Arial", 8))
+        self.field_view.setReadOnly(True)
+        self.samples_tableview.selectionModel().selectionChanged.connect(self.on_tv_selection_changed)
+        self.samples_tableview.model().dataChanged.connect(self.on_tv_selection_changed)
+
+    def on_tv_selection_changed(self):
+        selection_model = self.samples_tableview.selectionModel()
+        selected_indexes = selection_model.selectedIndexes()
+        if len(selected_indexes) == 1 and selected_indexes:
+            model = self.samples_tableview.model()
+            data = model.data(selected_indexes[0], Qt.DisplayRole)
+            column = selected_indexes[0].column()
+            row = selected_indexes[0].row()
+            column_name = self.samples_tableview.horizontalHeader().model().headerData(column, Qt.Horizontal)
+            self.field_view.setText(f"{row}, {column_name}: {data}")
+
+    @Slot(str)
+    def set_field_view_text(self, text):
+        self.field_view.setText(text)
+
+    def menu_animations_setup(self):
+        self.left_tab_anim["open"] = self.mk_animation(self.leftmenu_tabWidget, 0, 300)
+        self.left_tab_anim["close"] = self.mk_animation(self.leftmenu_tabWidget, 300, 0)
+        
+        self.right_tab_anim["open"] = self.mk_animation(self.rightmenu_tabWidget, 0, 200)
+        self.right_tab_anim["close"] = self.mk_animation(self.rightmenu_tabWidget, 200, 0)
+
+    def mk_animation(self, menu_widget, start_width, end_width):
+        animation = QPropertyAnimation(menu_widget, b"maximumWidth")
+        animation.setStartValue(start_width)
+        animation.setEndValue(end_width)
+        animation.setDuration(50)
+
+        return animation
+
+    def get_vertical_button_view(self, button: QPushButton):
+        button.setFixedHeight(20)
+        button.setFixedWidth(100)
+        button.setContentsMargins(0, 0, 0, 0)
+        button.setStyleSheet("QPushButton {border-width: 0px;}")
+        button.setIcon(qta.icon('ph.rows-light'))
+
+        button_size = button.size()
+
+        scene = QGraphicsScene(self)
+        proxy_widget = scene.addWidget(button)
+        proxy_widget.setRotation(90)
+        view = QGraphicsView(self.right_sidebar_widget)
+        view.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+        view.setFrameStyle(QFrame.NoFrame)
+        view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        view.setFixedHeight(button_size.width() + 2)
+        view.setFixedWidth(button_size.height() + 2)
+        view.setScene(scene)
+        view.setContentsMargins(0, 0, 0, 0)
+
+        return view
+
 
     def column_visibility_combobox_setup(self):
         cb = CheckableComboBox()
@@ -154,22 +248,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.profile_widgets[-1].hide()
 
     def hide_tabwidget_headers(self):
-        self.menu_tabWidget.tabBar().setHidden(True)
+        self.leftmenu_tabWidget.tabBar().setHidden(True)
         self.main_tabWidget.tabBar().setHidden(True)
+        self.rightmenu_tabWidget.tabBar().setHidden(True)
 
-    def sidemenu_animation_setup(self):
-        self.tab_anim["open"] = self.mk_animation(0, 300)
-        self.tab_anim["close"] = self.mk_animation(300, 0)
+    # def sidemenu_animation_setup(self):
+    #     self.left_tab_anim["open"] = self.mk_animation(0, 300)
+    #     self.left_tab_anim["close"] = self.mk_animation(300, 0)
 
-    def mk_animation(self, start_width, end_width):
-        animation = QPropertyAnimation(self.menu_tabWidget, b"maximumWidth")
-        animation.setStartValue(start_width)
-        animation.setEndValue(end_width)
-        animation.setDuration(50)
+    # def mk_animation_right(self, start_width, end_width):
+    #     animation = QPropertyAnimation(self.rightmenu_tabWidget, b"maximumWidth")
+    #     animation.setStartValue(start_width)
+    #     animation.setEndValue(end_width)
+    #     animation.setDuration(50)
+    #
+    #     return animation
 
-        return animation
-
-    def setup_tool_actions(self):
+    def setup_lefttool_actions(self):
         """
         Set up the tool actions for the application.
 
@@ -177,7 +272,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         available in the application. It also sets up the icons, checkable states, and
         connections for each tool action.
         """
-        self.action2tab = {
+        self.left_action2tab = {
             "file": self.file_tab,
             "run": self.run_setup_tab,
             "profiles": self.profiles_tab,
@@ -231,14 +326,53 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         qbgroup.addAction(self.profiles_action)
         qbgroup.addAction(self.indexes_action)
 
-        self.toolBar.addAction(self.file_action)
-        self.toolBar.addAction(self.run_action)
-        self.toolBar.addAction(self.indexes_action)
-        self.toolBar.addAction(self.profiles_action)
-        self.toolBar.addAction(self.generate_action)
-        self.toolBar.addWidget(spacer)
-        self.toolBar.addAction(self.manual_edit_action)
-        self.toolBar.addAction(self.config_action)
+        self.left_toolBar.addAction(self.file_action)
+        self.left_toolBar.addAction(self.run_action)
+        self.left_toolBar.addAction(self.indexes_action)
+        self.left_toolBar.addAction(self.profiles_action)
+        self.left_toolBar.addAction(self.generate_action)
+        self.left_toolBar.addWidget(spacer)
+        self.left_toolBar.addAction(self.manual_edit_action)
+        self.left_toolBar.addAction(self.config_action)
+
+    def setup_righttool_actions(self):
+        """
+        Set up the tool actions for the application.
+
+        This function initializes the action-to-tab mapping for the different tool actions
+        available in the application. It also sets up the icons, checkable states, and
+        connections for each tool action.
+        """
+        self.right_action2tab = {
+            "columns_settings": self.columns_settings_tab
+        }
+
+        view = self.get_vertical_button_view(self.columns_settings_button)
+        layout = self.right_sidebar_widget.layout()
+        layout.insertWidget(0, view)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        self.columns_settings_button.setCheckable(True)
+        self.columns_settings_button.setChecked(False)
+
+        self.columns_settings_button.clicked.connect(self.on_righttool_click)
+
+    def on_righttool_click(self):
+        sender = self.sender()
+        obj_id = sender.objectName()
+
+        is_checked = sender.isChecked()
+        menu_width = self.rightmenu_tabWidget.width()
+        menu_shown = menu_width > 0
+        if is_checked and not menu_shown:
+            self.right_tab_anim["open"].start()
+            # self.rightmenu_tabWidget.setMinimumWidth(200)
+            # self.rightmenu_tabWidget.setMaximumWidth(200)
+            self.rightmenu_tabWidget.setCurrentWidget(self.right_action2tab[obj_id])
+        elif not is_checked and menu_shown:
+            self.right_tab_anim["close"].start()
+        else:
+            self.rightmenu_tabWidget.setCurrentWidget(self.right_action2tab[obj_id])
 
     def on_manual_edit_click(self):
         pass
@@ -248,15 +382,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         button_text = button.text()
 
         is_checked = button.isChecked()
-        menu_width = self.menu_tabWidget.width()
+        menu_width = self.leftmenu_tabWidget.width()
         menu_shown = menu_width > 0
         if is_checked and not menu_shown:
-            self.tab_anim["open"].start()
-            self.menu_tabWidget.setCurrentWidget(self.action2tab[button_text])
+            self.left_tab_anim["open"].start()
+            self.leftmenu_tabWidget.setCurrentWidget(self.left_action2tab[button_text])
         elif not is_checked and menu_shown:
-            self.tab_anim["close"].start()
+            self.left_tab_anim["close"].start()
         else:
-            self.menu_tabWidget.setCurrentWidget(self.action2tab[button_text])
+            self.leftmenu_tabWidget.setCurrentWidget(self.left_action2tab[button_text])
 
     def on_config_click(self):
         if self.config_action.isChecked():

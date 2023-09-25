@@ -105,10 +105,13 @@ class RunSetup(QWidget):
 class RunInfo(QWidget):
     def __init__(self):
         super().__init__()
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.layout = QHBoxLayout()
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
         self.sections = {}
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        # self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
 
     def setup(self, data):
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -135,8 +138,10 @@ class RunInfoSection(QGroupBox):
     def __init__(self, title: str, run_info: dict):
         super().__init__()
 
-        col_width_min = 200
-        col_width_max = 400
+        self.setContentsMargins(0, 0, 0, 0)
+
+        col_width_min = 100
+        col_width_max = 300
 
         self.setTitle(title)
         self.fields = {}
@@ -145,21 +150,21 @@ class RunInfoSection(QGroupBox):
         font.setPointSize(8)
 
         hlayout = QHBoxLayout()
-        # hlayout.setContentsMargins(3, 3, 3, 3)
+        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        hlayout.setContentsMargins(3, 5, 3, 3)
         self.setLayout(hlayout)
         form_layouts = [QFormLayout()]
-        # form_layouts[-1].setContentsMargins(3, 3, 3, 3)
+        form_layouts[-1].setContentsMargins(3, 3, 3, 3)
         form_layouts[-1].setSpacing(3)
         hlayout.addLayout(form_layouts[-1])
 
         for row_count, (key, value) in enumerate(run_info.items()):
             if row_count > 0 and row_count % 2 == 0:
-                print(row_count)
                 hlayout.addWidget(self.get_line())
                 form_layouts.append(QFormLayout())
+                form_layouts[-1].setContentsMargins(3, 3, 3, 3)
                 hlayout.addLayout(form_layouts[-1])
                 # form_layouts[-1].setContentsMargins(3, 3, 3, 3)
-
 
             self.fields[key] = QLabel(value)
 
