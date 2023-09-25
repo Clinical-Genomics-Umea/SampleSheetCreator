@@ -1,5 +1,6 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QApplication, QListWidget, QListWidgetItem, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QListWidget, QListWidgetItem, QVBoxLayout, QWidget, QPushButton
+
 
 class CheckableListWidget(QListWidget):
     itemChecked = Signal(str, bool)
@@ -10,32 +11,37 @@ class CheckableListWidget(QListWidget):
         # Set the selection mode to ExtendedSelection
         self.setSelectionMode(QListWidget.ExtendedSelection)
 
-    # def addCustomItems(self, item):
-    #     # Create a QListWidgetItem with a checkable flag
-    #     list_item = QListWidgetItem(item)
-    #     list_item.setFlags(list_item.flags() | Qt.ItemIsUserCheckable)
-    #     list_item.setCheckState(Qt.Checked)
-    #     super().addItem(list_item)
+        self.item_dict = {}
 
-    def toggleSelectedItems(self):
-        selected_items = self.selectedItems()
+    def addItem(self, item_name):
+        # Create a QListWidgetItem with a checkable flag
+        list_item = QListWidgetItem(item_name)
+        list_item.setFlags(list_item.flags() | Qt.ItemIsUserCheckable)
+        list_item.setCheckState(Qt.Unchecked)
+        super().addItem(list_item)
+        self.item_dict[item_name] = list_item
 
-        print(selected_items)
-
-        # Toggle the check state of the selected items
-        for item in selected_items:
-            if item.checkState() == Qt.Checked:
-                item.setCheckState(Qt.Unchecked)
-            else:
-                item.setCheckState(Qt.Checked)
-
-            # Emit the itemChecked signal with the text and check state of the item
-            self.itemChecked.emit(item.text(), item.checkState() == Qt.Checked)
+    # def toggleSelectedItems(self):
+    #     selected_items = self.selectedItems()
+    #
+    #     print(selected_items)
+    #
+    #     # Toggle the check state of the selected items
+    #     for item in selected_items:
+    #         if item.checkState() == Qt.Checked:
+    #             item.setCheckState(Qt.Unchecked)
+    #         else:
+    #             item.setCheckState(Qt.Checked)
+    #
+    #         # Emit the itemChecked signal with the text and check state of the item
+    #         self.itemChecked.emit(item.text(), item.checkState() == Qt.Checked)
 
     def toggleAllItems(self):
-        for item in self.items():
-            if item.checkState() == Qt.Unchecked:
-                item.setCheckState(Qt.Checked)
+        for key, list_item in self.item_dict.items():
+            if list_item.checkState() == Qt.Unchecked:
+                list_item.setCheckState(Qt.Checked)
+            else:
+                list_item.setCheckState(Qt.Unchecked)
 
     def addCustomItems(self):
         self.addItem("Item 1")
@@ -47,22 +53,17 @@ app = QApplication([])
 window = QWidget()
 
 layout = QVBoxLayout()
+button = QPushButton("Toggle")
 list_widget = CheckableListWidget()
 
 # Connect the itemChecked signal to a slot
+
 def handle_item_checked(item, checked):
     print(f"Item '{item}' checked: {checked}")
 
-list_widget.itemChecked.connect(handle_item_checked)
 
-# Add items to the list widget
 list_widget.addCustomItems()
-
-for item in list_widget.items():
-    item.setCheckState(Qt.Unchecked)
-
 list_widget.toggleAllItems()
-
 
 layout.addWidget(list_widget)
 window.setLayout(layout)
@@ -70,6 +71,5 @@ window.setLayout(layout)
 window.show()
 
 # Toggle the check state of the selected items
-list_widget.toggleSelectedItems()
 
 app.exec()

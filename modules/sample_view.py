@@ -93,8 +93,7 @@ def regular_paste(selected_indexes, source_model, model):
 
 class SampleTableView(QTableView):
 
-    columnHiddenChanged = Signal(int, bool)
-    #
+    field_visibility_state_changed = Signal(str, bool)
     cell_selected = Signal(str)
 
     def __init__(self):
@@ -102,10 +101,9 @@ class SampleTableView(QTableView):
 
         self.setDragDropMode(QAbstractItemView.DropOnly)
         self.setDefaultDropAction(Qt.CopyAction)
-
         self.setSelectionBehavior(QTableView.SelectItems)
-
         self.setSelectionMode(QTableView.ExtendedSelection)
+
 
         self.clipboard = QClipboard()
 
@@ -122,6 +120,11 @@ class SampleTableView(QTableView):
 
     def setModel(self, model):
         super().setModel(model)
+
+        for column in range(model.columnCount()):
+            header_label = model.headerData(column, Qt.Horizontal)
+            model.horizontalHeaderItem(column).setToolTip(header_label)
+
         # Execute the method after the model has been set
         self.executeAfterModelSet()
 
@@ -132,7 +135,6 @@ class SampleTableView(QTableView):
     def on_selection_changed(self):
         selection_model = self.selectionModel()
         selected_indexes = selection_model.selectedIndexes()
-        print(selected_indexes)
 
     def table_popup(self):
         self.table_context_menu.exec(QCursor.pos())
@@ -148,13 +150,28 @@ class SampleTableView(QTableView):
 
     def setColumnHidden(self, column, hide):
         super().setColumnHidden(column, hide)
-        self.columnHiddenChanged.emit(column, hide)
 
-    def get_columns_visibility(self):
+        field = self.model().fields[column]
+        state = not self.isColumnHidden(column)
+
+        self.field_visibility_state_changed.emit(field, state)
+
+    def get_columns_visibility_state(self):
         return {
             self.model().fields[i]: not self.isColumnHidden(i)
             for i in range(self.model().columnCount())
             }
+
+    @Slot(str, bool)
+    def set_column_visibility_state(self, field, state):
+        i = self.model().fields.index(field)
+
+        column_visible = not self.isColumnHidden(i)
+
+        if column_visible == state:
+            return
+
+        self.setColumnHidden(i, not state)
 
     def header_popup(self, pos: QPoint):
         """
@@ -259,46 +276,6 @@ class SampleTableView(QTableView):
             return
 
         match event.modifiers(), event.key():
-
-        #     case Qt.ShiftModifier, Qt.Key_Up:
-        #         selection_model = self.selectionModel()
-        #         if indexes := selection_model.selectedIndexes():
-        #             first_index = indexes[0]
-        #             last_index = indexes[-1]
-        #
-        #             new_index = self.model().index(first_index.row() - 1, first_index.column())
-        #             if new_index.isValid():
-        #                 selection_model.select(QItemSelection(new_index, last_index), QItemSelectionModel.Select)
-        #
-        #     case Qt.ShiftModifier, Qt.Key_Right:
-        #         selection_model = self.selectionModel()
-        #         if indexes := selection_model.selectedIndexes():
-        #             first_index = indexes[0]
-        #             last_index = indexes[-1]
-        #
-        #             new_index = self.model().index(first_index.row(), first_index.column() + 1)
-        #             if new_index.isValid():
-        #                 selection_model.select(QItemSelection(new_index, last_index), QItemSelectionModel.Select)
-        #
-        #     case Qt.ShiftModifier, Qt.Key_Down:
-        #         selection_model = self.selectionModel()
-        #         if indexes := selection_model.selectedIndexes():
-        #             first_index = indexes[0]
-        #             last_index = indexes[-1]
-        #
-        #             new_index = self.model().index(first_index.row() + 1, first_index.column())
-        #             if new_index.isValid():
-        #                 selection_model.select(QItemSelection(new_index, last_index), QItemSelectionModel.Select)
-        #
-        #     case Qt.ShiftModifier, Qt.Key_Left:
-        #         selection_model = self.selectionModel()
-        #         if indexes := selection_model.selectedIndexes():
-        #             first_index = indexes[0]
-        #             last_index = indexes[-1]
-        #
-        #             new_index = self.model().index(first_index.row(), first_index.column() - 1)
-        #             if new_index.isValid():
-        #                 selection_model.select(QItemSelection(new_index, last_index), QItemSelectionModel.Select)
 
             case Qt.Key_C:
                 self.copy_selection()

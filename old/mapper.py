@@ -14,29 +14,25 @@ class ColumnVisibilityMapper:
     def __init__(self):
 
         self.tv = None
-        self.cb = None
+        self.lv = None
 
-        self.cb_model = None
         self.tableview_model = None
-
         self.columns = []
 
-    def set_map(self, custom_combobox, tableview):
+    def set_map(self, tableview, columns_listview):
 
         self.tv = tableview
-        self.cb = custom_combobox
-        self.cb_model = self.cb.model()
+        self.lv = columns_listview
 
-        columns_visibility_dict = self.tv.get_columns_visibility()
+        columns_visibility_dict = self.tv.get_columns_visibility_state()
         self.columns = list(columns_visibility_dict)
-        self.cb.addItemsVisibility(columns_visibility_dict)
 
-        self.cb_model.itemChanged.connect(self.on_item_changed)
-        self.tv.columnHiddenChanged.connect(self.on_column_hidden_changed)
+        self.lv.set_items(columns_visibility_dict)
+        self.tv.field_visibility_state_changed.connect(self.on_column_show_state_changed)
 
-    @Slot(int, bool)
-    def on_column_hidden_changed(self, column_index, hidden):
-        item = self.cb_model.item(column_index)
+    @Slot(str, bool)
+    def on_column_visibility_state_changed(self, field_name, hidden):
+
         checkbox_checked = item_checked(item)
         column_visible = not hidden
 

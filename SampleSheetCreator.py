@@ -8,10 +8,9 @@ import qtawesome as qta
 from modules.columns_visibility import ColumnsWidget
 from modules.data_model.sample_model import SampleSheetModel
 from modules.indexes import IndexesMGR
-from modules.mapper import ColumnVisibilityMapper
 from modules.models import read_fields_from_json
 from modules.run_classes import RunSetup, RunInfo
-from modules.profiles import ProfileMGR
+# from modules.profiles import ProfileMGR
 
 from PySide6.QtGui import QAction, QActionGroup, QStandardItem, QPainter, QFont
 from PySide6.QtCore import QPropertyAnimation, Qt, Slot
@@ -19,10 +18,9 @@ from PySide6.QtCore import QPropertyAnimation, Qt, Slot
 from PySide6.QtCore import QSize
 from PySide6 import QtGui, QtCore
 from PySide6.QtWidgets import QMainWindow, QApplication, QSizePolicy, QFileDialog, \
-    QWidget, QHeaderView, QToolBox, QPushButton, QGraphicsScene, QGraphicsView, QFrame, QToolButton, QSpacerItem, \
-    QLineEdit
+    QWidget, QHeaderView, QToolBox, QPushButton, QGraphicsScene, QGraphicsView, QFrame, QLineEdit
 
-from modules.sample_view import SampleTableView, CheckableComboBox
+from modules.sample_view import SampleTableView
 from ui.mw import Ui_MainWindow
 import qdarktheme
 
@@ -60,12 +58,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.columns_settings_button = QPushButton("Columns")
         self.columns_settings_button.setObjectName("columns_settings")
 
-        # columns settings widget
-        self.columns_listview = ColumnsWidget()
-        self.columns_listview_setup()
-
-        self.column_visibility_mapper = ColumnVisibilityMapper()
-
         self.left_action2tab = {}
         self.setup_lefttool_actions()
 
@@ -75,6 +67,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sample_model = SampleSheetModel()
         self.samples_tableview = SampleTableView()
         self.sample_tableview_setup()
+
+        # columns settings widget
+        self.columns_listview = ColumnsWidget()
+        self.columns_listview_setup()
+
+
 
         self.file_tab_setup()
 
@@ -89,18 +87,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.indexes_manager = IndexesMGR(Path("config/indexes"))
         self.indexes_widgets = {}
         self.indexes_setup()
-        #
+
         # self.profile_toolbox = QToolBox()
-        # self.profile_manager = ProfileMGR()
-        #
+        # self.profile_manager = ProfileMGR(Path("config/indexes"))
+
 
         self.left_tab_anim = {}
         self.right_tab_anim = {}
 
-        # self.sidemenu_right_animation_setup()
         self.menu_animations_setup()
         self.hide_tabwidget_headers()
-        # self.column_visibility_combobox_setup()
 
         # self.run_setup()
         #
@@ -113,12 +109,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def columns_listview_setup(self):
         layout = self.columns_settings_tab.layout()
         layout.addWidget(self.columns_listview)
-        self.columns_listview.set_items({'test': True, 'test2': False})
-        self.columns_listview.itemChecked.connect(self.handle_item_checked)
 
-    @Slot()
-    def handle_item_checked(self, item, checked):
-        print(f"Item '{item}' checked: {checked}")
+        columns_visibility_state = self.samples_tableview.get_columns_visibility_state()
+        self.columns_listview.set_items(columns_visibility_state)
+        self.columns_listview.field_visibility_state_changed.connect(self.samples_tableview.set_column_visibility_state)
+        self.samples_tableview.field_visibility_state_changed.connect(self.columns_listview.set_column_visibility_state)
+
 
     def field_view_setup(self):
         self.verticalLayout.insertWidget(1, self.field_view)
@@ -181,11 +177,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         return view
 
-
-    def column_visibility_combobox_setup(self):
-        cb = CheckableComboBox()
-        self.column_visibility_mapper.set_map(cb, self.samples_tableview)
-        self.run_info_widget.add_widget(cb)
+    # def column_visibility_combobox_setup(self):
+    #     cb = CheckableComboBox()
+    #     self.column_visibility_mapper.set_map(cb, self.samples_tableview)
+    #     self.run_info_widget.add_widget(cb)
 
     def sample_tableview_setup(self):
         self.samples_tableview.setModel(self.sample_model)
