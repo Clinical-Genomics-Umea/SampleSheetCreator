@@ -6,7 +6,9 @@ import yaml
 from PySide6.QtWidgets import QPushButton, QVBoxLayout, QWidget, QLineEdit, QTableView, QHeaderView, \
     QHBoxLayout, QSizePolicy, QSpacerItem, QAbstractItemView
 
-from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt
+from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt, Signal
+
+from modules.indexes import IndexesWidget
 
 
 class ProfileButton(QPushButton):
@@ -14,7 +16,7 @@ class ProfileButton(QPushButton):
         super().__init__()
 
         self.profile_name = profile_name
-        self.setText(f"Add {profile_name}")
+        self.setText(f"{profile_name}")
 
 
 def read_yaml_file(file):
@@ -33,88 +35,54 @@ def read_yaml_file(file):
         return None
 
 
+class ProfileWidget(QWidget):
+
+    profile_data_signal = Signal(dict)
+
+    def __init__(self, profile_data, indexes_widget):
+        super().__init__()
+
+        self.profile_data = profile_data
+        print(profile_data)
+
+        indexes_widget.set_profile_meta(profile_data)
+        profile_button = ProfileButton("Set profile for selected sample rows")
+        layout = QVBoxLayout(self)
+        layout.addWidget(profile_button)
+        layout.addWidget(indexes_widget)
+
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        profile_button.clicked.connect(self.send_profile_data)
+
+        self.setLayout(layout)
+
+    def send_profile_data(self):
+        self.profile_data_signal.emit(self.profile_data)
+
+
 class ProfilesMGR:
     def __init__(self, profiles_dirpath, indexes_manager):
-        profiles_files = [index for index in Path(profiles_dirpath).iterdir() if index.is_file()]
-        self.profiles_widgets = {}
 
-        for profile_file in profiles_files:
+        self.indexes_manager = indexes_manager
 
-            profile_data = read_yaml_file(profile_file)
-            index_set_name = profile_data['IndexAdapterKitName']
-            indexes_widget = indexes_manager.get_indexes_widget(index_set_name)
-            profile_name = profile_data['ProfileName']
-            profile_button = ProfileButton(profile_name)
-
-            profile_widget = QWidget()
-            layout = QVBoxLayout(profile_widget)
-            layout.addWidget(profile_button)
-            layout.addWidget(indexes_widget)
+        files = [index for index in Path(profiles_dirpath).iterdir() if index.is_file()]
+        self.profile_files = {self.retrieve_profile_name(file): file for file in files}
 
 
+    def retrieve_profile_name(self, file):
+        profile = read_yaml_file(file)
+        return profile['ProfileName']
+
+    def get_profiles_names(self):
+        return self.profile_files.keys()
+
+    def get_profile_widget(self, profile_name):
+        profile_data = read_yaml_file(self.profile_files[profile_name])
+        print(profile_data)
+        index_set_name = profile_data['IndexAdapterKitName']
+        indexes_widget = self.indexes_manager.get_indexes_widget(index_set_name)
+
+        return ProfileWidget(profile_data['PipelineData'], indexes_widget)
 
 
-
-            profile_widget = ProfileWidget(profile_file)
-            profile_name = profile_widget.get_name()
-            self.profiles_widgets[profile_name] = profile_widget
-
-
-
-
-    # def get_indexes_widget(self, indexes_name):
-    #     return self.indexes_widgets[indexes_name]
-    #
-    # def get_indexes_names(self):
-    #     return self.indexes_widgets.keys()
-
-#
-# class ProfileMGR:
-#     def __init__(self):
-#         pass
-#
-#     def init_indexes(self):
-#         pass
-#
-#     def init_profiles(self):
-#         pass
-#
-#     # index_sets = [index_set.name for index_set in Path("modules/indexes").iterdir() if index_set.is_dir()]
-#     #     self.index_modules = {}
-#     #     for index_set in index_sets:
-#     #         self.index_modules[index_set] = importlib.import_module(f"modules.indexes.{index_set}.index_widget")
-#     #
-#     #     profile_files = [profile for profile in Path("modules/profile_data").iterdir() if profile.is_file()]
-#     #
-#     #     self.profiles = {}
-#     #     for profile in profile_files:
-#     #         data = read_yaml_file(profile)
-#     #         self.profiles[data["ProfileName"]] = data
-#     #     self.profile_widgets = {}
-#     #     self.add_buttons = {}
-#
-#     def get_profile(self, profile_name):
-#         return self.profiles[profile_name]
-#
-#     def get_index_widget(self, index_set):
-#         return self.index_modules[index_set].IndexesWidget()
-#
-#     def get_profile_widget(self, profile_name):
-#         widget = QWidget()
-#         layout = QVBoxLayout(widget)
-#         button = ProfileButton(profile_name)
-#         layout.addWidget(button)
-#
-#         self.add_buttons[profile_name] = button
-#
-#         index_set = self.profiles[profile_name]["IndexAdapterKitName"]
-#         index_widget = self.index_modules[index_set].IndexesWidget(self.profiles[profile_name])
-#
-#         layout.addWidget(index_widget)
-#
-#         return widget
-#
-#     def get_profile_names(self):
-#         return self.profiles.keys()
-#
-#

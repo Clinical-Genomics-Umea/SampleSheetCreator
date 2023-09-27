@@ -57,12 +57,23 @@ def decode_bytes_json(data):
         raise ValueError("Error decoding JSON data") from e
 
 
+def get_column_headers(fields):
+    headers = []
+    for section in fields:
+        headers.extend(iter(fields[section]))
+    return headers
+
+
+def field_count(fields):
+    return sum(len(fields[section]) for section in fields)
+
+
 class SampleSheetModel(QStandardItemModel):
-    def __init__(self):
+    def __init__(self, section_fields):
         super(SampleSheetModel, self).__init__()
 
-        fields_path = Path("fields.yaml")
-        self.fields = read_yaml_file(fields_path)
+        self.sections_fields = section_fields
+        self.fields = get_column_headers(self.sections_fields)
 
         self.setColumnCount(len(self.fields))
         self.setHorizontalHeaderLabels(self.fields)
@@ -121,6 +132,8 @@ class SampleSheetModel(QStandardItemModel):
 
         tr = decoded_data['translate']
 
+        print(decoded_data)
+
         for i, row_data in enumerate(decoded_data['records']):
             for k, v in row_data.items():
                 row = start_row + i
@@ -135,6 +148,10 @@ class SampleSheetModel(QStandardItemModel):
                     elif samplesheet_field in self.fields:
                         column = self.fields.index(samplesheet_field)
                         self.setData(self.index(row, column), v)
+
+                elif k in self.fields:
+                    column = self.fields.index(k)
+                    self.setData(self.index(row, column), v)
 
         return True
 

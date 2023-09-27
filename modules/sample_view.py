@@ -104,7 +104,6 @@ class SampleTableView(QTableView):
         self.setSelectionBehavior(QTableView.SelectItems)
         self.setSelectionMode(QTableView.ExtendedSelection)
 
-
         self.clipboard = QClipboard()
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -117,6 +116,15 @@ class SampleTableView(QTableView):
         header = self.horizontalHeader()
         header.setContextMenuPolicy(Qt.CustomContextMenu)
         header.customContextMenuRequested.connect(self.header_popup)
+        header.setMinimumSectionSize(100)
+
+    @Slot(dict)
+    def set_profiles_data(self, profiles_data):
+        selection_model = self.selectionModel()
+        selected_rows = selection_model.selectedRows()
+
+        print(selected_rows)
+
 
     def setModel(self, model):
         super().setModel(model)
@@ -164,6 +172,9 @@ class SampleTableView(QTableView):
 
     @Slot(str, bool)
     def set_column_visibility_state(self, field, state):
+
+        print(field, state)
+
         i = self.model().fields.index(field)
 
         column_visible = not self.isColumnHidden(i)
@@ -344,127 +355,127 @@ class SampleTableView(QTableView):
         return False
 
 
-class CheckableComboBox(QComboBox):
-
-    # Subclass Delegate to increase item height
-    class Delegate(QStyledItemDelegate):
-        def sizeHint(self, option, index):
-            size = super().sizeHint(option, index)
-            size.setHeight(20)
-            return size
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Make the combo editable to set a custom text, but readonly
-        self.setEditable(True)
-        self.lineEdit().setReadOnly(True)
-
-        # Remove the border
-        self.setFrame(False)
-
-        # Use custom delegate
-        self.setItemDelegate(CheckableComboBox.Delegate())
-
-        # Hide and show popup when clicking the line edit
-        self.lineEdit().installEventFilter(self)
-        self.closeOnLineEditClick = False
-
-        # Prevent popup from closing when clicking on an item
-        self.view().viewport().installEventFilter(self)
-
-    def resizeEvent(self, event):
-        # Recompute text to elide as needed
-        self.updateText()
-        super().resizeEvent(event)
-
-    def eventFilter(self, obj, event):
-        if obj == self.lineEdit():
-            if event.type() == QEvent.MouseButtonRelease:
-                if self.closeOnLineEditClick:
-                    self.hide_popup()
-                else:
-                    self.show_popup()
-                return True
-            return False
-
-        if obj == self.view().viewport() and event.type() == QEvent.MouseButtonRelease:
-            index = self.view().indexAt(event.pos())
-            item = self.model().item(index.row())
-
-            if item.checkState() == Qt.Checked:
-                item.setCheckState(Qt.Unchecked)
-            else:
-                item.setCheckState(Qt.Checked)
-            return True
-        return False
-
-    def show_popup(self):
-        super().showPopup()
-        # When the popup is displayed, a click on the lineedit should close it
-        self.closeOnLineEditClick = True
-
-    def hide_popup(self):
-        super().hidePopup()
-        # Used to prevent immediate reopening when clicking on the lineEdit
-        self.startTimer(100)
-        # Refresh the display text when closing
-        self.updateText()
-
-    def timerEvent(self, event):
-        # After timeout, kill timer, and reenable click on line edit
-        self.killTimer(event.timerId())
-        self.closeOnLineEditClick = False
-
-    def updateText(self):
-
-        self.lineEdit().setText("-- Show/Hide Columns --")
-
-    def addItem(self, text):
-        item = QStandardItem()
-        item.setText(text)
-        item.setData(text)
-
-        item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
-        item.setData(Qt.Unchecked, Qt.CheckStateRole)
-        self.model().appendRow(item)
-
-    def addItemVisibility(self, field_name, visibility_state):
-        item = QStandardItem()
-        item.setText(field_name)
-
-        item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
-
-        if visibility_state is True:
-            item.setData(Qt.Checked, Qt.CheckStateRole)
-        else:
-            item.setData(Qt.Unchecked, Qt.CheckStateRole)
-
-        self.model().appendRow(item)
-
-    def addItems(self, texts, datalist=None):
-        for i, text in enumerate(texts):
-            try:
-                data = datalist[i]
-            except (TypeError, IndexError):
-                data = None
-            self.addItem(text, data)
-
-    def addItemsVisibility(self, columns_visibility):
-
-        for field, state in columns_visibility.items():
-            self.addItemVisibility(field, state)
-
-        self.model().dataChanged.connect(self.updateText)
-
-    def currentData(self):
-        return [
-            self.model().item(i).data()
-            for i in range(self.model().rowCount())
-            if self.model().item(i).checkState() == Qt.Checked
-        ]
-
-
+# class CheckableComboBox(QComboBox):
+#
+#     # Subclass Delegate to increase item height
+#     class Delegate(QStyledItemDelegate):
+#         def sizeHint(self, option, index):
+#             size = super().sizeHint(option, index)
+#             size.setHeight(20)
+#             return size
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#
+#         # Make the combo editable to set a custom text, but readonly
+#         self.setEditable(True)
+#         self.lineEdit().setReadOnly(True)
+#
+#         # Remove the border
+#         self.setFrame(False)
+#
+#         # Use custom delegate
+#         self.setItemDelegate(CheckableComboBox.Delegate())
+#
+#         # Hide and show popup when clicking the line edit
+#         self.lineEdit().installEventFilter(self)
+#         self.closeOnLineEditClick = False
+#
+#         # Prevent popup from closing when clicking on an item
+#         self.view().viewport().installEventFilter(self)
+#
+#     def resizeEvent(self, event):
+#         # Recompute text to elide as needed
+#         self.updateText()
+#         super().resizeEvent(event)
+#
+#     def eventFilter(self, obj, event):
+#         if obj == self.lineEdit():
+#             if event.type() == QEvent.MouseButtonRelease:
+#                 if self.closeOnLineEditClick:
+#                     self.hide_popup()
+#                 else:
+#                     self.show_popup()
+#                 return True
+#             return False
+#
+#         if obj == self.view().viewport() and event.type() == QEvent.MouseButtonRelease:
+#             index = self.view().indexAt(event.pos())
+#             item = self.model().item(index.row())
+#
+#             if item.checkState() == Qt.Checked:
+#                 item.setCheckState(Qt.Unchecked)
+#             else:
+#                 item.setCheckState(Qt.Checked)
+#             return True
+#         return False
+#
+#     def show_popup(self):
+#         super().showPopup()
+#         # When the popup is displayed, a click on the lineedit should close it
+#         self.closeOnLineEditClick = True
+#
+#     def hide_popup(self):
+#         super().hidePopup()
+#         # Used to prevent immediate reopening when clicking on the lineEdit
+#         self.startTimer(100)
+#         # Refresh the display text when closing
+#         self.updateText()
+#
+#     def timerEvent(self, event):
+#         # After timeout, kill timer, and reenable click on line edit
+#         self.killTimer(event.timerId())
+#         self.closeOnLineEditClick = False
+#
+#     def updateText(self):
+#
+#         self.lineEdit().setText("-- Show/Hide Columns --")
+#
+#     def addItem(self, text):
+#         item = QStandardItem()
+#         item.setText(text)
+#         item.setData(text)
+#
+#         item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+#         item.setData(Qt.Unchecked, Qt.CheckStateRole)
+#         self.model().appendRow(item)
+#
+#     def addItemVisibility(self, field_name, visibility_state):
+#         item = QStandardItem()
+#         item.setText(field_name)
+#
+#         item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+#
+#         if visibility_state is True:
+#             item.setData(Qt.Checked, Qt.CheckStateRole)
+#         else:
+#             item.setData(Qt.Unchecked, Qt.CheckStateRole)
+#
+#         self.model().appendRow(item)
+#
+#     def addItems(self, texts, datalist=None):
+#         for i, text in enumerate(texts):
+#             try:
+#                 data = datalist[i]
+#             except (TypeError, IndexError):
+#                 data = None
+#             self.addItem(text, data)
+#
+#     def addItemsVisibility(self, columns_visibility):
+#
+#         for field, state in columns_visibility.items():
+#             self.addItemVisibility(field, state)
+#
+#         self.model().dataChanged.connect(self.updateText)
+#
+#     def currentData(self):
+#         return [
+#             self.model().item(i).data()
+#             for i in range(self.model().rowCount())
+#             if self.model().item(i).checkState() == Qt.Checked
+#         ]
+#
+#
 
 
 

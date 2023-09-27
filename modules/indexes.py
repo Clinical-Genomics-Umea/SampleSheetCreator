@@ -8,18 +8,6 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget, QLineEdit, QTableView, QHead
 
 from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt
 
-# import json
-# from pathlib import Path
-# import pandas as pd
-# import yaml
-#
-# from PySide6.QtWidgets import QPushButton, QVBoxLayout, QWidget, QLineEdit, QTableView, QHeaderView, \
-#     QHBoxLayout, QSizePolicy, QSpacerItem, QAbstractItemView
-#
-# from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt
-
-
-
 def reorder_dataframe_fields(dataframe: pd.DataFrame, field_order: list) -> pd.DataFrame:
     """
     Reorders the fields in a Pandas DataFrame so that fields with names in a list are placed first,
@@ -247,6 +235,8 @@ class IndexesWidget(QWidget):
         # print("validate directory contents", verify_directory_contents(index_dirpath))
 
         self.meta = import_yaml_file(index_dirpath / "meta.yaml")
+        self.profile_meta = {}
+
         # print("validate metadata", validate_metadata(self.meta))
         
         self.indexes = import_csv_file(index_dirpath / "indexes.csv")
@@ -289,7 +279,7 @@ class IndexesWidget(QWidget):
         self.tableview.setDragDropMode(QAbstractItemView.DragOnly)
         self.tableview.setSelectionBehavior(QAbstractItemView.SelectRows)
 
-        #link tableview to model via chained proxies
+        # link tableview to model via chained proxies
         self.chained_proxies[self.meta['ShownFields'][0]].setSourceModel(self.model)
         self.tableview.setModel(self.chained_proxies[self.meta['ShownFields'][-1]])
 
@@ -300,6 +290,9 @@ class IndexesWidget(QWidget):
 
         for editline in self.filter_editlines.values():
             editline.textChanged.connect(self.filter)
+
+    def set_profile_meta(self, profile_data: dict):
+        self.profile_meta = profile_data
 
     def get_name(self):
         return self.meta['IndexAdapterKitName']
@@ -348,6 +341,9 @@ class IndexesWidget(QWidget):
         df = pd.read_csv(data_path, delimiter=';', quotechar='|')
         return TableModel(df)
 
+    def set_profile_meta(self, profile_meta):
+        self.model.set_profile_meta(profile_meta)
+
 
 class TableModel(QAbstractTableModel):
     def __init__(self, dataframe: pd.DataFrame, meta: dict):
@@ -355,7 +351,12 @@ class TableModel(QAbstractTableModel):
 
         self.dataframe = dataframe
         self.meta = meta
+        self.profile_meta = {}
         self.field_translation = self.meta['FieldCorrespondence']
+
+    def set_profile_meta(self, profile_meta):
+        self.profile_meta = profile_meta
+
 
     def data(self, index, role):
         """
@@ -444,8 +445,13 @@ class TableModel(QAbstractTableModel):
         for field, value in self.meta["IndexMetaData"].items():
             df[field] = value
 
+        for field, value in self.profile_meta.items():
+            df[field] = value
+
         # Convert the DataFrame to a list of dictionaries
         records = df.to_dict(orient='records')
+
+        print(records)
 
         # Create a dictionary with the records and translation data
         data = {'records': records, 'translate': self.field_translation}
@@ -458,15 +464,6 @@ class TableModel(QAbstractTableModel):
         mime_data.setData("application/json", bytes_data)
 
         return mime_data
-
-
-#
-# class ProfileButton(QPushButton):
-#     def __init__(self, profile_name):
-#         super().__init__()
-#
-#         self.profile_name = profile_name
-#         self.setText(f"Add {profile_name}")
 
 
 def read_yaml_file(file):
@@ -487,20 +484,17 @@ def read_yaml_file(file):
 
 class IndexesMGR:
     def __init__(self, indexes_dirpath):
-        indexes_folders = [index for index in Path(indexes_dirpath).iterdir() if index.is_dir()]
-        self.indexes_widgets = {}
-
-        for indexes_folder in indexes_folders:
-            indexes_widget = IndexesWidget(indexes_folder)
-            indexes_name = indexes_widget.get_name()
-            self.indexes_widgets[indexes_name] = indexes_widget
+        folders = [index for index in Path(indexes_dirpath).iterdir() if index.is_dir()]
+        self.indexes_folders = {self.retrieve_index_name(folder): folder for folder in folders}
 
     def get_indexes_widget(self, indexes_name):
-        # widget = QWidget()
-        # layout = QVBoxLayout(widget)
-        # layout.addWidget()
 
-        return self.indexes_widgets[indexes_name]
+        indexes_folder = self.indexes_folders[indexes_name]
+        return IndexesWidget(indexes_folder)
 
     def get_indexes_names(self):
-        return self.indexes_widgets.keys()
+        return self.indexes_folders.keys()
+
+    def retrieve_index_name(self, folder):
+        meta = read_yaml_file(folder / "meta.yaml")
+        return meta['IndexAdapterKitName']

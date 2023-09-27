@@ -1,0 +1,27 @@
+---
+Samples:
+  - Lane
+  - Sample_ID
+Indexes:
+  - Plate
+  - WellPos
+  - I7_Plate
+  - I7_WellPos
+  - I5_Plate
+  - I5_WellPos
+  - I7_IndexName
+  - I7_Index
+  - I5_IndexName
+  - I5_Index
+BCLConvert:
+  - UsedCycles
+  - BarcodeMismatchesIndex1
+  - BarcodeMismatchesIndex2
+  - AdapterRead1
+  - AdapterRead2
+  - FastqCompressionFormat
+Profile:
+  - ProfileName
+  - Pipeline
+  - ReferenceGenomeDir
+  - VariantCallingMode
