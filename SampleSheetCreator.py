@@ -142,14 +142,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # columns_visibility_state = self.samples_tableview.get_columns_visibility_state()
         # self.columns_treeview.set_items(columns_visibility_state)
         self.columns_treeview.field_visibility_state_changed.connect(self.samples_tableview.set_column_visibility_state)
-        # self.samples_tableview.field_visibility_state_changed.connect(self.columns_treeview.set_column_visibility_state)
+        self.samples_tableview.field_visibility_state_changed.connect(self.columns_treeview.set_column_visibility_state)
 
     def field_view_setup(self):
         self.verticalLayout.insertWidget(1, self.field_view)
         self.field_view.setFont(QFont("Arial", 8))
         self.field_view.setReadOnly(True)
-        # self.samples_tableview.selectionModel().selectionChanged.connect(self.on_tv_selection_changed)
-        # self.samples_tableview.model().dataChanged.connect(self.on_tv_selection_changed)
+        self.samples_tableview.selectionModel().selectionChanged.connect(self.on_tv_selection_changed)
+        self.samples_tableview.model().dataChanged.connect(self.on_tv_selection_changed)
 
     def on_tv_selection_changed(self):
         selection_model = self.samples_tableview.selectionModel()

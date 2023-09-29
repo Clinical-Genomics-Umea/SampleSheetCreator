@@ -1,0 +1,50 @@
+---
+
+dataframe:
+  columns:
+    - name: Lane
+      type: str
+      validations:
+        - name: "name_length"
+          error_message: "Name must be longer than 6 characters"
+          validation_code: |
+            if len(value) <= 6:
+              raise ValueError(error_message)
+        - name: "name_uniqueness"
+          error_message: "Names must be unique"
+          validation_code: |
+            if not df["name"].is_unique:
+              raise ValueError(error_message)
+    - name: age
+      type: int
+      validations:
+        - name: "age_min"
+          error_message: "Age must be over 10"
+          validation_code: |
+            if value <= 10:
+              raise ValueError(error_message)
+            
+            
+
+#- Lane
+#- Sample_ID
+#- ProfileName
+#- Plate
+#- WellPos
+#- I7_Plate
+#- I7_WellPos
+#- I5_Plate
+#- I5_WellPos
+#- I7_IndexName
+#- I7_Index
+#- I5_IndexName
+#- I5_Index
+#- UsedCycles
+#- BarcodeMismatchesIndex1
+#- BarcodeMismatchesIndex2
+#- AdapterRead1
+#- AdapterRead2
+#- FastqCompressionFormat
+#- Pipeline
+#- ReferenceGenomeDir
+#- VariantCallingMode

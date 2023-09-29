@@ -20,17 +20,12 @@ class ColumnsTreeWidget(QTreeWidget):
         self.setDragEnabled(False)
         self.setSelectionMode(QTreeWidget.ExtendedSelection)
         self.setStyleSheet("QTreeView { border: 0px; }")
-        # self.setSpacing(2)
-
-        self.field_index_mapping = {}
 
         self.field_item_map = {}
 
         self.create_tree(section_fields)
         self.setHeaderHidden(True)
         self.expandAll()
-
-        # self.itemChanged.connect(self.emit_field_checked_state)
 
     def create_tree(self, section_fields: dict):
         top_level_items = []
@@ -86,47 +81,16 @@ class ColumnsTreeWidget(QTreeWidget):
 
         self.blockSignals(False)
 
-    def set_items(self, section_fields: dict, fields_visibility_state: dict):
-        self.clear()
-
-        # for section in section_fields:
-        #     item = QListWidgetItem(section)
-        #     self.addItem(item)
-        #
-        #     for fields in section_fields[section]:
-        #         item = QListWidgetItem(fields)
-        #         item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-        #         self.addItem(item)
-
-
-        for field_name, state in fields_visibility_state.items():
-            item = QListWidgetItem(field_name)
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-            if state:
-                item.setCheckState(Qt.CheckState.Checked)
-            else:
-                item.setCheckState(Qt.CheckState.Unchecked)
-
-            self.addItem(item)
-
-        for index in range(self.count()):
-            item = self.item(index)
-            self.field_index_mapping[item.text()] = index
-
     def emit_field_checked_state(self, item):
         self.field_visibility_state_changed.emit(item.text(), item.checkState() == Qt.CheckState.Checked)
 
-    def set_field_state(self, field_state: dict):
-        for field, state in field_state.items():
-            index = self.field_index_mapping[field]
-            item = self.item(index)
-            item.setCheckState(Qt.CheckState.Checked if state else Qt.CheckState.Unchecked)
 
     @Slot(str, bool)
     def set_column_visibility_state(self, field_name, state):
-        index = self.field_index_mapping[field_name]
-        item = self.item(index)
-        item_state = item.checkState() == Qt.CheckState.Checked
+        print(field_name, state)
+        print(self.field_item_map)
+        item = self.field_item_map[field_name]
+        item_state = item.checkState(0) == Qt.CheckState.Checked
 
         if item_state == state:
             return

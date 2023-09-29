@@ -1,65 +1,43 @@
-from PySide6.QtCore import Qt, QModelIndex
-from PySide6.QtWidgets import QApplication, QTreeWidget, QTreeWidgetItem
+from pydantic import BaseModel, validator
+import pandas as pd
 
-app = QApplication([])
+# Define a Pydantic model for DataFrame validation
+class DataFrameValidator(BaseModel):
+    name: str
+    age: int
 
-# Create a QTreeWidget
-tree_widget = QTreeWidget()
-tree_widget.setHeaderLabels(["Items"])
+    @validator('age')
+    def age_must_be_positive(cls, value):
+        if value < 0:
+            raise ValueError("Age must be a positive integer")
+        return value
 
-# Set the check state of child items to match the check state of the top-level item
-def setChildItemCheckState(item, state):
-    for i in range(item.childCount()):
-        child = item.child(i)
-        child.setCheckState(0, state)
-        tree_widget.model().emitDataChanged(QModelIndex(), QModelIndex())
+    @validator('name')
+    def name_must_not_contain_numbers(cls, value):
+        if any(char.isdigit() for char in value):
+            raise ValueError("Name must not contain numbers")
+        return value
 
-# Create the top-level items
-top_item1 = QTreeWidgetItem(tree_widget)
-top_item1.setText(0, "Top Item 1")
-top_item1.setFlags(top_item1.flags() | Qt.ItemIsUserCheckable)
-top_item1.setCheckState(0, Qt.Unchecked)
+    @validator('name')
+    def name_must_be_unique(cls, value, values):
+        # Check if the name already exists in the DataFrame
+        if 'df' in values and values['df'] is not None and values['df']['name'].duplicated().any():
+            raise ValueError("Name must be unique")
+        return value
 
-top_item2 = QTreeWidgetItem(tree_widget)
-top_item2.setText(0, "Top Item 2")
-top_item2.setFlags(top_item2.flags() | Qt.ItemIsUserCheckable)
-top_item2.setCheckState(0, Qt.Unchecked)
+# Sample data as a list of dictionaries
+data = [{'name': 'Alice', 'age': 30},
+        {'name': 'Bob', 'age': 25},
+        {'name': 'Alice', 'age': 35},  # Duplicate name
+        {'name': 'David', 'age': 40}]
 
-# Create the child items under top-level item 1
-child_item11 = QTreeWidgetItem(top_item1)
-child_item11.setText(0, "Child Item 1-1")
-child_item11.setFlags(child_item11.flags() | Qt.ItemIsUserCheckable)
-child_item11.setCheckState(0, Qt.Unchecked)
+# Create a Pandas DataFrame from the sample data
+df = pd.DataFrame(data)
 
-child_item12 = QTreeWidgetItem(top_item1)
-child_item12.setText(0, "Child Item 1-2")
-child_item12.setFlags(child_item12.flags() | Qt.ItemIsUserCheckable)
-child_item12.setCheckState(0, Qt.Unchecked)
-
-child_item13 = QTreeWidgetItem(top_item1)
-child_item13.setText(0, "Child Item 1-3")
-child_item13.setFlags(child_item13.flags() | Qt.ItemIsUserCheckable)
-child_item13.setCheckState(0, Qt.Unchecked)
-
-# Create the child items under top-level item 2
-child_item21 = QTreeWidgetItem(top_item2)
-child_item21.setText(0, "Child Item 2-1")
-child_item21.setFlags(child_item21.flags() | Qt.ItemIsUserCheckable)
-child_item21.setCheckState(0, Qt.Unchecked)
-
-child_item22 = QTreeWidgetItem(top_item2)
-child_item22.setText(0, "Child Item 2-2")
-child_item22.setFlags(child_item22.flags() | Qt.ItemIsUserCheckable)
-child_item22.setCheckState(0, Qt.Unchecked)
-
-child_item23 = QTreeWidgetItem(top_item2)
-child_item23.setText(0, "Child Item 2-3")
-child_item23.setFlags(child_item23.flags() | Qt.ItemIsUserCheckable)
-child_item23.setCheckState(0, Qt.Unchecked)
-
-# Connect the check state change signal of the top-level items to update the child items
-top_item1.stateChanged.connect(lambda state: setChildItemCheckState(top_item1, state))
-top_item2.stateChanged.connect(lambda state: setChildItemCheckState(top_item2, state))
-
-tree_widget.show()
-app.exec()
+# Iterate over DataFrame rows and validate using Pydantic model
+for idx, row in df.iterrows():
+    try:
+        DataFrameValidator(df=df, **row.to_dict())
+        print(f"Row {idx} is valid")
+    except ValueError as e:
+        print(f"Row {idx} is invalid: {str(e)}")
