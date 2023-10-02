@@ -1,43 +1,70 @@
-from pydantic import BaseModel, validator
+import sys
 import pandas as pd
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem
 
-# Define a Pydantic model for DataFrame validation
-class DataFrameValidator(BaseModel):
-    name: str
-    age: int
 
-    @validator('age')
-    def age_must_be_positive(cls, value):
-        if value < 0:
-            raise ValueError("Age must be a positive integer")
-        return value
+def calculate_mismatches(str1, str2):
+    return sum(c1 != c2 for c1, c2 in zip(str1, str2))
 
-    @validator('name')
-    def name_must_not_contain_numbers(cls, value):
-        if any(char.isdigit() for char in value):
-            raise ValueError("Name must not contain numbers")
-        return value
 
-    @validator('name')
-    def name_must_be_unique(cls, value, values):
-        # Check if the name already exists in the DataFrame
-        if 'df' in values and values['df'] is not None and values['df']['name'].duplicated().any():
-            raise ValueError("Name must be unique")
-        return value
+def color_cell_based_on_mismatches(table_widget, row, col, data):
+    cell_value = data.iloc[row, col]
+    num_mismatches = calculate_mismatches(cell_value, data.columns[row])
+    color_intensity = min(255, 255 - (num_mismatches * 30))  # Adjust color intensity
 
-# Sample data as a list of dictionaries
-data = [{'name': 'Alice', 'age': 30},
-        {'name': 'Bob', 'age': 25},
-        {'name': 'Alice', 'age': 35},  # Duplicate name
-        {'name': 'David', 'age': 40}]
+    color = QColor(color_intensity, color_intensity, 255)  # Blueish color
+    brush = cell_value_background_color(cell_value, color)
+    item = QTableWidgetItem(cell_value)
+    item.setBackground(brush)
+    table_widget.setItem(row, col, item)
 
-# Create a Pandas DataFrame from the sample data
-df = pd.DataFrame(data)
 
-# Iterate over DataFrame rows and validate using Pydantic model
-for idx, row in df.iterrows():
-    try:
-        DataFrameValidator(df=df, **row.to_dict())
-        print(f"Row {idx} is valid")
-    except ValueError as e:
-        print(f"Row {idx} is invalid: {str(e)}")
+def cell_value_background_color(cell_value, default_color):
+    # You can add more conditions or customize colors as needed
+    if "a" in cell_value:
+        return QColor(255, 128, 128)  # Red for cells containing "a"
+    else:
+        return default_color
+
+
+class HeatmapTable(QTableWidget):
+    def __init__(self, data):
+        super().__init__(len(data), len(data.columns))
+        self.data = data
+        self.initUI()
+
+    def initUI(self):
+        for row in range(self.rowCount()):
+            for col in range(self.columnCount()):
+                color_cell_based_on_mismatches(self, row, col, self.data)
+                self.setItem(row, col, QTableWidgetItem(self.data.iloc[row, col]))
+
+        self.setHorizontalHeaderLabels(self.data.columns)
+        self.setVerticalHeaderLabels(self.data.index)
+        self.horizontalHeader().setSectionResizeMode(QTableWidget.Stretch)
+        self.verticalHeader().setSectionResizeMode(QTableWidget.Stretch)
+
+
+class MainWindow(QMainWindow):
+    def __init__(self, data):
+        super().__init__()
+        self.setWindowTitle('Heatmap in QTableWidget')
+        self.setGeometry(100, 100, 800, 600)
+        self.heatmap_table = HeatmapTable(data)
+        self.setCentralWidget(self.heatmap_table)
+
+def main():
+    app = QApplication(sys.argv)
+    data = pd.DataFrame({
+        'abc': ['abcdef', 'abcdeg', 'abcdeg', 'abcdff', 'abcefg'],
+        'xyz': ['xyz123', 'xya123', 'xzz123', 'xyz124', 'xyy123']
+    })
+
+    window = MainWindow(data)
+    window.show()
+    sys.exit(app.exec_())
+
+if __name__ == '__main__':
+    main()

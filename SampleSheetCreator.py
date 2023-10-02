@@ -4,6 +4,7 @@ import os
 import sys
 
 import yaml
+from pandera.errors import SchemaErrors
 from pathlib import Path
 import qtawesome as qta
 
@@ -13,7 +14,7 @@ from modules.indexes import IndexesMGR
 from modules.models import read_fields_from_json
 from modules.profiles import ProfilesMGR
 from modules.run_classes import RunSetup, RunInfo
-# from modules.profiles import ProfileMGR
+from modules.samplesheet import qstandarditemmodel_to_dataframe, split_df_by_lane, explode_df_by_lane
 
 from PySide6.QtGui import QAction, QActionGroup, QStandardItem, QPainter, QFont, QStandardItemModel
 from PySide6.QtCore import QPropertyAnimation, Qt, Slot
@@ -21,9 +22,11 @@ from PySide6.QtCore import QPropertyAnimation, Qt, Slot
 from PySide6.QtCore import QSize
 from PySide6 import QtGui, QtCore
 from PySide6.QtWidgets import QMainWindow, QApplication, QSizePolicy, QFileDialog, \
-    QWidget, QHeaderView, QToolBox, QPushButton, QGraphicsScene, QGraphicsView, QFrame, QLineEdit
+    QWidget, QHeaderView, QToolBox, QPushButton, QGraphicsScene, QGraphicsView, QFrame, QLineEdit, QVBoxLayout, QDialog, \
+    QTableWidget, QLabel, QSpacerItem
 
 from modules.sample_view import SampleTableView
+from modules import validator, samplesheet
 from ui.mw import Ui_MainWindow
 import qdarktheme
 
@@ -63,6 +66,25 @@ def read_yaml_file(filename):
     except Exception as e:
         print(f"An error occurred while reading '{filename}': {e}")
         return None
+
+
+class HeatmapDialog(QDialog):
+    def __init__(self, data):
+        super().__init__()
+        self.setWindowTitle('Heatmap Dialog')
+        self.setLayout(QVBoxLayout())
+        self.heatmap_table = samplesheet.create_heatmap_table(data)
+        self.layout().addWidget(self.heatmap_table)
+
+        self.heatmap_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.heatmap_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+
+        # explode_df = explode_df_by_lane(df)
+        # split_df_dict = split_df_by_lane(df)
+        #
+        # print(explode_df.to_string())
+        # print(split_df_dict)
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -132,15 +154,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.leftmenu_tabWidget.setMaximumWidth(0)
         self.rightmenu_tabWidget.setMaximumWidth(0)
 
+
     def columns_listview_setup(self):
         layout = self.columns_settings_tab.layout()
         layout.addWidget(self.columns_treeview)
 
-        # self.columns_treeview.create_tree()
-
-
-        # columns_visibility_state = self.samples_tableview.get_columns_visibility_state()
-        # self.columns_treeview.set_items(columns_visibility_state)
         self.columns_treeview.field_visibility_state_changed.connect(self.samples_tableview.set_column_visibility_state)
         self.samples_tableview.field_visibility_state_changed.connect(self.columns_treeview.set_column_visibility_state)
 
@@ -211,6 +229,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.samples_tableview.setContextMenuPolicy(Qt.CustomContextMenu)
         self.samples_tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.main_tabWidget.setCurrentWidget(self.data_tab)
 
     def run_setup(self):
         self.run_setup_tab.layout().addWidget(self.run_setup_widget)
@@ -255,29 +274,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         selected_indexes = self.samples_tableview.selectedIndexes()
         self.sample_model.set_profile_on_selected(selected_indexes, send_button.profile_name)
 
-    def on_barcodes_click(self):
-        curr_tab = self.profiles_tab.currentIndex()
-        if curr_tab < len(self.profile_widgets):
-            self.profile_widgets[-1].show()
-        else:
-            self.profile_widgets[-1].hide()
+    # def on_barcodes_click(self):
+    #     curr_tab = self.profiles_tab.currentIndex()
+    #     if curr_tab < len(self.profile_widgets):
+    #         self.profile_widgets[-1].show()
+    #     else:
+    #         self.profile_widgets[-1].hide()
 
     def hide_tabwidget_headers(self):
         self.leftmenu_tabWidget.tabBar().setHidden(True)
-        self.main_tabWidget.tabBar().setHidden(True)
+        # self.main_tabWidget.tabBar().setHidden(True)
         self.rightmenu_tabWidget.tabBar().setHidden(True)
-
-    # def sidemenu_animation_setup(self):
-    #     self.left_tab_anim["open"] = self.mk_animation(0, 300)
-    #     self.left_tab_anim["close"] = self.mk_animation(300, 0)
-
-    # def mk_animation_right(self, start_width, end_width):
-    #     animation = QPropertyAnimation(self.rightmenu_tabWidget, b"maximumWidth")
-    #     animation.setStartValue(start_width)
-    #     animation.setEndValue(end_width)
-    #     animation.setDuration(50)
-    #
-    #     return animation
 
     def setup_lefttool_actions(self):
         """
@@ -321,7 +328,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.config_action.setChecked(False)
         self.config_action.triggered.connect(self.on_config_click)
 
-        self.generate_action.setIcon(qta.icon('msc.play-circle', options=[{'draw': 'image'}]))
+        self.generate_action.setIcon(qta.icon('msc.check-all', options=[{'draw': 'image'}]))
         self.generate_action.setCheckable(False)
         self.generate_action.setChecked(False)
         self.generate_action.triggered.connect(self.on_generate_click)
@@ -407,12 +414,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def on_config_click(self):
         if self.config_action.isChecked():
-            self.main_tabWidget.setCurrentWidget(self.profiles_tab)
+            self.main_tabWidget.setCurrentWidget(self.validation_tab)
         else:
             self.main_tabWidget.setCurrentWidget(self.data_tab)
 
     def on_generate_click(self):
-        pass
+        df = qstandarditemmodel_to_dataframe(self.sample_model)
+
+        try:
+            validator.first_validation_schema(df, lazy=True)
+        except SchemaErrors as err:
+            print(err.failure_cases)  # dataframe of schema error
+            return
+
+        layout = self.validation_tab.layout()
+        while layout.count():
+            if widget := layout.itemAt(0).widget():
+                widget.deleteLater()
+            layout.removeItem(layout.itemAt(0))
+
+        # lane_explode = samplesheet.explode_df_by_lane(df)
+
+        lanes_df = split_df_by_lane(df)
+
+        for lane in lanes_df:
+            print(lanes_df[lane].to_string())
+            layout.addWidget(QLabel(f"Lane {lane}"))
+            w = samplesheet.create_heatmap_table(samplesheet.substitutions_heatmap_df(lanes_df[lane],
+                                                                                        "I7_Index"))
+            w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+            layout.addWidget(w)
+
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        layout.addWidget(spacer)
+
 
     def file_tab_setup(self):
         self.new_samplesheet_pushButton.clicked.connect(self.new_samplesheet)

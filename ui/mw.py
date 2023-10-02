@@ -171,6 +171,11 @@ class Ui_MainWindow(object):
         self.verticalLayout = QVBoxLayout(self.data_tab)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.main_tabWidget.addTab(self.data_tab, "")
+        self.validation_tab = QWidget()
+        self.validation_tab.setObjectName(u"validation_tab")
+        self.verticalLayout_10 = QVBoxLayout(self.validation_tab)
+        self.verticalLayout_10.setObjectName(u"verticalLayout_10")
+        self.main_tabWidget.addTab(self.validation_tab, "")
 
         self.verticalLayout_12.addWidget(self.main_tabWidget)
 
@@ -218,7 +223,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.leftmenu_tabWidget.setCurrentIndex(2)
-        self.main_tabWidget.setCurrentIndex(0)
+        self.main_tabWidget.setCurrentIndex(1)
         self.rightmenu_tabWidget.setCurrentIndex(0)
 
 
@@ -239,7 +244,8 @@ class Ui_MainWindow(object):
         self.leftmenu_tabWidget.setTabText(self.leftmenu_tabWidget.indexOf(self.run_setup_tab), QCoreApplication.translate("MainWindow", u"run_setup_tab_h", None))
         self.leftmenu_tabWidget.setTabText(self.leftmenu_tabWidget.indexOf(self.indexes_tab), QCoreApplication.translate("MainWindow", u"indexes_tab_h", None))
         self.leftmenu_tabWidget.setTabText(self.leftmenu_tabWidget.indexOf(self.profiles_tab), QCoreApplication.translate("MainWindow", u"profiles_tab_h", None))
-        self.main_tabWidget.setTabText(self.main_tabWidget.indexOf(self.data_tab), QCoreApplication.translate("MainWindow", u"data_tab_h", None))
+        self.main_tabWidget.setTabText(self.main_tabWidget.indexOf(self.data_tab), QCoreApplication.translate("MainWindow", u"samplesheet data", None))
+        self.main_tabWidget.setTabText(self.main_tabWidget.indexOf(self.validation_tab), QCoreApplication.translate("MainWindow", u"validation", None))
         self.rightmenu_tabWidget.setTabText(self.rightmenu_tabWidget.indexOf(self.columns_settings_tab), QCoreApplication.translate("MainWindow", u"columns_settings_tab_h", None))
         self.left_toolBar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))
     # retranslateUi

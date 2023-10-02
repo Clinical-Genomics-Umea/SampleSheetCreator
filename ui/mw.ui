@@ -216,13 +216,19 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="data_tab">
          <attribute name="title">
-          <string>data_tab_h</string>
+          <string>samplesheet data</string>
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout"/>
+        </widget>
+        <widget class="QWidget" name="validation_tab">
+         <attribute name="title">
+          <string>validation</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_10"/>
         </widget>
        </widget>
       </item>

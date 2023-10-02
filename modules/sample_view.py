@@ -118,6 +118,8 @@ class SampleTableView(QTableView):
         header.customContextMenuRequested.connect(self.header_popup)
         header.setMinimumSectionSize(100)
 
+        self.original_top_left_selection = None
+
     @Slot(dict)
     def set_profiles_data(self, profiles_data):
         selection_model = self.selectionModel()
@@ -286,44 +288,50 @@ class SampleTableView(QTableView):
         if not current_index.isValid():
             return
 
-        match event.modifiers(), event.key():
+        # Delete needs to be in a separate if statement to work (for mysterious reasons)
+        if event.key() == Qt.Key_Delete:
+            print("delete")
+            self.delete_selection()
+            return True
 
-            case Qt.Key_C:
+        match event.key(), event.modifiers():
+
+            case Qt.Key_Left:
+                new_index = self.selectionModel().index(current_index.row(), current_index.column() - 1)
+                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
+                self.scrollTo(new_index)
+                return True
+
+            case Qt.Key_Right:
+                new_index = self.selectionModel().index(current_index.row(), current_index.column() + 1)
+                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
+                self.scrollTo(new_index)
+                return True
+
+            case Qt.Key_Up:
+                new_index = self.selectionModel().index(current_index.row() - 1, current_index.column())
+                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
+                self.scrollTo(new_index)
+                return True
+
+            case Qt.Key_Down:
+                new_index = self.selectionModel().index(current_index.row() + 1, current_index.column())
+                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
+                self.scrollTo(new_index)
+                return True
+
+            case  Qt.Key_C, Qt.ControlModifier:
                 self.copy_selection()
                 return True
 
-            case Qt.Key_V:
+            case Qt.Key_V, Qt.ControlModifier:
                 self.paste_clipboard_content()
-                return True
-
-            case Qt.Key_Delete:
-                self.delete_selection()
                 return True
 
             case Qt.Key_Return, Qt.Key_Enter:
                 if self.state() != QAbstractItemView.EditingState:
                     self.edit(self.currentIndex())
                     return True
-
-            case Qt.Key_Left:
-                new_index = self.selectionModel().index(current_index.row(), current_index.column() - 1)
-                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
-                self.scrollTo(new_index)
-
-            case Qt.Key_Right:
-                new_index = self.selectionModel().index(current_index.row(), current_index.column() + 1)
-                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
-                self.scrollTo(new_index)
-
-            case Qt.Key_Up:
-                new_index = self.selectionModel().index(current_index.row() - 1, current_index.column())
-                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
-                self.scrollTo(new_index)
-
-            case Qt.Key_Down:
-                new_index = self.selectionModel().index(current_index.row() + 1, current_index.column())
-                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
-                self.scrollTo(new_index)
 
             case _:
                 super().keyPressEvent(event)
