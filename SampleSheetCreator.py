@@ -4,7 +4,6 @@ import os
 import sys
 
 import yaml
-from pandera.errors import SchemaErrors
 from pathlib import Path
 import qtawesome as qta
 
@@ -14,19 +13,17 @@ from modules.indexes import IndexesMGR
 from modules.models import read_fields_from_json
 from modules.profiles import ProfilesMGR
 from modules.run_classes import RunSetup, RunInfo
-from modules.samplesheet import qstandarditemmodel_to_dataframe, split_df_by_lane, explode_df_by_lane
+from modules.validation import DataValidatioWidget
 
-from PySide6.QtGui import QAction, QActionGroup, QStandardItem, QPainter, QFont, QStandardItemModel
+from PySide6.QtGui import QAction, QActionGroup, QStandardItem, QPainter, QFont
 from PySide6.QtCore import QPropertyAnimation, Qt, Slot
 
 from PySide6.QtCore import QSize
 from PySide6 import QtGui, QtCore
 from PySide6.QtWidgets import QMainWindow, QApplication, QSizePolicy, QFileDialog, \
-    QWidget, QHeaderView, QToolBox, QPushButton, QGraphicsScene, QGraphicsView, QFrame, QLineEdit, QVBoxLayout, QDialog, \
-    QTableWidget, QLabel, QSpacerItem
+    QWidget, QHeaderView, QToolBox, QPushButton, QGraphicsScene, QGraphicsView, QFrame, QLineEdit
 
 from modules.sample_view import SampleTableView
-from modules import validator, samplesheet
 from ui.mw import Ui_MainWindow
 import qdarktheme
 
@@ -68,25 +65,6 @@ def read_yaml_file(filename):
         return None
 
 
-class HeatmapDialog(QDialog):
-    def __init__(self, data):
-        super().__init__()
-        self.setWindowTitle('Heatmap Dialog')
-        self.setLayout(QVBoxLayout())
-        self.heatmap_table = samplesheet.create_heatmap_table(data)
-        self.layout().addWidget(self.heatmap_table)
-
-        self.heatmap_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.heatmap_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
-
-
-        # explode_df = explode_df_by_lane(df)
-        # split_df_dict = split_df_by_lane(df)
-        #
-        # print(explode_df.to_string())
-        # print(split_df_dict)
-
-
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -103,7 +81,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.run_action = QAction("run", self)
         self.profiles_action = QAction("profiles", self)
         self.indexes_action = QAction("indexes", self)
-        self.generate_action = QAction("generate", self)
+        self.validate_action = QAction("validate", self)
         self.config_action = QAction("config", self)
         self.manual_edit_action = QAction("manual_edit", self)
 
@@ -132,6 +110,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.run_info_widget = RunInfo()
         self.run_setup()
 
+        self.validate_widget = DataValidatioWidget(self.sample_model, self.run_info_widget)
+        self.validate_widget_setup()
+
         self.field_view = QLineEdit()
         self.field_view_setup()
 
@@ -154,6 +135,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.leftmenu_tabWidget.setMaximumWidth(0)
         self.rightmenu_tabWidget.setMaximumWidth(0)
 
+    def validate_widget_setup(self):
+        layout = self.validation_tab.layout()
+        layout.addWidget(self.validate_widget)
 
     def columns_listview_setup(self):
         layout = self.columns_settings_tab.layout()
@@ -283,7 +267,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def hide_tabwidget_headers(self):
         self.leftmenu_tabWidget.tabBar().setHidden(True)
-        # self.main_tabWidget.tabBar().setHidden(True)
+        self.main_tabWidget.tabBar().setHidden(True)
         self.rightmenu_tabWidget.tabBar().setHidden(True)
 
     def setup_lefttool_actions(self):
@@ -328,10 +312,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.config_action.setChecked(False)
         self.config_action.triggered.connect(self.on_config_click)
 
-        self.generate_action.setIcon(qta.icon('msc.check-all', options=[{'draw': 'image'}]))
-        self.generate_action.setCheckable(False)
-        self.generate_action.setChecked(False)
-        self.generate_action.triggered.connect(self.on_generate_click)
+        self.validate_action.setIcon(qta.icon('msc.check-all', options=[{'draw': 'image'}]))
+        self.validate_action.setCheckable(True)
+        self.validate_action.setChecked(False)
+        self.validate_action.triggered.connect(self.on_validate_click)
 
         self.manual_edit_action.setIcon(qta.icon('msc.unlock', options=[{'draw': 'image'}]))
         self.manual_edit_action.setCheckable(True)
@@ -352,7 +336,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.left_toolBar.addAction(self.run_action)
         self.left_toolBar.addAction(self.indexes_action)
         self.left_toolBar.addAction(self.profiles_action)
-        self.left_toolBar.addAction(self.generate_action)
+        self.left_toolBar.addAction(self.validate_action)
         self.left_toolBar.addWidget(spacer)
         self.left_toolBar.addAction(self.manual_edit_action)
         self.left_toolBar.addAction(self.config_action)
@@ -418,36 +402,47 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.main_tabWidget.setCurrentWidget(self.data_tab)
 
-    def on_generate_click(self):
-        df = qstandarditemmodel_to_dataframe(self.sample_model)
+    def on_validate_click(self):
 
-        try:
-            validator.first_validation_schema(df, lazy=True)
-        except SchemaErrors as err:
-            print(err.failure_cases)  # dataframe of schema error
-            return
+        button = self.sender()
 
-        layout = self.validation_tab.layout()
-        while layout.count():
-            if widget := layout.itemAt(0).widget():
-                widget.deleteLater()
-            layout.removeItem(layout.itemAt(0))
+        if button.isChecked():
+            self.main_tabWidget.setCurrentWidget(self.validation_tab)
+        else:
+            self.main_tabWidget.setCurrentWidget(self.data_tab)
 
-        # lane_explode = samplesheet.explode_df_by_lane(df)
-
-        lanes_df = split_df_by_lane(df)
-
-        for lane in lanes_df:
-            print(lanes_df[lane].to_string())
-            layout.addWidget(QLabel(f"Lane {lane}"))
-            w = samplesheet.create_heatmap_table(samplesheet.substitutions_heatmap_df(lanes_df[lane],
-                                                                                        "I7_Index"))
-            w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-            layout.addWidget(w)
-
-        spacer = QWidget()
-        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        layout.addWidget(spacer)
+        #
+        #
+        #
+        # df = qstandarditemmodel_to_dataframe(self.sample_model)
+        #
+        # try:
+        #     validator.first_validation_schema(df, lazy=True)
+        # except SchemaErrors as err:
+        #     print(err.failure_cases)  # dataframe of schema error
+        #     return
+        #
+        # layout = self.validation_tab.layout()
+        # while layout.count():
+        #     if widget := layout.itemAt(0).widget():
+        #         widget.deleteLater()
+        #     layout.removeItem(layout.itemAt(0))
+        #
+        # # lane_explode = samplesheet.explode_df_by_lane(df)
+        #
+        # lanes_df = split_df_by_lane(df)
+        #
+        # for lane in lanes_df:
+        #     print(lanes_df[lane].to_string())
+        #     layout.addWidget(QLabel(f"Lane {lane}"))
+        #     w = samplesheet.create_heatmap_table(samplesheet.substitutions_heatmap_df(lanes_df[lane],
+        #                                                                                 "I7_Index"))
+        #     w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        #     layout.addWidget(w)
+        #
+        # spacer = QWidget()
+        # spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # layout.addWidget(spacer)
 
 
     def file_tab_setup(self):
