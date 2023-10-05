@@ -408,6 +408,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if button.isChecked():
             self.main_tabWidget.setCurrentWidget(self.validation_tab)
+            self.validate_widget.validate()
         else:
             self.main_tabWidget.setCurrentWidget(self.data_tab)
 

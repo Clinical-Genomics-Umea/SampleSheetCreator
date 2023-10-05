@@ -4,11 +4,12 @@ import re
 import numpy as np
 import pandas as pd
 import pandera as pa
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QStandardItemModel, QColor, QBrush, QFont, QPen, QStandardItem
+from PySide6.QtCore import Qt, Signal, QSize
+from PySide6.QtGui import QStandardItemModel, QColor, QBrush, QFont, QPen, QStandardItem, QPainter, QTextDocument, \
+    QTextOption
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QSpacerItem, QSizePolicy, QFormLayout, \
     QTableWidget, QTableWidgetItem, QLabel, QHeaderView, QAbstractScrollArea, QScrollArea, QItemDelegate, \
-    QStyledItemDelegate, QTableView, QTabWidget, QFrame
+    QStyledItemDelegate, QTableView, QTabWidget, QFrame, QProxyStyle, QStyleOptionViewItem, QStyle
 from pandera import String, Int, Column, Field, DataFrameSchema, Check, Index
 import pandera.extensions as extensions
 from pandera.errors import SchemaErrors
@@ -38,6 +39,8 @@ def set_heatmap_table_properties(table):
     no_items = table.columnCount()
     table.setMaximumHeight(h_header_height + row_height * no_items)
 
+
+
     table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
 
     return table
@@ -45,17 +48,27 @@ def set_heatmap_table_properties(table):
 
 def set_colorbalance_table_properties(table):
 
-    table.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+    table.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
     table.setContentsMargins(0, 0, 0, 0)
     table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
     table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-    h_header_height = table.horizontalHeader().height()
-    row_height = table.rowHeight(0)
-    no_items = table.model.rowCount()
-    table.setMaximumHeight(h_header_height + row_height * no_items)
+    last_row_index = table.standard_model.rowCount() - 1
+    table.setRowHeight(last_row_index, 60)
 
-    table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+    h_header_height = table.horizontalHeader().height()
+    # row_height = table.rowHeight(0)
+
+    tot_row_heights = 0
+    for row in range(table.standard_model.rowCount()):
+        tot_row_heights += table.rowHeight(row)
+
+    table.setMaximumHeight(h_header_height + tot_row_heights)
+
+    # table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+
+    table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+    table.setFixedWidth(1400)
 
     return table
 
@@ -73,7 +86,6 @@ class DataValidatioWidget(QWidget):
         self.setLayout(self.layout)
 
         self.hspacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.vspacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         button = QPushButton("Validate")
         button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
@@ -86,23 +98,15 @@ class DataValidatioWidget(QWidget):
 
         self.validate_tabwidget = QTabWidget()
         self.validate_tabwidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # self.validate_tabwidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        # self.validate_tabwidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
         self.layout.addLayout(button_layout)
         self.layout.addWidget(self.validate_tabwidget)
 
         button.clicked.connect(self.validate)
 
+
     def validate(self):
         self.validate_tabwidget.clear()
-
-        # data_widget = QWidget()
-        # form_layout = QFormLayout()
-        # data_v_layout = QVBoxLayout()
-        # data_v_layout.setContentsMargins(0, 0, 0, 0)
-        # data_v_layout.addLayout(form_layout)
-        # data_v_layout.addSpacerItem(self.vspacer)
 
         df = qstandarditemmodel_to_dataframe(self.model)
 
@@ -128,7 +132,6 @@ class DataValidatioWidget(QWidget):
             tab.setLayout(tab_main_layout)
             tab_main_layout.addWidget(QLabel(f"Index Heatmap for Lane {lane}"))
 
-
             heatmap_table = create_heatmap_table(substitutions_heatmap_df(lanes_df[lane], "I7_Index"))
             heatmap_table = set_heatmap_table_properties(heatmap_table)
 
@@ -149,35 +152,16 @@ class DataValidatioWidget(QWidget):
 
             colorbalance_table = ColorBalanceWidget(lanes_df[lane])
             colorbalance_table = set_colorbalance_table_properties(colorbalance_table)
-            colorbalance_table.setStyleSheet("QTableView::item:last { border-bottom: 2px solid black; }")
 
-            h_colorbalance_layout = QHBoxLayout()
-            h_colorbalance_layout.setContentsMargins(0, 0, 0, 0)
-            v_colorbalance_layout = QVBoxLayout()
-            v_colorbalance_layout.setContentsMargins(0, 0, 0, 0)
+            last_row = colorbalance_table.standard_model.rowCount() - 1
 
-            h_colorbalance_layout.addWidget(colorbalance_table)
-            h_colorbalance_layout.addSpacerItem(hspacer)
-            v_colorbalance_layout.addLayout(h_colorbalance_layout)
-            v_colorbalance_layout.addSpacerItem(vspacer)
+            colorbalance_table.setItemDelegateForRow(last_row, JsonDelegate())
 
-            tab_main_layout.addLayout(v_colorbalance_layout)
+            tab_main_layout.addWidget(colorbalance_table)
             tab_main_layout.addSpacerItem(vspacer)
 
             tab_scroll_area.setWidget(tab)
             self.validate_tabwidget.addTab(tab_scroll_area, f"Lane {lane}")
-
-
-
-            # color_balance_table = create_color_balance_table(lanes_df[lane])
-            # print(QTableWidget())
-            # v_layout.addWidget(ColorBalanceWidget(lanes_df[lane]))
-            # v_layout.addSpacerItem(self.vspacer)
-            #
-            # form_layout.addRow(QLabel("Lane " + str(lane)), v_layout)
-
-        # data_widget.setLayout(data_v_layout)
-        # self.validate_tabwidget.setWidget(data_widget)
 
     @staticmethod
     def set_heatmap_table_properties(table):
@@ -197,53 +181,232 @@ class DataValidatioWidget(QWidget):
         return table
 
 
+class ColorBalanceModel(QStandardItemModel):
+
+    def __init__(self, dataframe: pd.DataFrame, parent):
+        super(ColorBalanceModel, self).__init__(parent=parent)
+        self.dataChanged.connect(self.update_summation)
+
+    def update_summation(self):
+
+        print("update_summation")
+
+        for col_count in range(2, self.columnCount()):
+            bases_count = {}
+            for row_count in range(self.rowCount() - 1):
+                proportion = int(self.item(row_count, 1).text())
+
+                base = self.item(row_count, col_count).text()
+
+                if base not in bases_count:
+                    bases_count[base] = 0
+
+                bases_count[self.item(row_count, col_count).text()] += 1 * proportion
+
+            color_counts = self.translate_base_count_to_color_count(bases_count)
+            normalized_color_counts = self.normalize_dict_values(color_counts)
+
+            print(normalized_color_counts)
+
+            norm_json = json.dumps(normalized_color_counts)
+
+            last_row = self.rowCount() - 1
+            self.setData(self.index(last_row, col_count), norm_json, Qt.EditRole)
+
+
+    @staticmethod
+    def normalize_dict_values(input_dict):
+        # Calculate the sum of values in the input dictionary
+        total = sum(input_dict.values())
+
+        # Normalize the values and create a new dictionary
+        normalized_dict = {key: round(value / total, 2) for key, value in input_dict.items()}
+
+        return normalized_dict
+
+    @staticmethod
+    def translate_base_count_to_color_count(dict1):
+        dict2 = {
+            'Blue': 0,
+            'Green': 0,
+            'Black': 0,
+        }
+
+        for key, value in dict1.items():
+            if key == 'A':
+                dict2['Blue'] = value * 0.5
+                dict2['Green'] = value * 0.5
+            elif key == 'C':
+                dict2['Blue'] = value
+            elif key == 'T':
+                dict2['Green'] = value
+            elif key == 'G':
+                dict2['Black'] = value
+
+        return dict2
+
+
+class JsonDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        if index.isValid() and index.column() >= 2:
+            json_data = index.data(Qt.DisplayRole)
+            if json_data:
+                painter.save()
+
+                data = json.loads(json_data)
+
+                lines = [f"{key}: {value}" for key, value in data.items()]
+
+                # Create a QTextOption for aligning text
+                text_option = QTextOption()
+                text_option.setAlignment(Qt.AlignLeft)
+
+                # Calculate the height of each line
+                font_metrics = painter.fontMetrics()
+                line_height = font_metrics.lineSpacing()
+
+                # Draw each line of text
+                for i, line in enumerate(lines):
+                    y_offset = i * line_height
+                    rect = option.rect.adjusted(5, y_offset, 0, 0)  # Adjust the rect for each line
+                    painter.drawText(rect, line, text_option)
+
+        elif index.isValid():
+            super().paint(painter, option, index)
+
+    # def sizeHint(self, option, index):
+    #     text = index.data()
+    #     if text:
+    #         # Split the text into lines
+    #         lines = text.split(',')
+    #
+    #         # Calculate the height required for all lines
+    #         font_metrics = option.fontMetrics
+    #         line_height = font_metrics.lineSpacing()
+    #         total_height = len(lines) * line_height
+    #
+    #         print("sizehint", len(lines), total_height)
+    #
+    #         # Use the height and the width of the cell for size hint
+    #         return QSize(option.rect.width(), total_height)
+
+    def sizeHint(self, option, index):
+        # Calculate the desired height based on the content
+        # For demonstration purposes, use a fixed height here
+        desired_height = 100  # Adjust as needed
+        return option.rect.height(), desired_height
+
+
+# class MultiLabelDelegate(QStyledItemDelegate):
+#     def createEditor(self, parent, option, index):
+#         if index.row() == index.model().rowCount() - 1 and index.column() >= 2:
+#             data = index.data()
+#             print(data)
+#             return MultiLabelWidget(data)
+#         return super().createEditor(parent, option, index)
+#
+#     def setEditorData(self, editor, index):
+#         data = index.data()
+#         editor.setData(data)
+#
+#     def setModelData(self, editor, model, index):
+#         data = editor.getData()
+#         model.setData(index, data, Qt.EditRole)
+#
+#     def updateEditorGeometry(self, editor, option, index):
+#         editor.setGeometry(option.rect)
+
+
+# class MultiLabelWidget(QWidget):
+#     def __init__(self, data):
+#         super().__init__()
+#         self.layout = QHBoxLayout()
+#         self.label1 = QLabel()
+#         self.label2 = QLabel()
+#         self.label3 = QLabel()
+#         self.layout.addWidget(self.label1)
+#         self.layout.addWidget(self.label2)
+#         self.layout.addWidget(self.label3)
+#         self.setLayout(self.layout)
+#
+#         self.setData(data)
+#
+#     def setData(self, data):
+#         try:
+#             json_data = json.loads(data)
+#             self.label1.setText(json_data.get("label1", ""))
+#             self.label2.setText(json_data.get("label2", ""))
+#             self.label3.setText(json_data.get("label3", ""))
+#         except json.JSONDecodeError:
+#             # Handle invalid JSON gracefully
+#             self.label1.setText("")
+#             self.label2.setText("")
+#             self.label3.setText("Invalid JSON")
+#
+#     def getData(self):
+#         data = {
+#             "label1": self.label1.text(),
+#             "label2": self.label2.text(),
+#             "label3": self.label3.text()
+#         }
+#         return json.dumps(data)
+
+
 class ColorBalanceWidget(QTableView):
     def __init__(self, dataframe: pd.DataFrame, parent=None):
         super(ColorBalanceWidget, self).__init__(parent)
         dataframe.reset_index()
-        dataframe['Proportion'] = 1
+        dataframe['Proportion'] = "1"
         df = self.split_string_column(dataframe, 'I7_Index')
         df.insert(0, 'Sample_ID', dataframe['Sample_ID'])
         df.insert(1, "Proportion", dataframe['Proportion'])
+        last_row_index = df.index[-1]
+        df.loc[last_row_index + 1] = pd.Series()
+        df.iloc[-1, 0] = "Summary"
+        df.iloc[-1, 1] = ""
 
-        print(df.to_string())
+        self.standard_model = self.dataframe_to_colorbalance_model(df)
+        self.setModel(self.standard_model)
+        self.standard_model.update_summation()
+        self.verticalHeader().setVisible(False)
+        self.wordWrap()
 
-        self.model = self.dataframe_to_qstandarditemmodel(df)
+    def dataframe_to_colorbalance_model(self, dataframe):
+        """
+        Convert a Pandas DataFrame to a QStandardItemModel.
 
-        self.setModel(self.model)
+        :param dataframe: Pandas DataFrame to convert.
+        :return: QStandardItemModel representing the DataFrame.
+        """
+        model = ColorBalanceModel(dataframe, parent=self)
+
+        # Set the column headers as the model's horizontal headers
+        model.setHorizontalHeaderLabels(dataframe.columns)
+
+        for row_index, row_data in dataframe.iterrows():
+            row_items = [QStandardItem(str(item)) for item in row_data]
+            model.appendRow(row_items)
+
+        return model
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QPainter(self.viewport())
+
+        # Get the last row index
+        last_row_index = self.model().rowCount() - 1
+
+        # Get the rect for the last row
+
+        for col in range(self.model().columnCount()):
+
+            last_row_rect = self.visualRect(self.model().index(last_row_index, col))
+
+            # Draw the thick line before the last row
+            painter.setPen(QPen(QColor("dark gray"), 2, Qt.SolidLine))
+            painter.drawLine(last_row_rect.topLeft(), last_row_rect.topRight())
 
 
-
-        #
-        # # df = dataframe[['Sample_ID', 'I7_Index']].copy()
-        # # df["Proportion"] = "1"
-        # # df.reset_index(inplace=True)
-        #
-        # df_index = self.split_string_column(dataframe, 'I7_Index')
-        #
-        # print(df.to_string())
-        #
-        # table_widget = QTableWidget(df.shape[0] + 1, df.shape[1])
-        #
-        # table_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        # table_widget.setHorizontalHeaderLabels(data.columns)
-        # table_widget.setVerticalHeaderLabels(data.index)
-        #
-        # for row in range(df.shape[0]):
-        #     print("row", row)
-        #     for col in range(df.shape[1]):
-        #         print("col", col)
-        #         # Get the cell value
-        #         cell_value = df.iloc[row, col]
-        #
-        #         print(cell_value)
-        #
-        #         item = QTableWidgetItem(str(cell_value))
-        #         table_widget.setItem(row, col, item)
-        #
-        # table_widget.setItemDelegateForColumn(0, NonEditableDelegate())
-        # table_widget.setItemDelegateForColumn(1, NonEditableDelegate())
-        # table_widget.setItemDelegate(ThickLineDelegate())
 
     @staticmethod
     def split_string_column(dataframe, column_name):
@@ -297,13 +460,14 @@ class NonEditableDelegate(QItemDelegate):
 
 class ThickLineDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
-        if index.row() == index.model().rowCount() - 1:
-            # Draw a thick line for the last row
-            painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
-            painter.drawLine(option.rect.bottomLeft(), option.rect.bottomRight())
-        else:
-            # For other rows, delegate the painting to the default delegate
-            super().paint(painter, option, index)
+        super().paint(painter, option, index)
+
+        if index.row() == index.model().rowCount() - 1 and not index.parent().isValid():
+            # Create a thicker border at the bottom
+            rect = option.rect
+            rect.setTop(rect.bottom() - 2)  # Make the border 2 pixels thick
+            painter.setPen(Qt.black)
+            painter.drawRect(rect)
 
 
 def compare_rows(row1: np.array, row2: np.array):
@@ -448,6 +612,11 @@ def dataframe_to_qstandarditemmodel(dataframe):
         model.appendRow(row_items)
 
     return model
+
+
+
+
+
 
 def qstandarditemmodel_to_dataframe(model):
     """
