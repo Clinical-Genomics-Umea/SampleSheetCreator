@@ -6,10 +6,10 @@ import pandas as pd
 import pandera as pa
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QStandardItemModel, QColor, QBrush, QFont, QPen, QStandardItem, QPainter, QTextDocument, \
-    QTextOption
+    QTextOption, QIntValidator
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QSpacerItem, QSizePolicy, QFormLayout, \
     QTableWidget, QTableWidgetItem, QLabel, QHeaderView, QAbstractScrollArea, QScrollArea, QItemDelegate, \
-    QStyledItemDelegate, QTableView, QTabWidget, QFrame, QProxyStyle, QStyleOptionViewItem, QStyle
+    QStyledItemDelegate, QTableView, QTabWidget, QFrame, QProxyStyle, QStyleOptionViewItem, QStyle, QLineEdit
 from pandera import String, Int, Column, Field, DataFrameSchema, Check, Index
 import pandera.extensions as extensions
 from pandera.errors import SchemaErrors
@@ -17,19 +17,9 @@ from pandera.errors import SchemaErrors
 from modules.run_classes import RunInfo
 
 
-# def delete_widgets_in_scrollarea(scroll_area):
-#     # Get the scroll area's viewport to access its contents
-#     viewport = scroll_area.viewport()
-#
-#     # Iterate through all child widgets in the viewport and delete them
-#     for widget in viewport.findChildren(QWidget):
-#         print(widget)
-#         widget.deleteLater()
-
-
 def set_heatmap_table_properties(table):
 
-    table.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+    table.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
     table.setContentsMargins(0, 0, 0, 0)
     table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
     table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -37,36 +27,28 @@ def set_heatmap_table_properties(table):
     h_header_height = table.horizontalHeader().height()
     row_height = table.rowHeight(0)
     no_items = table.columnCount()
-    table.setMaximumHeight(h_header_height + row_height * no_items)
-
-
+    table.setMaximumHeight(h_header_height + row_height * no_items + 5)
 
     table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+
+    table.setItemDelegate(NonEditableDelegate())
 
     return table
 
 
 def set_colorbalance_table_properties(table):
 
-    table.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+    table.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
     table.setContentsMargins(0, 0, 0, 0)
     table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
     table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     last_row_index = table.standard_model.rowCount() - 1
-    table.setRowHeight(last_row_index, 60)
+    table.setRowHeight(last_row_index, 58)
 
-    h_header_height = table.horizontalHeader().height()
-    # row_height = table.rowHeight(0)
+    table.setItemDelegate(ColorTableDelegate())
 
-    tot_row_heights = 0
-    for row in range(table.standard_model.rowCount()):
-        tot_row_heights += table.rowHeight(row)
-
-    table.setMaximumHeight(h_header_height + tot_row_heights)
-
-    # table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
-
+    table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
     table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
     table.setFixedWidth(1400)
 
@@ -103,7 +85,6 @@ class DataValidatioWidget(QWidget):
         self.layout.addWidget(self.validate_tabwidget)
 
         button.clicked.connect(self.validate)
-
 
     def validate(self):
         self.validate_tabwidget.clear()
@@ -153,10 +134,6 @@ class DataValidatioWidget(QWidget):
             colorbalance_table = ColorBalanceWidget(lanes_df[lane])
             colorbalance_table = set_colorbalance_table_properties(colorbalance_table)
 
-            last_row = colorbalance_table.standard_model.rowCount() - 1
-
-            colorbalance_table.setItemDelegateForRow(last_row, JsonDelegate())
-
             tab_main_layout.addWidget(colorbalance_table)
             tab_main_layout.addSpacerItem(vspacer)
 
@@ -188,8 +165,6 @@ class ColorBalanceModel(QStandardItemModel):
         self.dataChanged.connect(self.update_summation)
 
     def update_summation(self):
-
-        print("update_summation")
 
         for col_count in range(2, self.columnCount()):
             bases_count = {}
@@ -246,9 +221,12 @@ class ColorBalanceModel(QStandardItemModel):
         return dict2
 
 
-class JsonDelegate(QStyledItemDelegate):
+class ColorTableDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
-        if index.isValid() and index.column() >= 2:
+
+        last_row = index.model().rowCount() - 1
+
+        if index.isValid() and index.column() >= 2 and index.row() == last_row:
             json_data = index.data(Qt.DisplayRole)
             if json_data:
                 painter.save()
@@ -274,82 +252,23 @@ class JsonDelegate(QStyledItemDelegate):
         elif index.isValid():
             super().paint(painter, option, index)
 
-    # def sizeHint(self, option, index):
-    #     text = index.data()
-    #     if text:
-    #         # Split the text into lines
-    #         lines = text.split(',')
-    #
-    #         # Calculate the height required for all lines
-    #         font_metrics = option.fontMetrics
-    #         line_height = font_metrics.lineSpacing()
-    #         total_height = len(lines) * line_height
-    #
-    #         print("sizehint", len(lines), total_height)
-    #
-    #         # Use the height and the width of the cell for size hint
-    #         return QSize(option.rect.width(), total_height)
+    def createEditor(self, parent, option, index):
 
-    def sizeHint(self, option, index):
-        # Calculate the desired height based on the content
-        # For demonstration purposes, use a fixed height here
-        desired_height = 100  # Adjust as needed
-        return option.rect.height(), desired_height
+        last_row = index.model().rowCount() - 1
 
+        if index.column() == 1 and index.row() != last_row:
 
-# class MultiLabelDelegate(QStyledItemDelegate):
-#     def createEditor(self, parent, option, index):
-#         if index.row() == index.model().rowCount() - 1 and index.column() >= 2:
-#             data = index.data()
-#             print(data)
-#             return MultiLabelWidget(data)
-#         return super().createEditor(parent, option, index)
-#
-#     def setEditorData(self, editor, index):
-#         data = index.data()
-#         editor.setData(data)
-#
-#     def setModelData(self, editor, model, index):
-#         data = editor.getData()
-#         model.setData(index, data, Qt.EditRole)
-#
-#     def updateEditorGeometry(self, editor, option, index):
-#         editor.setGeometry(option.rect)
+            print(index)
 
+            return self.createIntValidationEditor(parent, option, index)
 
-# class MultiLabelWidget(QWidget):
-#     def __init__(self, data):
-#         super().__init__()
-#         self.layout = QHBoxLayout()
-#         self.label1 = QLabel()
-#         self.label2 = QLabel()
-#         self.label3 = QLabel()
-#         self.layout.addWidget(self.label1)
-#         self.layout.addWidget(self.label2)
-#         self.layout.addWidget(self.label3)
-#         self.setLayout(self.layout)
-#
-#         self.setData(data)
-#
-#     def setData(self, data):
-#         try:
-#             json_data = json.loads(data)
-#             self.label1.setText(json_data.get("label1", ""))
-#             self.label2.setText(json_data.get("label2", ""))
-#             self.label3.setText(json_data.get("label3", ""))
-#         except json.JSONDecodeError:
-#             # Handle invalid JSON gracefully
-#             self.label1.setText("")
-#             self.label2.setText("")
-#             self.label3.setText("Invalid JSON")
-#
-#     def getData(self):
-#         data = {
-#             "label1": self.label1.text(),
-#             "label2": self.label2.text(),
-#             "label3": self.label3.text()
-#         }
-#         return json.dumps(data)
+        else:
+            return None
+
+    def createIntValidationEditor(self, parent, option, index):
+        editor = QLineEdit(parent)
+        editor.setValidator(QIntValidator())  # Set an integer validator
+        return editor
 
 
 class ColorBalanceWidget(QTableView):
