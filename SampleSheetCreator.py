@@ -13,7 +13,7 @@ from modules.indexes import IndexesMGR
 from modules.models import read_fields_from_json
 from modules.profiles import ProfilesMGR
 from modules.run_classes import RunSetup, RunInfo
-from modules.validation import DataValidatioWidget
+from modules.validation.validation import DataValidatioWidget
 
 from PySide6.QtGui import QAction, QActionGroup, QStandardItem, QPainter, QFont
 from PySide6.QtCore import QPropertyAnimation, Qt, Slot

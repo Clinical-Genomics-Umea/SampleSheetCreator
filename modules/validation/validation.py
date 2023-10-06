@@ -1,20 +1,18 @@
 import json
-import re
 
 import numpy as np
 import pandas as pd
-import pandera as pa
-from PySide6.QtCore import Qt, Signal, QSize
-from PySide6.QtGui import QStandardItemModel, QColor, QBrush, QFont, QPen, QStandardItem, QPainter, QTextDocument, \
-    QTextOption, QIntValidator
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QSpacerItem, QSizePolicy, QFormLayout, \
-    QTableWidget, QTableWidgetItem, QLabel, QHeaderView, QAbstractScrollArea, QScrollArea, QItemDelegate, \
-    QStyledItemDelegate, QTableView, QTabWidget, QFrame, QProxyStyle, QStyleOptionViewItem, QStyle, QLineEdit
-from pandera import String, Int, Column, Field, DataFrameSchema, Check, Index
-import pandera.extensions as extensions
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QStandardItemModel, QColor, QBrush, QPen, QStandardItem, QPainter, QTextOption, QIntValidator
+from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QTableWidget,
+                               QTableWidgetItem, QLabel, QHeaderView, QAbstractScrollArea, QScrollArea,
+                               QItemDelegate, QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit)
 from pandera.errors import SchemaErrors
 
 from modules.run_classes import RunInfo
+from modules.validation.validation_fns import compare_rows, substitutions_heatmap_df, split_df_by_lane, \
+    create_table_from_dataframe, qstandarditemmodel_to_dataframe
+from modules.validation.validation_schema import prevalidation_schema
 
 
 def set_heatmap_table_properties(table):
@@ -69,22 +67,11 @@ class DataValidatioWidget(QWidget):
 
         self.hspacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        button = QPushButton("Validate")
-        button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        button.setMaximumHeight(30)
-
-        button_layout = QHBoxLayout()
-        button_layout.setContentsMargins(0, 0, 0, 0)
-        button_layout.addWidget(button)
-        button_layout.addSpacerItem(self.hspacer)
-
         self.validate_tabwidget = QTabWidget()
         self.validate_tabwidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        self.layout.addLayout(button_layout)
         self.layout.addWidget(self.validate_tabwidget)
 
-        button.clicked.connect(self.validate)
 
     def validate(self):
         self.validate_tabwidget.clear()
@@ -92,17 +79,28 @@ class DataValidatioWidget(QWidget):
         df = qstandarditemmodel_to_dataframe(self.model)
 
         try:
-            first_validation_schema(df, lazy=True)
+            prevalidation_schema(df, lazy=True)
         except SchemaErrors as err:
-            print(err.failure_cases)  # dataframe of schema error
+
+            schema_errors_table = create_table_from_dataframe(err.failure_cases)
+
+            tab = QWidget()
+            tab_main_layout = QVBoxLayout()
+            tab_main_layout.setContentsMargins(0, 0, 0, 0)
+            tab.setLayout(tab_main_layout)
+
+            tab_main_layout.addWidget(schema_errors_table)
+
+            self.validate_tabwidget.addTab(tab, "Pre-Validation Errors")
+
             return
 
         lanes_df = split_df_by_lane(df)
 
         for lane in lanes_df:
-            hspacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-            vspacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
-            vspacer_fixed = QSpacerItem(1, 20, QSizePolicy.Fixed, QSizePolicy.Fixed)
+            h_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
+            v_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
+            v_spacer_fixed = QSpacerItem(1, 20, QSizePolicy.Fixed, QSizePolicy.Fixed)
 
             tab_scroll_area = QScrollArea()
             tab_scroll_area.setFrameShape(QFrame.NoFrame)
@@ -122,20 +120,20 @@ class DataValidatioWidget(QWidget):
             v_heatmap_layout.setContentsMargins(0, 0, 0, 0)
 
             h_heatmap_layout.addWidget(heatmap_table)
-            h_heatmap_layout.addSpacerItem(hspacer)
+            h_heatmap_layout.addSpacerItem(h_spacer)
             v_heatmap_layout.addLayout(h_heatmap_layout)
-            v_heatmap_layout.addSpacerItem(vspacer)
+            v_heatmap_layout.addSpacerItem(v_spacer)
 
             tab_main_layout.addLayout(v_heatmap_layout)
 
-            tab_main_layout.addSpacerItem(vspacer_fixed)
+            tab_main_layout.addSpacerItem(v_spacer_fixed)
             tab_main_layout.addWidget(QLabel(f"Color Balance Table for Lane {lane}"))
 
             colorbalance_table = ColorBalanceWidget(lanes_df[lane])
             colorbalance_table = set_colorbalance_table_properties(colorbalance_table)
 
             tab_main_layout.addWidget(colorbalance_table)
-            tab_main_layout.addSpacerItem(vspacer)
+            tab_main_layout.addSpacerItem(v_spacer)
 
             tab_scroll_area.setWidget(tab)
             self.validate_tabwidget.addTab(tab_scroll_area, f"Lane {lane}")
@@ -160,7 +158,7 @@ class DataValidatioWidget(QWidget):
 
 class ColorBalanceModel(QStandardItemModel):
 
-    def __init__(self, dataframe: pd.DataFrame, parent):
+    def __init__(self, parent):
         super(ColorBalanceModel, self).__init__(parent=parent)
         self.dataChanged.connect(self.update_summation)
 
@@ -180,8 +178,6 @@ class ColorBalanceModel(QStandardItemModel):
 
             color_counts = self.translate_base_count_to_color_count(bases_count)
             normalized_color_counts = self.normalize_dict_values(color_counts)
-
-            print(normalized_color_counts)
 
             norm_json = json.dumps(normalized_color_counts)
 
@@ -257,9 +253,6 @@ class ColorTableDelegate(QStyledItemDelegate):
         last_row = index.model().rowCount() - 1
 
         if index.column() == 1 and index.row() != last_row:
-
-            print(index)
-
             return self.createIntValidationEditor(parent, option, index)
 
         else:
@@ -297,7 +290,7 @@ class ColorBalanceWidget(QTableView):
         :param dataframe: Pandas DataFrame to convert.
         :return: QStandardItemModel representing the DataFrame.
         """
-        model = ColorBalanceModel(dataframe, parent=self)
+        model = ColorBalanceModel(parent=self)
 
         # Set the column headers as the model's horizontal headers
         model.setHorizontalHeaderLabels(dataframe.columns)
@@ -377,22 +370,6 @@ class NonEditableDelegate(QItemDelegate):
         return None
 
 
-class ThickLineDelegate(QStyledItemDelegate):
-    def paint(self, painter, option, index):
-        super().paint(painter, option, index)
-
-        if index.row() == index.model().rowCount() - 1 and not index.parent().isValid():
-            # Create a thicker border at the bottom
-            rect = option.rect
-            rect.setTop(rect.bottom() - 2)  # Make the border 2 pixels thick
-            painter.setPen(Qt.black)
-            painter.drawRect(rect)
-
-
-def compare_rows(row1: np.array, row2: np.array):
-    return np.sum(row1 != row2)
-
-
 def valid_sequence_set(series):
     min_length = series.apply(len).min()
     truncated_df = series.apply(lambda x: x[:min_length])
@@ -422,162 +399,6 @@ class NpEncoder(json.JSONEncoder):
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
-
-
-# Lane validation
-
-def check_lane_element(element):
-    return 0 <= int(element) <= 8 if element.isdigit() else False
-
-
-def is_valid_lane(lane_string: str):
-    lane_string.replace(" ", "")
-    elements = lane_string.split(",")
-
-    res = [check_lane_element(element) for element in elements]
-    return all(res)
-
-
-def is_valid_lane_series(lane_series: pd.Series):
-    return lane_series.apply(is_valid_lane)
-
-
-first_validation_schema = DataFrameSchema(
-    {
-        "Lane": Column(str, checks=Check(is_valid_lane_series), nullable=False),
-        "Sample_ID": Column(str, coerce=True, unique=True, nullable=False),
-        "ProfileName": Column(str, coerce=True, nullable=True),
-        "Plate": Column(str, coerce=True, nullable=True),
-        "WellPos": Column(str, coerce=True, nullable=True),
-        "I7_Plate": Column(str, coerce=True, nullable=True),
-        "I7_WellPos": Column(str, coerce=True, nullable=True),
-        "I5_Plate": Column(str, coerce=True, nullable=True),
-        "I5_WellPos": Column(str, coerce=True, nullable=True),
-        "I7_IndexName": Column(str, coerce=True, nullable=True),
-        "I7_Index": Column(str, checks=[Check.str_length(min_value=8, max_value=10),
-                                        # Check(valid_sequence_set)
-                                        ]),
-
-        # "I7_Index": Column(str, coerce=True, nullable=True),
-        "I5_IndexName": Column(str, coerce=True, nullable=True),
-        "I5_Index": Column(str, coerce=True, nullable=True),
-        "UsedCycles": Column(str, coerce=True, nullable=True),
-        "BarcodeMismatchesIndex1": Column(int,
-                                          checks=Check.in_range(0, 4,
-                                                                include_min=True,
-                                                                include_max=True)
-                                          ),
-        "BarcodeMismatchesIndex2": Column(int,
-                                          checks=Check.in_range(0, 4,
-                                                                include_min=True,
-                                                                include_max=True)
-                                          ),
-
-        "AdapterRead1": Column(str, coerce=True, nullable=True),
-        "AdapterRead2": Column(str, coerce=True, nullable=True),
-        "FastqCompressionFormat": Column(str, coerce=True, nullable=True),
-        "Pipeline": Column(str, coerce=True, nullable=True),
-        "ReferenceGenomeDir": Column(str, coerce=True, nullable=True),
-        "VariantCallingMode": Column(str, coerce=True, nullable=True),
-    },
-    index=Index(int),
-    strict=True,
-    coerce=True,
-)
-#
-# # - Lane
-# # - Sample_ID
-# # - ProfileName
-# # - Plate
-# # - WellPos
-# # - I7_Plate
-# # - I7_WellPos
-# # - I5_Plate
-# # - I5_WellPos
-# # - I7_IndexName
-# # - I7_Index
-# # - I5_IndexName
-# # - I5_Index
-# # - UsedCycles
-# # - BarcodeMismatchesIndex1
-# # - BarcodeMismatchesIndex2
-# # - AdapterRead1
-# # - AdapterRead2
-# # - FastqCompressionFormat
-# # - Pipeline
-# # - ReferenceGenomeDir
-# # - VariantCallingMode
-#
-# if __name__ == "__main__":
-#     print("hej")
-#
-#
-
-
-def dataframe_to_qstandarditemmodel(dataframe):
-    """
-    Convert a Pandas DataFrame to a QStandardItemModel.
-
-    :param dataframe: Pandas DataFrame to convert.
-    :return: QStandardItemModel representing the DataFrame.
-    """
-    model = QStandardItemModel()
-
-    # Set the column headers as the model's horizontal headers
-    model.setHorizontalHeaderLabels(dataframe.columns)
-
-    for row_index, row_data in dataframe.iterrows():
-        row_items = [QStandardItem(str(item)) for item in row_data]
-        model.appendRow(row_items)
-
-    return model
-
-
-
-
-
-
-def qstandarditemmodel_to_dataframe(model):
-    """
-    Converts a QStandardItemModel to a Pandas DataFrame, keeping rows with alphanumeric values in at least one column.
-
-    Args:
-        model (QStandardItemModel): The QStandardItemModel to convert.
-
-    Returns:
-        pd.DataFrame: The Pandas DataFrame representation of the QStandardItemModel with rows containing alphanumeric values in at least one column.
-    """
-    if not isinstance(model, QStandardItemModel):
-        raise ValueError("Input must be a QStandardItemModel")
-
-    # Create an empty DataFrame with column names
-    columns = [model.horizontalHeaderItem(col).text() for col in range(model.columnCount())]
-    df = pd.DataFrame(columns=columns)
-
-    # Iterate through the rows of the model and populate the DataFrame
-    for row in range(model.rowCount()):
-        row_data = []
-        has_alphanumeric = False  # Flag to track if the row contains alphanumeric values
-        for col in range(model.columnCount()):
-            item = model.item(row, col)
-            if item is not None:
-                text = item.text()
-                # Check if the text contains alphanumeric characters
-                if re.search(r'\w', text):
-                    row_data.append(text)
-                    has_alphanumeric = True
-                else:
-                    row_data.append(np.nan)
-            else:
-                row_data.append(np.nan)
-        # Only add rows with at least one alphanumeric value
-        if has_alphanumeric:
-            df.loc[row] = row_data
-
-    df = df.infer_objects()
-
-    return df
-
 
 
 def create_heatmap_table(data: pd.DataFrame) -> QTableWidget:
@@ -628,100 +449,3 @@ def create_heatmap_table(data: pd.DataFrame) -> QTableWidget:
     return table_widget
 
 
-def cell_value_background_color(cell_value, default_color):
-    # You can add more conditions or customize colors as needed
-    if "a" in cell_value:
-        return QColor(255, 128, 128)  # Red for cells containing "a"
-    else:
-        return default_color
-
-
-def substitutions_heatmap_df(df: pd.DataFrame, index_column_name: str) -> pd.DataFrame:
-    min_length = df[index_column_name].apply(len).min()
-    truncated_df = df[index_column_name].apply(lambda x: x[:min_length])
-    truncated_np_array = truncated_df.apply(list).apply(np.array).to_numpy()
-    dna_mismatches = np.vectorize(compare_rows)(truncated_np_array[:, None], truncated_np_array)
-
-    dna_mismatches_df = pd.DataFrame(dna_mismatches)
-
-    dna_mismatches_df.columns = df.Sample_ID
-    dna_mismatches_df.index = df.Sample_ID
-
-    return dna_mismatches_df
-
-
-def split_df_by_lane(df):
-    # sourcery skip: dict-comprehension, inline-immediately-returned-variable, move-assign-in-block
-    lane_dataframes = {}
-
-    exploded_df = explode_df_by_lane(df)
-    unique_lanes = exploded_df['Lane'].unique()
-
-    for lane in unique_lanes:
-        lane_dataframes[lane] = exploded_df[exploded_df['Lane'] == lane]
-
-    return lane_dataframes
-
-
-def explode_df_by_lane(df):
-    exploded_df = df.assign(Lane=df['Lane'].str.split(',')).explode('Lane')
-    exploded_df['Lane'] = exploded_df['Lane'].astype(int)
-    return exploded_df
-
-
-# def create_color_balanced_table(data: pd.DataFrame) -> QTableWidget:
-#     table_widget = QTableWidget(rows=data.shape[0], columns=2)
-#
-#     # Set column count
-#     table_widget.setColumnCount(2)
-#
-#     # Set column headers
-#     table_widget.setHorizontalHeaderLabels(['Sample_ID', 'Index'])
-#
-#     # Set row count
-#     table_widget.setRowCount(len(data))
-#
-#     # Populate the QTableWidget from the DataFrame
-#     for row_index, row_data in data.iterrows():
-#         for col_index, value in enumerate(row_data):
-#             item = QTableWidgetItem(str(value))
-#             table_widget.setItem(row_index, col_index, item)
-#
-#     font = QFont("Courier New", 12)  # You can adjust the font size as needed
-#     table_widget.horizontalHeaderItem(1).setFont(font)
-#
-#
-#     return table_widget
-
-
-def color_cell_based_on_mismatches(table_widget, row, col, data):
-    cell_value = data.iloc[row, col]
-    num_mismatches = calculate_mismatches(cell_value, data.columns[row])
-    color_intensity = min(255, 255 - (num_mismatches * 30))  # Adjust color intensity
-
-    color = QColor(color_intensity, color_intensity, 255)  # Blueish color
-    brush = cell_value_background_color(cell_value, color)
-    item = QTableWidgetItem(cell_value)
-    item.setBackground(brush)
-    table_widget.setItem(row, col, item)
-
-
-def calculate_mismatches(str1, str2):
-    return sum(c1 != c2 for c1, c2 in zip(str1, str2))
-
-
-def parse_integer_string(input_string):
-    try:
-        # Remove whitespaces from the input string and then split it by commas
-        input_string = input_string.replace(" ", "")
-        integers_list = [int(x) for x in input_string.split(',')]
-
-        # Check if the number of integers is between 1 and 8
-        if 1 <= len(integers_list) <= 8:
-            return integers_list
-        else:
-            raise ValueError("Invalid number of integers in the input string")
-    except ValueError:
-        # Handle invalid input or conversion errors
-        print("Error: Invalid input string")
-        return None
