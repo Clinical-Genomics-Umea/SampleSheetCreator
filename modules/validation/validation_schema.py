@@ -4,8 +4,8 @@ import pandera as pa
 
 
 def is_valid_lane_series(lane_series: pd.Series):
-    valid_series = lane_series.str.replace(" ", "").str.split(",").apply(
-        lambda elements: all(check_lane_element(element) for element in elements))
+    lane_elements = [element.strip() for elements in lane_series.str.split(",") for element in elements]
+    valid_series = pd.Series([all(check_lane_element(element) for element in elements) for elements in lane_elements])
     return valid_series
 
 
@@ -13,21 +13,17 @@ def check_lane_element(element):
     return 0 <= int(element) <= 8 if element.isdigit() else False
 
 
-def is_valid_i7_index(series):
+def is_valid_i5_index(input_series: pd.Series):
     """
     Validate a pandas Series containing strings composed of 'A', 'T', 'C', 'G', or NaN (empty).
 
     Args:
-        series (pandas.Series): The input Series to validate.
+        input_series (pandas.Series): The input Series to validate.
 
     Returns:
         pandas.Series: A Series of boolean values indicating if each item meets the conditions.
     """
-    # Create a mask to check for valid conditions
-    mask = (series.isna()) | (series.str.match(r'^[ATCG]*$'))
-    result = mask.astype(bool)
-
-    return result
+    return pd.Series(input_series.isna() | input_series.str.contains(r'^[ATCG]*$'), dtype=bool)
 
 def is_valid_used_cycles(series):
     """
@@ -45,8 +41,27 @@ def is_valid_used_cycles(series):
 
     return result
 
+#
+# def is_valid_used_cycles(series):
+#     """
+#     Validate a pandas Series where each item contains a string of 4 integers separated by semicolons.
+#
+#     Args:
+#         series (pandas.Series): The input Series to validate.
+#
+#     Returns:
+#         pandas.Series: A Series of boolean values indicating if each item meets the condition.
+#     """
+#     # Create a regex pattern to match the required format
+#     pattern = r'^\d{1,3};\d{1,2};\d{1,2};\d{1,3}$'
+#
+#     # Use the str.match method to apply the regex pattern and return a boolean Series
+#     result = series.str.match(pattern, na=False)
+#
+#     return result
 
-def is_valid_used_cycles(series):
+
+def is_valid_used_cycles(series: pd.Series) -> pd.Series:
     """
     Validate a pandas Series where each item contains a string of 4 integers separated by semicolons.
 
@@ -56,13 +71,8 @@ def is_valid_used_cycles(series):
     Returns:
         pandas.Series: A Series of boolean values indicating if each item meets the condition.
     """
-    # Create a regex pattern to match the required format
-    pattern = r'^\d{1,3};\d{1,2};\d{1,2};\d{1,3}$'
-
-    # Use the str.match method to apply the regex pattern and return a boolean Series
-    result = series.str.match(pattern, na=False)
-
-    return result
+    pattern = r'^\d{2,3};\d{1,2};\d{1,2};\d{1,3}$'
+    return series.str.contains(pattern, na=False)
 
 
 prevalidation_schema = DataFrameSchema(
@@ -100,7 +110,7 @@ prevalidation_schema = DataFrameSchema(
                                             error="Index is too short."),
                                    pa.Check(lambda s: s.str.len() <= 10,
                                             error="Index is too long."),
-                                   pa.Check(is_valid_i7_index,
+                                   pa.Check(is_valid_i5_index,
                                             error="Contains invalid characters. Seq can be empty or contain only A, T, C, G.")
                                    ],
                            ),

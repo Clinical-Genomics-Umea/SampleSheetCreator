@@ -13,7 +13,7 @@ from modules.indexes import IndexesMGR
 from modules.models import read_fields_from_json
 from modules.profiles import ProfilesMGR
 from modules.run_classes import RunSetup, RunInfo
-from modules.validation.validation import DataValidatioWidget
+from modules.validation.validation import DataValidationWidget
 
 from PySide6.QtGui import QAction, QActionGroup, QStandardItem, QPainter, QFont
 from PySide6.QtCore import QPropertyAnimation, Qt, Slot
@@ -110,7 +110,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.run_info_widget = RunInfo()
         self.run_setup()
 
-        self.validate_widget = DataValidatioWidget(self.sample_model, self.run_info_widget)
+        self.validate_widget = DataValidationWidget(self.sample_model, self.run_info_widget)
         self.validate_widget_setup()
 
         self.field_view = QLineEdit()
@@ -150,10 +150,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.verticalLayout.insertWidget(1, self.field_view)
         self.field_view.setFont(QFont("Arial", 8))
         self.field_view.setReadOnly(True)
-        self.samples_tableview.selectionModel().selectionChanged.connect(self.on_tv_selection_changed)
-        self.samples_tableview.model().dataChanged.connect(self.on_tv_selection_changed)
+        self.samples_tableview.selectionModel().selectionChanged.connect(self.on_samples_tableview_selection_changed)
+        self.samples_tableview.model().dataChanged.connect(self.on_samples_tableview_selection_changed)
 
-    def on_tv_selection_changed(self):
+    def on_samples_tableview_selection_changed(self):
         selection_model = self.samples_tableview.selectionModel()
         selected_indexes = selection_model.selectedIndexes()
         if len(selected_indexes) == 1 and selected_indexes:
@@ -169,13 +169,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.field_view.setText(text)
 
     def menu_animations_setup(self):
-        self.left_tab_anim["open"] = self.mk_animation(self.leftmenu_tabWidget, 0, 300)
-        self.left_tab_anim["close"] = self.mk_animation(self.leftmenu_tabWidget, 300, 0)
+        self.left_tab_anim["open"] = self.make_animation(self.leftmenu_tabWidget, 0, 300)
+        self.left_tab_anim["close"] = self.make_animation(self.leftmenu_tabWidget, 300, 0)
         
-        self.right_tab_anim["open"] = self.mk_animation(self.rightmenu_tabWidget, 0, 250)
-        self.right_tab_anim["close"] = self.mk_animation(self.rightmenu_tabWidget, 250, 0)
+        self.right_tab_anim["open"] = self.make_animation(self.rightmenu_tabWidget, 0, 250)
+        self.right_tab_anim["close"] = self.make_animation(self.rightmenu_tabWidget, 250, 0)
 
-    def mk_animation(self, menu_widget, start_width, end_width):
+    def make_animation(self, menu_widget, start_width, end_width):
         animation = QPropertyAnimation(menu_widget, b"maximumWidth")
         animation.setStartValue(start_width)
         animation.setEndValue(end_width)
@@ -184,10 +184,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return animation
 
     def get_vertical_button_view(self, button: QPushButton):
-        button.setFixedHeight(20)
-        button.setFixedWidth(100)
+        button.setFixedSize(100, 20)
         button.setContentsMargins(0, 0, 0, 0)
-        button.setStyleSheet("QPushButton {border-width: 0px;}")
+        button.setStyleSheet("QPushButton {border: none;}")
         button.setIcon(qta.icon('ph.rows-light'))
 
         button_size = button.size()
@@ -195,6 +194,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         scene = QGraphicsScene(self)
         proxy_widget = scene.addWidget(button)
         proxy_widget.setRotation(90)
+
         view = QGraphicsView(self.right_sidebar_widget)
         view.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
         view.setFrameStyle(QFrame.NoFrame)
@@ -202,10 +202,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         view.setFixedHeight(button_size.width() + 2)
         view.setFixedWidth(button_size.height() + 2)
+
         view.setScene(scene)
         view.setContentsMargins(0, 0, 0, 0)
 
         return view
+
 
     def sample_tableview_setup(self):
         self.samples_tableview.setModel(self.sample_model)
@@ -234,7 +236,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         for name in indexes_names:
             self.indexes_widgets[name] = self.indexes_manager.get_indexes_widget(name)
-            name2 = self.indexes_widgets[name].get_name()
+            # name2 = self.indexes_widgets[name].get_name()
 
             readable_name = self.indexes_widgets[name].get_name_readable()
             self.indexes_toolbox.addItem(self.indexes_widgets[name], readable_name)

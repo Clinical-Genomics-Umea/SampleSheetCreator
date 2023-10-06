@@ -31,42 +31,63 @@ def substitutions_heatmap_df(df: pd.DataFrame, index_column_name: str) -> pd.Dat
 
 
 def split_df_by_lane(df):
-    # sourcery skip: dict-comprehension, inline-immediately-returned-variable, move-assign-in-block
-    lane_dataframes = {}
+
+    # lane_dataframes = {}
 
     exploded_df = explode_df_by_lane(df)
     unique_lanes = exploded_df['Lane'].unique()
 
-    for lane in unique_lanes:
-        lane_dataframes[lane] = exploded_df[exploded_df['Lane'] == lane]
+    # for lane in unique_lanes:
+    #     lane_dataframes[lane] = exploded_df[exploded_df['Lane'] == lane]
 
-    return lane_dataframes
+    return {lane: exploded_df[exploded_df['Lane'] == lane] for lane in unique_lanes}
+
+    # return lane_dataframes
 
 
 def create_table_from_dataframe(dataframe):
-
-    # Create a QVBoxLayout for the main widget
     layout = QVBoxLayout()
-
-    # Create the QTableWidget
     table_widget = QTableWidget()
     layout.addWidget(table_widget)
 
-    # Set the number of rows and columns in the QTableWidget
     num_rows, num_columns = dataframe.shape
     table_widget.setRowCount(num_rows)
     table_widget.setColumnCount(num_columns)
-
-    # Set the table headers
     table_widget.setHorizontalHeaderLabels(dataframe.columns)
 
-    # Populate the table with data from the DataFrame
-    for row in range(num_rows):
-        for col in range(num_columns):
-            item = QTableWidgetItem(str(dataframe.iloc[row, col]))
+    for row, values in enumerate(dataframe.itertuples(index=False), start=0):
+        for col, value in enumerate(values, start=0):
+            item = QTableWidgetItem()
+            item.setData(Qt.DisplayRole, str(value))
             table_widget.setItem(row, col, item)
 
     return table_widget
+
+#
+# def create_table_from_dataframe(dataframe):
+#
+#     # Create a QVBoxLayout for the main widget
+#     layout = QVBoxLayout()
+#
+#     # Create the QTableWidget
+#     table_widget = QTableWidget()
+#     layout.addWidget(table_widget)
+#
+#     # Set the number of rows and columns in the QTableWidget
+#     num_rows, num_columns = dataframe.shape
+#     table_widget.setRowCount(num_rows)
+#     table_widget.setColumnCount(num_columns)
+#
+#     # Set the table headers
+#     table_widget.setHorizontalHeaderLabels(dataframe.columns)
+#
+#     # Populate the table with data from the DataFrame
+#     for row in range(num_rows):
+#         for col in range(num_columns):
+#             item = QTableWidgetItem(str(dataframe.iloc[row, col]))
+#             table_widget.setItem(row, col, item)
+#
+#     return table_widget
 
 
 def dataframe_to_qstandarditemmodel(dataframe):
@@ -87,44 +108,62 @@ def dataframe_to_qstandarditemmodel(dataframe):
 
     return model
 
+#
+# def qstandarditemmodel_to_dataframe(model):
+#     """
+#     Converts a QStandardItemModel to a Pandas DataFrame, keeping rows with alphanumeric values in at least one column.
+#
+#     Args:
+#         model (QStandardItemModel): The QStandardItemModel to convert.
+#
+#     Returns:
+#         pd.DataFrame: The Pandas DataFrame representation of the QStandardItemModel with rows containing alphanumeric values in at least one column.
+#     """
+#     if not isinstance(model, QStandardItemModel):
+#         raise ValueError("Input must be a QStandardItemModel")
+#
+#     # Create an empty DataFrame with column names
+#     columns = [model.horizontalHeaderItem(col).text() for col in range(model.columnCount())]
+#     df = pd.DataFrame(columns=columns)
+#
+#     # Iterate through the rows of the model and populate the DataFrame
+#     for row in range(model.rowCount()):
+#         row_data = []
+#         has_alphanumeric = False  # Flag to track if the row contains alphanumeric values
+#         for col in range(model.columnCount()):
+#             item = model.item(row, col)
+#             if item is not None:
+#                 text = item.text()
+#                 # Check if the text contains alphanumeric characters
+#                 if re.search(r'\w', text):
+#                     row_data.append(text)
+#                     has_alphanumeric = True
+#                 else:
+#                     row_data.append(np.nan)
+#             else:
+#                 row_data.append(np.nan)
+#         # Only add rows with at least one alphanumeric value
+#         if has_alphanumeric:
+#             df.loc[row] = row_data
+#
+#     df = df.infer_objects()
+#
+#     return df
+
 
 def qstandarditemmodel_to_dataframe(model):
-    """
-    Converts a QStandardItemModel to a Pandas DataFrame, keeping rows with alphanumeric values in at least one column.
-
-    Args:
-        model (QStandardItemModel): The QStandardItemModel to convert.
-
-    Returns:
-        pd.DataFrame: The Pandas DataFrame representation of the QStandardItemModel with rows containing alphanumeric values in at least one column.
-    """
     if not isinstance(model, QStandardItemModel):
         raise ValueError("Input must be a QStandardItemModel")
 
-    # Create an empty DataFrame with column names
     columns = [model.horizontalHeaderItem(col).text() for col in range(model.columnCount())]
     df = pd.DataFrame(columns=columns)
 
-    # Iterate through the rows of the model and populate the DataFrame
     for row in range(model.rowCount()):
-        row_data = []
-        has_alphanumeric = False  # Flag to track if the row contains alphanumeric values
-        for col in range(model.columnCount()):
-            item = model.item(row, col)
-            if item is not None:
-                text = item.text()
-                # Check if the text contains alphanumeric characters
-                if re.search(r'\w', text):
-                    row_data.append(text)
-                    has_alphanumeric = True
-                else:
-                    row_data.append(np.nan)
-            else:
-                row_data.append(np.nan)
-        # Only add rows with at least one alphanumeric value
-        if has_alphanumeric:
-            df.loc[row] = row_data
+        row_data = [model.item(row, col).text() for col in range(model.columnCount())]
+        df.loc[row] = row_data
 
-    df = df.infer_objects()
+    df.replace('', np.nan, inplace=True)
+    df.dropna(how='all', inplace=True)
+    df.reset_index(drop=True, inplace=True)
 
     return df

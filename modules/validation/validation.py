@@ -3,7 +3,8 @@ import json
 import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QStandardItemModel, QColor, QBrush, QPen, QStandardItem, QPainter, QTextOption, QIntValidator
+from PySide6.QtGui import QStandardItemModel, QColor, QBrush, QPen, QStandardItem, QPainter, QTextOption, QIntValidator, \
+    QPalette
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QTableWidget,
                                QTableWidgetItem, QLabel, QHeaderView, QAbstractScrollArea, QScrollArea,
                                QItemDelegate, QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit)
@@ -53,12 +54,12 @@ def set_colorbalance_table_properties(table):
     return table
 
 
-class DataValidatioWidget(QWidget):
-    def __init__(self, model: QStandardItemModel, runinfo: RunInfo):
+class DataValidationWidget(QWidget):
+    def __init__(self, model: QStandardItemModel, run_info: RunInfo):
         super().__init__()
 
         self.model = model
-        self.runinfo = runinfo
+        self.run_info = run_info
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -71,7 +72,6 @@ class DataValidatioWidget(QWidget):
         self.validate_tabwidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.layout.addWidget(self.validate_tabwidget)
-
 
     def validate(self):
         self.validate_tabwidget.clear()
@@ -197,24 +197,24 @@ class ColorBalanceModel(QStandardItemModel):
 
     @staticmethod
     def translate_base_count_to_color_count(dict1):
-        dict2 = {
+        color_count = {
             'Blue': 0,
             'Green': 0,
             'Black': 0,
         }
 
-        for key, value in dict1.items():
-            if key == 'A':
-                dict2['Blue'] = value * 0.5
-                dict2['Green'] = value * 0.5
-            elif key == 'C':
-                dict2['Blue'] = value
-            elif key == 'T':
-                dict2['Green'] = value
-            elif key == 'G':
-                dict2['Black'] = value
+        for base, count in dict1.items():
+            if base == 'A':
+                color_count['Blue'] = count * 0.5
+                color_count['Green'] = count * 0.5
+            elif base == 'C':
+                color_count['Blue'] = count
+            elif base == 'T':
+                color_count['Green'] = count
+            elif base == 'G':
+                color_count['Black'] = count
 
-        return dict2
+        return color_count
 
 
 class ColorTableDelegate(QStyledItemDelegate):
@@ -305,20 +305,17 @@ class ColorBalanceWidget(QTableView):
         super().paintEvent(event)
         painter = QPainter(self.viewport())
 
-        # Get the last row index
-        last_row_index = self.model().rowCount() - 1
+        model = self.model()
+        column_count = model.columnCount()
 
-        # Get the rect for the last row
+        last_row_index = model.rowCount() - 1
 
-        for col in range(self.model().columnCount()):
+        for col in range(column_count):
+            last_row_rect = self.visualRect(model.index(last_row_index, col))
 
-            last_row_rect = self.visualRect(self.model().index(last_row_index, col))
-
-            # Draw the thick line before the last row
-            painter.setPen(QPen(QColor("dark gray"), 2, Qt.SolidLine))
+            thick_pen = QPen(QColor("dark gray"), 2, Qt.SolidLine)
+            painter.setPen(thick_pen)
             painter.drawLine(last_row_rect.topLeft(), last_row_rect.topRight())
-
-
 
     @staticmethod
     def split_string_column(dataframe, column_name):
@@ -329,39 +326,54 @@ class ColorBalanceWidget(QTableView):
         :param column_name: Name of the column containing the strings.
         :return: DataFrame with one column per character in the strings.
         """
-        # Create an empty DataFrame with columns for each character
-        split_df = pd.DataFrame()
-
-        # Iterate through the rows of the original DataFrame
-        for index, row in dataframe.iterrows():
-            string_value = row[column_name]
-            # Create a list of characters from the string
-            characters = list(string_value)
-
-            # Create new columns for each character and assign values
-            for i, char in enumerate(characters):
-                col_name = f"{column_name}_{i + 1}"  # New column name
-                split_df.at[index, col_name] = char
+        # Use apply and pd.Series to split the string column into multiple columns
+        split_df = dataframe[column_name].apply(lambda x: pd.Series(list(x)))
+        split_df.columns = [f"{column_name}_{i + 1}" for i in range(split_df.shape[1])]
 
         return split_df
+    #
+    # @staticmethod
+    # def split_string_column(dataframe, column_name):
+    #     """
+    #     Split a column of strings into multiple columns with one character per column.
+    #
+    #     :param dataframe: Pandas DataFrame containing the string column.
+    #     :param column_name: Name of the column containing the strings.
+    #     :return: DataFrame with one column per character in the strings.
+    #     """
+    #     # Create an empty DataFrame with columns for each character
+    #     split_df = pd.DataFrame()
+    #
+    #     # Iterate through the rows of the original DataFrame
+    #     for index, row in dataframe.iterrows():
+    #         string_value = row[column_name]
+    #         # Create a list of characters from the string
+    #         characters = list(string_value)
+    #
+    #         # Create new columns for each character and assign values
+    #         for i, char in enumerate(characters):
+    #             col_name = f"{column_name}_{i + 1}"  # New column name
+    #             split_df.at[index, col_name] = char
+    #
+    #     return split_df
 
-    def dataframe_to_qstandarditemmodel(self, dataframe):
-        """
-        Convert a Pandas DataFrame to a QStandardItemModel.
-
-        :param dataframe: Pandas DataFrame to convert.
-        :return: QStandardItemModel representing the DataFrame.
-        """
-        model = QStandardItemModel()
-
-        # Set the column headers as the model's horizontal headers
-        model.setHorizontalHeaderLabels(dataframe.columns)
-
-        for row_index, row_data in dataframe.iterrows():
-            row_items = [QStandardItem(str(item)) for item in row_data]
-            model.appendRow(row_items)
-
-        return model
+    # def dataframe_to_qstandarditemmodel(self, dataframe):
+    #     """
+    #     Convert a Pandas DataFrame to a QStandardItemModel.
+    #
+    #     :param dataframe: Pandas DataFrame to convert.
+    #     :return: QStandardItemModel representing the DataFrame.
+    #     """
+    #     model = QStandardItemModel()
+    #
+    #     # Set the column headers as the model's horizontal headers
+    #     model.setHorizontalHeaderLabels(dataframe.columns)
+    #
+    #     for row_index, row_data in dataframe.iterrows():
+    #         row_items = [QStandardItem(str(item)) for item in row_data]
+    #         model.appendRow(row_items)
+    #
+    #     return model
 
 
 class NonEditableDelegate(QItemDelegate):
@@ -369,25 +381,25 @@ class NonEditableDelegate(QItemDelegate):
         # Return None to make the item non-editable
         return None
 
-
-def valid_sequence_set(series):
-    min_length = series.apply(len).min()
-    truncated_df = series.apply(lambda x: x[:min_length])
-
-    truncated_np_array = truncated_df.apply(list).apply(np.array).to_numpy()
-    dna_mismatches = np.vectorize(compare_rows)(truncated_np_array[:, None], truncated_np_array)
-
-    row_indices, col_indices = np.where((dna_mismatches < 4) &
-                                        (np.arange(dna_mismatches.shape[0]) != np.arange(dna_mismatches.shape[0])[:,
-                                                                               np.newaxis]))
-
-    res = [True] * dna_mismatches.shape[0]
-
-    if len(row_indices) > 0:
-        for i in row_indices:
-            res[i] = False
-
-    return pd.Series(res)
+#
+# def valid_sequence_set(series):
+#     min_length = series.apply(len).min()
+#     truncated_df = series.apply(lambda x: x[:min_length])
+#
+#     truncated_np_array = truncated_df.apply(list).apply(np.array).to_numpy()
+#     dna_mismatches = np.vectorize(compare_rows)(truncated_np_array[:, None], truncated_np_array)
+#
+#     row_indices, col_indices = np.where((dna_mismatches < 4) &
+#                                         (np.arange(dna_mismatches.shape[0]) != np.arange(dna_mismatches.shape[0])[:,
+#                                                                                np.newaxis]))
+#
+#     res = [True] * dna_mismatches.shape[0]
+#
+#     if len(row_indices) > 0:
+#         for i in row_indices:
+#             res[i] = False
+#
+#     return pd.Series(res)
 
 
 class NpEncoder(json.JSONEncoder):
@@ -400,52 +412,85 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
 
+#
+# def create_heatmap_table(data: pd.DataFrame) -> QTableWidget:
+#     # Create a QTableWidget with the same dimensions as the DataFrame
+#     table_widget = QTableWidget(data.shape[0], data.shape[1])
+#
+#     table_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+#
+#     # Set column headers
+#     table_widget.setHorizontalHeaderLabels(data.columns)
+#
+#     # Set row headers (vertical header)
+#     table_widget.setVerticalHeaderLabels(data.index)
+#
+#     for row in range(data.shape[0]):
+#         for col in range(data.shape[1]):
+#             # Get the cell value
+#             cell_value = int(data.iat[row, col])
+#
+#             # Skip coloring the diagonal cells
+#             if row == col:
+#                 continue
+#
+#             if cell_value < 5:
+#                 red_intensity = int(192 + (255 - 192) * (cell_value / 4))  # Red shade
+#                 color = QColor(red_intensity, 0, 0)
+#             else:
+#                 green_intensity = int(192 + (255 - 192) * (1 - ((cell_value - 4) / (data.max().max() - 4))))  # Green shade
+#                 color = QColor(0, green_intensity, 0)
+#
+#             # Create a brush with the calculated color
+#             brush = QBrush(color)
+#
+#             # Create a QTableWidgetItem with the cell value
+#             item = QTableWidgetItem(str(cell_value))
+#
+#             # Set the background color for the cell
+#             item.setBackground(brush)
+#
+#             # Set alignment to center
+#             item.setTextAlignment(Qt.AlignCenter)
+#
+#             item.setFlags(Qt.ItemIsEnabled)
+#
+#             # Add the item to the table
+#             table_widget.setItem(row, col, item)
+#
+#     return table_widget
+
 
 def create_heatmap_table(data: pd.DataFrame) -> QTableWidget:
-    # Create a QTableWidget with the same dimensions as the DataFrame
     table_widget = QTableWidget(data.shape[0], data.shape[1])
-
     table_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-
-    # Set column headers
     table_widget.setHorizontalHeaderLabels(data.columns)
-
-    # Set row headers (vertical header)
     table_widget.setVerticalHeaderLabels(data.index)
 
     for row in range(data.shape[0]):
         for col in range(data.shape[1]):
-            # Get the cell value
             cell_value = int(data.iat[row, col])
 
-            # Skip coloring the diagonal cells
             if row == col:
                 continue
 
             if cell_value < 5:
-                red_intensity = int(192 + (255 - 192) * (cell_value / 4))  # Red shade
+                red_intensity = int(192 + (255 - 192) * (cell_value / 4))
                 color = QColor(red_intensity, 0, 0)
             else:
-                green_intensity = int(192 + (255 - 192) * (1 - ((cell_value - 4) / (data.max().max() - 4))))  # Green shade
+                green_intensity = int(192 + (255 - 192) * (1 - ((cell_value - 4) / (data.max().max() - 4))))
                 color = QColor(0, green_intensity, 0)
 
-            # Create a brush with the calculated color
-            brush = QBrush(color)
+            widget = QWidget()
+            widget.setAutoFillBackground(True)
+            widget.setStyleSheet(f"background-color: {color.name()};")
 
-            # Create a QTableWidgetItem with the cell value
-            item = QTableWidgetItem(str(cell_value))
+            layout = QVBoxLayout()
+            label = QLabel(str(cell_value))
+            label.setAlignment(Qt.AlignCenter)
+            layout.addWidget(label)
+            widget.setLayout(layout)
 
-            # Set the background color for the cell
-            item.setBackground(brush)
-
-            # Set alignment to center
-            item.setTextAlignment(Qt.AlignCenter)
-
-            item.setFlags(Qt.ItemIsEnabled)
-
-            # Add the item to the table
-            table_widget.setItem(row, col, item)
+            table_widget.setCellWidget(row, col, widget)
 
     return table_widget
-
-

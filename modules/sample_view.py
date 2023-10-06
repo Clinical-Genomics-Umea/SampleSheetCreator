@@ -127,7 +127,6 @@ class SampleTableView(QTableView):
 
         print(selected_rows)
 
-
     def setModel(self, model):
         super().setModel(model)
 
@@ -136,9 +135,9 @@ class SampleTableView(QTableView):
             model.horizontalHeaderItem(column).setToolTip(header_label)
 
         # Execute the method after the model has been set
-        self.executeAfterModelSet()
+        self.on_after_model_set()
 
-    def executeAfterModelSet(self):
+    def on_after_model_set(self):
         self.selectionModel().selectionChanged.connect(self.on_selection_changed)
         # self.model().dataChanged.connect(self.on_selection_changed)
 
@@ -251,19 +250,42 @@ class SampleTableView(QTableView):
         selected_csv = list2d_to_tab_delim_str(selected_data)
         self.clipboard.setText(selected_csv)
 
+    # def get_selected_data(self):
+    #     selected_indexes = self.selectedIndexes()
+    #     selected_data = []
+    #
+    #     rows = []
+    #     cols = []
+    #
+    #     for index in selected_indexes:
+    #         rows.append(index.row())
+    #         cols.append(index.column())
+    #
+    #     min_row, max_row = min(rows), max(rows)
+    #     min_col, max_col = min(cols), max(cols)
+    #
+    #     for row_count in range(min_row, max_row + 1):
+    #         row_items = [
+    #             self.model().data(
+    #                 self.model().index(row_count, col_count), Qt.DisplayRole
+    #             )
+    #             for col_count in range(min_col, max_col + 1)
+    #         ]
+    #         selected_data.append(row_items)
+    #
+    #     return selected_data
+
     def get_selected_data(self):
         selected_indexes = self.selectedIndexes()
         selected_data = []
 
-        rows = []
-        cols = []
+        rows = [index.row() for index in selected_indexes]
+        cols = [index.column() for index in selected_indexes]
 
-        for index in selected_indexes:
-            rows.append(index.row())
-            cols.append(index.column())
-
-        min_row, max_row = min(rows), max(rows)
-        min_col, max_col = min(cols), max(cols)
+        min_row = min(rows)
+        max_row = max(rows)
+        min_col = min(cols)
+        max_col = max(cols)
 
         for row_count in range(min_row, max_row + 1):
             row_items = [
@@ -361,136 +383,4 @@ class SampleTableView(QTableView):
                 return True
 
         return False
-
-
-# class CheckableComboBox(QComboBox):
-#
-#     # Subclass Delegate to increase item height
-#     class Delegate(QStyledItemDelegate):
-#         def sizeHint(self, option, index):
-#             size = super().sizeHint(option, index)
-#             size.setHeight(20)
-#             return size
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#
-#         # Make the combo editable to set a custom text, but readonly
-#         self.setEditable(True)
-#         self.lineEdit().setReadOnly(True)
-#
-#         # Remove the border
-#         self.setFrame(False)
-#
-#         # Use custom delegate
-#         self.setItemDelegate(CheckableComboBox.Delegate())
-#
-#         # Hide and show popup when clicking the line edit
-#         self.lineEdit().installEventFilter(self)
-#         self.closeOnLineEditClick = False
-#
-#         # Prevent popup from closing when clicking on an item
-#         self.view().viewport().installEventFilter(self)
-#
-#     def resizeEvent(self, event):
-#         # Recompute text to elide as needed
-#         self.updateText()
-#         super().resizeEvent(event)
-#
-#     def eventFilter(self, obj, event):
-#         if obj == self.lineEdit():
-#             if event.type() == QEvent.MouseButtonRelease:
-#                 if self.closeOnLineEditClick:
-#                     self.hide_popup()
-#                 else:
-#                     self.show_popup()
-#                 return True
-#             return False
-#
-#         if obj == self.view().viewport() and event.type() == QEvent.MouseButtonRelease:
-#             index = self.view().indexAt(event.pos())
-#             item = self.model().item(index.row())
-#
-#             if item.checkState() == Qt.Checked:
-#                 item.setCheckState(Qt.Unchecked)
-#             else:
-#                 item.setCheckState(Qt.Checked)
-#             return True
-#         return False
-#
-#     def show_popup(self):
-#         super().showPopup()
-#         # When the popup is displayed, a click on the lineedit should close it
-#         self.closeOnLineEditClick = True
-#
-#     def hide_popup(self):
-#         super().hidePopup()
-#         # Used to prevent immediate reopening when clicking on the lineEdit
-#         self.startTimer(100)
-#         # Refresh the display text when closing
-#         self.updateText()
-#
-#     def timerEvent(self, event):
-#         # After timeout, kill timer, and reenable click on line edit
-#         self.killTimer(event.timerId())
-#         self.closeOnLineEditClick = False
-#
-#     def updateText(self):
-#
-#         self.lineEdit().setText("-- Show/Hide Columns --")
-#
-#     def addItem(self, text):
-#         item = QStandardItem()
-#         item.setText(text)
-#         item.setData(text)
-#
-#         item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
-#         item.setData(Qt.Unchecked, Qt.CheckStateRole)
-#         self.model().appendRow(item)
-#
-#     def addItemVisibility(self, field_name, visibility_state):
-#         item = QStandardItem()
-#         item.setText(field_name)
-#
-#         item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
-#
-#         if visibility_state is True:
-#             item.setData(Qt.Checked, Qt.CheckStateRole)
-#         else:
-#             item.setData(Qt.Unchecked, Qt.CheckStateRole)
-#
-#         self.model().appendRow(item)
-#
-#     def addItems(self, texts, datalist=None):
-#         for i, text in enumerate(texts):
-#             try:
-#                 data = datalist[i]
-#             except (TypeError, IndexError):
-#                 data = None
-#             self.addItem(text, data)
-#
-#     def addItemsVisibility(self, columns_visibility):
-#
-#         for field, state in columns_visibility.items():
-#             self.addItemVisibility(field, state)
-#
-#         self.model().dataChanged.connect(self.updateText)
-#
-#     def currentData(self):
-#         return [
-#             self.model().item(i).data()
-#             for i in range(self.model().rowCount())
-#             if self.model().item(i).checkState() == Qt.Checked
-#         ]
-#
-#
-
-
-
-
-
-
-
-
-
 
