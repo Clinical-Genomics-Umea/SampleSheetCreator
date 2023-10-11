@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget, QLineEdit, QTableView, QHead
 
 from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt
 
+
 def reorder_dataframe_fields(dataframe: pd.DataFrame, field_order: list) -> pd.DataFrame:
     """
     Reorders the fields in a Pandas DataFrame so that fields with names in a list are placed first,
@@ -95,8 +96,12 @@ def validate_metadata(data: dict) -> bool:
     Returns:
         bool: True if the metadata is valid, False otherwise.
     """
-    required_keys = ['IndexAdapterKitName', 'IndexAdapterKitNameReadable', 
-                     'ShownFields', 'FieldCorrespondence', 'IndexMetaData', 'RequiredIndexesSourcefileFields']
+    required_keys = ['IndexAdapterKitName',
+                     'IndexAdapterKitNameReadable',
+                     'ShownFields',
+                     'FieldCorrespondence',
+                     'IndexMetaData',
+                     'RequiredIndexesSourcefileFields']
 
     if any(key not in data for key in required_keys):
         print(f"Metadata is missing the following keys: {required_keys}")
@@ -176,8 +181,6 @@ def validate_dataframe(dataframe: pd.DataFrame, items: list) -> bool:
         return False
 
     header = dataframe.columns.tolist()
-    print(items)
-    print(header)
 
     return all(item in header for item in items)
 
@@ -434,32 +437,23 @@ class TableModel(QAbstractTableModel):
         """
         mime_data = QMimeData()
 
-        # Get the unique row indexes
         row_indexes = {index.row() for index in indexes}
 
-        # Create a temporary DataFrame with the selected rows
         df = pd.DataFrame(self.dataframe, index=list(row_indexes))
         df['IndexAdapterKitName'] = self.meta['IndexAdapterKitName']
 
-        # Add the data from the profile to the DataFrame
         for field, value in self.meta["IndexMetaData"].items():
             df[field] = value
 
         for field, value in self.profile_meta.items():
             df[field] = value
 
-        # Convert the DataFrame to a list of dictionaries
         records = df.to_dict(orient='records')
 
-        print(records)
-
-        # Create a dictionary with the records and translation data
         data = {'records': records, 'translate': self.field_translation}
 
-        # Convert the data to JSON
         json_data = json.dumps(data)
 
-        # Set the JSON data as MIME data with the "application/json" mimetype
         bytes_data = bytes(json_data, 'utf-8')
         mime_data.setData("application/json", bytes_data)
 
@@ -495,6 +489,7 @@ class IndexesMGR:
     def get_indexes_names(self):
         return self.indexes_folders.keys()
 
-    def retrieve_index_name(self, folder):
+    @staticmethod
+    def retrieve_index_name(folder):
         meta = read_yaml_file(folder / "meta.yaml")
         return meta['IndexAdapterKitName']

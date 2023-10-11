@@ -175,7 +175,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.right_tab_anim["open"] = self.make_animation(self.rightmenu_tabWidget, 0, 250)
         self.right_tab_anim["close"] = self.make_animation(self.rightmenu_tabWidget, 250, 0)
 
-    def make_animation(self, menu_widget, start_width, end_width):
+    @staticmethod
+    def make_animation(menu_widget, start_width, end_width):
         animation = QPropertyAnimation(menu_widget, b"maximumWidth")
         animation.setStartValue(start_width)
         animation.setEndValue(end_width)
@@ -207,7 +208,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         view.setContentsMargins(0, 0, 0, 0)
 
         return view
-
 
     def sample_tableview_setup(self):
         self.samples_tableview.setModel(self.sample_model)
@@ -413,39 +413,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.validate_widget.validate()
         else:
             self.main_tabWidget.setCurrentWidget(self.data_tab)
-
-        #
-        #
-        #
-        # df = qstandarditemmodel_to_dataframe(self.sample_model)
-        #
-        # try:
-        #     validator.first_validation_schema(df, lazy=True)
-        # except SchemaErrors as err:
-        #     print(err.failure_cases)  # dataframe of schema error
-        #     return
-        #
-        # layout = self.validation_tab.layout()
-        # while layout.count():
-        #     if widget := layout.itemAt(0).widget():
-        #         widget.deleteLater()
-        #     layout.removeItem(layout.itemAt(0))
-        #
-        # # lane_explode = samplesheet.explode_df_by_lane(df)
-        #
-        # lanes_df = split_df_by_lane(df)
-        #
-        # for lane in lanes_df:
-        #     print(lanes_df[lane].to_string())
-        #     layout.addWidget(QLabel(f"Lane {lane}"))
-        #     w = samplesheet.create_heatmap_table(samplesheet.substitutions_heatmap_df(lanes_df[lane],
-        #                                                                                 "I7_Index"))
-        #     w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        #     layout.addWidget(w)
-        #
-        # spacer = QWidget()
-        # spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # layout.addWidget(spacer)
 
 
     def file_tab_setup(self):

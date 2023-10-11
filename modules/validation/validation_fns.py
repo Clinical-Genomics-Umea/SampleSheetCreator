@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtWidgets import QVBoxLayout, QTableWidget, QTableWidgetItem
+from PySide6.QtCore import Qt
 
 
 def explode_df_by_lane(df):
@@ -12,37 +13,33 @@ def explode_df_by_lane(df):
     return exploded_df
 
 
+# def compare_rows(row1: np.array, row2: np.array):
+#     return np.sum(row1 != row2)
+
 def compare_rows(row1: np.array, row2: np.array):
-    return np.sum(row1 != row2)
+    min_length = min(row1.size, row2.size)
+    return np.sum(row1[:min_length] != row2[:min_length])
 
 
 def substitutions_heatmap_df(df: pd.DataFrame, index_column_name: str) -> pd.DataFrame:
-    min_length = df[index_column_name].apply(len).min()
-    truncated_df = df[index_column_name].apply(lambda x: x[:min_length])
-    truncated_np_array = truncated_df.apply(list).apply(np.array).to_numpy()
-    dna_mismatches = np.vectorize(compare_rows)(truncated_np_array[:, None], truncated_np_array)
+    # min_length = df[index_column_name].apply(len).min()
+    # truncated_df = df[index_column_name].apply(lambda x: x[:min_length])
+    # truncated_np_array = truncated_df.apply(list).apply(np.array).to_numpy()
+    # dna_mismatches = np.vectorize(compare_rows)(truncated_np_array[:, None], truncated_np_array)
 
-    dna_mismatches_df = pd.DataFrame(dna_mismatches)
+    np_array = df[index_column_name].apply(list).apply(np.array).to_numpy()
+    dna_mismatches = np.vectorize(compare_rows)(np_array[:, None], np_array)
+    # dna_mismatches_df = pd.DataFrame(dna_mismatches, columns=df.Sample_ID, index=df.Sample_ID)
 
-    dna_mismatches_df.columns = df.Sample_ID
-    dna_mismatches_df.index = df.Sample_ID
-
-    return dna_mismatches_df
+    return pd.DataFrame(dna_mismatches, columns=df.Sample_ID, index=df.Sample_ID)
 
 
 def split_df_by_lane(df):
 
-    # lane_dataframes = {}
-
     exploded_df = explode_df_by_lane(df)
     unique_lanes = exploded_df['Lane'].unique()
 
-    # for lane in unique_lanes:
-    #     lane_dataframes[lane] = exploded_df[exploded_df['Lane'] == lane]
-
     return {lane: exploded_df[exploded_df['Lane'] == lane] for lane in unique_lanes}
-
-    # return lane_dataframes
 
 
 def create_table_from_dataframe(dataframe):

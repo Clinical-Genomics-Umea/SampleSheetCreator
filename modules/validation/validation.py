@@ -67,6 +67,7 @@ class DataValidationWidget(QWidget):
         self.setLayout(self.layout)
 
         self.hspacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.vspacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.validate_tabwidget = QTabWidget()
         self.validate_tabwidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -77,6 +78,33 @@ class DataValidationWidget(QWidget):
         self.validate_tabwidget.clear()
 
         df = qstandarditemmodel_to_dataframe(self.model)
+
+        if not isinstance(df, pd.DataFrame):
+            tab = QWidget()
+            tab_main_layout = QVBoxLayout()
+            tab_main_layout.setContentsMargins(0, 0, 0, 0)
+            tab.setLayout(tab_main_layout)
+
+            tab_main_layout.addWidget(QLabel("Something went wrong. Data is could not"
+                                             " be converted to a pandas dataframe."))
+            tab_main_layout.addSpacerItem(self.vspacer)
+
+            self.validate_tabwidget.addTab(tab, "Pre-Validation Errors")
+
+            return
+
+        if df.empty:
+            tab = QWidget()
+            tab_main_layout = QVBoxLayout()
+            tab_main_layout.setContentsMargins(0, 0, 0, 0)
+            tab.setLayout(tab_main_layout)
+
+            tab_main_layout.addWidget(QLabel("No data to validate (empty dataframe)"))
+            tab_main_layout.addSpacerItem(self.vspacer)
+
+            self.validate_tabwidget.addTab(tab, "Pre-Validation Errors")
+
+            return
 
         try:
             prevalidation_schema(df, lazy=True)
@@ -89,6 +117,7 @@ class DataValidationWidget(QWidget):
             tab_main_layout.setContentsMargins(0, 0, 0, 0)
             tab.setLayout(tab_main_layout)
 
+            schema_errors_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
             tab_main_layout.addWidget(schema_errors_table)
 
             self.validate_tabwidget.addTab(tab, "Pre-Validation Errors")
