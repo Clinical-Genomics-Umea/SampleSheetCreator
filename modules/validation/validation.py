@@ -2,9 +2,9 @@ import json
 
 import numpy as np
 import pandas as pd
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QStandardItemModel, QColor, QBrush, QPen, QStandardItem, QPainter, QTextOption, QIntValidator, \
-    QPalette
+    QPalette, QTextCursor, QTextDocument, QTextBlockFormat
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QTableWidget,
                                QTableWidgetItem, QLabel, QHeaderView, QAbstractScrollArea, QScrollArea,
                                QItemDelegate, QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit)
@@ -12,8 +12,10 @@ from pandera.errors import SchemaErrors
 
 from modules.run_classes import RunInfo
 from modules.validation.validation_fns import compare_rows, substitutions_heatmap_df, split_df_by_lane, \
-    create_table_from_dataframe, qstandarditemmodel_to_dataframe
+    create_table_from_dataframe, qstandarditemmodel_to_dataframe, df_to_i7_i5_df
 from modules.validation.validation_schema import prevalidation_schema
+
+from modules.validation.validation_fns import string_to_ndarray
 
 
 def set_heatmap_table_properties(table):
@@ -42,10 +44,11 @@ def set_colorbalance_table_properties(table):
     table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
     table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-    last_row_index = table.standard_model.rowCount() - 1
-    table.setRowHeight(last_row_index, 58)
+    last_row = table.standard_model.rowCount() - 1
+    table.setRowHeight(last_row, 58)
+    table.setItemDelegateForRow(last_row, ColorBalanceRowDelegate())
 
-    table.setItemDelegate(ColorTableDelegate())
+    table.setItemDelegateForRow(0, QItemDelegate())
 
     table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
     table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -140,7 +143,16 @@ class DataValidationWidget(QWidget):
             tab.setLayout(tab_main_layout)
             tab_main_layout.addWidget(QLabel(f"Index Heatmap for Lane {lane}"))
 
-            heatmap_table = create_heatmap_table(substitutions_heatmap_df(lanes_df[lane], "I7_Index"))
+            indexes_df = df_to_i7_i5_df(
+                lanes_df[lane],
+                10,
+                10,
+                "I7_Index",
+                "I5_Index",
+                "Sample_ID"
+            )
+
+            heatmap_table = create_heatmap_table(substitutions_heatmap_df(indexes_df))
             heatmap_table = set_heatmap_table_properties(heatmap_table)
 
             h_heatmap_layout = QHBoxLayout()
@@ -185,10 +197,10 @@ class DataValidationWidget(QWidget):
         return table
 
 
-class ColorBalanceModel(QStandardItemModel):
+class IndexColorBalanceModel(QStandardItemModel):
 
     def __init__(self, parent):
-        super(ColorBalanceModel, self).__init__(parent=parent)
+        super(IndexColorBalanceModel, self).__init__(parent=parent)
         self.dataChanged.connect(self.update_summation)
 
     def update_summation(self):
@@ -206,7 +218,7 @@ class ColorBalanceModel(QStandardItemModel):
                 bases_count[self.item(row_count, col_count).text()] += 1 * proportion
 
             color_counts = self.translate_base_count_to_color_count(bases_count)
-            normalized_color_counts = self.normalize_dict_values(color_counts)
+            normalized_color_counts = self.normalize(color_counts)
 
             norm_json = json.dumps(normalized_color_counts)
 
@@ -215,7 +227,7 @@ class ColorBalanceModel(QStandardItemModel):
 
 
     @staticmethod
-    def normalize_dict_values(input_dict):
+    def normalize(input_dict):
         # Calculate the sum of values in the input dictionary
         total = sum(input_dict.values())
 
@@ -227,26 +239,59 @@ class ColorBalanceModel(QStandardItemModel):
     @staticmethod
     def translate_base_count_to_color_count(dict1):
         color_count = {
-            'Blue': 0,
-            'Green': 0,
-            'Black': 0,
+            'B': 0,
+            'G': 0,
+            'D': 0,
         }
 
         for base, count in dict1.items():
             if base == 'A':
-                color_count['Blue'] = count * 0.5
-                color_count['Green'] = count * 0.5
+                color_count['B'] = count
             elif base == 'C':
-                color_count['Blue'] = count
+                color_count['B'] = count * 0.5
+                color_count['G'] = count * 0.5
             elif base == 'T':
-                color_count['Green'] = count
+                color_count['G'] = count
             elif base == 'G':
-                color_count['Black'] = count
+                color_count['D'] = count
 
         return color_count
 
 
-class ColorTableDelegate(QStyledItemDelegate):
+class IndexRowDelegate(QStyledItemDelegate):
+    def createEditor(self, parent, option, index):
+        # Return None to make the item non-editable
+        return None
+    # def paint(self, painter, option, index):
+    #
+    #     if index.isValid() and index.column() == 2:
+    #     #     print(index)
+    #     #     index_other = index.model().index(index.row(), 3)
+    #     #     value = index.data(Qt.DisplayRole)
+    #     #     value_other = index_other.data(Qt.DisplayRole)
+    #     #
+    #     #     if value == value_other == 'G':
+    #     #         painter.fillRect(option.rect, QColor(255, 127, 127))
+    #     #         super().paint(painter, option, index)
+    #     #     else:
+    #     #         super().paint(painter, option, index)
+    #     #
+    #     # elif index.isValid() and index.column() == 3:
+    #     #     index_other = index.model().index(index.row(), 2)
+    #     #     value = index.data(Qt.DisplayRole)
+    #     #     value_other = index_other.data(Qt.DisplayRole)
+    #     #
+    #     #     if value == value_other == 'G':
+    #     #         painter.fillRect(option.rect, QColor(255, 127, 127))
+    #     #         super().paint(painter, option, index)
+    #     #     else:
+    #         super().paint(painter, option, index)
+    #
+    #     elif index.isValid():
+    #         super().paint(painter, option, index)
+
+
+class ColorBalanceRowDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
 
         last_row = index.model().rowCount() - 1
@@ -254,28 +299,102 @@ class ColorTableDelegate(QStyledItemDelegate):
         if index.isValid() and index.column() >= 2 and index.row() == last_row:
             json_data = index.data(Qt.DisplayRole)
             if json_data:
-                painter.save()
-
                 data = json.loads(json_data)
 
                 lines = [f"{key}: {value}" for key, value in data.items()]
+                multiline = "\n".join(lines)
 
-                # Create a QTextOption for aligning text
-                text_option = QTextOption()
-                text_option.setAlignment(Qt.AlignLeft)
+                document = QTextDocument()
+                document.setPlainText(multiline)
 
-                # Calculate the height of each line
-                font_metrics = painter.fontMetrics()
-                line_height = font_metrics.lineSpacing()
+                if data['D'] > 0.5:
+                    self.setDarkBackgroundColorWarning(document, QColor(255, 127, 127))
 
-                # Draw each line of text
-                for i, line in enumerate(lines):
-                    y_offset = i * line_height
-                    rect = option.rect.adjusted(5, y_offset, 0, 0)  # Adjust the rect for each line
-                    painter.drawText(rect, line, text_option)
+                if data['G'] < 0.1:
+                    self.setNoGreenBackgroundColorWarning(document, QColor(255, 127, 127))
+
+                # Adjust the document size to the cell size
+                document.setTextWidth(option.rect.width())
+
+                # Render the document
+                painter.save()
+                painter.translate(option.rect.topLeft())
+                document.drawContents(painter)
+                painter.restore()
 
         elif index.isValid():
             super().paint(painter, option, index)
+
+    def setDarkBackgroundColorWarning(self, document, color):
+        cursor = QTextCursor(document)
+        cursor.movePosition(QTextCursor.Start)
+        cursor.movePosition(QTextCursor.NextBlock)
+        cursor.movePosition(QTextCursor.NextBlock)
+
+        # Set the background color for the first block
+        block_format = QTextBlockFormat()
+        block_format.setBackground(color)
+        cursor.setBlockFormat(block_format)
+
+    def setNoGreenBackgroundColorWarning(self, document, color):
+        cursor = QTextCursor(document)
+        cursor.movePosition(QTextCursor.Start)
+        cursor.movePosition(QTextCursor.NextBlock)
+
+        # Set the background color for the first block
+        block_format = QTextBlockFormat()
+        block_format.setBackground(color)
+        cursor.setBlockFormat(block_format)
+
+    def sizeHint(self, option, index):
+        document = QTextDocument()
+        document.setPlainText(index.model().data(index, Qt.DisplayRole))
+
+        # Adjust the document size to the cell size
+        document.setTextWidth(option.rect.width())
+
+        return QSize(document.idealWidth(), document.size().height())
+
+                # # Create a QTextDocument
+                # # Create a QTextOption for aligning text
+                # text_option = QTextOption()
+                # text_option.setAlignment(Qt.AlignLeft)
+                #
+                # # Calculate the height of each line
+                # font_metrics = painter.fontMetrics()
+                # line_height = font_metrics.lineSpacing()
+                #
+                # # Draw each line of text
+                # for i, line in enumerate(lines):
+                #     painter.save()
+                #
+                #     y_offset = i * line_height
+                #     rect = option.rect.adjusted(5, y_offset, 0, 0)  # Adjust the rect for each line
+                #
+                #     if too_dark:
+                #         painter.fillRect(rect, Qt.red)
+                #
+                #     text_document = QTextDocument()
+                #     # text_document.setDefaultStyleSheet('body { background-color: red; white-space: pre; }')
+                #     cursor = QTextCursor(text_document)
+                #
+                #     # Iterate through characters in the line
+                #     for char in line:
+                #         if char.upper() == 'B':
+                #             cursor.insertHtml(f'<font color="blue">{char}</font>')
+                #         elif char.upper() == 'G':
+                #             cursor.insertHtml(f'<font color="green">{char}</font>')
+                #         elif char.upper() == 'D':
+                #             cursor.insertHtml(f'<font color="black">{char}</font>')
+                #         else:
+                #             cursor.insertText(char)
+                #
+                #     painter.save()
+                #     painter.translate(rect.topLeft())
+                #     text_document.drawContents(painter)
+                #     painter.restore()
+
+
 
     def createEditor(self, parent, option, index):
 
@@ -298,7 +417,7 @@ class ColorBalanceWidget(QTableView):
         super(ColorBalanceWidget, self).__init__(parent)
         dataframe.reset_index()
         dataframe['Proportion'] = "1"
-        df = self.split_string_column(dataframe, 'I7_Index')
+        df = self.split_string_column(dataframe, 'I7_Index', 'I5_Index')
         df.insert(0, 'Sample_ID', dataframe['Sample_ID'])
         df.insert(1, "Proportion", dataframe['Proportion'])
         last_row_index = df.index[-1]
@@ -319,10 +438,12 @@ class ColorBalanceWidget(QTableView):
         :param dataframe: Pandas DataFrame to convert.
         :return: QStandardItemModel representing the DataFrame.
         """
-        model = ColorBalanceModel(parent=self)
+        model = IndexColorBalanceModel(parent=self)
+
+        column_names = [col_name.replace('Index_', '') for col_name in dataframe.columns]
 
         # Set the column headers as the model's horizontal headers
-        model.setHorizontalHeaderLabels(dataframe.columns)
+        model.setHorizontalHeaderLabels(column_names)
 
         for row_index, row_data in dataframe.iterrows():
             row_items = [QStandardItem(str(item)) for item in row_data]
@@ -336,18 +457,26 @@ class ColorBalanceWidget(QTableView):
 
         model = self.model()
         column_count = model.columnCount()
+        row_count = model.rowCount()
 
         last_row_index = model.rowCount() - 1
 
+        thick_pen = QPen(QColor("dark gray"), 2, Qt.SolidLine)
+        painter.setPen(thick_pen)
+
         for col in range(column_count):
             last_row_rect = self.visualRect(model.index(last_row_index, col))
-
-            thick_pen = QPen(QColor("dark gray"), 2, Qt.SolidLine)
-            painter.setPen(thick_pen)
             painter.drawLine(last_row_rect.topLeft(), last_row_rect.topRight())
 
+        for row in range(row_count):
+            i5_i7_index_boundry_rect = self.visualRect(model.index(row, 11))
+            painter.drawLine(i5_i7_index_boundry_rect.topRight(), i5_i7_index_boundry_rect.bottomRight())
+
+
+
+
     @staticmethod
-    def split_string_column(dataframe, column_name):
+    def split_string_column(input_df, column_name1, column_name2):
         """
         Split a column of strings into multiple columns with one character per column.
 
@@ -356,10 +485,15 @@ class ColorBalanceWidget(QTableView):
         :return: DataFrame with one column per character in the strings.
         """
         # Use apply and pd.Series to split the string column into multiple columns
-        split_df = dataframe[column_name].apply(lambda x: pd.Series(list(x)))
-        split_df.columns = [f"{column_name}_{i + 1}" for i in range(split_df.shape[1])]
+        df1 = input_df[column_name1].apply(lambda x: pd.Series(list(x)))
+        # df1 = input_df[column_name1].apply(string_to_ndarray)
+        df1.columns = [f"{column_name1}_{i + 1}" for i in range(10)]
 
-        return split_df
+        df2 = input_df[column_name2].apply(lambda x: pd.Series(list(x)))
+        # df2 = input_df[column_name2].apply(string_to_ndarray)
+        df2.columns = [f"{column_name2}_{i + 1}" for i in range(10)]
+
+        return pd.concat([df1, df2], axis=1)
     #
     # @staticmethod
     # def split_string_column(dataframe, column_name):

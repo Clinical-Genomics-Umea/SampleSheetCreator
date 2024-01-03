@@ -21,17 +21,72 @@ def compare_rows(row1: np.array, row2: np.array):
     return np.sum(row1[:min_length] != row2[:min_length])
 
 
-def substitutions_heatmap_df(df: pd.DataFrame, index_column_name: str) -> pd.DataFrame:
-    # min_length = df[index_column_name].apply(len).min()
-    # truncated_df = df[index_column_name].apply(lambda x: x[:min_length])
-    # truncated_np_array = truncated_df.apply(list).apply(np.array).to_numpy()
-    # dna_mismatches = np.vectorize(compare_rows)(truncated_np_array[:, None], truncated_np_array)
+def row_differences(row1: np.array, row2: np.array):
+    print(row1)
+    print(row2)
 
-    np_array = df[index_column_name].apply(list).apply(np.array).to_numpy()
-    dna_mismatches = np.vectorize(compare_rows)(np_array[:, None], np_array)
-    # dna_mismatches_df = pd.DataFrame(dna_mismatches, columns=df.Sample_ID, index=df.Sample_ID)
+    mask = np.logical_and(~np.isnan(row1), ~np.isnan(row2))
 
-    return pd.DataFrame(dna_mismatches, columns=df.Sample_ID, index=df.Sample_ID)
+    print(mask)
+
+    return np.sum(row1[mask] != row2[mask])
+
+
+def string_to_ndarray(x):
+    array = np.full(10, np.nan, dtype=object)
+    array[:len(x)] = list(x)
+    return array
+
+
+def append_arrays(arr1, arr2):
+    return np.append(arr1, arr2)
+
+
+def get_base(string, index):
+
+    if index >= len(string):
+        return np.nan
+    else:
+        return string[index]
+
+
+def df_to_i7_i5_df(df, i7_maxlen, i5_maxlen, i7_colname, i5_colname, id_name):
+    i7_names = [f"I7_{i + 1}" for i in range(i7_maxlen)]
+    i5_names = [f"I5_{i + 1}" for i in range(i5_maxlen)]
+
+    i7_df = df[i7_colname].apply(lambda x: pd.Series(get_base(x, i) for i in range(i7_maxlen))).fillna(np.nan)
+    i7_df.columns = i7_names
+
+    i5_df = df[i5_colname].apply(lambda x: pd.Series(get_base(x, i) for i in range(i5_maxlen))).fillna(np.nan)
+    i5_df.columns = i5_names
+
+    both_indexes = pd.concat([df[id_name], i7_df, i5_df], axis=1)
+    return both_indexes
+
+
+def cmp_bases(v1, v2):
+    if isinstance(v1, str) and isinstance(v2, str):
+        return np.sum(v1 != v2)
+
+    return 0
+
+
+def get_row_mismatch_matrix(array: np.ndarray) -> np.ndarray:
+
+    # Reshape A and B to 3D arrays with dimensions (N, 1, K) and (1, M, K), respectively
+    array1 = array[:, np.newaxis, :]
+    array2 = array[np.newaxis, :, :]
+
+    # Apply the custom function using vectorized operations
+    return np.sum(np.vectorize(cmp_bases)(array1, array2), axis=2)
+
+
+def substitutions_heatmap_df(indexes_df: pd.DataFrame, id_colname="Sample_ID"):
+    a = indexes_df.drop(id_colname, axis=1).to_numpy()
+
+    header = list(indexes_df[id_colname])
+    return pd.pandas.DataFrame(get_row_mismatch_matrix(a), index=header, columns=header)
+
 
 
 def split_df_by_lane(df):

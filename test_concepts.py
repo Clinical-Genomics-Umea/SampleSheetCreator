@@ -1,51 +1,21 @@
-import sys
-import time
-from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QProgressBar
-from PySide6.QtCore import QThread, Signal
+import pandas as pd
+import numpy as np
 
-class WorkerThread(QThread):
-    finished = Signal()
+# Create a Pandas DataFrame with two columns containing NumPy arrays
+df = pd.DataFrame({'column1': [np.array([1, 2]), np.array([3, 4]), np.array([5, 6])],
+                   'column2': [np.array([7, 8]), np.array([9, 10]), np.array([11, 12])]})
 
-    def run(self):
-        # Perform the long-running calculation here
-        time.sleep(5)
+# Function to append arrays from column1 to column2
 
-        # Emit the finished signal
-        self.finished.emit()
 
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
+def append_arrays(arr1, arr2):
+    return np.append(arr1, arr2)
 
-        self.setWindowTitle("Spinner Example")
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
 
-        self.layout = QVBoxLayout(self.central_widget)
+# Apply the function to create the new column
+df['appended_column'] = df.apply(lambda row: append_arrays(row['column1'], row['column2']), axis=1)
 
-        self.start_button = QPushButton("Start Calculation")
-        self.start_button.clicked.connect(self.start_calculation)
-        self.layout.addWidget(self.start_button)
+# Print the modified DataFrame
+print(df)
 
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setRange(0, 0)  # Set the range to 0 to display an indeterminate progress bar
-        self.layout.addWidget(self.progress_bar)
 
-        self.worker_thread = WorkerThread()
-        self.worker_thread.finished.connect(self.calculation_finished)
-
-    def start_calculation(self):
-        self.start_button.setEnabled(False)
-        self.progress_bar.setRange(0, 0)  # Set the range to 0 to display an indeterminate progress bar
-
-        # Start the worker thread
-        self.worker_thread.start()
-
-    def calculation_finished(self):
-        self.start_button.setEnabled(True)
-        self.progress_bar.setRange(0, 1)  # Reset the range to display a regular progress bar
-
-app = QApplication(sys.argv)
-window = MainWindow()
-window.show()
-sys.exit(app.exec())
