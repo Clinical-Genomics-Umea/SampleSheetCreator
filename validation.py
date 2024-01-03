@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHeaderView
 
 import modules.validation
+import modules.validation.heatmap
 
 
 class HeatmapDialog(QDialog):
@@ -8,7 +9,7 @@ class HeatmapDialog(QDialog):
         super().__init__()
         self.setWindowTitle('Heatmap Dialog')
         self.setLayout(QVBoxLayout())
-        self.heatmap_table = modules.validation.validation.create_heatmap_table(data)
+        self.heatmap_table = modules.validation.heatmap.create_heatmap_table(data)
         self.layout().addWidget(self.heatmap_table)
 
         self.heatmap_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
