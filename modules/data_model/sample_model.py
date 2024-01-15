@@ -128,30 +128,35 @@ class SampleSheetModel(QStandardItemModel):
 
         decoded_data = decode_bytes_json(json_data_qba)
 
+        print(decoded_data)
+
         start_row = parent.row()
 
-        tr = decoded_data['translate']
+        # tr = decoded_data['translate']
 
         print(decoded_data)
 
-        for i, row_data in enumerate(decoded_data['records']):
-            for k, v in row_data.items():
+        for i, row_data in enumerate(decoded_data):
+            for key, value in row_data.items():
                 row = start_row + i
-                if k in tr.keys():
-                    samplesheet_field = tr[k]
+                # if key in tr.keys():
+                #     samplesheet_field = tr[key]
+                #
+                #     if isinstance(samplesheet_field, list):
+                #         for field in samplesheet_field:
+                #             if field in self.fields:
+                #                 column = self.fields.index(field)
+                #                 self.setData(self.index(row, column), value)
+                #     elif samplesheet_field in self.fields:
+                #         column = self.fields.index(samplesheet_field)
+                #         self.setData(self.index(row, column), value)
+                #
+                if key in self.fields:
+                    column = self.fields.index(key)
 
-                    if isinstance(samplesheet_field, list):
-                        for field in samplesheet_field:
-                            if field in self.fields:
-                                column = self.fields.index(field)
-                                self.setData(self.index(row, column), v)
-                    elif samplesheet_field in self.fields:
-                        column = self.fields.index(samplesheet_field)
-                        self.setData(self.index(row, column), v)
+                    print(column, row, key, value)
 
-                elif k in self.fields:
-                    column = self.fields.index(k)
-                    self.setData(self.index(row, column), v)
+                    self.setData(self.index(row, column), value)
 
         return True
 

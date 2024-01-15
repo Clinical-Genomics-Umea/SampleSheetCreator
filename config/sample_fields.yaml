@@ -3,16 +3,12 @@ Samples:
   - Lane
   - Sample_ID
 Indexes:
-  - Plate
-  - WellPos
-  - I7_Plate
-  - I7_WellPos
-  - I5_Plate
-  - I5_WellPos
-  - I7_IndexName
-  - I7_Index
-  - I5_IndexName
-  - I5_Index
+  - FixedPos
+  - Name_I7
+  - Index_I7
+  - Name_I5
+  - Index_I5
+  - IndexDefinitionKitName
 BCLConvert:
   - UsedCycles
   - BarcodeMismatchesIndex1

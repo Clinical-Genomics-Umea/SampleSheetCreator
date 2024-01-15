@@ -9,9 +9,9 @@ import qtawesome as qta
 
 from modules.columns_visibility import ColumnsTreeWidget
 from modules.data_model.sample_model import SampleSheetModel
-from modules.indexes import IndexesMGR
+from modules.indexes import IndexPanelWidgetMGR, IndexKitDefinitionMGR
 from modules.models import read_fields_from_json
-from modules.profiles import ProfilesMGR
+from modules.profiles import ProfileWidgetMGR
 from modules.run_classes import RunSetup, RunInfo
 from modules.validation.validation import DataValidationWidget
 
@@ -104,6 +104,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.columns_treeview = ColumnsTreeWidget(fields_path)
         self.columns_listview_setup()
 
+        self.left_tab_anim = {}
+        self.right_tab_anim = {}
+
+        self.menu_animations_setup()
+        self.hide_tabwidget_headers()
+
+        self.leftmenu_tabWidget.setMaximumWidth(0)
+        self.rightmenu_tabWidget.setMaximumWidth(0)
+
         self.file_tab_setup()
 
         self.run_setup_widget = RunSetup(Path("config/run_settings/run_settings.yaml"))
@@ -116,24 +125,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.field_view = QLineEdit()
         self.field_view_setup()
 
-        self.indexes_toolbox = QToolBox()
-        self.indexes_manager = IndexesMGR(Path("config/indexes"))
-        self.indexes_widgets = {}
+        self.index_mgr = IndexKitDefinitionMGR(Path("config/indexes"))
+        self.index_toolbox = QToolBox()
+        self.index_panel_mgr = IndexPanelWidgetMGR(self.index_mgr)
+        self.index_widgets = {}
         self.indexes_setup()
 
         self.profile_toolbox = QToolBox()
-        self.profile_manager = ProfilesMGR(Path("config/profiles"), self.indexes_manager)
-        self.profiles_widgets = {}
-        self.profiles_setup()
+        self.profile_mgr = ProfileWidgetMGR(self.index_mgr, Path("config/profiles"))
+        self.profile_widgets = {}
+        self.profile_setup()
 
-        self.left_tab_anim = {}
-        self.right_tab_anim = {}
-
-        self.menu_animations_setup()
-        self.hide_tabwidget_headers()
-
-        self.leftmenu_tabWidget.setMaximumWidth(0)
-        self.rightmenu_tabWidget.setMaximumWidth(0)
+        # self.left_tab_anim = {}
+        # self.right_tab_anim = {}
+        #
+        # self.menu_animations_setup()
+        # self.hide_tabwidget_headers()
+        #
+        # self.leftmenu_tabWidget.setMaximumWidth(0)
+        # self.rightmenu_tabWidget.setMaximumWidth(0)
 
     def validate_widget_setup(self):
         layout = self.validation_tab.layout()
@@ -228,44 +238,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def indexes_setup(self):
         layout = self.indexes_tab.layout()
-        layout.addWidget(self.indexes_toolbox)
+        layout.addWidget(self.index_toolbox)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        indexes_names = self.indexes_manager.get_indexes_names()
+        index_kit_names = self.index_panel_mgr.get_index_panel_widget_names()
 
-        for name in indexes_names:
-            self.indexes_widgets[name] = self.indexes_manager.get_indexes_widget(name)
-            # name2 = self.indexes_widgets[name].get_name()
+        for name in index_kit_names:
+            self.index_widgets[name] = self.index_panel_mgr.get_index_panel_widget(name)
+            self.index_toolbox.addItem(self.index_widgets[name], name)
 
-            readable_name = self.indexes_widgets[name].get_name_readable()
-            self.indexes_toolbox.addItem(self.indexes_widgets[name], readable_name)
-
-    def profiles_setup(self):
+    def profile_setup(self):
 
         layout = self.profiles_tab.layout()
         layout.addWidget(self.profile_toolbox)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        profile_names = self.profile_manager.get_profiles_names()
+        profile_names = self.profile_mgr.get_profile_names()
 
         for profile_name in profile_names:
-            self.profiles_widgets[profile_name] = self.profile_manager.get_profile_widget(profile_name)
-            self.profile_toolbox.addItem(self.profiles_widgets[profile_name], profile_name)
-            self.profiles_widgets[profile_name].profile_data_signal.connect(self.samples_tableview.set_profiles_data)
+            self.profile_widgets[profile_name] = self.profile_mgr.get_profile_widget(profile_name)
+            self.profile_toolbox.addItem(self.profile_widgets[profile_name], profile_name)
+            self.profile_widgets[profile_name].profile_data_signal.connect(self.samples_tableview.set_profiles_data)
 
     def add_button_pressed(self):
         send_button = self.sender()
         selected_indexes = self.samples_tableview.selectedIndexes()
         self.sample_model.set_profile_on_selected(selected_indexes, send_button.profile_name)
-
-    # def on_barcodes_click(self):
-    #     curr_tab = self.profiles_tab.currentIndex()
-    #     if curr_tab < len(self.profile_widgets):
-    #         self.profile_widgets[-1].show()
-    #     else:
-    #         self.profile_widgets[-1].hide()
 
     def hide_tabwidget_headers(self):
         self.leftmenu_tabWidget.tabBar().setHidden(True)

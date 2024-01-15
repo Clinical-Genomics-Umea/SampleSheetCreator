@@ -2,12 +2,17 @@
 ProfileName: DragenGermline_IDTLMN_TAG_WGS
 Version: 1.0
 LibraryPrepKitName: IlluminaDNAPCRFree
-IndexAdapterKitName: IDTIlmnDNARNAUDISetADTagmentation_DNAPCRFree
-IndexAdapterKitNameReadable: "IDT-Ilmn DNA-RNA UD Indexes Set ABCD Tagmentation"
-
-PipelineData:
-  ProfileName: DragenGermline_IDTLMN_TAG_WGS
-  Pipeline: DragenGermline
-  ReferenceGenomeDir: hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2
-  VariantCallingMode: AllVariantCallers
-
+Pipeline: DragenGermline
+ReferenceGenomeDir: hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2
+VariantCallingMode: AllVariantCallers
+UsedCycles: 151-10-10-151
+BarcodeMismatchesIndex1: 1
+BarcodeMismatchesIndex2: 1
+AdapterRead1: CTGTCTCTTATACACATCT
+AdapterRead2: CTGTCTCTTATACACATCT
+FastqCompressionFormat: gzip
+IndexAdapterKitNames:
+  - Ilmn DNA-RNA UD Indexes SetA Tagmentation
+  - Ilmn DNA-RNA UD Indexes SetB Tagmentation
+  - Ilmn DNA-RNA UD Indexes SetC Tagmentation
+  - Ilmn DNA-RNA UD Indexes SetD Tagmentation

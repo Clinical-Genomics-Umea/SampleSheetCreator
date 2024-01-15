@@ -2,11 +2,13 @@ import json
 
 import numpy as np
 import pandas as pd
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize, QEvent
 from PySide6.QtGui import QStandardItemModel, QColor, QPen, QStandardItem, QPainter, QIntValidator, \
     QTextCursor, QTextDocument, QTextBlockFormat
-from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QLabel, QHeaderView, QAbstractScrollArea, QScrollArea,
-                               QItemDelegate, QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit)
+from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QLabel, QHeaderView,
+                               QAbstractScrollArea, QScrollArea,
+                               QItemDelegate, QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit,
+                               QPushButton, QMenu)
 from pandera.errors import SchemaErrors
 
 from modules.run_classes import RunInfo
@@ -29,7 +31,7 @@ def set_colorbalance_table_properties(table):
 
     table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
     table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-    table.setFixedWidth(1400)
+    table.setFixedWidth(1500)
 
     return table
 
@@ -190,8 +192,6 @@ class IndexColorBalanceModel(QStandardItemModel):
                 proportion = int(self.item(row, 1).text())
                 base = self.item(row, col).text()
                 bases_count[base] += proportion
-
-            print(col, bases_count)
 
             color_counts = self.base_to_color_count(bases_count)
             normalized_color_counts = self.normalize(color_counts)
@@ -383,15 +383,28 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
         else:
             return super().sizeHint(option, index)
 
-    def createEditor(self, parent, option, index):
-
-        last_row = index.model().rowCount() - 1
-
-        if index.column() == 1 and index.row() != last_row:
-            return self.createIntValidationEditor(parent, option, index)
+    def editorEvent(self, event, model, option, index):
+        if event.type() == QEvent.MouseButtonDblClick and index.column() == 0:
+            menu = QMenu()
+            menu.addAction("Action 1", lambda: self.menuAction(index, "Action 1"))
+            menu.addAction("Action 2", lambda: self.menuAction(index, "Action 2"))
+            menu.addAction("Action 3", lambda: self.menuAction(index, "Action 3"))
+            menu.exec_(event.globalPos())
+            return True  # Consume the event
 
         else:
-            return None
+            return super().editorEvent(event, model, option, index)
+
+    def menuAction(self, index, action_text):
+        print(f"Double-clicked cell at row {index.row()}, column {index.column()}. Action: {action_text}")
+
+
+    def commitAndCloseEditor(self):
+        print("hello")
+        editor = self.sender()
+        if isinstance(editor, QPushButton):
+            self.commitData.emit(editor)
+            self.closeEditor.emit(editor, QStyledItemDelegate.EditNextItem)
 
     def createIntValidationEditor(self, parent, option, index):
         editor = QLineEdit(parent)
@@ -457,6 +470,14 @@ class ColorBalanceWidget(QTableView):
 
         for row in range(row_count):
             i5_i7_index_boundry_rect = self.visualRect(model.index(row, 11))
+            painter.drawLine(i5_i7_index_boundry_rect.topRight(), i5_i7_index_boundry_rect.bottomRight())
+
+        for row in range(row_count):
+            i5_i7_index_boundry_rect = self.visualRect(model.index(row, 0))
+            painter.drawLine(i5_i7_index_boundry_rect.topRight(), i5_i7_index_boundry_rect.bottomRight())
+
+        for row in range(row_count):
+            i5_i7_index_boundry_rect = self.visualRect(model.index(row, 1))
             painter.drawLine(i5_i7_index_boundry_rect.topRight(), i5_i7_index_boundry_rect.bottomRight())
 
     @staticmethod

@@ -1,0 +1,98 @@
+---
+
+defaults:
+  - Name:'Ilmn DNA-RNA UD Indexes SetA Tagmentation':
+    Version: 1
+    IndexMetaData:
+      AdapterRead1: "CTGTCTCTTATACACATCT+ATGTGTATAAGAGACA"
+      AdapterRead2: "CTGTCTCTTATACACATCT+ATGTGTATAAGAGACA"
+      UsedCycles: "151;10;10;151"
+      BarcodeMismatchesIndex1: 1
+      BarcodeMismatchesIndex2: 1
+      FastqCompressionFormat: gzip
+      SoftwareVersion: '4.1.7'
+    ShownFields: [ Plate, WellPos, IndexName ]
+    FieldCorrespondence:
+      Plate: Plate
+      WellPos: WellPos
+      IndexName: [ I7_IndexName, I5_IndexName ]
+      I7_Index: I7_Index
+      I5_Index: I5_Index
+      AdapterRead1: AdapterRead1
+      AdapterRead2: AdapterRead2
+      UsedCycles: UsedCycles
+      BarcodeMismatchesIndex1: BarcodeMismatchesIndex1
+      BarcodeMismatchesIndex2: BarcodeMismatchesIndex2
+      FastqCompressionFormat: FastqCompressionFormat
+
+  - Name:'Ilmn DNA-RNA UD Indexes SetB Tagmentation':
+    Version: 1
+    IndexMetaData:
+      AdapterRead1: "CTGTCTCTTATACACATCT+ATGTGTATAAGAGACA"
+      AdapterRead2: "CTGTCTCTTATACACATCT+ATGTGTATAAGAGACA"
+      UsedCycles: "151;10;10;151"
+      BarcodeMismatchesIndex1: 1
+      BarcodeMismatchesIndex2: 1
+      FastqCompressionFormat: gzip
+      SoftwareVersion: '4.1.7'
+    ShownFields: [ Plate, WellPos, IndexName ]
+    FieldCorrespondence:
+      Plate: Plate
+      WellPos: WellPos
+      IndexName: [ I7_IndexName, I5_IndexName ]
+      I7_Index: I7_Index
+      I5_Index: I5_Index
+      AdapterRead1: AdapterRead1
+      AdapterRead2: AdapterRead2
+      UsedCycles: UsedCycles
+      BarcodeMismatchesIndex1: BarcodeMismatchesIndex1
+      BarcodeMismatchesIndex2: BarcodeMismatchesIndex2
+      FastqCompressionFormat: FastqCompressionFormat
+
+  - Name:'Ilmn DNA-RNA UD Indexes SetC Tagmentation':
+    Version: 1
+    IndexMetaData:
+      AdapterRead1: "CTGTCTCTTATACACATCT+ATGTGTATAAGAGACA"
+      AdapterRead2: "CTGTCTCTTATACACATCT+ATGTGTATAAGAGACA"
+      UsedCycles: "151;10;10;151"
+      BarcodeMismatchesIndex1: 1
+      BarcodeMismatchesIndex2: 1
+      FastqCompressionFormat: gzip
+      SoftwareVersion: '4.1.7'
+    ShownFields: [ Plate, WellPos, IndexName ]
+    FieldCorrespondence:
+      Plate: Plate
+      WellPos: WellPos
+      IndexName: [ I7_IndexName, I5_IndexName ]
+      I7_Index: I7_Index
+      I5_Index: I5_Index
+      AdapterRead1: AdapterRead1
+      AdapterRead2: AdapterRead2
+      UsedCycles: UsedCycles
+      BarcodeMismatchesIndex1: BarcodeMismatchesIndex1
+      BarcodeMismatchesIndex2: BarcodeMismatchesIndex2
+      FastqCompressionFormat: FastqCompressionFormat
+
+  - Name:'Ilmn DNA-RNA UD Indexes SetD Tagmentation':
+    Version: 1
+    IndexMetaData:
+      AdapterRead1: "CTGTCTCTTATACACATCT+ATGTGTATAAGAGACA"
+      AdapterRead2: "CTGTCTCTTATACACATCT+ATGTGTATAAGAGACA"
+      UsedCycles: "151;10;10;151"
+      BarcodeMismatchesIndex1: 1
+      BarcodeMismatchesIndex2: 1
+      FastqCompressionFormat: gzip
+      SoftwareVersion: '4.1.7'
+    ShownFields: [ Plate, WellPos, IndexName ]
+    FieldCorrespondence:
+      Plate: Plate
+      WellPos: WellPos
+      IndexName: [ I7_IndexName, I5_IndexName ]
+      I7_Index: I7_Index
+      I5_Index: I5_Index
+      AdapterRead1: AdapterRead1
+      AdapterRead2: AdapterRead2
+      UsedCycles: UsedCycles
+      BarcodeMismatchesIndex1: BarcodeMismatchesIndex1
+      BarcodeMismatchesIndex2: BarcodeMismatchesIndex2
+      FastqCompressionFormat: FastqCompressionFormat

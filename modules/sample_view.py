@@ -116,9 +116,11 @@ class SampleTableView(QTableView):
         header = self.horizontalHeader()
         header.setContextMenuPolicy(Qt.CustomContextMenu)
         header.customContextMenuRequested.connect(self.header_popup)
-        header.setMinimumSectionSize(100)
 
         self.original_top_left_selection = None
+
+        self.resizeColumnsToContents()
+
 
     @Slot(dict)
     def set_profiles_data(self, profiles_data):
