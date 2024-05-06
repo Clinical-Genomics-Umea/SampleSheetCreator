@@ -1,2 +1,0 @@
-
-vers 1, 0, 10, 6: added missing messagebox for import error of worklists

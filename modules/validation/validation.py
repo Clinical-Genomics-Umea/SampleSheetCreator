@@ -14,7 +14,7 @@ from pandera.errors import SchemaErrors
 from modules.run_classes import RunInfo
 from modules.validation.heatmap import set_heatmap_table_properties, create_heatmap_table
 from modules.validation.validation_fns import substitutions_heatmap_df, split_df_by_lane, \
-    create_table_from_dataframe, qstandarditemmodel_to_dataframe, df_to_i7_i5_df
+    create_table_from_dataframe, qsi_mmodel_to_dataframe, df_to_i7_i5_df
 from modules.validation.validation_schema import prevalidation_schema
 
 
@@ -59,7 +59,7 @@ class DataValidationWidget(QWidget):
     def validate(self):
         self.validate_tabwidget.clear()
 
-        df = qstandarditemmodel_to_dataframe(self.model)
+        df = qsi_mmodel_to_dataframe(self.model)
 
         if not isinstance(df, pd.DataFrame):
             tab = QWidget()
@@ -126,8 +126,8 @@ class DataValidationWidget(QWidget):
                 lanes_df[lane],
                 10,
                 10,
-                "I7_Index",
-                "I5_Index",
+                "Index_I7",
+                "Index_I5",
                 "Sample_ID"
             )
 
@@ -417,7 +417,7 @@ class ColorBalanceWidget(QTableView):
         super(ColorBalanceWidget, self).__init__(parent)
         dataframe.reset_index()
         dataframe['Proportion'] = "1"
-        df = self.split_string_column(dataframe, 'I7_Index', 'I5_Index')
+        df = self.split_string_column(dataframe, 'Index_I7', 'Index_I5')
         df.insert(0, 'Sample_ID', dataframe['Sample_ID'])
         df.insert(1, "Proportion", dataframe['Proportion'])
         last_row_index = df.index[-1]

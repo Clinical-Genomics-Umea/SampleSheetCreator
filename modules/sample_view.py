@@ -1,7 +1,8 @@
 from PySide6.QtGui import QKeyEvent, QClipboard, QCursor, QStandardItemModel, QStandardItem, QFont
-from PySide6.QtCore import Qt, QEvent, Signal, QPoint, Slot, QItemSelectionModel, QItemSelection
+from PySide6.QtCore import Qt, QEvent, Signal, QPoint, Slot, QItemSelectionModel, QItemSelection, QSortFilterProxyModel
 from PySide6.QtWidgets import QTableView, QAbstractItemView, QApplication, QMenu, QComboBox, \
-    QStyledItemDelegate, QGroupBox, QHBoxLayout, QVBoxLayout, QFormLayout, QLabel, QFrame, QHeaderView
+    QStyledItemDelegate, QGroupBox, QHBoxLayout, QVBoxLayout, QFormLayout, QLabel, QFrame, QHeaderView, QWidget, \
+    QLineEdit
 
 
 def calculate_index_range(indexes):
@@ -58,37 +59,189 @@ def clipboard_text_to_model():
     if not mime_data.hasText():
         return None
 
-    rows = mime_data.text().split('\n')
+    text = mime_data.text()
+    rows = text.split('\n')
+    rows = [row for row in rows if row]  # remove empty rows
 
-    row_counts = [r_count for r_count, r in enumerate(rows) if len(r) > 0]
-    col_counts = [c_count for r in rows for c_count, value in enumerate(r.split('\t')) if len(value) > 0]
-
-    max_rows = max(row_counts)
-    max_cols = max(col_counts)
-    dummy_model = QStandardItemModel(max_rows + 1, max_cols + 1)
+    max_cols = max(len(row.split('\t')) for row in rows)
+    dummy_model = QStandardItemModel(len(rows), max_cols)
 
     for r_count, r in enumerate(rows):
         for c_count, value in enumerate(r.split('\t')):
-            idx = dummy_model.index(r_count, c_count)
-            dummy_model.setData(idx, value, Qt.EditRole)
+            dummy_model.setData(dummy_model.index(r_count, c_count), value, Qt.EditRole)
 
     return dummy_model
 
+# def clipboard_text_to_model():
+#     clipboard = QApplication.clipboard()
+#     mime_data = clipboard.mimeData()
+#
+#     if not mime_data.hasText():
+#         return None
+#
+#     rows = mime_data.text().split('\n')
+#
+#     row_counts = [r_count for r_count, r in enumerate(rows) if len(r) > 0]
+#     col_counts = [c_count for r in rows for c_count, value in enumerate(r.split('\t')) if len(value) > 0]
+#
+#     max_rows = max(row_counts)
+#     max_cols = max(col_counts)
+#     dummy_model = QStandardItemModel(max_rows + 1, max_cols + 1)
+#
+#     for r_count, r in enumerate(rows):
+#         for c_count, value in enumerate(r.split('\t')):
+#             idx = dummy_model.index(r_count, c_count)
+#             dummy_model.setData(idx, value, Qt.EditRole)
+#
+#     return dummy_model
 
-def regular_paste(selected_indexes, source_model, model):
-    start_target_row = selected_indexes[0].row()
-    start_target_col = selected_indexes[0].column()
+#
+# def regular_paste(selected_indexes, source_model, model):
+#     start_target_row = selected_indexes[0].row()
+#     start_target_col = selected_indexes[0].column()
+#
+#     source_row_count = source_model.rowCount()
+#     source_col_count = source_model.columnCount()
+#
+#     for row_count in range(source_row_count):
+#         for col_count in range(source_col_count):
+#             idx = source_model.index(row_count, col_count)
+#             value = source_model.data(idx, Qt.DisplayRole)
+#             model.setData(model.index(start_target_row + row_count, start_target_col + col_count), value, Qt.EditRole)
+#
+#     return True
+
+
+def regular_paste(selected_indexes, source_model, target_proxy_model):
+    start_row = selected_indexes[0].row()
+    start_col = selected_indexes[0].column()
 
     source_row_count = source_model.rowCount()
     source_col_count = source_model.columnCount()
 
-    for row_count in range(source_row_count):
-        for col_count in range(source_col_count):
-            idx = source_model.index(row_count, col_count)
+    target_model = target_proxy_model.sourceModel()
+
+
+    target_proxy_model.blockSignals(True)
+
+    for row in range(source_row_count):
+        for col in range(source_col_count):
+            idx = source_model.index(row, col)
             value = source_model.data(idx, Qt.DisplayRole)
-            model.setData(model.index(start_target_row + row_count, start_target_col + col_count), value, Qt.EditRole)
+            target_proxy_model.setData(target_proxy_model.index(start_row + row, start_col + col), value, Qt.EditRole)
+
+    target_proxy_model.blockSignals(False)
+
+    target_model.refresh_view()
 
     return True
+
+
+class SampleWidget(QWidget):
+    def __init__(self, samplemodel: QStandardItemModel):
+        super().__init__()
+
+        vbox = QVBoxLayout()
+        vbox.setContentsMargins(0, 0, 0, 0)
+
+        self.filter_edit = QLineEdit()
+        self.samplemodel = samplemodel
+
+        filter_proxy_model = CustomProxyModel()
+        filter_proxy_model.setSourceModel(samplemodel)
+
+        self.sampleview = SampleTableView()
+        self.cellvalue = QLabel("")
+        self.cellvalue.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.cellvalue.setFont(QFont("Arial", 8))
+
+        vbox.addWidget(self.filter_edit)
+        vbox.addWidget(self.sampleview)
+        vbox.addWidget(self.cellvalue)
+        self.setLayout(vbox)
+
+        self.sampleview.setModel(filter_proxy_model)
+
+        self.sampleview.setContextMenuPolicy(Qt.CustomContextMenu)
+        header = self.sampleview.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeToContents)
+        header.setMinimumSectionSize(100)
+
+        self.sampleview.selectionModel().selectionChanged.connect(self.on_sampleview_selection_changed)
+        # self.sampleview.selectionModel().currentChanged.connect(self.on_sampleview_selection_changed)
+        # self.sampleview.model().dataChanged.connect(self.on_sampleview_selection_changed)
+
+        self.filter_edit.textChanged.connect(filter_proxy_model.set_filter_text)
+
+
+    def selected_rows_columns_count(self, selected_indexes):
+
+        selected_rows = {index.row() for index in selected_indexes}
+        selected_columns = {index.column() for index in selected_indexes}
+
+        return len(selected_rows), len(selected_columns)
+
+    def on_sampleview_selection_changed(self):
+        selection_model = self.sampleview.selectionModel()
+        selected_indexes = selection_model.selectedIndexes()
+        srows, scols = self.selected_rows_columns_count(selected_indexes)
+
+        if srows == 1 and scols == 1 and selected_indexes:
+            model = self.sampleview.model()
+
+            data = model.data(selected_indexes[0], Qt.DisplayRole)
+            column = selected_indexes[0].column()
+            row = selected_indexes[0].row() + 1
+            column_name = self.sampleview.horizontalHeader().model().headerData(column, Qt.Horizontal)
+
+            if data is None:
+                data = "Empty"
+            elif data == "":
+                data = "Empty"
+
+            self.cellvalue.setText(f"{column_name}, {row}:  {data}")
+
+        elif srows > 1 or scols > 1 and selected_indexes:
+            self.cellvalue.setText(f"multiple ... ")
+        else:
+            self.cellvalue.setText("")
+
+
+class CustomProxyModel(QSortFilterProxyModel):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.filter_text = ''
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        if not self.filter_text:
+            return True
+        for column in range(self.sourceModel().columnCount()):
+            index = self.sourceModel().index(source_row, column, source_parent)
+            data = self.sourceModel().data(index, Qt.DisplayRole)
+            if self.filter_text.lower() in str(data).lower():
+                return True
+        return False
+
+    def set_filter_text(self, text):
+        self.filter_text = text
+        self.invalidateFilter()
+
+
+
+# class MultiColumnFilterProxyModel(QSortFilterProxyModel):
+#     def filterAcceptsRow(self, sourceRow, sourceParent):
+#         # If the filter string is empty, display all rows
+#         if not self.filterRegularExpression().isEmpty():
+#             for column in range(self.sourceModel().columnCount()):
+#                 sourceIndex = self.sourceModel().index(sourceRow, column, sourceParent)
+#                 # If any column matches the filter, return True
+#                 if self.filterRegularExpression().indexIn(self.sourceModel().data(sourceIndex)) >= 0:
+#                     return True
+#             # If no columns match the filter, return False
+#             return False
+#         else:
+#             # If the filter string is empty, display all rows
+#             return True
 
 
 class SampleTableView(QTableView):
@@ -128,16 +281,6 @@ class SampleTableView(QTableView):
         selected_rows = selection_model.selectedRows()
 
         print(selected_rows)
-
-    def setModel(self, model):
-        super().setModel(model)
-
-        for column in range(model.columnCount()):
-            header_label = model.headerData(column, Qt.Horizontal)
-            model.horizontalHeaderItem(column).setToolTip(header_label)
-
-        # Execute the method after the model has been set
-        self.on_after_model_set()
 
     def on_after_model_set(self):
         self.selectionModel().selectionChanged.connect(self.on_selection_changed)
@@ -304,8 +447,16 @@ class SampleTableView(QTableView):
         model = self.model()
         selected_indexes = self.selectedIndexes()
 
+        model.blockSignals(True)
         for idx in selected_indexes:
             model.setData(idx, "", Qt.EditRole)
+
+        model.blockSignals(False)
+        model.dataChanged.emit(
+            model.index(0, 0),
+            model.index(model.rowCount() - 1, model.columnCount() - 1),
+            Qt.DisplayRole
+        )
 
     def keyPressEvent(self, event: QKeyEvent):
         current_index = self.selectionModel().currentIndex()
@@ -349,6 +500,7 @@ class SampleTableView(QTableView):
                 return True
 
             case Qt.Key_V, Qt.ControlModifier:
+                print("paste")
                 self.paste_clipboard_content()
                 return True
 
@@ -371,16 +523,23 @@ class SampleTableView(QTableView):
             if not selected_indexes:
                 return False
 
-            if len(selected_indexes) == 1:
+            elif len(selected_indexes) == 1:
+                print("single")
+                # self.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
                 regular_paste(selected_indexes, source_model, model)
                 self.selectionModel().clearSelection()
+                self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
                 return True
 
-            if len(selected_indexes) > 1:
+            elif len(selected_indexes) > 1:
                 if source_model.rowCount() == 1 and source_model.columnCount() == 1:
                     source_index = source_model.index(0, 0)
+                    # self.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
+
                     for idx in selected_indexes:
                         model.setData(idx, source_model.data(source_index,  Qt.DisplayRole), Qt.EditRole)
+
+                    # self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
                 return True
 

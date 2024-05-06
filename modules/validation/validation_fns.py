@@ -6,6 +6,8 @@ from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtWidgets import QVBoxLayout, QTableWidget, QTableWidgetItem
 from PySide6.QtCore import Qt
 
+pd.set_option('future.no_silent_downcasting', True)
+
 
 def explode_df_by_lane(df):
     exploded_df = df.assign(Lane=df['Lane'].str.split(',')).explode('Lane')
@@ -203,19 +205,17 @@ def dataframe_to_qstandarditemmodel(dataframe):
 #     return df
 
 
-def qstandarditemmodel_to_dataframe(model):
+def qsi_mmodel_to_dataframe(model):
     if not isinstance(model, QStandardItemModel):
         raise ValueError("Input must be a QStandardItemModel")
 
-    columns = [model.horizontalHeaderItem(col).text() for col in range(model.columnCount())]
-    df = pd.DataFrame(columns=columns)
+    column_names = [model.horizontalHeaderItem(i).text() for i in range(model.columnCount())]
+    df = pd.DataFrame(columns=column_names)
 
-    for row in range(model.rowCount()):
-        row_data = [model.item(row, col).text() for col in range(model.columnCount())]
-        df.loc[row] = row_data
+    for row_index in range(model.rowCount()):
+        row_data = [model.item(row_index, col_index).text() for col_index in range(model.columnCount())]
+        df.loc[row_index] = row_data
 
-    df.replace('', np.nan, inplace=True)
-    df.dropna(how='all', inplace=True)
-    df.reset_index(drop=True, inplace=True)
+    df = df.replace('', np.nan).dropna(how='all').reset_index(drop=True)
 
     return df

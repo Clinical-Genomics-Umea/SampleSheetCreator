@@ -80,6 +80,12 @@ class SampleSheetModel(QStandardItemModel):
         self.setRowCount(384)
         self.set_empty_strings()
 
+    def refresh_view(self):
+        # Emit dataChanged signal to notify the view to update
+        top_left = self.index(0, 0)
+        bottom_right = self.index(self.rowCount() - 1, self.columnCount() - 1)
+        self.dataChanged.emit(top_left, bottom_right)
+
     def set_empty_strings(self):
         """
         Set empty strings for each cell in the table.
@@ -177,7 +183,7 @@ class SampleSheetModel(QStandardItemModel):
         """
         flags = super().flags(index)
         if index.isValid():
-            flags |= Qt.ItemFlags.ItemIsDropEnabled
+            flags |= Qt.ItemIsDropEnabled
         return flags
 
     def set_profile_on_selected(self, selected_indexes, profile_name):

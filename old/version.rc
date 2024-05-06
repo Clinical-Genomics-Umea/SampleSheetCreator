@@ -1,9 +1,0 @@
-# UTF-8
-#
-# For more details about fixed file info 'ffi' see:
-VSVersionInfo(
-  ffi=FixedFileInfo(
-      filevers=(1, 0, 10, 6),
-      prodvers=(1, 0, 10, 6)
-  )
-)

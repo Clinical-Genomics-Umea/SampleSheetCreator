@@ -110,7 +110,7 @@ class TableModel(QAbstractTableModel):
         """
         flags = super().flags(index)
         if index.isValid():
-            flags |= Qt.ItemFlags.ItemIsDragEnabled
+            flags |= Qt.ItemIsDragEnabled
         return flags
 
     def mimeData(self, indexes):
@@ -329,8 +329,6 @@ class IndexWidget(QWidget):
         self.index_df = index_df
         self.profile_data = profile_data
 
-        print(self.index_df)
-        # self.index_df['Name'] = self.index_df['Name'].apply(lambda x: x.strip())
         self.index_df['IndexDefinitionKitName'] = idk_name
 
         self.shown_fields = self.get_shown_fields()

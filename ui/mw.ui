@@ -39,6 +39,9 @@
     </sizepolicy>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <property name="spacing">
+     <number>5</number>
+    </property>
     <property name="leftMargin">
      <number>5</number>
     </property>
@@ -52,7 +55,7 @@
      <number>5</number>
     </property>
     <item>
-     <widget class="QTabWidget" name="leftmenu_tabWidget">
+     <widget class="QStackedWidget" name="leftmenu_stackedWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -66,13 +69,25 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="config_tab">
-       <attribute name="title">
-        <string>config_tab_h</string>
-       </attribute>
+      <widget class="QWidget" name="leftmenu_config">
        <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QFrame" name="frame_6">
           <layout class="QFormLayout" name="formLayout_3">
@@ -135,11 +150,23 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="file_tab">
-       <attribute name="title">
-        <string>file_tab_h</string>
-       </attribute>
+      <widget class="QWidget" name="leftmenu_file">
        <layout class="QVBoxLayout" name="verticalLayout_8">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
@@ -185,71 +212,134 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="run_setup_tab">
-       <attribute name="title">
-        <string>run_setup_tab_h</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_5"/>
+      <widget class="QWidget" name="leftmenu_indexes">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
       </widget>
-      <widget class="QWidget" name="indexes_tab">
-       <attribute name="title">
-        <string>indexes_tab_h</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_6"/>
+      <widget class="QWidget" name="leftmenu_profiles">
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
       </widget>
-      <widget class="QWidget" name="profiles_tab">
-       <attribute name="title">
-        <string>profiles_tab_h</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2"/>
+      <widget class="QWidget" name="leftmenu_runsetup">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
       </widget>
      </widget>
     </item>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_12">
       <item>
-       <widget class="QTabWidget" name="main_tabWidget">
+       <widget class="QStackedWidget" name="main_stackedWidget">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="currentIndex">
-         <number>1</number>
-        </property>
-        <widget class="QWidget" name="data_tab">
-         <attribute name="title">
-          <string>samplesheet data</string>
-         </attribute>
-         <layout class="QVBoxLayout" name="verticalLayout"/>
+        <widget class="QWidget" name="main_data">
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+         </layout>
         </widget>
-        <widget class="QWidget" name="validation_tab">
-         <attribute name="title">
-          <string>validation</string>
-         </attribute>
-         <layout class="QVBoxLayout" name="verticalLayout_10"/>
+        <widget class="QWidget" name="main_validation">
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+         </layout>
         </widget>
        </widget>
       </item>
      </layout>
     </item>
     <item>
-     <widget class="QTabWidget" name="rightmenu_tabWidget">
+     <widget class="QStackedWidget" name="rightmenu_stackedWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <widget class="QWidget" name="columns_settings_tab">
-       <attribute name="title">
-        <string>columns_settings_tab_h</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_9"/>
+      <widget class="QWidget" name="rightmenu_columnsettings">
+       <layout class="QVBoxLayout" name="verticalLayout_9">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -263,19 +353,19 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>32</width>
+        <width>28</width>
         <height>0</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>32</width>
+        <width>28</width>
         <height>16777215</height>
        </size>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="spacing">
-        <number>4</number>
+        <number>6</number>
        </property>
        <property name="leftMargin">
         <number>0</number>
@@ -292,7 +382,7 @@
        <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>

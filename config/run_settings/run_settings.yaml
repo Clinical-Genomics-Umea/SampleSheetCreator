@@ -28,7 +28,7 @@ Reads:
 Run_Extra:
   FlowCellType:
     control: combobox
-    data: ['10B']
+    data: ['1,5B', '10B', '25B']
   Investigator:
     control: lineedit
     data: "Unknown"

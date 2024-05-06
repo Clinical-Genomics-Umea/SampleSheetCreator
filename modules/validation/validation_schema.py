@@ -25,21 +25,22 @@ def is_valid_i5_index(input_series: pd.Series):
     """
     return pd.Series(input_series.isna() | input_series.str.contains(r'^[ATCG]*$'), dtype=bool)
 
-def is_valid_used_cycles(series):
-    """
-    Validate a pandas Series containing strings composed of 'A', 'T', 'C', 'G', or NaN (empty).
-
-    Args:
-        series (pandas.Series): The input Series to validate.
-
-    Returns:
-        pandas.Series: A Series of boolean values indicating if each item meets the conditions.
-    """
-    # Create a mask to check for valid conditions
-    mask = (series.isna()) | (series.str.match(r'^[ATCG]*$'))
-    result = mask.astype(bool)
-
-    return result
+#
+# def is_valid_used_cycles(series):
+#     """
+#     Validate a pandas Series containing strings composed of 'A', 'T', 'C', 'G', or NaN (empty).
+#
+#     Args:
+#         series (pandas.Series): The input Series to validate.
+#
+#     Returns:
+#         pandas.Series: A Series of boolean values indicating if each item meets the conditions.
+#     """
+#     # Create a mask to check for valid conditions
+#     mask = (series.isna()) | (series.str.match(r'^[ATCG]*$'))
+#     result = mask.astype(bool)
+#
+#     return result
 
 #
 # def is_valid_used_cycles(series):
@@ -71,7 +72,7 @@ def is_valid_used_cycles(series: pd.Series) -> pd.Series:
     Returns:
         pandas.Series: A Series of boolean values indicating if each item meets the condition.
     """
-    pattern = r'^\d{2,3};\d{1,2};\d{1,2};\d{1,3}$'
+    pattern = r'^\d{1,3}-\d{1,2}-\d{1,2}-\d{1,3}$'
     return series.str.contains(pattern, na=False)
 
 
@@ -85,14 +86,9 @@ prevalidation_schema = DataFrameSchema(
                                             error="Sample_ID is too short.")
                             ),
         "ProfileName": Column(str, coerce=True, nullable=True),
-        "Plate": Column(str, coerce=True, nullable=True),
-        "WellPos": Column(str, coerce=True, nullable=True),
-        "I7_Plate": Column(str, coerce=True, nullable=True),
-        "I7_WellPos": Column(str, coerce=True, nullable=True),
-        "I5_Plate": Column(str, coerce=True, nullable=True),
-        "I5_WellPos": Column(str, coerce=True, nullable=True),
-        "I7_IndexName": Column(str, coerce=True, nullable=True),
-        "I7_Index": Column(str,
+        "FixedPos": Column(str, coerce=True, nullable=True),
+        "Name_I7": Column(str, coerce=True, nullable=True),
+        "Index_I7": Column(str,
                            checks=[pa.Check(lambda s: s.str.len() >= 8,
                                             error="Index is too short."),
                                    pa.Check(lambda s: s.str.len() <= 10,
@@ -102,8 +98,8 @@ prevalidation_schema = DataFrameSchema(
                                    ],
                            nullable=False),
 
-        "I5_IndexName": Column(str, coerce=True, nullable=True),
-        "I5_Index": Column(str,
+        "Name_I5": Column(str, coerce=True, nullable=True),
+        "Index_I5": Column(str,
                            coerce=True,
                            nullable=True,
                            checks=[pa.Check(lambda s: s.str.len() >= 8,
@@ -141,6 +137,7 @@ prevalidation_schema = DataFrameSchema(
         "Pipeline": Column(str, coerce=True, nullable=True),
         "ReferenceGenomeDir": Column(str, coerce=True, nullable=True),
         "VariantCallingMode": Column(str, coerce=True, nullable=True),
+        "IndexDefinitionKitName": Column(str, coerce=True, nullable=True),
     },
     index=Index(int),
     strict=True,
