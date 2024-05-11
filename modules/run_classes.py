@@ -58,18 +58,22 @@ class RunSetup(QWidget):
     def __init__(self, run_config):
         super().__init__()
 
-        widget_layout = QVBoxLayout()
-        widget_layout.setSpacing(5)
-        form = QFormLayout()
-
-        self.setLayout(widget_layout)
-        widget_layout.addLayout(form)
+        layout = QVBoxLayout()
+        layout.setSpacing(5)
+        layout.setContentsMargins(0, 0, 0, 0)
 
         top_label = QLabel("Run Setup")
         top_label.setStyleSheet("font-weight: bold")
+
         self.set_button = QPushButton("Set Run Params")
 
-        form.addRow(top_label, self.set_button)
+        layout.addWidget(top_label)
+        layout.addWidget(self.set_button)
+
+        form = QFormLayout()
+
+        self.setLayout(layout)
+        layout.addLayout(form)
 
         self.run_config = load_from_yaml(run_config)
 
@@ -90,7 +94,7 @@ class RunSetup(QWidget):
 
                 form.addRow(QLabel(field), widget)
 
-        widget_layout.addStretch()
+        layout.addStretch()
 
     def get_data(self):
         return {

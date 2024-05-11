@@ -8,7 +8,7 @@ from Bio.Seq import Seq
 from camel_converter import to_snake
 
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QLineEdit, QTableView, QHeaderView, \
-    QHBoxLayout, QSizePolicy, QSpacerItem, QAbstractItemView
+    QHBoxLayout, QSizePolicy, QSpacerItem, QAbstractItemView, QToolBox, QLabel
 
 from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt
 
@@ -477,6 +477,39 @@ def main():
     print(index_data.has_fixed_indexes)
     print(index_data.indexes_i5)
     print(index_data.indexes_i7)
+
+
+class Indexes(QWidget):
+    def __init__(self, indexes_base_path: Path):
+        super().__init__()
+
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.index_mgr = IndexKitDefinitionMGR(indexes_base_path)
+        self.index_toolbox = QToolBox()
+        self.index_panel_mgr = IndexPanelWidgetMGR(self.index_mgr)
+        self.index_widgets = {}
+
+        self.setup()
+
+    def setup(self):
+
+        self.layout.setSpacing(5)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+
+        indexes_label = QLabel("Indexes")
+        indexes_label.setStyleSheet("font-weight: bold")
+
+        self.layout.addWidget(indexes_label)
+        self.layout.addWidget(self.index_toolbox)
+
+        index_kit_names = self.index_panel_mgr.get_index_panel_widget_names()
+
+        for name in index_kit_names:
+            self.index_widgets[name] = self.index_panel_mgr.get_index_panel_widget(name)
+            self.index_toolbox.addItem(self.index_widgets[name], name)
+
 
 
 if __name__ == "__main__":

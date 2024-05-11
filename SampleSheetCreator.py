@@ -9,9 +9,9 @@ import qtawesome as qta
 
 from modules.columns_visibility import ColumnsTreeWidget
 from modules.data_model.sample_model import SampleSheetModel
-from modules.indexes import IndexPanelWidgetMGR, IndexKitDefinitionMGR
+from modules.indexes import IndexPanelWidgetMGR, IndexKitDefinitionMGR, Indexes
 from modules.models import read_fields_from_json
-from modules.profiles import ProfileWidgetMGR
+from modules.profiles import ProfileMGR, Profiles
 from modules.run_classes import RunSetup, RunInfo
 from modules.validation.validation import DataValidationWidget
 
@@ -21,7 +21,7 @@ from PySide6.QtCore import QPropertyAnimation, Qt, Slot
 from PySide6.QtCore import QSize
 from PySide6 import QtGui, QtCore
 from PySide6.QtWidgets import QMainWindow, QApplication, QSizePolicy, QFileDialog, \
-    QWidget, QHeaderView, QToolBox, QPushButton, QGraphicsScene, QGraphicsView, QFrame
+    QWidget, QHeaderView, QToolBox, QPushButton, QGraphicsScene, QGraphicsView, QFrame, QVBoxLayout, QLabel, QSpacerItem
 
 from modules.sample_view import SampleTableView, SampleWidget
 from ui.mw import Ui_MainWindow
@@ -114,7 +114,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         fields_path = read_yaml_file("config/sample_fields.yaml")
         self.samples_model = SampleSheetModel(fields_path)
         self.samples_widget = SampleWidget(self.samples_model)
-        self.samples_tableview = self.samples_widget.sampleview
+        self.sample_tableview = self.samples_widget.sampleview
         self.sample_tableview_setup()
 
         # columns settings widget
@@ -140,15 +140,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.validate_widget = DataValidationWidget(self.samples_model, self.run_info_widget)
         self.validate_widget_setup()
 
-        self.index_mgr = IndexKitDefinitionMGR(Path("config/indexes"))
-        self.index_toolbox = QToolBox()
-        self.index_panel_mgr = IndexPanelWidgetMGR(self.index_mgr)
-        self.index_widgets = {}
+        self.indexes_widget = Indexes(Path("config/indexes"))
         self.indexes_setup()
 
-        self.profile_toolbox = QToolBox()
-        self.profile_mgr = ProfileWidgetMGR(self.index_mgr, Path("config/profiles"))
-        self.profile_widgets = {}
+        self.profiles_widget = Profiles(Path("config/profiles"), self.sample_tableview)
         self.profile_setup()
 
         self.menu_animations_setup()
@@ -164,18 +159,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout = self.rightmenu_columnsettings.layout()
         layout.addWidget(self.columns_treeview)
 
-        self.columns_treeview.field_visibility_state_changed.connect(self.samples_tableview.set_column_visibility_state)
-        self.samples_tableview.field_visibility_state_changed.connect(self.columns_treeview.set_column_visibility_state)
+        self.columns_treeview.field_visibility_state_changed.connect(self.sample_tableview.set_column_visibility_state)
+        self.sample_tableview.field_visibility_state_changed.connect(self.columns_treeview.set_column_visibility_state)
 
     def on_samples_tableview_selection_changed(self):
-        selection_model = self.samples_tableview.selectionModel()
+        selection_model = self.sample_tableview.selectionModel()
         selected_indexes = selection_model.selectedIndexes()
         if len(selected_indexes) == 1 and selected_indexes:
-            model = self.samples_tableview.model()
+            model = self.sample_tableview.model()
             data = model.data(selected_indexes[0], Qt.DisplayRole)
             column = selected_indexes[0].column()
             row = selected_indexes[0].row()
-            column_name = self.samples_tableview.horizontalHeader().model().headerData(column, Qt.Horizontal)
+            column_name = self.sample_tableview.horizontalHeader().model().headerData(column, Qt.Horizontal)
             self.field_view.setText(f"{row}, {column_name}: {data}")
 
     @Slot(str)
@@ -244,33 +239,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def indexes_setup(self):
         layout = self.leftmenu_indexes.layout()
-        layout.addWidget(self.index_toolbox)
+        layout.addWidget(self.indexes_widget)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
-
-        index_kit_names = self.index_panel_mgr.get_index_panel_widget_names()
-
-        for name in index_kit_names:
-            self.index_widgets[name] = self.index_panel_mgr.get_index_panel_widget(name)
-            self.index_toolbox.addItem(self.index_widgets[name], name)
 
     def profile_setup(self):
-
         layout = self.leftmenu_profiles.layout()
-        layout.addWidget(self.profile_toolbox)
+        layout.addWidget(self.profiles_widget)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
-
-        profile_names = self.profile_mgr.get_profile_names()
-
-        for profile_name in profile_names:
-            self.profile_widgets[profile_name] = self.profile_mgr.get_profile_widget(profile_name)
-            self.profile_toolbox.addItem(self.profile_widgets[profile_name], profile_name)
-            self.profile_widgets[profile_name].profile_data_signal.connect(self.samples_tableview.set_profiles_data)
 
     def add_button_pressed(self):
         send_button = self.sender()
-        selected_indexes = self.samples_tableview.selectedIndexes()
+        selected_indexes = self.sample_tableview.selectedIndexes()
         self.samples_model.set_profile_on_selected(selected_indexes, send_button.profile_name)
 
     def left_tool_actions_setup(self):
@@ -300,7 +281,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.run_action.setChecked(False)
         self.run_action.triggered.connect(self.on_tool_group_click)
 
-        self.profiles_action.setIcon(qta.icon('msc.type-hierarchy-sub', options=[{'draw': 'image'}]))
+        self.profiles_action.setIcon(qta.icon('msc.debug-line-by-line', options=[{'draw': 'image'}]))
         self.profiles_action.setCheckable(True)
         self.profiles_action.setChecked(False)
         self.profiles_action.triggered.connect(self.on_tool_group_click)
@@ -424,7 +405,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         fields_path = read_yaml_file("config/sample_fields.yaml")
         self.samples_model = SampleSheetModel(fields_path)
         self.samples_widget = SampleWidget(self.samples_model)
-        self.samples_tableview = self.samples_widget.sampleview
+        self.sample_tableview = self.samples_widget.sampleview
         self.sample_tableview_setup()
 
     # def file_tab_setup(self):

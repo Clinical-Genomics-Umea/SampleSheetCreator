@@ -1,5 +1,6 @@
 from PySide6.QtGui import QKeyEvent, QClipboard, QCursor, QStandardItemModel, QFont
-from PySide6.QtCore import Qt, QEvent, Signal, QPoint, Slot, QItemSelectionModel, QSortFilterProxyModel, QRect, QSize
+from PySide6.QtCore import Qt, QEvent, Signal, QPoint, Slot, QItemSelectionModel, QSortFilterProxyModel, QRect, QSize, \
+    QAbstractItemModel
 from PySide6.QtWidgets import QTableView, QAbstractItemView, QApplication, QMenu, \
     QVBoxLayout, QLabel, QHeaderView, QWidget, QLineEdit, QStyleOptionButton, QStyle, QPushButton
 
@@ -212,13 +213,46 @@ class SampleTableView(QTableView):
         self.original_top_left_selection = None
         self.resizeColumnsToContents()
 
+    def get_header_key_dict(self, model: QAbstractItemModel) -> dict:
+        header2key = {}
+        for column in range(model.columnCount()):
+            header_item = model.horizontalHeaderItem(column)
+            if header_item is not None:
+                header2key[header_item.text()] = column
+        return header2key
+
 
     @Slot(dict)
-    def set_profiles_data(self, profiles_data):
+    def set_profile_data(self, profiles_data):
+        proxymodel = self.model()
+        sourcemodel = proxymodel.sourceModel()
         selection_model = self.selectionModel()
-        selected_rows = selection_model.selectedRows()
+        selected_row_indexes = selection_model.selectedRows()
+        selected_rows = [index.row() for index in selected_row_indexes]
 
-        print(selected_rows)
+        if not selected_row_indexes:
+            return
+
+        header_key_dict = self.get_header_key_dict(sourcemodel)
+        print(header_key_dict)
+
+        for row in selected_rows:
+            for key, value in profiles_data.items():
+                if not key in header_key_dict:
+                    continue
+
+                column = header_key_dict[key]
+                sourcemodel.setData(sourcemodel.index(row, column), value)
+
+        #
+        # selected_row_indexes = [idx.row() for idx in selected_row_indexes]
+        #
+        # for idx in selected_row_indexes:
+        #     print(idx.row())
+
+
+        print("sampleview")
+        print(profiles_data)
 
     def on_after_model_set(self):
         self.selectionModel().selectionChanged.connect(self.on_selection_changed)
