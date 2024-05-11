@@ -1,8 +1,7 @@
-from PySide6.QtGui import QKeyEvent, QClipboard, QCursor, QStandardItemModel, QStandardItem, QFont
-from PySide6.QtCore import Qt, QEvent, Signal, QPoint, Slot, QItemSelectionModel, QItemSelection, QSortFilterProxyModel
-from PySide6.QtWidgets import QTableView, QAbstractItemView, QApplication, QMenu, QComboBox, \
-    QStyledItemDelegate, QGroupBox, QHBoxLayout, QVBoxLayout, QFormLayout, QLabel, QFrame, QHeaderView, QWidget, \
-    QLineEdit
+from PySide6.QtGui import QKeyEvent, QClipboard, QCursor, QStandardItemModel, QFont
+from PySide6.QtCore import Qt, QEvent, Signal, QPoint, Slot, QItemSelectionModel, QSortFilterProxyModel, QRect, QSize
+from PySide6.QtWidgets import QTableView, QAbstractItemView, QApplication, QMenu, \
+    QVBoxLayout, QLabel, QHeaderView, QWidget, QLineEdit, QStyleOptionButton, QStyle, QPushButton
 
 
 def calculate_index_range(indexes):
@@ -32,7 +31,7 @@ def calculate_index_range(indexes):
     return min_row, max_row, min_col, max_col
 
 
-def list2d_to_tab_delim_str(data):
+def list2d_to_tabbed_str(data):
     """
     Convert a 2D list to a tab-delimited string using join.
 
@@ -72,45 +71,6 @@ def clipboard_text_to_model():
 
     return dummy_model
 
-# def clipboard_text_to_model():
-#     clipboard = QApplication.clipboard()
-#     mime_data = clipboard.mimeData()
-#
-#     if not mime_data.hasText():
-#         return None
-#
-#     rows = mime_data.text().split('\n')
-#
-#     row_counts = [r_count for r_count, r in enumerate(rows) if len(r) > 0]
-#     col_counts = [c_count for r in rows for c_count, value in enumerate(r.split('\t')) if len(value) > 0]
-#
-#     max_rows = max(row_counts)
-#     max_cols = max(col_counts)
-#     dummy_model = QStandardItemModel(max_rows + 1, max_cols + 1)
-#
-#     for r_count, r in enumerate(rows):
-#         for c_count, value in enumerate(r.split('\t')):
-#             idx = dummy_model.index(r_count, c_count)
-#             dummy_model.setData(idx, value, Qt.EditRole)
-#
-#     return dummy_model
-
-#
-# def regular_paste(selected_indexes, source_model, model):
-#     start_target_row = selected_indexes[0].row()
-#     start_target_col = selected_indexes[0].column()
-#
-#     source_row_count = source_model.rowCount()
-#     source_col_count = source_model.columnCount()
-#
-#     for row_count in range(source_row_count):
-#         for col_count in range(source_col_count):
-#             idx = source_model.index(row_count, col_count)
-#             value = source_model.data(idx, Qt.DisplayRole)
-#             model.setData(model.index(start_target_row + row_count, start_target_col + col_count), value, Qt.EditRole)
-#
-#     return True
-
 
 def regular_paste(selected_indexes, source_model, target_proxy_model):
     start_row = selected_indexes[0].row()
@@ -120,7 +80,6 @@ def regular_paste(selected_indexes, source_model, target_proxy_model):
     source_col_count = source_model.columnCount()
 
     target_model = target_proxy_model.sourceModel()
-
 
     target_proxy_model.blockSignals(True)
 
@@ -168,9 +127,6 @@ class SampleWidget(QWidget):
         header.setMinimumSectionSize(100)
 
         self.sampleview.selectionModel().selectionChanged.connect(self.on_sampleview_selection_changed)
-        # self.sampleview.selectionModel().currentChanged.connect(self.on_sampleview_selection_changed)
-        # self.sampleview.model().dataChanged.connect(self.on_sampleview_selection_changed)
-
         self.filter_edit.textChanged.connect(filter_proxy_model.set_filter_text)
 
 
@@ -227,23 +183,6 @@ class CustomProxyModel(QSortFilterProxyModel):
         self.invalidateFilter()
 
 
-
-# class MultiColumnFilterProxyModel(QSortFilterProxyModel):
-#     def filterAcceptsRow(self, sourceRow, sourceParent):
-#         # If the filter string is empty, display all rows
-#         if not self.filterRegularExpression().isEmpty():
-#             for column in range(self.sourceModel().columnCount()):
-#                 sourceIndex = self.sourceModel().index(sourceRow, column, sourceParent)
-#                 # If any column matches the filter, return True
-#                 if self.filterRegularExpression().indexIn(self.sourceModel().data(sourceIndex)) >= 0:
-#                     return True
-#             # If no columns match the filter, return False
-#             return False
-#         else:
-#             # If the filter string is empty, display all rows
-#             return True
-
-
 class SampleTableView(QTableView):
 
     field_visibility_state_changed = Signal(str, bool)
@@ -271,7 +210,6 @@ class SampleTableView(QTableView):
         header.customContextMenuRequested.connect(self.header_popup)
 
         self.original_top_left_selection = None
-
         self.resizeColumnsToContents()
 
 
@@ -392,33 +330,8 @@ class SampleTableView(QTableView):
 
     def copy_selection(self):
         selected_data = self.get_selected_data()
-        selected_csv = list2d_to_tab_delim_str(selected_data)
+        selected_csv = list2d_to_tabbed_str(selected_data)
         self.clipboard.setText(selected_csv)
-
-    # def get_selected_data(self):
-    #     selected_indexes = self.selectedIndexes()
-    #     selected_data = []
-    #
-    #     rows = []
-    #     cols = []
-    #
-    #     for index in selected_indexes:
-    #         rows.append(index.row())
-    #         cols.append(index.column())
-    #
-    #     min_row, max_row = min(rows), max(rows)
-    #     min_col, max_col = min(cols), max(cols)
-    #
-    #     for row_count in range(min_row, max_row + 1):
-    #         row_items = [
-    #             self.model().data(
-    #                 self.model().index(row_count, col_count), Qt.DisplayRole
-    #             )
-    #             for col_count in range(min_col, max_col + 1)
-    #         ]
-    #         selected_data.append(row_items)
-    #
-    #     return selected_data
 
     def get_selected_data(self):
         selected_indexes = self.selectedIndexes()
@@ -525,7 +438,6 @@ class SampleTableView(QTableView):
 
             elif len(selected_indexes) == 1:
                 print("single")
-                # self.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
                 regular_paste(selected_indexes, source_model, model)
                 self.selectionModel().clearSelection()
                 self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -534,12 +446,9 @@ class SampleTableView(QTableView):
             elif len(selected_indexes) > 1:
                 if source_model.rowCount() == 1 and source_model.columnCount() == 1:
                     source_index = source_model.index(0, 0)
-                    # self.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
 
                     for idx in selected_indexes:
                         model.setData(idx, source_model.data(source_index,  Qt.DisplayRole), Qt.EditRole)
-
-                    # self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
                 return True
 

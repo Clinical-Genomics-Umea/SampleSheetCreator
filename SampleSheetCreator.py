@@ -225,8 +225,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def sample_tableview_setup(self):
 
-        print("sample_tableview_setup")
-
         layout = self.main_data.layout()
         clear_layout(layout)
         layout.addWidget(self.samples_widget)
@@ -241,6 +239,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def handle_run_set_button_click(self):
         run_info = self.run_setup_widget.get_data()
         self.run_info_widget.set_data(run_info)
+
+        print(self.run_info_widget.get_data())
 
     def indexes_setup(self):
         layout = self.leftmenu_indexes.layout()
@@ -438,17 +438,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                            "",
                                            "Worklist files (*.txt *.csv)",
                                            options=options)[0]
-
-    # def new_samplesheet(self):
-    #     fields = read_fields_from_json("config/data_fields.json")
-    #     self.samples_model.setColumnCount(len(fields))
-    #
-    #     for col, field in enumerate(fields):
-    #         header_item = QStandardItem(field)
-    #         self.samples_model.setHorizontalHeaderItem(col, header_item)
-    #
-    #     self.samples_tableview.setModel(self.samples_model)
-    #     self.samples_tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
     def exit(self):
         sys.exit()

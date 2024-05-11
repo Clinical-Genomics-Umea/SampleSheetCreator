@@ -118,6 +118,7 @@ class RunInfo(QWidget):
         self.sections = {}
 
         for section_name, section_data in data.items():
+
             section = RunInfoSection(section_name, section_data)
             self.sections[section_name] = section
             self.layout.addWidget(section)
@@ -132,6 +133,13 @@ class RunInfo(QWidget):
         widget.setMinimumWidth(200)
         widget.setMaximumWidth(300)
         self.layout.addWidget(widget)
+
+    def get_data(self):
+        sections_data = {}
+        for section_name, section in self.sections.items():
+            sections_data[section_name] = section.get_data()
+
+        return sections_data
 
 
 class RunInfoSection(QGroupBox):
@@ -189,3 +197,6 @@ class RunInfoSection(QGroupBox):
         for key, value in data.items():
             if key in self.fields:
                 self.fields[key].setText(value)
+
+    def get_data(self):
+        return {key: self.fields[key].text() for key in self.fields}

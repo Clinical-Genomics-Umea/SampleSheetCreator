@@ -36,12 +36,28 @@ def set_colorbalance_table_properties(table):
     return table
 
 
+def lane_validation(df, flowcelltype):
+    allowed_lanes = {
+        '1.5B': {'1', '2'},
+        '10B': {'1', '2', '3', '4', '5', '6', '7', '8'},
+        '25B': {'1', '2', '3', '4', '5', '6', '7', '8'}
+    }
+
+    lane_combinations = set(df['Lane'])
+    used_lanes = set()
+    for lane_combination in lane_combinations:
+        cleaned_lanes = lane_combination.strip().replace(' ', '').split(',')
+        used_lanes.update(cleaned_lanes)
+
+    return used_lanes.difference(allowed_lanes[flowcelltype])
+
+
 class DataValidationWidget(QWidget):
     def __init__(self, model: QStandardItemModel, run_info: RunInfo):
         super().__init__()
 
         self.model = model
-        self.run_info = run_info
+        self.run_info_data = run_info.get_data()
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -87,6 +103,20 @@ class DataValidationWidget(QWidget):
             self.validate_tabwidget.addTab(tab, "Pre-Validation Errors")
 
             return
+        
+        try:
+            lane_validation(df, flowcelltype=self.run_info_data['Run_Extra']['FlowCellType'])
+        
+        except Exception as e:
+
+            tab = QWidget()
+            tab_main_layout = QVBoxLayout()
+            tab_main_layout.setContentsMargins(0, 0, 0, 0)
+            tab.setLayout(tab_main_layout)
+
+            tab_main_layout.addWidget(QLabel(f"Flow cell type does not match lanes. {e}"))
+
+            self.validate_tabwidget.addTab(tab, "Pre-Validation Errors")
 
         try:
             prevalidation_schema(df, lazy=True)

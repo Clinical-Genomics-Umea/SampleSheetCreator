@@ -20,11 +20,6 @@ Reads:
     control: combobox
     data: ['151-10-10-151']
 
-#Sequencing_Settings:
-#  InputContainerIdentifier:
-#    control: lineedit
-#    data: 'Unknown'
-
 Run_Extra:
   FlowCellType:
     control: combobox
@@ -33,27 +28,3 @@ Run_Extra:
     control: lineedit
     data: "Unknown"
 
-#    LibraryPrepKits:
-#      control: label
-#      data: ''
-
-#Data_Translate:
-#  ReadProfile:
-#    '151-10-10-151':
-#      Read1Cycles: 151
-#      Read2Cycles: 151
-#      Index1Cycles: 10
-#      Index2Cycles: 10
-#  Instrument:
-#    'NovaSeqX':
-#      InstrumentPlatform: 'NovaSeqXSeries'
-#      InstrumentType: 'NovaSeqX'
-
-
-#Custom_Lab_Data:
-#  Investigator:
-#    data: []
-#    control: lineedit
-#  WorkList:
-#    data: []
-#    control: label
