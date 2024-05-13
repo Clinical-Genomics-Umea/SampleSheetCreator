@@ -1,35 +1,36 @@
-from PySide6.QtGui import QKeyEvent, QClipboard, QCursor, QStandardItemModel, QFont
+from PySide6.QtGui import QKeyEvent, QClipboard, QCursor, QStandardItemModel, QFont, QColor
 from PySide6.QtCore import Qt, QEvent, Signal, QPoint, Slot, QItemSelectionModel, QSortFilterProxyModel, QRect, QSize, \
     QAbstractItemModel
 from PySide6.QtWidgets import QTableView, QAbstractItemView, QApplication, QMenu, \
-    QVBoxLayout, QLabel, QHeaderView, QWidget, QLineEdit, QStyleOptionButton, QStyle, QPushButton
+    QVBoxLayout, QLabel, QHeaderView, QWidget, QLineEdit, QStyleOptionButton, QStyle, QPushButton, QCheckBox, \
+    QHBoxLayout, QFrame, QStyledItemDelegate
 
 
-def calculate_index_range(indexes):
-    """
-    Calculate the minimum and maximum row and column values from a list of indexes.
-
-    Args:
-        indexes (list of QModelIndex): The list of QModelIndex objects.
-
-    Returns:
-        tuple: A tuple containing (min_row, max_row, min_col, max_col).
-    """
-    min_row, max_row, min_col, max_col = None, None, None, None
-
-    for index in indexes:
-        row, col = index.row(), index.column()
-
-        if min_row is None or row < min_row:
-            min_row = row
-        if max_row is None or row > max_row:
-            max_row = row
-        if min_col is None or col < min_col:
-            min_col = col
-        if max_col is None or col > max_col:
-            max_col = col
-
-    return min_row, max_row, min_col, max_col
+# def calculate_index_range(indexes):
+#     """
+#     Calculate the minimum and maximum row and column values from a list of indexes.
+#
+#     Args:
+#         indexes (list of QModelIndex): The list of QModelIndex objects.
+#
+#     Returns:
+#         tuple: A tuple containing (min_row, max_row, min_col, max_col).
+#     """
+#     min_row, max_row, min_col, max_col = None, None, None, None
+#
+#     for index in indexes:
+#         row, col = index.row(), index.column()
+#
+#         if min_row is None or row < min_row:
+#             min_row = row
+#         if max_row is None or row > max_row:
+#             max_row = row
+#         if min_col is None or col < min_col:
+#             min_col = col
+#         if max_col is None or col > max_col:
+#             max_col = col
+#
+#     return min_row, max_row, min_col, max_col
 
 
 def list2d_to_tabbed_str(data):
@@ -114,8 +115,22 @@ class SampleWidget(QWidget):
         self.cellvalue = QLabel("")
         self.cellvalue.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.cellvalue.setFont(QFont("Arial", 8))
+        self.multiselect_checkbox = QCheckBox("extended selection")
+        self.clear_selection_btn = QPushButton("clear selection")
 
-        vbox.addWidget(self.filter_edit)
+        hbox = QHBoxLayout()
+        hbox.setContentsMargins(0, 0, 0, 0)
+        hbox_filter = QHBoxLayout()
+        hbox_filter.setContentsMargins(0, 0, 0, 0)
+
+        hbox_filter.addWidget(QLabel("filter: "))
+        hbox_filter.addWidget(self.filter_edit)
+
+        hbox.addWidget(self.multiselect_checkbox)
+        hbox.addWidget(self.clear_selection_btn)
+        hbox.addLayout(hbox_filter)
+
+        vbox.addLayout(hbox)
         vbox.addWidget(self.sampleview)
         vbox.addWidget(self.cellvalue)
         self.setLayout(vbox)
@@ -129,7 +144,19 @@ class SampleWidget(QWidget):
 
         self.sampleview.selectionModel().selectionChanged.connect(self.on_sampleview_selection_changed)
         self.filter_edit.textChanged.connect(filter_proxy_model.set_filter_text)
+        self.multiselect_checkbox.stateChanged.connect(self.set_selection_mode)
+        horizontal_header = self.sampleview.horizontalHeader()
+        horizontal_header.setSectionsClickable(False)
+        self.set_selection_mode()
 
+    def set_selection_mode(self):
+        if self.multiselect_checkbox.isChecked():
+            self.sampleview.clearSelection()
+            self.sampleview.setSelectionMode(QAbstractItemView.ExtendedSelection)
+
+        else:
+            self.sampleview.clearSelection()
+            self.sampleview.setSelectionMode(QAbstractItemView.ContiguousSelection)
 
     def selected_rows_columns_count(self, selected_indexes):
 
@@ -214,13 +241,12 @@ class SampleTableView(QTableView):
         self.resizeColumnsToContents()
 
     def get_header_key_dict(self, model: QAbstractItemModel) -> dict:
-        header2key = {}
+        header_key_dict = {}
         for column in range(model.columnCount()):
             header_item = model.horizontalHeaderItem(column)
             if header_item is not None:
-                header2key[header_item.text()] = column
-        return header2key
-
+                header_key_dict[header_item.text()] = column
+        return header_key_dict
 
     @Slot(dict)
     def set_profile_data(self, profiles_data):
@@ -234,33 +260,26 @@ class SampleTableView(QTableView):
             return
 
         header_key_dict = self.get_header_key_dict(sourcemodel)
-        print(header_key_dict)
-
+        sourcemodel.blockSignals(True)
         for row in selected_rows:
             for key, value in profiles_data.items():
                 if not key in header_key_dict:
                     continue
 
                 column = header_key_dict[key]
-                sourcemodel.setData(sourcemodel.index(row, column), value)
+                proxymodel.setData(proxymodel.index(row, column), value)
 
-        #
-        # selected_row_indexes = [idx.row() for idx in selected_row_indexes]
-        #
-        # for idx in selected_row_indexes:
-        #     print(idx.row())
+        sourcemodel.blockSignals(False)
+        sourcemodel.dataChanged.emit(sourcemodel.index(0, 0),
+            sourcemodel.index(sourcemodel.rowCount() - 1, sourcemodel.columnCount() - 1),
+            Qt.DisplayRole)
 
+    # def on_after_model_set(self):
+    #     self.selectionModel().selectionChanged.connect(self.on_selection_changed)
 
-        print("sampleview")
-        print(profiles_data)
-
-    def on_after_model_set(self):
-        self.selectionModel().selectionChanged.connect(self.on_selection_changed)
-        # self.model().dataChanged.connect(self.on_selection_changed)
-
-    def on_selection_changed(self):
-        selection_model = self.selectionModel()
-        selected_indexes = selection_model.selectedIndexes()
+    # def on_selection_changed(self):
+    #     selection_model = self.selectionModel()
+    #     selected_indexes = selection_model.selectedIndexes()
 
     def table_popup(self):
         self.table_context_menu.exec(QCursor.pos())
@@ -277,14 +296,14 @@ class SampleTableView(QTableView):
     def setColumnHidden(self, column, hide):
         super().setColumnHidden(column, hide)
 
-        field = self.model().fields[column]
+        field = self.model().sourceModel().fields[column]
         state = not self.isColumnHidden(column)
 
         self.field_visibility_state_changed.emit(field, state)
 
     def get_columns_visibility_state(self):
         return {
-            self.model().fields[i]: not self.isColumnHidden(i)
+            self.model().sourceModel().fields[i]: not self.isColumnHidden(i)
             for i in range(self.model().columnCount())
             }
 
@@ -293,7 +312,7 @@ class SampleTableView(QTableView):
 
         print(field, state)
 
-        i = self.model().fields.index(field)
+        i = self.model().sourceModel().fields.index(field)
 
         column_visible = not self.isColumnHidden(i)
 
@@ -313,10 +332,13 @@ class SampleTableView(QTableView):
         index = self.indexAt(pos)
         clicked_column = index.column()
 
+        print(index, clicked_column)
+
         selected_columns = self.get_selected_columns()
 
         # Get the name of the clicked column
-        colname = self.model().fields[clicked_column]
+        print()
+        colname = self.model().sourceModel().fields[clicked_column]
 
         # Clear the context menu
         self.header_context_menu.clear()
@@ -447,7 +469,6 @@ class SampleTableView(QTableView):
                 return True
 
             case Qt.Key_V, Qt.ControlModifier:
-                print("paste")
                 self.paste_clipboard_content()
                 return True
 

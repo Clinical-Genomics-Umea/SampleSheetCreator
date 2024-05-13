@@ -9,21 +9,20 @@ import qtawesome as qta
 
 from modules.columns_visibility import ColumnsTreeWidget
 from modules.data_model.sample_model import SampleSheetModel
-from modules.indexes import IndexPanelWidgetMGR, IndexKitDefinitionMGR, Indexes
-from modules.models import read_fields_from_json
-from modules.profiles import ProfileMGR, Profiles
+from modules.indexes import Indexes
+from modules.profiles import Profiles
 from modules.run_classes import RunSetup, RunInfo
 from modules.validation.validation import DataValidationWidget
 
-from PySide6.QtGui import QAction, QActionGroup, QStandardItem, QPainter
+from PySide6.QtGui import QAction, QActionGroup, QPainter
 from PySide6.QtCore import QPropertyAnimation, Qt, Slot
 
 from PySide6.QtCore import QSize
 from PySide6 import QtGui, QtCore
 from PySide6.QtWidgets import QMainWindow, QApplication, QSizePolicy, QFileDialog, \
-    QWidget, QHeaderView, QToolBox, QPushButton, QGraphicsScene, QGraphicsView, QFrame, QVBoxLayout, QLabel, QSpacerItem
+    QWidget, QPushButton, QGraphicsScene, QGraphicsView, QFrame
 
-from modules.sample_view import SampleTableView, SampleWidget
+from modules.sample_view import SampleWidget
 from ui.mw import Ui_MainWindow
 import qdarktheme
 
@@ -111,14 +110,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.right_action_tab_map = {}
         self.right_tool_actions_setup()
 
-        fields_path = read_yaml_file("config/sample_fields.yaml")
-        self.samples_model = SampleSheetModel(fields_path)
+        sample_settings_path = read_yaml_file("config/sample_settings.yaml")
+        self.samples_model = SampleSheetModel(sample_settings_path)
         self.samples_widget = SampleWidget(self.samples_model)
         self.sample_tableview = self.samples_widget.sampleview
         self.sample_tableview_setup()
 
         # columns settings widget
-        self.columns_treeview = ColumnsTreeWidget(fields_path)
+        self.columns_treeview = ColumnsTreeWidget(sample_settings_path)
         self.columns_listview_setup()
 
         self.left_tab_anim = {}
@@ -162,20 +161,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.columns_treeview.field_visibility_state_changed.connect(self.sample_tableview.set_column_visibility_state)
         self.sample_tableview.field_visibility_state_changed.connect(self.columns_treeview.set_column_visibility_state)
 
-    def on_samples_tableview_selection_changed(self):
-        selection_model = self.sample_tableview.selectionModel()
-        selected_indexes = selection_model.selectedIndexes()
-        if len(selected_indexes) == 1 and selected_indexes:
-            model = self.sample_tableview.model()
-            data = model.data(selected_indexes[0], Qt.DisplayRole)
-            column = selected_indexes[0].column()
-            row = selected_indexes[0].row()
-            column_name = self.sample_tableview.horizontalHeader().model().headerData(column, Qt.Horizontal)
-            self.field_view.setText(f"{row}, {column_name}: {data}")
+    # def on_samples_tableview_selection_changed(self):
+    #     selection_model = self.sample_tableview.selectionModel()
+    #     selected_indexes = selection_model.selectedIndexes()
+    #     if len(selected_indexes) == 1 and selected_indexes:
+    #         model = self.sample_tableview.model()
+    #         data = model.data(selected_indexes[0], Qt.DisplayRole)
+    #         column = selected_indexes[0].column()
+    #         row = selected_indexes[0].row()
+    #         column_name = self.sample_tableview.horizontalHeader().model().headerData(column, Qt.Horizontal)
+    #         self.field_view.setText(f"{row}, {column_name}: {data}")
 
-    @Slot(str)
-    def set_field_view_text(self, text):
-        self.field_view.setText(text)
+    # @Slot(str)
+    # def set_field_view_text(self, text):
+    #     self.field_view.setText(text)
 
     def menu_animations_setup(self):
         self.left_tab_anim["open"] = self.make_animation(self.leftmenu_stackedWidget, 0, 300)
@@ -249,10 +248,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
-    def add_button_pressed(self):
-        send_button = self.sender()
-        selected_indexes = self.sample_tableview.selectedIndexes()
-        self.samples_model.set_profile_on_selected(selected_indexes, send_button.profile_name)
+    # def add_button_pressed(self):
+    #     send_button = self.sender()
+    #     selected_indexes = self.sample_tableview.selectedIndexes()
+    #     self.samples_model.set_profile_on_selected(selected_indexes, send_button.profile_name)
 
     def left_tool_actions_setup(self):
         """
@@ -400,17 +399,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.main_stackedWidget.setCurrentWidget(self.main_data)
 
-    def file_tab_setup(self):
-        print("file_tab_setup")
-        fields_path = read_yaml_file("config/sample_fields.yaml")
-        self.samples_model = SampleSheetModel(fields_path)
-        self.samples_widget = SampleWidget(self.samples_model)
-        self.sample_tableview = self.samples_widget.sampleview
-        self.sample_tableview_setup()
-
     # def file_tab_setup(self):
-    #     self.new_samplesheet_pushButton.clicked.connect(self.new_samplesheet)
-    #     self.load_worklist_toolButton.clicked.connect(self.load_worklist)
+    #     print("file_tab_setup")
+    #     fields_path = read_yaml_file("config/sample_settings.yaml")
+    #     self.samples_model = SampleSheetModel(fields_path)
+    #     self.samples_widget = SampleWidget(self.samples_model)
+    #     self.sample_tableview = self.samples_widget.sampleview
+    #     self.sample_tableview_setup()
 
     def load_worklist(self):
         options = get_dialog_options()

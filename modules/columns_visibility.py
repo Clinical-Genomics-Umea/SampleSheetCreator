@@ -14,7 +14,7 @@ def has_checked_item(lst):
 class ColumnsTreeWidget(QTreeWidget):
     field_visibility_state_changed = Signal(str, bool)
 
-    def __init__(self, section_fields, parent=None):
+    def __init__(self, sample_settings, parent=None):
         super(ColumnsTreeWidget, self).__init__(parent)
         self.setAcceptDrops(False)
         self.setDragEnabled(False)
@@ -23,7 +23,7 @@ class ColumnsTreeWidget(QTreeWidget):
 
         self.field_item_map = {}
 
-        self.create_tree(section_fields)
+        self.create_tree(sample_settings['fields'])
         self.setHeaderHidden(True)
         self.expandAll()
 
@@ -81,8 +81,8 @@ class ColumnsTreeWidget(QTreeWidget):
 
         self.blockSignals(False)
 
-    def emit_field_checked_state(self, item):
-        self.field_visibility_state_changed.emit(item.text(), item.checkState() == Qt.CheckState.Checked)
+    # def emit_field_checked_state(self, item):
+    #     self.field_visibility_state_changed.emit(item.text(), item.checkState() == Qt.CheckState.Checked)
 
 
     @Slot(str, bool)

@@ -69,16 +69,19 @@ def field_count(fields):
 
 
 class SampleSheetModel(QStandardItemModel):
-    def __init__(self, section_fields):
+    def __init__(self, sample_settings):
         super(SampleSheetModel, self).__init__()
 
-        self.sections_fields = section_fields
+        self.sections_fields = sample_settings['fields']
         self.fields = get_column_headers(self.sections_fields)
 
         self.setColumnCount(len(self.fields))
         self.setHorizontalHeaderLabels(self.fields)
-        self.setRowCount(384)
+        self.setRowCount(sample_settings['row_count'])
         self.set_empty_strings()
+
+        self.select_samples = False
+
 
     def refresh_view(self):
         # Emit dataChanged signal to notify the view to update
@@ -135,6 +138,9 @@ class SampleSheetModel(QStandardItemModel):
         decoded_data = decode_bytes_json(json_data_qba)
 
         start_row = parent.row()
+
+        self.blockSignals(True)
+
         for i, row_data in enumerate(decoded_data):
             for key, value in row_data.items():
                 row = start_row + i
@@ -145,6 +151,13 @@ class SampleSheetModel(QStandardItemModel):
                     print(column, row, key, value)
 
                     self.setData(self.index(row, column), value)
+
+        self.blockSignals(False)
+        self.dataChanged.emit(
+            self.index(0, 0),
+            self.index(self.rowCount() - 1, self.columnCount() - 1),
+            Qt.DisplayRole
+        )
 
         return True
 
@@ -179,9 +192,20 @@ class SampleSheetModel(QStandardItemModel):
         Returns:
             None
         """
+        print("set_profile")
         profile_name_column = self.fields.index("ProfileName")
+        print("got col")
+        self.blockSignals(True)
+        print("blocked")
         for index in selected_indexes:
             new_index = self.index(index.row(), profile_name_column)
             self.setData(new_index, profile_name)
 
+        self.blockSignals(False)
+        print("unblocked")
+        self.dataChanged.emit(
+            self.index(0, 0),
+            self.index(self.rowCount() - 1, self.columnCount() - 1),
+            Qt.DisplayRole
+        )
 
