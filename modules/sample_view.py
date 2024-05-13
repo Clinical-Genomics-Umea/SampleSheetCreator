@@ -1,9 +1,8 @@
-from PySide6.QtGui import QKeyEvent, QClipboard, QCursor, QStandardItemModel, QFont, QColor
-from PySide6.QtCore import Qt, QEvent, Signal, QPoint, Slot, QItemSelectionModel, QSortFilterProxyModel, QRect, QSize, \
-    QAbstractItemModel
+from PySide6.QtGui import QKeyEvent, QClipboard, QCursor, QStandardItemModel, QFont
+from PySide6.QtCore import Qt, Signal, QPoint, Slot, QItemSelectionModel, QSortFilterProxyModel, QAbstractItemModel
 from PySide6.QtWidgets import QTableView, QAbstractItemView, QApplication, QMenu, \
-    QVBoxLayout, QLabel, QHeaderView, QWidget, QLineEdit, QStyleOptionButton, QStyle, QPushButton, QCheckBox, \
-    QHBoxLayout, QFrame, QStyledItemDelegate
+    QVBoxLayout, QLabel, QHeaderView, QWidget, QLineEdit, QPushButton, QCheckBox, \
+    QHBoxLayout
 
 
 # def calculate_index_range(indexes):
@@ -115,7 +114,8 @@ class SampleWidget(QWidget):
         self.cellvalue = QLabel("")
         self.cellvalue.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.cellvalue.setFont(QFont("Arial", 8))
-        self.multiselect_checkbox = QCheckBox("extended selection")
+        self.extended_selection_pushbutton = QPushButton("extended selection")
+        self.extended_selection_pushbutton.setCheckable(True)
         self.clear_selection_btn = QPushButton("clear selection")
 
         hbox = QHBoxLayout()
@@ -126,7 +126,7 @@ class SampleWidget(QWidget):
         hbox_filter.addWidget(QLabel("filter: "))
         hbox_filter.addWidget(self.filter_edit)
 
-        hbox.addWidget(self.multiselect_checkbox)
+        hbox.addWidget(self.extended_selection_pushbutton)
         hbox.addWidget(self.clear_selection_btn)
         hbox.addLayout(hbox_filter)
 
@@ -144,18 +144,18 @@ class SampleWidget(QWidget):
 
         self.sampleview.selectionModel().selectionChanged.connect(self.on_sampleview_selection_changed)
         self.filter_edit.textChanged.connect(filter_proxy_model.set_filter_text)
-        self.multiselect_checkbox.stateChanged.connect(self.set_selection_mode)
+        self.extended_selection_pushbutton.clicked.connect(self.set_selection_mode)
         horizontal_header = self.sampleview.horizontalHeader()
         horizontal_header.setSectionsClickable(False)
         self.set_selection_mode()
 
     def set_selection_mode(self):
-        if self.multiselect_checkbox.isChecked():
-            self.sampleview.clearSelection()
+        if self.extended_selection_pushbutton.isChecked():
+            # self.sampleview.clearSelection()
             self.sampleview.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         else:
-            self.sampleview.clearSelection()
+            # self.sampleview.clearSelection()
             self.sampleview.setSelectionMode(QAbstractItemView.ContiguousSelection)
 
     def selected_rows_columns_count(self, selected_indexes):
