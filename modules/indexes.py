@@ -4,7 +4,6 @@ import argparse
 from pathlib import Path
 import pandas as pd
 from io import StringIO
-from Bio.Seq import Seq
 from camel_converter import to_snake
 
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QLineEdit, QTableView, QHeaderView, \
@@ -464,19 +463,19 @@ class IndexPanelWidgetMGR:
         return self.index_panel_widgets.keys()
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--ilmn_index_file', type=str, required=True,
-                        help='Illumina local run manager index file')
-
-    args = parser.parse_args()
-    index_path = Path(args.ilmn_index_file)
-
-    index_data = IndexKitDefinition(index_path)
-    # #
-    print(index_data.has_fixed_indexes)
-    print(index_data.indexes_i5)
-    print(index_data.indexes_i7)
+# def main():
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument('-i', '--ilmn_index_file', type=str, required=True,
+#                         help='Illumina local run manager index file')
+#
+#     args = parser.parse_args()
+#     index_path = Path(args.ilmn_index_file)
+#
+#     index_data = IndexKitDefinition(index_path)
+#     # #
+#     print(index_data.has_fixed_indexes)
+#     print(index_data.indexes_i5)
+#     print(index_data.indexes_i7)
 
 
 class Indexes(QWidget):
@@ -511,6 +510,6 @@ class Indexes(QWidget):
             self.index_toolbox.addItem(self.index_widgets[name], name)
 
 
-
-if __name__ == "__main__":
-    main()
+#
+# if __name__ == "__main__":
+#     main()

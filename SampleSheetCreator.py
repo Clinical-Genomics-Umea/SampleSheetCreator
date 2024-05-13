@@ -15,7 +15,7 @@ from modules.run_classes import RunSetup, RunInfo
 from modules.validation.validation import DataValidationWidget
 
 from PySide6.QtGui import QAction, QActionGroup, QPainter
-from PySide6.QtCore import QPropertyAnimation, Qt, Slot
+from PySide6.QtCore import QPropertyAnimation, Qt
 
 from PySide6.QtCore import QSize
 from PySide6 import QtGui, QtCore
@@ -62,6 +62,7 @@ def read_yaml_file(filename):
     except Exception as e:
         print(f"An error occurred while reading '{filename}': {e}")
         return None
+
 
 def clear_layout(layout):
     # Iterate through layout items in reverse order
