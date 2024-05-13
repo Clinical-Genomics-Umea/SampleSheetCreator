@@ -377,12 +377,12 @@ class SampleTableView(QTableView):
         selected_indexes = selection_model.selectedColumns()
         return [column.column() for column in selected_indexes]
 
-    def get_column_states(self):
-        fields = self.model().fields
-        return {
-            fields[i]: not self.isColumnHidden(i)
-            for i in range(self.model().columnCount())
-        }
+    # def get_column_states(self):
+    #     fields = self.model().fields
+    #     return {
+    #         fields[i]: not self.isColumnHidden(i)
+    #         for i in range(self.model().columnCount())
+    #     }
 
     def copy_selection(self):
         selected_data = self.get_selected_data()
