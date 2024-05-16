@@ -1,53 +1,46 @@
-from PySide6.QtCore import Qt, QRectF
-from PySide6.QtGui import QPainter, QColor, QStandardItemModel, QStandardItem
-from PySide6.QtWidgets import QApplication, QTableView, QHeaderView,  QStyledItemDelegate
+import re
+import pandas as pd
+
+def generate_lanes_dataframe():
+    """
+    Generates a pandas DataFrame with the column 'Lanes' containing strings of digits from 1 to 8.
+
+    Returns:
+        pandas.DataFrame: DataFrame with the 'Lanes' column.
+    """
+    data = {'Lane': [','.join(str(i) for i in range(0, 9)),
+                      ' '.join(str(i) for i in range(1, 9)),
+                      '-'.join(str(i) for i in range(1, 12))]}
+
+    df = pd.DataFrame(data)
+    return df
 
 
-class ColoredVerticalHeaderDelegate(QStyledItemDelegate):
-    def __init__(self, color, parent=None):
-        super().__init__(parent)
-        self.color = color
+def extract_numbers_from_string(input_string):
+    """
+    Extracts all numbers in a string that are one digit or longer.
 
-    def paint(self, painter, option, index):
-        if option.state & QStyle.State_Selected:
-            painter.fillRect(option.rect, option.palette.highlight())
-        else:
-            painter.fillRect(option.rect, self.color)
+    Parameters:
+        input_string (str): The input string to extract numbers from.
 
-
-class TableView(QTableView):
-    def __init__(self):
-        super().__init__()
-
-        self.setHorizontalScrollMode(QTableView.ScrollPerPixel)
-        self.setVerticalScrollMode(QTableView.ScrollPerPixel)
-        self.setSelectionBehavior(QTableView.SelectRows)
-        self.setEditTriggers(QTableView.NoEditTriggers)
-
-        # Set initial color for the delegate
-        self.setcolor()
-
-    def setcolor(self):
-        self.verticalHeader().setStyleSheet("QHeaderView::section { background-color: lightgreen; }")
+    Returns:
+        list: A list of all numbers found in the input string.
+    """
+    return re.findall(r'\d+', input_string)
 
 
+def lane_validation(df):
+    allowed_lanes = {'1', '2', '3', '4', '5', '6', '7', '8'}
+    lane_strs = set(df['Lane'])
 
-if __name__ == "__main__":
-    app = QApplication([])
+    used_lanes = set()
+    for lane_str in lane_strs:
+        lanes_list = extract_numbers_from_string(lane_str)
+        used_lanes.update(lanes_list)
 
-    # Create a standard item model
-    model = QStandardItemModel(4, 3)
-    for row in range(4):
-        for column in range(3):
-            item = QStandardItem("Row %d, Column %d" % (row, column))
-            model.setItem(row, column, item)
+    print(used_lanes.difference(allowed_lanes))
 
-    # Create a custom table view
-    tableView = TableView()
-    tableView.setModel(model)
 
-    tableView.show()
+df = generate_lanes_dataframe()
+lane_validation(df)
 
-    # Change the color dynamically
-
-    app.exec()

@@ -1,5 +1,4 @@
 import json
-import os
 from pathlib import Path
 
 import yaml
@@ -18,10 +17,10 @@ def read_yaml_file(filename):
         dict: The data loaded from the YAML file, or None if the file is not found or an error occurred.
     """
     # Get the path to the directory of the current module
-    module_dir = os.path.dirname(__file__)
+    module_dir = Path(__file__).resolve().parent
 
     # Combine the directory path with the provided filename to get the full path
-    file_path = os.path.join(module_dir, filename)
+    file_path = module_dir / filename
 
     try:
         with open(file_path, 'r') as file:

@@ -2,20 +2,23 @@ import json
 
 import numpy as np
 import pandas as pd
+import re
+from pathlib import Path
 from PySide6.QtCore import Qt, QSize, QEvent
 from PySide6.QtGui import QStandardItemModel, QColor, QPen, QStandardItem, QPainter, QIntValidator, \
-    QTextCursor, QTextDocument, QTextBlockFormat
+    QTextCursor, QTextDocument, QTextBlockFormat, QBrush
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QLabel, QHeaderView,
                                QAbstractScrollArea, QScrollArea,
-                               QItemDelegate, QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit,
-                               QPushButton, QMenu)
+                               QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit,
+                               QPushButton, QMenu, QListWidget, QListWidgetItem, QTableWidget, QTableWidgetItem)
 from pandera.errors import SchemaErrors
 
-from modules.run_classes import RunInfo
+from modules.run import RunInfo
 from modules.validation.heatmap import set_heatmap_table_properties, create_heatmap_table
 from modules.validation.validation_fns import substitutions_heatmap_df, split_df_by_lane, \
-    create_table_from_dataframe, qsi_mmodel_to_dataframe, df_to_i7_i5_df
+    create_table_from_dataframe, qsi_mmodel_to_dataframe, concatenate_indexes
 from modules.validation.validation_schema import prevalidation_schema
+import yaml
 
 
 def set_colorbalance_table_properties(table):
@@ -36,20 +39,149 @@ def set_colorbalance_table_properties(table):
     return table
 
 
-def lane_validation(df, flowcelltype):
-    allowed_lanes = {
-        '1.5B': {'1', '2'},
-        '10B': {'1', '2', '3', '4', '5', '6', '7', '8'},
-        '25B': {'1', '2', '3', '4', '5', '6', '7', '8'}
-    }
+def extract_numbers_from_string(input_string):
+    """
+    Extracts all numbers in a string that are one digit or longer.
 
-    lane_combinations = set(df['Lane'])
+    Parameters:
+        input_string (str): The input string to extract numbers from.
+
+    Returns:
+        list: A list of all numbers found in the input string.
+    """
+    return re.findall(r'\d+', input_string)
+
+
+def flowcell_validation(flowcell, instrument, settings):
+    if instrument not in settings['flowcell_type']:
+        return False, f"Instrument '{instrument}' not present in validation_settings.yaml ."
+    if flowcell not in settings['flowcell_type'][instrument]:
+        return False, f"flowcell '{flowcell}' not present in validation_settings.yaml ."
+
+    return True, ""
+
+
+def lane_validation(df, flowcell, instrument, settings):
+    allowed_lanes = set(settings['flowcell_type'][instrument][flowcell])
+    lane_strs = set(df['Lane'])
+
     used_lanes = set()
-    for lane_combination in lane_combinations:
-        cleaned_lanes = lane_combination.strip().replace(' ', '').split(',')
-        used_lanes.update(cleaned_lanes)
+    for lane_str in lane_strs:
+        lanes_list = extract_numbers_from_string(lane_str)
+        used_lanes.update(lanes_list)
 
-    return used_lanes.difference(allowed_lanes[flowcelltype])
+    disallowed_lanes = used_lanes.difference(allowed_lanes)
+
+    if disallowed_lanes:
+        return False, f"Disallowed lane(s) '{disallowed_lanes}' present in the Lane column."
+
+    return True, ""
+
+
+def sample_count_validation(df):
+    if not isinstance(df, pd.DataFrame):
+        return False, "Data could not be converted to a pandas dataframe."
+
+    if df.empty:
+        return False, "No data to validate (empty dataframe)."
+
+    return True, ""
+
+
+def get_table_widget():
+    tw = QTableWidget()
+    tw.setColumnCount(3)
+    tw.setHorizontalHeaderLabels(["validator", "status", "error"])
+
+    tw.setColumnWidth(0, 150)
+    tw.setColumnWidth(1, 100)
+
+    header = tw.horizontalHeader()
+    header.setSectionResizeMode(2, QHeaderView.Stretch)
+    tw.setContentsMargins(0, 0, 0, 0)
+
+    size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+    tw.setSizePolicy(size_policy)
+
+    tw.setMinimumHeight(100)
+    tw.setMaximumHeight(130)
+
+    return tw
+
+
+def load_from_yaml(config_file):
+    with open(config_file, 'r') as file:
+        return yaml.safe_load(file)
+
+
+class PreValidationWidget(QWidget):
+    def __init__(self, validation_settings_path: Path, model: QStandardItemModel, run_info: RunInfo):
+        super().__init__()
+        self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.layout)
+        self.table_widget = get_table_widget()
+        self.layout.addWidget(self.table_widget)
+
+        self.setContentsMargins(0, 0, 0, 0)
+        self.table_widget.setContentsMargins(0, 0, 0, 0)
+
+        self.settings = load_from_yaml(validation_settings_path)
+
+        self.model = model
+        self.run_info = run_info
+
+        self.flowcell = None
+        self.instrument = None
+
+    def add_row(self, validator, is_valid, message):
+        self.table_widget.insertRow(self.table_widget.rowCount())
+
+        item1 = QTableWidgetItem(validator)
+
+        if is_valid:
+            item2 = QTableWidgetItem("OK")
+            item2.setForeground(QBrush(QColor(0, 200, 0)))
+        else:
+            item2 = QTableWidgetItem(str("FAIL"))
+            item2.setForeground(QBrush(QColor(200, 0, 0)))
+
+        item3 = QTableWidgetItem(message)
+
+        last_row = self.table_widget.rowCount() - 1
+
+        self.table_widget.setItem(last_row, 0, item1)
+        self.table_widget.setItem(last_row, 1, item2)
+        self.table_widget.setItem(last_row, 2, item3)
+
+    def validate(self):
+        self.table_widget.setRowCount(0)
+
+        run_data = self.run_info.get_data()
+        df = qsi_mmodel_to_dataframe(self.model)
+
+        flowcell = run_data['Run_Extra']['FlowCellType']
+        instrument = run_data['Header']['Instrument']
+
+        print(run_data)
+        print(self.settings)
+
+        is_valid, message = flowcell_validation(flowcell, instrument, self.settings)
+        self.add_row("flowcell validation", is_valid, message)
+        if not is_valid:
+            return False
+
+        is_valid, message = lane_validation(df, flowcell, instrument, self.settings)
+        self.add_row("lane validation", is_valid, message)
+        if not is_valid:
+            return False
+
+        is_valid, message = sample_count_validation(df)
+        self.add_row("sample count validation", is_valid, message)
+        if not is_valid:
+            return False
+
+        return True
 
 
 class DataValidationWidget(QWidget):
@@ -66,127 +198,72 @@ class DataValidationWidget(QWidget):
 
         self.hspacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.vspacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.vspacer_fixed = QSpacerItem(1, 20, QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         self.validate_tabwidget = QTabWidget()
         self.validate_tabwidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.layout.addWidget(self.validate_tabwidget)
+        self.layout.addSpacerItem(self.vspacer)
+
+    def get_tab(self, lane, lanes_df):
+
+        tab_scroll_area = QScrollArea()
+        tab_scroll_area.setFrameShape(QFrame.NoFrame)
+
+        tab_content = QWidget()
+
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        tab_content.setLayout(main_layout)
+
+        main_layout.addWidget(QLabel(f"Index Heatmap for Lane {lane}"))
+
+        indexes_df = concatenate_indexes(
+            lanes_df[lane],
+            10,
+            10,
+            "Index_I7",
+            "Index_I5",
+            "Sample_ID"
+        )
+
+        substitution_df = substitutions_heatmap_df(indexes_df)
+        heatmap_table = create_heatmap_table(substitution_df)
+
+        h_heatmap_layout = QHBoxLayout()
+        h_heatmap_layout.setContentsMargins(0, 0, 0, 0)
+        v_heatmap_layout = QVBoxLayout()
+        v_heatmap_layout.setContentsMargins(0, 0, 0, 0)
+
+        h_heatmap_layout.addWidget(heatmap_table)
+        h_heatmap_layout.addSpacerItem(self.hspacer)
+        v_heatmap_layout.addLayout(h_heatmap_layout)
+        v_heatmap_layout.addSpacerItem(self.vspacer)
+
+        tab_main_layout.addLayout(v_heatmap_layout)
+
+        tab_main_layout.addSpacerItem(self.vspacer_fixed)
+        tab_main_layout.addWidget(QLabel(f"Color Balance Table for Lane {lane}"))
+
+        color_balance_table = ColorBalanceWidget(lanes_df[lane])
+        tab_main_layout.addWidget(color_balance_table)
+        tab_main_layout.addSpacerItem(self.vspacer)
+
+        tab_scroll_area.setWidget(tab_content)
+
+        return tab_scroll_area
 
     def validate(self):
         self.validate_tabwidget.clear()
 
         df = qsi_mmodel_to_dataframe(self.model)
-
-        if not isinstance(df, pd.DataFrame):
-            tab = QWidget()
-            tab_main_layout = QVBoxLayout()
-            tab_main_layout.setContentsMargins(0, 0, 0, 0)
-            tab.setLayout(tab_main_layout)
-
-            tab_main_layout.addWidget(QLabel("Something went wrong. Data is could not"
-                                             " be converted to a pandas dataframe."))
-            tab_main_layout.addSpacerItem(self.vspacer)
-
-            self.validate_tabwidget.addTab(tab, "Pre-Validation Errors")
-
-            return
-
-        if df.empty:
-            tab = QWidget()
-            tab_main_layout = QVBoxLayout()
-            tab_main_layout.setContentsMargins(0, 0, 0, 0)
-            tab.setLayout(tab_main_layout)
-
-            tab_main_layout.addWidget(QLabel("No data to validate (empty dataframe)"))
-            tab_main_layout.addSpacerItem(self.vspacer)
-
-            self.validate_tabwidget.addTab(tab, "Pre-Validation Errors")
-
-            return
-        
-        try:
-            lane_validation(df, flowcelltype=self.run_info_data['Run_Extra']['FlowCellType'])
-        
-        except Exception as e:
-
-            tab = QWidget()
-            tab_main_layout = QVBoxLayout()
-            tab_main_layout.setContentsMargins(0, 0, 0, 0)
-            tab.setLayout(tab_main_layout)
-
-            tab_main_layout.addWidget(QLabel(f"Flow cell type does not match lanes. {e}"))
-
-            self.validate_tabwidget.addTab(tab, "Pre-Validation Errors")
-
-        try:
-            prevalidation_schema(df, lazy=True)
-        except SchemaErrors as err:
-
-            schema_errors_table = create_table_from_dataframe(err.failure_cases)
-
-            tab = QWidget()
-            tab_main_layout = QVBoxLayout()
-            tab_main_layout.setContentsMargins(0, 0, 0, 0)
-            tab.setLayout(tab_main_layout)
-
-            schema_errors_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-            tab_main_layout.addWidget(schema_errors_table)
-
-            self.validate_tabwidget.addTab(tab, "Pre-Validation Errors")
-
-            return
-
         lanes_df = split_df_by_lane(df)
 
         for lane in lanes_df:
-            h_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-            v_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
-            v_spacer_fixed = QSpacerItem(1, 20, QSizePolicy.Fixed, QSizePolicy.Fixed)
+            tab = self.set_tab(lane, lanes_df)
+            self.validate_tabwidget.addTab(tab, f"Lane {lane}")
 
-            tab_scroll_area = QScrollArea()
-            tab_scroll_area.setFrameShape(QFrame.NoFrame)
-
-            tab = QWidget()
-            tab_main_layout = QVBoxLayout()
-            tab_main_layout.setContentsMargins(0, 0, 0, 0)
-            tab.setLayout(tab_main_layout)
-            tab_main_layout.addWidget(QLabel(f"Index Heatmap for Lane {lane}"))
-
-            indexes_df = df_to_i7_i5_df(
-                lanes_df[lane],
-                10,
-                10,
-                "Index_I7",
-                "Index_I5",
-                "Sample_ID"
-            )
-
-            heatmap_table = create_heatmap_table(substitutions_heatmap_df(indexes_df))
-            heatmap_table = set_heatmap_table_properties(heatmap_table)
-
-            h_heatmap_layout = QHBoxLayout()
-            h_heatmap_layout.setContentsMargins(0, 0, 0, 0)
-            v_heatmap_layout = QVBoxLayout()
-            v_heatmap_layout.setContentsMargins(0, 0, 0, 0)
-
-            h_heatmap_layout.addWidget(heatmap_table)
-            h_heatmap_layout.addSpacerItem(h_spacer)
-            v_heatmap_layout.addLayout(h_heatmap_layout)
-            v_heatmap_layout.addSpacerItem(v_spacer)
-
-            tab_main_layout.addLayout(v_heatmap_layout)
-
-            tab_main_layout.addSpacerItem(v_spacer_fixed)
-            tab_main_layout.addWidget(QLabel(f"Color Balance Table for Lane {lane}"))
-
-            colorbalance_table = ColorBalanceWidget(lanes_df[lane])
-            colorbalance_table = set_colorbalance_table_properties(colorbalance_table)
-
-            tab_main_layout.addWidget(colorbalance_table)
-            tab_main_layout.addSpacerItem(v_spacer)
-
-            tab_scroll_area.setWidget(tab)
-            self.validate_tabwidget.addTab(tab_scroll_area, f"Lane {lane}")
 
     @staticmethod
     def set_heatmap_table_properties(table):
@@ -459,7 +536,21 @@ class ColorBalanceWidget(QTableView):
         self.setModel(self.standard_model)
         self.standard_model.update_summation()
         self.verticalHeader().setVisible(False)
-        # self.wordWrap()
+        self.setup()
+
+    def setup(self):
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        last_row = self.standard_model.rowCount() - 1
+        self.setRowHeight(last_row, 140)
+        self.setItemDelegate(ColorBalanceRowDelegate())
+
+        self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.setFixedWidth(1500)
 
     def dataframe_to_colorbalance_model(self, dataframe):
         """

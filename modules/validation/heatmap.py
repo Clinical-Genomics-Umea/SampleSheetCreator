@@ -25,10 +25,10 @@ def set_heatmap_table_properties(table):
 
 
 def create_heatmap_table(data: pd.DataFrame) -> QTableWidget:
-    table_widget = QTableWidget(data.shape[0], data.shape[1])
-    table_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-    table_widget.setHorizontalHeaderLabels(data.columns)
-    table_widget.setVerticalHeaderLabels(data.index)
+    heatmap_table_widget = QTableWidget(data.shape[0], data.shape[1])
+    heatmap_table_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+    heatmap_table_widget.setHorizontalHeaderLabels(data.columns)
+    heatmap_table_widget.setVerticalHeaderLabels(data.index)
 
     for row in range(data.shape[0]):
         for col in range(data.shape[1]):
@@ -54,9 +54,22 @@ def create_heatmap_table(data: pd.DataFrame) -> QTableWidget:
             layout.addWidget(label)
             widget.setLayout(layout)
 
-            table_widget.setCellWidget(row, col, widget)
+            heatmap_table_widget.setCellWidget(row, col, widget)
 
-    return table_widget
+    heatmap_table_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    heatmap_table_widget.setContentsMargins(0, 0, 0, 0)
+    heatmap_table_widget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    heatmap_table_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+    h_header_height = heatmap_table_widget.horizontalHeader().height()
+    row_height = heatmap_table_widget.rowHeight(0)
+    no_items = heatmap_table_widget.columnCount()
+    heatmap_table_widget.setMaximumHeight(h_header_height + row_height * no_items + 5)
+
+    heatmap_table_widget.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+    heatmap_table_widget.setItemDelegate(NonEditableDelegate())
+
+    return heatmap_table_widget
 
 
 class NonEditableDelegate(QItemDelegate):

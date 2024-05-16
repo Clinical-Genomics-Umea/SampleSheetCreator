@@ -11,8 +11,8 @@ from modules.columns_visibility import ColumnsTreeWidget
 from modules.data_model.sample_model import SampleSheetModel
 from modules.indexes import Indexes
 from modules.profiles import Profiles
-from modules.run_classes import RunSetup, RunInfo
-from modules.validation.validation import DataValidationWidget
+from modules.run import RunSetup, RunInfo
+from modules.validation.validation import DataValidationWidget, PreValidationWidget
 
 from PySide6.QtGui import QAction, QActionGroup, QPainter
 from PySide6.QtCore import QPropertyAnimation, Qt
@@ -133,12 +133,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # self.file_tab_setup()
 
-        self.run_setup_widget = RunSetup(Path("config/run_settings/run_settings.yaml"))
+        self.run_setup_widget = RunSetup(Path("config/run/run_settings.yaml"))
         self.run_info_widget = RunInfo()
         self.run_setup()
 
-        self.validate_widget = DataValidationWidget(self.samples_model, self.run_info_widget)
-        self.validate_widget_setup()
+        self.prevalidate_widget = PreValidationWidget(Path("config/validation/validation_settings.yaml"),
+                                                      self.samples_model,
+                                                      self.run_info_widget)
+        self.data_validate_widget = DataValidationWidget(self.samples_model,
+                                                         self.run_info_widget)
+        self.validate_setup()
 
         self.indexes_widget = Indexes(Path("config/indexes"))
         self.indexes_setup()
@@ -151,9 +155,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.leftmenu_stackedWidget.setMaximumWidth(0)
         self.rightmenu_stackedWidget.setMaximumWidth(0)
 
-    def validate_widget_setup(self):
+    def validate_setup(self):
         layout = self.main_validation.layout()
-        layout.addWidget(self.validate_widget)
+        layout.addWidget(self.prevalidate_widget)
+        layout.addWidget(self.data_validate_widget)
 
     def columns_listview_setup(self):
         layout = self.rightmenu_columnsettings.layout()
@@ -396,7 +401,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if button.isChecked():
             self.main_stackedWidget.setCurrentWidget(self.main_validation)
-            self.validate_widget.validate()
+            is_valid = self.prevalidate_widget.validate()
+            if not is_valid:
+                return
+
+            self.data_validate_widget.validate()
         else:
             self.main_stackedWidget.setCurrentWidget(self.main_data)
 

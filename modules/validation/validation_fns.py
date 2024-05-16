@@ -52,7 +52,7 @@ def get_base(string, index):
         return string[index]
 
 
-def df_to_i7_i5_df(df, i7_maxlen, i5_maxlen, i7_colname, i5_colname, id_name):
+def concatenate_indexes(df, i7_maxlen, i5_maxlen, i7_colname, i5_colname, id_name) -> pd.DataFrame:
     i7_names = [f"I7_{i + 1}" for i in range(i7_maxlen)]
     i5_names = [f"I5_{i + 1}" for i in range(i5_maxlen)]
 
@@ -62,9 +62,8 @@ def df_to_i7_i5_df(df, i7_maxlen, i5_maxlen, i7_colname, i5_colname, id_name):
     i5_df = df[i5_colname].apply(lambda x: pd.Series(get_base(x, i) for i in range(i5_maxlen))).fillna(np.nan)
     i5_df.columns = i5_names
 
-    both_indexes = pd.concat([df[id_name], i7_df, i5_df], axis=1)
-    return both_indexes
-
+    concatenated_indexes_df = pd.concat([df[id_name], i7_df, i5_df], axis=1)
+    return concatenated_indexes_df
 
 def cmp_bases(v1, v2):
     if isinstance(v1, str) and isinstance(v2, str):

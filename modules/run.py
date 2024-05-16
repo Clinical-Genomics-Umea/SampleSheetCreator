@@ -176,7 +176,6 @@ class RunInfoSection(QGroupBox):
                 form_layouts.append(QFormLayout())
                 form_layouts[-1].setContentsMargins(3, 3, 3, 3)
                 hlayout.addLayout(form_layouts[-1])
-                # form_layouts[-1].setContentsMargins(3, 3, 3, 3)
 
             self.fields[key] = QLabel(value)
 
