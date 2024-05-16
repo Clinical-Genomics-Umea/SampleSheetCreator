@@ -18,30 +18,30 @@ def explode_df_by_lane(df):
 # def compare_rows(row1: np.array, row2: np.array):
 #     return np.sum(row1 != row2)
 
-def compare_rows(row1: np.array, row2: np.array):
-    min_length = min(row1.size, row2.size)
-    return np.sum(row1[:min_length] != row2[:min_length])
+# def compare_rows(row1: np.array, row2: np.array):
+#     min_length = min(row1.size, row2.size)
+#     return np.sum(row1[:min_length] != row2[:min_length])
 
 
-def row_differences(row1: np.array, row2: np.array):
-    print(row1)
-    print(row2)
-
-    mask = np.logical_and(~np.isnan(row1), ~np.isnan(row2))
-
-    print(mask)
-
-    return np.sum(row1[mask] != row2[mask])
-
-
-def string_to_ndarray(x):
-    array = np.full(10, np.nan, dtype=object)
-    array[:len(x)] = list(x)
-    return array
+# def row_differences(row1: np.array, row2: np.array):
+#     print(row1)
+#     print(row2)
+#
+#     mask = np.logical_and(~np.isnan(row1), ~np.isnan(row2))
+#
+#     print(mask)
+#
+#     return np.sum(row1[mask] != row2[mask])
 
 
-def append_arrays(arr1, arr2):
-    return np.append(arr1, arr2)
+# def string_to_ndarray(x):
+#     array = np.full(10, np.nan, dtype=object)
+#     array[:len(x)] = list(x)
+#     return array
+
+
+# def append_arrays(arr1, arr2):
+#     return np.append(arr1, arr2)
 
 
 def get_base(string, index):
@@ -52,18 +52,84 @@ def get_base(string, index):
         return string[index]
 
 
-def concatenate_indexes(df, i7_maxlen, i5_maxlen, i7_colname, i5_colname, id_name) -> pd.DataFrame:
+def concat_lenadjust_indexes(df: pd.DataFrame, i7_maxlen: int, i5_maxlen: int, i7_colname: str, i5_colname: str, id_name: str) -> pd.DataFrame:
+    """
+    Concatenate i7 and i5 indexes from the DataFrame.
+    Args:
+        df (pd.DataFrame): The input DataFrame containing the indexes.
+        i7_maxlen (int): The maximum length of i7 indexes.
+        i5_maxlen (int): The maximum length of i5 indexes.
+        i7_colname (str): The column name for i7 indexes.
+        i5_colname (str): The column name for i5 indexes.
+        id_name (str): The column name for the identifier.
+    Returns:
+        pd.DataFrame: A DataFrame with concatenated i7 and i5 indexes.
+    """
+    # Generate column names for i7 and i5 indexes
     i7_names = [f"I7_{i + 1}" for i in range(i7_maxlen)]
     i5_names = [f"I5_{i + 1}" for i in range(i5_maxlen)]
 
+    # Extract i7 indexes
     i7_df = df[i7_colname].apply(lambda x: pd.Series(get_base(x, i) for i in range(i7_maxlen))).fillna(np.nan)
     i7_df.columns = i7_names
 
+    # Extract i5 indexes
     i5_df = df[i5_colname].apply(lambda x: pd.Series(get_base(x, i) for i in range(i5_maxlen))).fillna(np.nan)
     i5_df.columns = i5_names
 
+    # Concatenate indexes and return the resulting DataFrame
     concatenated_indexes_df = pd.concat([df[id_name], i7_df, i5_df], axis=1)
     return concatenated_indexes_df
+
+def lenadjust_i7_indexes(df: pd.DataFrame, i7_maxlen: int, i7_colname: str, id_name: str) -> pd.DataFrame:
+    """
+    Concatenate i7 and i5 indexes from the DataFrame.
+    Args:
+        df (pd.DataFrame): The input DataFrame containing the indexes.
+        i7_maxlen (int): The maximum length of i7 indexes.
+        i5_maxlen (int): The maximum length of i5 indexes.
+        i7_colname (str): The column name for i7 indexes.
+        i5_colname (str): The column name for i5 indexes.
+        id_name (str): The column name for the identifier.
+    Returns:
+        pd.DataFrame: A DataFrame with concatenated i7 and i5 indexes.
+    """
+    # Generate column names for i7 and i5 indexes
+    i7_names = [f"I7_{i + 1}" for i in range(i7_maxlen)]
+
+    # Extract i7 indexes
+    i7_df = df[i7_colname].apply(lambda x: pd.Series(get_base(x, i) for i in range(i7_maxlen))).fillna(np.nan)
+    i7_df.columns = i7_names
+
+    # Concatenate indexes and return the resulting DataFrame
+    lenadjust_indexes_df = pd.concat([df[id_name], i7_df], axis=1)
+    return lenadjust_indexes_df
+
+
+def lenadjust_i5_indexes(df: pd.DataFrame, i5_maxlen: int, i5_colname: str, id_name: str) -> pd.DataFrame:
+    """
+    Concatenate i7 and i5 indexes from the DataFrame.
+    Args:
+        df (pd.DataFrame): The input DataFrame containing the indexes.
+        i7_maxlen (int): The maximum length of i7 indexes.
+        i5_maxlen (int): The maximum length of i5 indexes.
+        i7_colname (str): The column name for i7 indexes.
+        i5_colname (str): The column name for i5 indexes.
+        id_name (str): The column name for the identifier.
+    Returns:
+        pd.DataFrame: A DataFrame with concatenated i7 and i5 indexes.
+    """
+    # Generate column names for i7 and i5 indexes
+    i5_names = [f"I7_{i + 1}" for i in range(i5_maxlen)]
+
+    # Extract i7 indexes
+    i5_df = df[i5_colname].apply(lambda x: pd.Series(get_base(x, i) for i in range(i5_maxlen))).fillna(np.nan)
+    i5_df.columns = i5_names
+
+    # Concatenate indexes and return the resulting DataFrame
+    lenadjust_indexes_df = pd.concat([df[id_name], i5_df], axis=1)
+    return lenadjust_indexes_df
+
 
 def cmp_bases(v1, v2):
     if isinstance(v1, str) and isinstance(v2, str):

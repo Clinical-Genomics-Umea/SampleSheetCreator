@@ -16,7 +16,8 @@ from pandera.errors import SchemaErrors
 from modules.run import RunInfo
 from modules.validation.heatmap import set_heatmap_table_properties, create_heatmap_table
 from modules.validation.validation_fns import substitutions_heatmap_df, split_df_by_lane, \
-    create_table_from_dataframe, qsi_mmodel_to_dataframe, concatenate_indexes
+    create_table_from_dataframe, qsi_mmodel_to_dataframe, concat_lenadjust_indexes, lenadjust_i7_indexes, \
+    lenadjust_i5_indexes
 from modules.validation.validation_schema import prevalidation_schema
 import yaml
 
@@ -204,51 +205,58 @@ class DataValidationWidget(QWidget):
         self.validate_tabwidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.layout.addWidget(self.validate_tabwidget)
-        self.layout.addSpacerItem(self.vspacer)
+        # self.layout.addSpacerItem(self.vspacer)
+
+    def get_widget_hlayout(self, table_widget):
+        h_heatmap_layout = QHBoxLayout()
+        h_heatmap_layout.addWidget(table_widget)
+        h_heatmap_layout.addSpacerItem(self.hspacer)
+        return h_heatmap_layout
 
     def get_tab(self, lane, lanes_df):
-
         tab_scroll_area = QScrollArea()
         tab_scroll_area.setFrameShape(QFrame.NoFrame)
 
         tab_content = QWidget()
+        tab_content_layout = QVBoxLayout()
+        tab_content.setLayout(tab_content_layout)
 
-        main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        tab_content.setLayout(main_layout)
+        indexes_i7_i5_df = concat_lenadjust_indexes(lanes_df[lane], 10, 10, "Index_I7", "Index_I5", "Sample_ID")
+        i7_i5_substitution_df = substitutions_heatmap_df(indexes_i7_i5_df)
+        i7_i5_heatmap_table = create_heatmap_table(i7_i5_substitution_df)
 
-        main_layout.addWidget(QLabel(f"Index Heatmap for Lane {lane}"))
+        indexes_i7_df = lenadjust_i7_indexes(lanes_df[lane], 10, "Index_I7", "Sample_ID")
+        i7_substitution_df = substitutions_heatmap_df(indexes_i7_df)
+        i7_heatmap_table = create_heatmap_table(i7_substitution_df)
 
-        indexes_df = concatenate_indexes(
-            lanes_df[lane],
-            10,
-            10,
-            "Index_I7",
-            "Index_I5",
-            "Sample_ID"
-        )
+        indexes_i5_df = lenadjust_i5_indexes(lanes_df[lane],  10, "Index_I5", "Sample_ID")
+        i5_substitution_df = substitutions_heatmap_df(indexes_i5_df)
+        i5_heatmap_table = create_heatmap_table(i5_substitution_df)
 
-        substitution_df = substitutions_heatmap_df(indexes_df)
-        heatmap_table = create_heatmap_table(substitution_df)
+        # tab_content_layout.addWidget(QLabel(f"index I7 + I5 mismatch heatmap "))
 
-        h_heatmap_layout = QHBoxLayout()
-        h_heatmap_layout.setContentsMargins(0, 0, 0, 0)
+        h_i7_i5_heatmap_layout = self.get_widget_hlayout(i7_i5_heatmap_table)
+        h_i7_heatmap_layout = self.get_widget_hlayout(i7_heatmap_table)
+        h_i5_heatmap_layout = self.get_widget_hlayout(i5_heatmap_table)
+
         v_heatmap_layout = QVBoxLayout()
-        v_heatmap_layout.setContentsMargins(0, 0, 0, 0)
-
-        h_heatmap_layout.addWidget(heatmap_table)
-        h_heatmap_layout.addSpacerItem(self.hspacer)
-        v_heatmap_layout.addLayout(h_heatmap_layout)
+        v_heatmap_layout.addWidget(QLabel(f"index I7 + I5 mismatch heatmap "))
+        v_heatmap_layout.addLayout(h_i7_i5_heatmap_layout)
+        v_heatmap_layout.addSpacerItem(self.vspacer)
+        v_heatmap_layout.addWidget(QLabel(f"index I7 mismatch heatmap "))
+        v_heatmap_layout.addLayout(h_i7_heatmap_layout)
+        v_heatmap_layout.addSpacerItem(self.vspacer)
+        v_heatmap_layout.addWidget(QLabel(f"index I5 mismatch heatmap "))
+        v_heatmap_layout.addLayout(h_i5_heatmap_layout)
         v_heatmap_layout.addSpacerItem(self.vspacer)
 
-        tab_main_layout.addLayout(v_heatmap_layout)
-
-        tab_main_layout.addSpacerItem(self.vspacer_fixed)
-        tab_main_layout.addWidget(QLabel(f"Color Balance Table for Lane {lane}"))
+        tab_content_layout.addLayout(v_heatmap_layout)
+        tab_content_layout.addSpacerItem(self.vspacer_fixed)
+        tab_content_layout.addWidget(QLabel(f"Color Balance Table for Lane {lane}"))
 
         color_balance_table = ColorBalanceWidget(lanes_df[lane])
-        tab_main_layout.addWidget(color_balance_table)
-        tab_main_layout.addSpacerItem(self.vspacer)
+        tab_content_layout.addWidget(color_balance_table)
+        tab_content_layout.addSpacerItem(self.vspacer)
 
         tab_scroll_area.setWidget(tab_content)
 
@@ -261,26 +269,26 @@ class DataValidationWidget(QWidget):
         lanes_df = split_df_by_lane(df)
 
         for lane in lanes_df:
-            tab = self.set_tab(lane, lanes_df)
+            tab = self.get_tab(lane, lanes_df)
             self.validate_tabwidget.addTab(tab, f"Lane {lane}")
 
 
-    @staticmethod
-    def set_heatmap_table_properties(table):
-
-        table.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        table.setContentsMargins(0, 0, 0, 0)
-        table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-        h_header_height = table.horizontalHeader().height()
-        row_height = table.rowHeight(0)
-        no_items = table.columnCount()
-        table.setMaximumHeight(h_header_height + row_height * no_items)
-
-        table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
-
-        return table
+    # @staticmethod
+    # def set_heatmap_table_properties(table):
+    #
+    #     table.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+    #     table.setContentsMargins(0, 0, 0, 0)
+    #     table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    #     table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    #
+    #     h_header_height = table.horizontalHeader().height()
+    #     row_height = table.rowHeight(0)
+    #     no_items = table.columnCount()
+    #     table.setMaximumHeight(h_header_height + row_height * no_items)
+    #
+    #     table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+    #
+    #     return table
 
 
 class IndexColorBalanceModel(QStandardItemModel):
