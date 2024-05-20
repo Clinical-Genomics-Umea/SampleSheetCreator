@@ -5,33 +5,6 @@ from PySide6.QtWidgets import QTableView, QAbstractItemView, QApplication, QMenu
     QHBoxLayout
 
 
-# def calculate_index_range(indexes):
-#     """
-#     Calculate the minimum and maximum row and column values from a list of indexes.
-#
-#     Args:
-#         indexes (list of QModelIndex): The list of QModelIndex objects.
-#
-#     Returns:
-#         tuple: A tuple containing (min_row, max_row, min_col, max_col).
-#     """
-#     min_row, max_row, min_col, max_col = None, None, None, None
-#
-#     for index in indexes:
-#         row, col = index.row(), index.column()
-#
-#         if min_row is None or row < min_row:
-#             min_row = row
-#         if max_row is None or row > max_row:
-#             max_row = row
-#         if min_col is None or col < min_col:
-#             min_col = col
-#         if max_col is None or col > max_col:
-#             max_col = col
-#
-#     return min_row, max_row, min_col, max_col
-
-
 def list2d_to_tabbed_str(data):
     """
     Convert a 2D list to a tab-delimited string using join.
@@ -274,12 +247,6 @@ class SampleTableView(QTableView):
             sourcemodel.index(sourcemodel.rowCount() - 1, sourcemodel.columnCount() - 1),
             Qt.DisplayRole)
 
-    # def on_after_model_set(self):
-    #     self.selectionModel().selectionChanged.connect(self.on_selection_changed)
-
-    # def on_selection_changed(self):
-    #     selection_model = self.selectionModel()
-    #     selected_indexes = selection_model.selectedIndexes()
 
     def table_popup(self):
         self.table_context_menu.exec(QCursor.pos())
@@ -377,12 +344,6 @@ class SampleTableView(QTableView):
         selected_indexes = selection_model.selectedColumns()
         return [column.column() for column in selected_indexes]
 
-    # def get_column_states(self):
-    #     fields = self.model().fields
-    #     return {
-    #         fields[i]: not self.isColumnHidden(i)
-    #         for i in range(self.model().columnCount())
-    #     }
 
     def copy_selection(self):
         selected_data = self.get_selected_data()

@@ -57,10 +57,8 @@ def read_yaml_file(filename):
             data = yaml.safe_load(file)
         return data
     except FileNotFoundError:
-        print(f"File '{filename}' not found in the module directory.")
         return None
     except Exception as e:
-        print(f"An error occurred while reading '{filename}': {e}")
         return None
 
 
@@ -140,8 +138,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.prevalidate_widget = PreValidationWidget(Path("config/validation/validation_settings.yaml"),
                                                       self.samples_model,
                                                       self.run_info_widget)
-        self.data_validate_widget = DataValidationWidget(self.samples_model,
-                                                         self.run_info_widget)
+        self.data_validate_widget = DataValidationWidget(
+                                                    Path("config/validation/validation_settings.yaml"),
+                                                    self.samples_model,
+                                                    self.run_info_widget)
         self.validate_setup()
 
         self.indexes_widget = Indexes(Path("config/indexes"))
@@ -239,8 +239,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def handle_run_set_button_click(self):
         run_info = self.run_setup_widget.get_data()
         self.run_info_widget.set_data(run_info)
-
-        print(self.run_info_widget.get_data())
 
     def indexes_setup(self):
         layout = self.leftmenu_indexes.layout()
@@ -408,14 +406,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.data_validate_widget.validate()
         else:
             self.main_stackedWidget.setCurrentWidget(self.main_data)
-
-    # def file_tab_setup(self):
-    #     print("file_tab_setup")
-    #     fields_path = read_yaml_file("config/sample_settings.yaml")
-    #     self.samples_model = SampleSheetModel(fields_path)
-    #     self.samples_widget = SampleWidget(self.samples_model)
-    #     self.sample_tableview = self.samples_widget.sampleview
-    #     self.sample_tableview_setup()
 
     def load_worklist(self):
         options = get_dialog_options()

@@ -110,6 +110,17 @@ prevalidation_schema = DataFrameSchema(
                                             error="Contains invalid characters. Seq can be empty or contain only A, T, C, G.")
                                    ],
                            ),
+        "Index_I5_RC": Column(str,
+                           coerce=True,
+                           nullable=True,
+                           checks=[pa.Check(lambda s: s.str.len() >= 8,
+                                            error="Index is too short."),
+                                   pa.Check(lambda s: s.str.len() <= 10,
+                                            error="Index is too long."),
+                                   pa.Check(is_valid_i5_index,
+                                            error="Contains invalid characters. Seq can be empty or contain only A, T, C, G.")
+                                   ],
+                           ),
         "UsedCycles": Column(str,
                              checks=pa.Check(is_valid_used_cycles,
                                              error="Invalid used cycles string"),

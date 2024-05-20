@@ -1,6 +1,4 @@
 import json
-import yaml
-import argparse
 from pathlib import Path
 import pandas as pd
 from io import StringIO
@@ -30,8 +28,6 @@ def create_chained_sfproxies(model_names: list) -> dict:
         model_name = model_names[i]
         chained_models[model_name] = QSortFilterProxyModel()
         chained_models[model_name].setFilterKeyColumn(i)
-
-        # print(chained_models)
 
         if i > 0:
             chained_keys = list(chained_models.keys())
@@ -123,25 +119,16 @@ class TableModel(QAbstractTableModel):
             QMimeData: The QMimeData object containing the transferred data.
         """
         mime_data = QMimeData()
-
         row_indexes = {index.row() for index in indexes}
-
         df = pd.DataFrame(self.dataframe, index=list(row_indexes))
 
         records = df.to_dict(orient='records')
 
-        print(records)
-        print(self.profile_data)
-
         if self.profile_data is not None:
             self.add_profile_data(records)
 
-        print(records)
-
         # Convert the records to JSON
         json_data = json.dumps(records)
-
-        print(json_data)
 
         bytes_data = bytes(json_data, 'utf-8')
         mime_data.setData("application/json", bytes_data)
@@ -197,12 +184,10 @@ class IndexKitDefinition:
                     sections[current_section].append(line)
 
         except Exception as e:
-            print(e)
             return False
 
         for section in self.required_sections:
             if section not in sections:
-                print(f"Section '{section}' not found in the index kit definition file.")
                 return False
 
         return True
@@ -305,6 +290,7 @@ class IndexKitDefinition:
 
 class IndexKitDefinitionMGR:
     def __init__(self, index_dir_root: Path) -> None:
+
         self.index_files = [f for f in index_dir_root.glob("**/*.tsv")]
 
         self.idk_dict = {}
@@ -313,11 +299,8 @@ class IndexKitDefinitionMGR:
             ikd = IndexKitDefinition(f)
             self.idk_dict[ikd.name] = ikd
 
-    def get_idk(self, name: str) -> IndexKitDefinition:
-        return self.idk_dict[name]
-
-    def get_idk_names(self) -> list:
-        return list(self.idk_dict.keys())
+    def get_idk_dict(self):
+        return self.idk_dict
 
 
 class IndexWidget(QWidget):
@@ -413,18 +396,10 @@ class IndexWidget(QWidget):
         sender = self.sender()
         name = sender.objectName()
 
-        print(name)
-
         self.chained_proxies[name].setFilterFixedString(filter_text)
 
-    # def data_to_model(self, data_path):
-    #     """ Read csv file with data and convert to QStandardItemModel """
-    #
-    #     df = pd.read_csv(data_path, delimiter=';', quotechar='|')
-    #     return TableModel(df)
 
-
-class IndexPanelWidget(QWidget):
+class IndexKitDefinitionWidget(QWidget):
     def __init__(self, idk: IndexKitDefinition, profile_data: dict = None) -> None:
         super().__init__()
 
@@ -438,6 +413,12 @@ class IndexPanelWidget(QWidget):
 
         self.index_widget_list = []
 
+
+        print("fixed", idk.fixed_indexes)
+        print("i7", idk.indexes_i7)
+        print("i5", idk.indexes_i5)
+
+
         if idk.has_fixed_indexes and idk.index_strategy == "DualOnly":
             self.index_widget_list.append(IndexWidget(idk.fixed_indexes, self.profile_data, idk.name))
 
@@ -450,32 +431,32 @@ class IndexPanelWidget(QWidget):
 
 
 class IndexPanelWidgetMGR:
-    def __init__(self, idk_mgr: IndexKitDefinitionMGR) -> None:
-        self.index_panel_widgets = {}
+    def __init__(self, index_dir_root: Path) -> None:
 
-        for idk_name in idk_mgr.get_idk_names():
-            self.index_panel_widgets[idk_name] = IndexPanelWidget(idk_mgr.get_idk(idk_name))
+        self.idk_widgets = {}
+        idk_dict = self.get_idk_dict(index_dir_root)
 
-    def get_index_panel_widget(self, index_def_name):
-        return self.index_panel_widgets[index_def_name]
+        for name in idk_dict:
+            self.idk_widgets[name] = IndexKitDefinitionWidget(idk_dict[name])
+
+    @staticmethod
+    def get_idk_dict(index_dir_root) -> dict:
+        index_files = [f for f in index_dir_root.glob("**/*.tsv")]
+
+        idk_dict = {}
+
+        for f in index_files:
+            ikd = IndexKitDefinition(f)
+            idk_dict[ikd.name] = ikd
+
+        return idk_dict
+
+
+    def get_index_panel_widget(self, idk_name):
+        return self.idk_widgets[idk_name]
 
     def get_index_panel_widget_names(self):
-        return self.index_panel_widgets.keys()
-
-
-# def main():
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument('-i', '--ilmn_index_file', type=str, required=True,
-#                         help='Illumina local run manager index file')
-#
-#     args = parser.parse_args()
-#     index_path = Path(args.ilmn_index_file)
-#
-#     index_data = IndexKitDefinition(index_path)
-#     # #
-#     print(index_data.has_fixed_indexes)
-#     print(index_data.indexes_i5)
-#     print(index_data.indexes_i7)
+        return self.idk_widgets.keys()
 
 
 class Indexes(QWidget):
@@ -485,9 +466,8 @@ class Indexes(QWidget):
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
-        self.index_mgr = IndexKitDefinitionMGR(indexes_base_path)
         self.index_toolbox = QToolBox()
-        self.index_panel_mgr = IndexPanelWidgetMGR(self.index_mgr)
+        self.index_panel_mgr = IndexPanelWidgetMGR(indexes_base_path)
         self.index_widgets = {}
 
         self.setup()
@@ -510,6 +490,5 @@ class Indexes(QWidget):
             self.index_toolbox.addItem(self.index_widgets[name], name)
 
 
-#
-# if __name__ == "__main__":
-#     main()
+
+

@@ -1,23 +1,11 @@
-import json
 from pathlib import Path
-import pandas as pd
 import yaml
 
-from PySide6.QtWidgets import QPushButton, QVBoxLayout, QWidget, QLineEdit, QTableView, QHeaderView, \
-    QHBoxLayout, QSizePolicy, QSpacerItem, QAbstractItemView, QTabWidget, QComboBox, QStackedWidget, QLabel
+from PySide6.QtWidgets import (QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QSizePolicy,
+                               QSpacerItem, QLabel, QFormLayout, QFrame)
 
-from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt, Signal
-
-from modules.indexes import IndexPanelWidget, IndexPanelWidgetMGR, IndexKitDefinition, IndexKitDefinitionMGR, IndexWidget
+from PySide6.QtCore import Signal
 from modules.sample_view import SampleTableView
-
-
-class ProfileButton(QPushButton):
-    def __init__(self, profile_name):
-        super().__init__()
-
-        self.profile_name = profile_name
-        self.setText(f"{profile_name}")
 
 
 def read_yaml_file(file):
@@ -29,53 +17,66 @@ def read_yaml_file(file):
             data = yaml.safe_load(file)
         return data
     except FileNotFoundError:
-        print(f"File '{file}' not found in the module directory.")
         return None
     except Exception as e:
-        print(f"An error occurred while reading '{file}': {e}")
         return None
 
 
 class Profiles(QWidget):
     def __init__(self, profile_base_path: Path, sample_tableview: SampleTableView):
         super().__init__()
-
         self.profile_mgr = ProfileMGR(Path(profile_base_path), sample_tableview)
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
+
+        profiles_label = QLabel("Profiles")
+        profiles_label.setStyleSheet("font-weight: bold")
+        self.main_layout.addWidget(profiles_label)
+
+        self.form_layout = QFormLayout()
+        self.main_layout.addLayout(self.form_layout)
 
         self.setup()
 
     def setup(self):
+        self.main_layout.setSpacing(5)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.layout.setSpacing(5)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.form_layout.setSpacing(5)
+        self.form_layout.setContentsMargins(0, 0, 0, 0)
 
-        profiles_label = QLabel("Profiles")
-        profiles_label.setStyleSheet("font-weight: bold")
-
-        self.layout.addWidget(profiles_label)
         profile_widgets = self.profile_mgr.get_profile_widgets()
+        for group in profile_widgets:
+            group_label = QLabel(group)
+            group_label.setStyleSheet("font-style: italic")
+            self.form_layout.addRow(self.get_line())
+            self.form_layout.addRow(group_label)
+            for name in profile_widgets[group]:
+                pw = profile_widgets[group][name]
+                self.form_layout.addRow(QLabel(name), pw)
 
-        for pw in profile_widgets:
-            self.layout.addWidget(pw)
-
-        self.layout.addSpacerItem(QSpacerItem(20, 40,
-                                              QSizePolicy.Minimum,
-                                              QSizePolicy.Expanding))
-
+        self.main_layout.addSpacerItem(QSpacerItem(20, 40,
+                                                   QSizePolicy.Minimum,
+                                                   QSizePolicy.Expanding))
+    @staticmethod
+    def get_line():
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        return line
 
 class ProfileWidget(QWidget):
-
     profile_data_signal = Signal(dict)
 
-    def __init__(self, profile_name: str, profile_data: dict):
+    def __init__(self, profile_data: dict):
         super().__init__()
 
         self.profile_data = profile_data
-        profile_button = ProfileButton(profile_name)
 
-        layout = QVBoxLayout(self)
+        profile_button = QPushButton("apply")
+        profile_button.setMaximumWidth(50)
+
+        layout = QHBoxLayout(self)
         layout.addWidget(profile_button)
 
         layout.setContentsMargins(0, 0, 0, 0)
@@ -88,28 +89,32 @@ class ProfileWidget(QWidget):
         self.profile_data_signal.emit(self.profile_data)
 
 
+    def profile_name(self):
+        return self.profile_name['ProfileName']
+
 class ProfileMGR:
     def __init__(self, profiles_dirpath: Path, sample_tableview: SampleTableView) -> None:
-
         # setup profile files
-        profile_files = [pf for pf in profiles_dirpath.iterdir() if pf.is_file()]
-        self.profile_file_dict = {self.get_profile_name_from_yaml(file): file for file in profile_files}
 
-        # setup profile data
-        self.profile_widgets = []
-        for name, file in self.profile_file_dict.items():
+        profile_files = [f for f in profiles_dirpath.glob("**/*.yaml")]
+
+        self.profile_widgets = {}
+
+        for file in profile_files:
+            if not file.is_file():
+                continue
+
             profile_data = read_yaml_file(file)
-            pw = ProfileWidget(name, profile_data)
-            self.profile_widgets.append(pw)
+            group = file.parent.name
+            profile_name = profile_data['ProfileName']
 
+            pw = ProfileWidget(profile_data)
+
+            if group not in self.profile_widgets:
+                self.profile_widgets[group] = {}
+
+            self.profile_widgets[group][profile_name] = pw
             pw.profile_data_signal.connect(sample_tableview.set_profile_data)
-
-
-    @staticmethod
-    def get_profile_name_from_yaml(file) -> str:
-        profile = read_yaml_file(file)
-        return profile['ProfileName']
 
     def get_profile_widgets(self):
         return self.profile_widgets
-

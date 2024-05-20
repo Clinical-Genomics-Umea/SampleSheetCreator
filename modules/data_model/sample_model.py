@@ -136,6 +136,8 @@ class SampleSheetModel(QStandardItemModel):
 
         decoded_data = decode_bytes_json(json_data_qba)
 
+        print(decoded_data)
+
         start_row = parent.row()
 
         self.blockSignals(True)

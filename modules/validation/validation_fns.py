@@ -269,8 +269,12 @@ def dataframe_to_qstandarditemmodel(dataframe):
 #
 #     return df
 
+def reverse_complement(seq):
+    complement = str.maketrans('ATCG', 'TAGC')
+    return seq.translate(complement)[::-1]
 
-def qsi_mmodel_to_dataframe(model):
+
+def model_to_dataframe(model):
     if not isinstance(model, QStandardItemModel):
         raise ValueError("Input must be a QStandardItemModel")
 
@@ -282,5 +286,6 @@ def qsi_mmodel_to_dataframe(model):
         df.loc[row_index] = row_data
 
     df = df.replace('', np.nan).dropna(how='all').reset_index(drop=True)
+    df['Index_I5_RC'] = df['Index_I5'].apply(reverse_complement)
 
     return df
