@@ -1,46 +1,27 @@
-import re
 import pandas as pd
+import re
 
-def generate_lanes_dataframe():
-    """
-    Generates a pandas DataFrame with the column 'Lanes' containing strings of digits from 1 to 8.
+# Create a sample DataFrame with three columns
+data = {
+    'ID': [1, 2, 3, 4],
+    'Name': ['Alice', 'Bob', 'Charlie', 'David'],
+    'Lane': ['1,2,    3', '4 5  6', '7|8| 9', '10 ']
+}
+df = pd.DataFrame(data)
 
-    Returns:
-        pandas.DataFrame: DataFrame with the 'Lanes' column.
-    """
-    data = {'Lane': [','.join(str(i) for i in range(0, 9)),
-                      ' '.join(str(i) for i in range(1, 9)),
-                      '-'.join(str(i) for i in range(1, 12))]}
+print("Original DataFrame:")
+print(df)
 
-    df = pd.DataFrame(data)
-    return df
+# Function to split by non-integer characters
+def split_lanes(lane):
+    return re.split(r'\D+', lane.strip())
 
+# Apply the split function and then explode the resulting lists into separate rows
+df['Lane'] = df['Lane'].apply(split_lanes)
+df = df.explode('Lane')
 
-def extract_numbers_from_string(input_string):
-    """
-    Extracts all numbers in a string that are one digit or longer.
+# Convert the "Lane" column to integers
+df['Lane'] = df['Lane'].astype(int)
 
-    Parameters:
-        input_string (str): The input string to extract numbers from.
-
-    Returns:
-        list: A list of all numbers found in the input string.
-    """
-    return re.findall(r'\d+', input_string)
-
-
-def lane_validation(df):
-    allowed_lanes = {'1', '2', '3', '4', '5', '6', '7', '8'}
-    lane_strs = set(df['Lane'])
-
-    used_lanes = set()
-    for lane_str in lane_strs:
-        lanes_list = extract_numbers_from_string(lane_str)
-        used_lanes.update(lanes_list)
-
-    print(used_lanes.difference(allowed_lanes))
-
-
-df = generate_lanes_dataframe()
-lane_validation(df)
-
+print("\nDataFrame after splitting and exploding 'Lane' column:")
+print(df)

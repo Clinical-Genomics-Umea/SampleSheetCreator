@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import pandas as pd
 import yaml
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItemModel
@@ -209,4 +210,32 @@ class SampleSheetModel(QStandardItemModel):
             self.index(self.rowCount() - 1, self.columnCount() - 1),
             Qt.DisplayRole
         )
+
+    def to_dataframe(self):
+        # Get the number of rows and columns in the model
+        rows = self.rowCount()
+        columns = self.columnCount()
+
+        # Initialize a list to hold the data
+        data = []
+
+        # Loop through the rows and columns to extract the data
+        for row in range(rows):
+            row_data = []
+            for column in range(columns):
+                item = self.item(row, column)
+                row_data.append(item.text() if item is not None else None)
+            data.append(row_data)
+
+        # Create a DataFrame from the extracted data
+        df = pd.DataFrame(data)
+
+        # Optionally, set the column headers
+        headers = [self.headerData(i, Qt.Horizontal) for i in range(columns)]
+        df.columns = headers
+
+        df.replace("", pd.NA, inplace=True)
+        df.dropna(how='all', inplace=True)
+
+        return df
 

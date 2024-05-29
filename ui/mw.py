@@ -189,6 +189,11 @@ class Ui_MainWindow(object):
         self.verticalLayout_10.setObjectName(u"verticalLayout_10")
         self.verticalLayout_10.setContentsMargins(0, 0, 0, 0)
         self.main_stackedWidget.addWidget(self.main_validation)
+        self.main_make = QWidget()
+        self.main_make.setObjectName(u"main_make")
+        self.verticalLayout_13 = QVBoxLayout(self.main_make)
+        self.verticalLayout_13.setObjectName(u"verticalLayout_13")
+        self.main_stackedWidget.addWidget(self.main_make)
 
         self.verticalLayout_12.addWidget(self.main_stackedWidget)
 
@@ -237,6 +242,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.leftmenu_stackedWidget.setCurrentIndex(0)
+        self.main_stackedWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)

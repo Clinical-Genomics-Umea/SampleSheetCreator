@@ -38,11 +38,10 @@ def create_chained_sfproxies(model_names: list) -> dict:
 
 
 class TableModel(QAbstractTableModel):
-    def __init__(self, dataframe: pd.DataFrame, profile_data: dict = None):
+    def __init__(self, dataframe: pd.DataFrame):
         super(TableModel, self).__init__()
 
         self.dataframe = dataframe
-        self.profile_data = profile_data
 
     def data(self, index, role):
         """
@@ -120,12 +119,15 @@ class TableModel(QAbstractTableModel):
         """
         mime_data = QMimeData()
         row_indexes = {index.row() for index in indexes}
+
+        print(row_indexes)
+        print(self.dataframe)
+
         df = pd.DataFrame(self.dataframe, index=list(row_indexes))
 
-        records = df.to_dict(orient='records')
+        print(df)
 
-        if self.profile_data is not None:
-            self.add_profile_data(records)
+        records = df.to_dict(orient='records')
 
         # Convert the records to JSON
         json_data = json.dumps(records)
@@ -134,10 +136,6 @@ class TableModel(QAbstractTableModel):
         mime_data.setData("application/json", bytes_data)
 
         return mime_data
-
-    def add_profile_data(self, records):
-        for r in records:
-            r.update(self.profile_data)
 
 
 class IndexKitDefinition:
@@ -248,20 +246,22 @@ class IndexKitDefinition:
         _indexes_i7 = (
             self.indexes_all[self.indexes_all['IndexReadNumber'] == 1]
             .rename(columns={"Sequence": "Index_I7", "Name": "Name_I7"})
-            .drop(columns=['IndexReadNumber'])
+            .drop(columns=['IndexReadNumber']).reset_index()
         )
 
         _indexes_i5 = (
             self.indexes_all[self.indexes_all['IndexReadNumber'] == 2]
             .rename(columns={"Sequence": "Index_I5", "Name": "Name_I5"})
-            .drop(columns=['IndexReadNumber'])
+            .drop(columns=['IndexReadNumber']).reset_index()
         )
 
         if not _indexes_i7.empty:
             self.indexes_i7 = _indexes_i7
+            self.indexes_i7.drop(["index"], axis=1, inplace=True)
 
         if not _indexes_i5.empty:
             self.indexes_i5 = _indexes_i5
+            self.indexes_i5.drop(["index"], axis=1, inplace=True)
 
         if not self.f_positions.empty:
             _f_indexes = self.f_positions.copy()
@@ -276,6 +276,7 @@ class IndexKitDefinition:
                 _f_indexes = pd.merge(_f_indexes, _indexes_i5, on='Name_I5', how='outer')
 
             self.fixed_indexes = _f_indexes
+            # self.fixed_indexes.drop(["index_x", "index_y"],axis=1, inplace=True)
 
     @staticmethod
     def convert_to_boolean(value):
@@ -304,16 +305,14 @@ class IndexKitDefinitionMGR:
 
 
 class IndexWidget(QWidget):
-    def __init__(self, index_df: pd.DataFrame, profile_data: dict = None, idk_name: str = None) -> None:
+    def __init__(self, index_df: pd.DataFrame, idk_name: str = None) -> None:
 
         super().__init__()
 
         self.index_df = index_df
-        self.profile_data = profile_data
-
         self.index_df['IndexDefinitionKitName'] = idk_name
-
         self.shown_fields = self.get_shown_fields()
+        print(self.shown_fields)
 
         # setup sortfilterproxies
         self.sortfilterproxy = {field: QSortFilterProxyModel() for field in self.shown_fields}
@@ -337,7 +336,7 @@ class IndexWidget(QWidget):
 
         # create model and chained proxies
 
-        self.model = TableModel(self.index_df, self.profile_data)
+        self.model = TableModel(self.index_df)
         self.chained_proxies = create_chained_sfproxies(self.shown_fields)
 
         # setup tableview
@@ -400,7 +399,7 @@ class IndexWidget(QWidget):
 
 
 class IndexKitDefinitionWidget(QWidget):
-    def __init__(self, idk: IndexKitDefinition, profile_data: dict = None) -> None:
+    def __init__(self, idk: IndexKitDefinition) -> None:
         super().__init__()
 
         self.layout = QHBoxLayout()
@@ -409,22 +408,23 @@ class IndexKitDefinitionWidget(QWidget):
         self.setLayout(self.layout)
 
         self.index_kit_definition = idk
-        self.profile_data = profile_data
 
         self.index_widget_list = []
 
+        # print("fixed", idk.fixed_indexes)
+        # print("i7", idk.indexes_i7)
+        # print("i5", idk.indexes_i5)
 
-        print("fixed", idk.fixed_indexes)
-        print("i7", idk.indexes_i7)
-        print("i5", idk.indexes_i5)
+        # print(idk.name)
+        # print(idk.has_fixed_indexes)
 
 
         if idk.has_fixed_indexes and idk.index_strategy == "DualOnly":
-            self.index_widget_list.append(IndexWidget(idk.fixed_indexes, self.profile_data, idk.name))
+            self.index_widget_list.append(IndexWidget(idk.fixed_indexes, idk.name))
 
         elif not idk.has_fixed_indexes and idk.index_strategy == "DualOnly":
-            self.index_widget_list.append(IndexWidget(idk.indexes_i7, self.profile_data, idk.name))
-            self.index_widget_list.append(IndexWidget(idk.indexes_i5, self.profile_data, idk.name))
+            self.index_widget_list.append(IndexWidget(idk.indexes_i7, idk.name))
+            self.index_widget_list.append(IndexWidget(idk.indexes_i5, idk.name))
 
         for index_widget in self.index_widget_list:
             self.layout.addWidget(index_widget)

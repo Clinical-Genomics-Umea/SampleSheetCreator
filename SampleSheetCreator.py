@@ -5,25 +5,26 @@ import sys
 
 import yaml
 from pathlib import Path
-import qtawesome as qta
+
+from PySide6.QtWidgets import QMainWindow, QApplication, QSizePolicy, QFileDialog, \
+    QWidget, QPushButton, QGraphicsScene, QGraphicsView, QFrame
+
+from PySide6.QtGui import QAction, QActionGroup, QPainter, QIcon
+from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRect
+
 
 from modules.columns_visibility import ColumnsTreeWidget
 from modules.data_model.sample_model import SampleSheetModel
 from modules.indexes import Indexes
+from modules.make import Make
 from modules.profiles import Profiles
 from modules.run import RunSetup, RunInfo
+from modules.samplesheet.samplesheetv2 import SampleSheetV2
 from modules.validation.validation import DataValidationWidget, PreValidationWidget
-
-from PySide6.QtGui import QAction, QActionGroup, QPainter
-from PySide6.QtCore import QPropertyAnimation, Qt
-
-from PySide6.QtCore import QSize
-from PySide6 import QtGui, QtCore
-from PySide6.QtWidgets import QMainWindow, QApplication, QSizePolicy, QFileDialog, \
-    QWidget, QPushButton, QGraphicsScene, QGraphicsView, QFrame
 
 from modules.sample_view import SampleWidget
 from ui.mw import Ui_MainWindow
+import qtawesome as qta
 import qdarktheme
 
 sys.argv += ['-platform', 'windows:darkmode=2']
@@ -85,7 +86,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.main_version = __version__
         self.setWindowTitle(f"SampleSheetCreator {self.main_version}")
-        self.setWindowIcon(QtGui.QIcon('old/icons/cog.png'))
+        self.setWindowIcon(QIcon('old/icons/cog.png'))
         self.setMinimumWidth(1000)
         self.left_toolBar.setMovable(False)
         self.left_toolBar.setIconSize(QSize(40, 40))
@@ -96,6 +97,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.profiles_action = QAction("profiles", self)
         self.indexes_action = QAction("indexes", self)
         self.validate_action = QAction("validate", self)
+        self.make_action = QAction("make", self)
         self.config_action = QAction("config", self)
         self.edit_action = QAction("edit", self)
 
@@ -142,7 +144,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                                     Path("config/validation/validation_settings.yaml"),
                                                     self.samples_model,
                                                     self.run_info_widget)
+
         self.validate_setup()
+
+        self.make_widget = Make(self.run_info_widget, self.sample_tableview)
+        self.make_setup()
 
         self.indexes_widget = Indexes(Path("config/indexes"))
         self.indexes_setup()
@@ -159,6 +165,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout = self.main_validation.layout()
         layout.addWidget(self.prevalidate_widget)
         layout.addWidget(self.data_validate_widget)
+
+    def make_setup(self):
+        layout = self.main_make.layout()
+        layout.addWidget(self.make_widget)
 
     def columns_listview_setup(self):
         layout = self.rightmenu_columnsettings.layout()
@@ -284,7 +294,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.run_action.setChecked(False)
         self.run_action.triggered.connect(self.on_tool_group_click)
 
-        self.profiles_action.setIcon(qta.icon('msc.debug-line-by-line', options=[{'draw': 'image'}]))
+        self.profiles_action.setIcon(qta.icon('ph.line-segment-light', options=[{'draw': 'image'}]))
         self.profiles_action.setCheckable(True)
         self.profiles_action.setChecked(False)
         self.profiles_action.triggered.connect(self.on_tool_group_click)
@@ -303,6 +313,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.validate_action.setCheckable(True)
         self.validate_action.setChecked(False)
         self.validate_action.triggered.connect(self.on_validate_click)
+
+        self.make_action.setIcon(qta.icon('msc.coffee', options=[{'draw': 'image'}]))
+        self.make_action.setCheckable(True)
+        self.make_action.setChecked(False)
+        self.make_action.triggered.connect(self.on_make_click)
 
         self.edit_action.setIcon(qta.icon('msc.unlock', options=[{'draw': 'image'}]))
         self.edit_action.setCheckable(True)
@@ -324,6 +339,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.left_toolBar.addAction(self.indexes_action)
         self.left_toolBar.addAction(self.profiles_action)
         self.left_toolBar.addAction(self.validate_action)
+        self.left_toolBar.addAction(self.make_action)
         self.left_toolBar.addWidget(spacer)
         self.left_toolBar.addAction(self.edit_action)
         self.left_toolBar.addAction(self.config_action)
@@ -407,6 +423,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.main_stackedWidget.setCurrentWidget(self.main_data)
 
+    def on_make_click(self):
+
+        button = self.sender()
+
+        if button.isChecked():
+            self.main_stackedWidget.setCurrentWidget(self.main_make)
+            self.samplesheetv2 = SampleSheetV2(self.run_info_widget.get_data(), self.samples_model.to_dataframe())
+
+        else:
+            self.main_stackedWidget.setCurrentWidget(self.main_data)
+
     def load_worklist(self):
         options = get_dialog_options()
         return QFileDialog.getOpenFileName(self,
@@ -423,7 +450,7 @@ def main():
     app = QApplication(sys.argv)
     qdarktheme.setup_theme("light")
     window = MainWindow()
-    window.setGeometry(QtCore.QRect(300, 300, 640, 480))  # arbitrary size/location
+    window.setGeometry(QRect(300, 300, 640, 480))  # arbitrary size/location
     window.show()
     sys.exit(app.exec())
 

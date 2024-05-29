@@ -281,6 +281,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="currentIndex">
+         <number>2</number>
+        </property>
         <widget class="QWidget" name="main_data">
          <layout class="QVBoxLayout" name="verticalLayout">
           <property name="leftMargin">
@@ -312,6 +315,9 @@
            <number>0</number>
           </property>
          </layout>
+        </widget>
+        <widget class="QWidget" name="main_make">
+         <layout class="QVBoxLayout" name="verticalLayout_13"/>
         </widget>
        </widget>
       </item>
