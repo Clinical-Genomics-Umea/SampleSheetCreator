@@ -6,6 +6,8 @@ import yaml
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItemModel
 
+from modules.run import RunInfo
+
 
 def read_yaml_file(filename):
     """
@@ -134,11 +136,7 @@ class SampleSheetModel(QStandardItemModel):
             bool: True if the drop was successful, False otherwise.
         """
         json_data_qba = data.data("application/json")
-
         decoded_data = decode_bytes_json(json_data_qba)
-
-        print(decoded_data)
-
         start_row = parent.row()
 
         self.blockSignals(True)
@@ -146,12 +144,8 @@ class SampleSheetModel(QStandardItemModel):
         for i, row_data in enumerate(decoded_data):
             for key, value in row_data.items():
                 row = start_row + i
-
                 if key in self.fields:
                     column = self.fields.index(key)
-
-                    print(column, row, key, value)
-
                     self.setData(self.index(row, column), value)
 
         self.blockSignals(False)
@@ -183,33 +177,29 @@ class SampleSheetModel(QStandardItemModel):
             flags |= Qt.ItemIsDropEnabled
         return flags
 
-    def set_profile_on_selected(self, selected_indexes, profile_name):
-        """
-        Sets the profile name on selected rows in the table.
-
-        Args:
-            selected_indexes (list): A list of QModelIndex objects representing the selected rows.
-            profile_name (str): The name of the profile to set.
-
-        Returns:
-            None
-        """
-        print("set_profile")
-        profile_name_column = self.fields.index("ProfileName")
-        print("got col")
-        self.blockSignals(True)
-        print("blocked")
-        for index in selected_indexes:
-            new_index = self.index(index.row(), profile_name_column)
-            self.setData(new_index, profile_name)
-
-        self.blockSignals(False)
-        print("unblocked")
-        self.dataChanged.emit(
-            self.index(0, 0),
-            self.index(self.rowCount() - 1, self.columnCount() - 1),
-            Qt.DisplayRole
-        )
+    # def set_profile_on_selected(self, selected_indexes, profile_name):
+    #     """
+    #     Sets the profile name on selected rows in the table.
+    #
+    #     Args:
+    #         selected_indexes (list): A list of QModelIndex objects representing the selected rows.
+    #         profile_name (str): The name of the profile to set.
+    #
+    #     Returns:
+    #         None
+    #     """
+    #     profile_name_column = self.fields.index("ProfileName")
+    #     self.blockSignals(True)
+    #     for index in selected_indexes:
+    #         new_index = self.index(index.row(), profile_name_column)
+    #         self.setData(new_index, profile_name)
+    #
+    #     self.blockSignals(False)
+    #     self.dataChanged.emit(
+    #         self.index(0, 0),
+    #         self.index(self.rowCount() - 1, self.columnCount() - 1),
+    #         Qt.DisplayRole
+    #     )
 
     def to_dataframe(self):
         # Get the number of rows and columns in the model

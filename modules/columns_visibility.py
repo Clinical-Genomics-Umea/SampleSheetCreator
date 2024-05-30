@@ -87,8 +87,6 @@ class ColumnsTreeWidget(QTreeWidget):
 
     @Slot(str, bool)
     def set_column_visibility_state(self, field_name, state):
-        print(field_name, state)
-        print(self.field_item_map)
         item = self.field_item_map[field_name]
         item_state = item.checkState(0) == Qt.CheckState.Checked
 
@@ -99,9 +97,7 @@ class ColumnsTreeWidget(QTreeWidget):
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Space:
-
             selected_items = self.selectedItems()
-            print(selected_items)
             for item in selected_items:
                 if item.childCount() == 0:
                     toggle_checked(item)

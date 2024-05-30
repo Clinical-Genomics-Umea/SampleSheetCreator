@@ -12,14 +12,15 @@ fields:
     - Index_I5
     - IndexDefinitionKitName
   BCLConvert:
-    - UsedCycles
     - BarcodeMismatchesIndex1
     - BarcodeMismatchesIndex2
     - AdapterRead1
     - AdapterRead2
     - FastqCompressionFormat
-  Profile:
-    - ProfileName
-    - Pipeline
-    - ReferenceGenomeDir
-    - VariantCallingMode
+  ApplicationProfile:
+    - Application
+    - ApplicationProfile
+    - ApplicationSettings
+    - ApplicationData
+    - ApplicationDataFields
+

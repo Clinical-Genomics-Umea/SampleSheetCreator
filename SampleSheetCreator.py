@@ -17,7 +17,7 @@ from modules.columns_visibility import ColumnsTreeWidget
 from modules.data_model.sample_model import SampleSheetModel
 from modules.indexes import Indexes
 from modules.make import Make
-from modules.profiles import Profiles
+from modules.applications import ApplicationProfiles
 from modules.run import RunSetup, RunInfo
 from modules.samplesheet.samplesheetv2 import SampleSheetV2
 from modules.validation.validation import DataValidationWidget, PreValidationWidget
@@ -85,8 +85,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__()
         self.setupUi(self)
         self.main_version = __version__
-        self.setWindowTitle(f"SampleSheetCreator {self.main_version}")
-        self.setWindowIcon(QIcon('old/icons/cog.png'))
+        self.setWindowTitle(f"Illuminator {self.main_version}")
+        self.setWindowIcon(QIcon(qta.icon('ri.settings-line', options=[{'draw': 'image'}])))
         self.setMinimumWidth(1000)
         self.left_toolBar.setMovable(False)
         self.left_toolBar.setIconSize(QSize(40, 40))
@@ -153,7 +153,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.indexes_widget = Indexes(Path("config/indexes"))
         self.indexes_setup()
 
-        self.profiles_widget = Profiles(Path("config/profiles"), self.sample_tableview)
+        self.application_profiles_widget = ApplicationProfiles(Path("config/applications"),
+                                                               self.sample_tableview)
         self.profile_setup()
 
         self.menu_animations_setup()
@@ -258,7 +259,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def profile_setup(self):
         layout = self.leftmenu_profiles.layout()
-        layout.addWidget(self.profiles_widget)
+        layout.addWidget(self.application_profiles_widget)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
@@ -294,7 +295,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.run_action.setChecked(False)
         self.run_action.triggered.connect(self.on_tool_group_click)
 
-        self.profiles_action.setIcon(qta.icon('ph.line-segment-light', options=[{'draw': 'image'}]))
+        self.profiles_action.setIcon(qta.icon('msc.symbol-method', options=[{'draw': 'image'}]))
         self.profiles_action.setCheckable(True)
         self.profiles_action.setChecked(False)
         self.profiles_action.triggered.connect(self.on_tool_group_click)

@@ -2,28 +2,59 @@ from dataclasses import dataclass
 import pandas as pd
 import pandera as pa
 import re
+import json
 
 
 class SampleSheetV2:
     def __init__(self, run_info: dict, sample_df: pd.DataFrame):
-        sample_data_lane_exploded = self.explode_lane_df(sample_df)
 
-        used_pipelines = sample_data_lane_exploded['Pipeline'].unique()
-        print(used_pipelines)
+        r1, i1, i2, r2 = run_info['Reads']['ReadProfile'].strip().split('-')
+        self.run_cycles = dict()
+        self.run_cycles['read1'] = int(r1)
+        self.run_cycles['index'] = int(i1)
+        self.run_cycles['index2'] = int(i2)
+        self.run_cycles['read2'] = int(r2)
 
         self.standalones = dict()
-        self.applications = dict()
 
         self.standalones['Header'] = Header(run_info)
         self.standalones['Reads'] = Reads(run_info)
 
-        self.applications['BCLConvert'] = BCLConvert(sample_data_lane_exploded, run_info)
+        self.applications = []
 
-        if 'DragenGermline' in used_pipelines:
-            self.applications['DragenGermline'] = DragenGermline(sample_data_lane_exploded, run_info)
+        sample_df_override = self.add_override_cycles(sample_df)
+        sample_df_override_lane_exploded = self.explode_lane_df(sample_df_override)
+
+        self.applications.append(BCLConvert(sample_df_override_lane_exploded))
+
+        used_applications = sample_df_override_lane_exploded['Application'].unique()
+
+        for up in used_applications:
+            df_up = sample_df_override_lane_exploded[sample_df_override_lane_exploded['Application'] == up]
+            if 'DragenGermline' == up:
+                self.applications.append(DragenGermline(df_up))
+
+            if 'DragenEnrichment' == up:
+                self.applications.append(DragenEnrichment(df_up))
 
 
+    def add_override_cycles(self, df):
+        df['OverrideCycles'] = df.apply(lambda row: self.get_override_cycles(row['Index_I7'], row['Index_I5']), axis=1)
+        return df
 
+    def get_override_cycles(self, index, index2):
+        len_index = len(str(index))
+        len_index2 = len(str(index2))
+
+        read1 = f"Y{self.run_cycles['read1']}"
+        read2 = f"Y{self.run_cycles['read2']}"
+
+        i_index1, n_index1 = len_index, self.run_cycles['index'] - len_index
+        i_index2, n_index2 = len_index2, self.run_cycles['index2'] - len_index2
+        index1 = f"{i_index1}N{n_index1}" if n_index1 > 0 else f"I{i_index1}"
+        index2 = f"N{n_index2}I{i_index2}" if n_index2 > 0 else f"I{i_index2}"
+
+        return f"{read1};{index1};{index2};{read2}"
 
     def explode_lane_df(self, df: pd.DataFrame):
         df['Lane'] = df['Lane'].apply(self.split_lanes)
@@ -32,9 +63,8 @@ class SampleSheetV2:
         return df
 
     @staticmethod
-    def split_lanes(lane):
-        res = re.split(r'\D+', lane.strip())
-        return res
+    def split_lanes(lane_string: str):
+        return re.split(r'\D+', lane_string.strip())
 
 
 class Header:
@@ -53,7 +83,8 @@ class Header:
             'InstrumentType': run_info['Header']['Instrument']
         }
 
-    def get_platform(self, instrument):
+    @staticmethod
+    def get_platform(instrument):
         instrument_to_platform = {
             'NextSeq1000': 'NextSeq1000',
             'NextSeq2000': 'NextSeq2000',
@@ -88,14 +119,11 @@ class Sequencing:
 
 
 class BCLConvert:
-    def __init__(self, df, run_info):
+    def __init__(self, df):
         self.settings_header = "[BCLConvert_Settings]"
         self.data_header = "[BCLConvert_Data]"
 
-        self.settings = {
-            'SoftwareVersion': "",
-            'FastqCompressionFormat': ""
-        }
+        self.settings = dict()
 
         self.fields = ["Lane",
                        "Sample_ID",
@@ -116,42 +144,9 @@ class BCLConvert:
         }
 
         df.rename(columns={'Index_I7': 'index', 'Index_I5': 'index2'}, inplace=True)
-        df['OverrideCycles'] = self.get_override_cycles(df, run_info)
         self.data = df[self.fields]
 
-
-    def get_override_cycles(self, sample_df: pd.DataFrame, run_info: dict):
-
-        r1, i1, i2, r2 = run_info['Reads']['ReadProfile'].strip().split('-')
-
-        self.run_cycles['read1'] = int(r1)
-        self.run_cycles['index1'] = int(i1)
-        self.run_cycles['index2'] = int(i2)
-        self.run_cycles['read2'] = int(r2)
-
-        return sample_df['UsedCycles'].apply(self.override_cycles)
-
-    def override_cycles(self, used_cycles):
-        read1, index1, index2, read2 = map(int, used_cycles.strip().split('-'))
-
-        read1 = min(self.run_cycles['read1'], read1)
-        read1 = f"Y{read1}"
-
-        i_index1, n_index1 = index1, self.run_cycles['index1'] - index1
-        i_index2, n_index2 = index2, self.run_cycles['index2'] - index2
-
-        read2 = min(self.run_cycles['read2'], read2)
-        read2 = f"Y{read2}"
-
-        index1 = f"{i_index1}N{n_index1}" if n_index1 > 0 else f"I{i_index1}"
-        index2 = f"N{n_index2}I{i_index2}" if n_index2 > 0 else f"I{i_index2}"
-
-        return f"{read1};{index1};{index2};{read2}"
-
-    @staticmethod
-    def split_lanes(lane):
-        res = re.split(r'\D+', lane.strip())
-        return res
+        print(self.data.to_string())
 
     def validate(self):
 
@@ -177,15 +172,18 @@ class BCLConvert:
 
 
 class DragenGermline:
-    def __init__(self, df, run_info):
+    def __init__(self, df):
         self.settings_header = "[DragenGermline_Settings]"
         self.data_header = "[DragenGermline_Data]"
-        self.settings = {
-            'SoftwareVersion': "",
-            'AppVersion': "",
-            'KeepFastQ': True,
-            'MapAlignOutFormat': "bam"
-        }
+
+        app_profile_list = df['AppProfile'].unique()
+        app_profile = json.loads(app_profile_list[0])
+
+        self.settings = app_profile['Settings']
+        self.data = pd.DataFrame()
+
+        for key, value in app_profile['Data'].items():
+            df[key] = value
 
         self.fields = ["ReferenceGenomeDir",
                        "VariantCallingMode",
@@ -195,27 +193,30 @@ class DragenGermline:
                        "QcCrossContaminationVcfFile",
                        "Sample_ID"]
 
+        self.data = df[self.fields]
+
+        print(self.data.to_string())
+
 
 class DragenEnrichment:
-    def __init__(self, dragen_germline_settings, dragen_germline_data):
+    def __init__(self, df):
         self.settings_header = "[DragenEnrichment_Settings]"
         self.data_header = "[DragenEnrichment_Data]"
 
-        self.settings = {
-            'SoftwareVersion': "",
-            'AppVersion': "",
-            'KeepFastQ': True,
-            'MapAlignOutFormat': "bam"
-        }
+        self.settings = {}
+        self.data = pd.DataFrame()
 
-        self.data = pd.DataFrame(columns=["ReferenceGenomeDir",
-                                          "Bedfile",
-                                          "GermlineOrSomatic",
-                                          "AuxNoiseBaselineFile"
-                                          "AuxCnvPanelOfNormalsFile"
-                                          "QcCoverage1BedFile",
-                                          "VariantCallingMode",
-                                          "Sample_ID"])
+        self.data_fields = ["ReferenceGenomeDir",
+                            "Bedfile",
+                            "GermlineOrSomatic",
+                            "AuxNoiseBaselineFile"
+                            "AuxCnvPanelOfNormalsFile"
+                            "QcCoverage1BedFile",
+                            "VariantCallingMode",
+                            "Sample_ID"]
+
+
+
 
 
 class DragenRNA:

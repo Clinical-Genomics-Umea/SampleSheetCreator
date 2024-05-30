@@ -1,0 +1,25 @@
+---
+ApplicationProfileVersion: 1.0
+ApplicationProfile: BCLConvert
+Application: BCLConvert
+
+ApplicationSettings:
+  SoftwareVersion: 4.1.23
+  FastqCompressionFormat: gzip
+
+ApplicationData:
+  AdapterRead1: CTGTCTCTTATACACATCT
+  AdapterRead2: CTGTCTCTTATACACATCT
+  BarcodeMismatchesIndex1: 1
+  BarcodeMismatchesIndex2: 1
+
+ApplicationDataFields:
+  - AdapterRead1
+  - AdapterRead2
+  - BarcodeMismatchesIndex1
+  - BarcodeMismatchesIndex2
+  - OverrideCycles
+  - Sample_ID
+  - Lane
+  - Index
+  - Index2

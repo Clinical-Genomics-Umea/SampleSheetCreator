@@ -48,7 +48,6 @@ def flowcell_validation(flowcell, instrument, settings):
 
 
 def lane_validation(df, flowcell, instrument, settings):
-    print(settings)
     allowed_lanes = set(settings['flowcells'][instrument]['type'][flowcell])
     lane_strs = set(df['Lane'])
 
@@ -146,7 +145,6 @@ class PreValidationWidget(QWidget):
 
         run_data = self.run_info.get_data()
         df = model_to_dataframe(self.model)
-        print(df.to_string())
         df.fillna('', inplace=True)
 
         flowcell = run_data['Run_Extra']['FlowCellType']
@@ -268,7 +266,6 @@ class DataValidationWidget(QWidget):
         self.validate_tabwidget.clear()
 
         df = model_to_dataframe(self.model)
-        print(df)
 
         lanes_df = split_df_by_lane(df)
 
@@ -319,8 +316,6 @@ class IndexColorBalanceModel(QStandardItemModel):
             total = 0.00001
 
         # Normalize the values and create a new dictionary
-        print(input_dict)
-
         normalized_dict = {key: round(value / total, 2) for key, value in input_dict.items()}
 
         return normalized_dict

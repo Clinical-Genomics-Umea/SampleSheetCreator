@@ -119,14 +119,7 @@ class TableModel(QAbstractTableModel):
         """
         mime_data = QMimeData()
         row_indexes = {index.row() for index in indexes}
-
-        print(row_indexes)
-        print(self.dataframe)
-
         df = pd.DataFrame(self.dataframe, index=list(row_indexes))
-
-        print(df)
-
         records = df.to_dict(orient='records')
 
         # Convert the records to JSON
@@ -312,7 +305,6 @@ class IndexWidget(QWidget):
         self.index_df = index_df
         self.index_df['IndexDefinitionKitName'] = idk_name
         self.shown_fields = self.get_shown_fields()
-        print(self.shown_fields)
 
         # setup sortfilterproxies
         self.sortfilterproxy = {field: QSortFilterProxyModel() for field in self.shown_fields}

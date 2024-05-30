@@ -4,6 +4,10 @@ from PySide6.QtWidgets import QTableView, QAbstractItemView, QApplication, QMenu
     QVBoxLayout, QLabel, QHeaderView, QWidget, QLineEdit, QPushButton, QCheckBox, \
     QHBoxLayout
 
+import json
+
+from modules.run import RunInfo
+
 
 def list2d_to_tabbed_str(data):
     """
@@ -223,29 +227,66 @@ class SampleTableView(QTableView):
 
     @Slot(dict)
     def set_profile_data(self, profiles_data):
-        proxymodel = self.model()
-        sourcemodel = proxymodel.sourceModel()
+        proxy_model = self.model()
+        source_model = proxy_model.sourceModel()
         selection_model = self.selectionModel()
-        selected_row_indexes = selection_model.selectedRows()
-        selected_rows = [index.row() for index in selected_row_indexes]
+        selected_rows = [index.row() for index in selection_model.selectedRows()]
 
-        if not selected_row_indexes:
+        if not selected_rows:
             return
 
-        header_key_dict = self.get_header_key_dict(sourcemodel)
-        sourcemodel.blockSignals(True)
+        header_key_dict = self.get_header_key_dict(source_model)
+        source_model.blockSignals(True)
+
         for row in selected_rows:
-            for key, value in profiles_data.items():
-                if not key in header_key_dict:
-                    continue
+            if profiles_data["Application"] == "BCLConvert":
+                self._set_data(proxy_model, header_key_dict, row, "ApplicationSettings", profiles_data)
+                self._set_data(proxy_model, header_key_dict, row, "ApplicationData", profiles_data)
+            else:
+                self._set_application_data(proxy_model, header_key_dict, row, profiles_data)
 
-                column = header_key_dict[key]
-                proxymodel.setData(proxymodel.index(row, column), value)
+        source_model.blockSignals(False)
+        source_model.dataChanged.emit(
+            source_model.index(0, 0),
+            source_model.index(source_model.rowCount() - 1, source_model.columnCount() - 1),
+            Qt.DisplayRole
+        )
 
-        sourcemodel.blockSignals(False)
-        sourcemodel.dataChanged.emit(sourcemodel.index(0, 0),
-            sourcemodel.index(sourcemodel.rowCount() - 1, sourcemodel.columnCount() - 1),
-            Qt.DisplayRole)
+    @staticmethod
+    def _set_data(proxy_model, header_key_dict, row, data_type, profiles_data):
+        if data_type in profiles_data:
+            for key, value in profiles_data[data_type].items():
+                if key in header_key_dict:
+                    column = header_key_dict[key]
+                    proxy_model.setData(proxy_model.index(row, column), value)
+
+    @staticmethod
+    def _set_application_data(proxy_model, header_key_dict, row, profiles_data):
+
+        common_keys = set(header_key_dict.keys()).intersection(set(profiles_data.keys()))
+
+        if "ApplicationProfile" in common_keys:
+            column = header_key_dict["ApplicationProfile"]
+            proxy_model.setData(proxy_model.index(row, column), profiles_data["ApplicationProfile"])
+
+        if "ApplicationData" in common_keys:
+            column = header_key_dict["ApplicationData"]
+            json_data = json.dumps(profiles_data["ApplicationData"])
+            proxy_model.setData(proxy_model.index(row, column), json_data)
+
+        if "ApplicationSettings" in common_keys:
+            column = header_key_dict["ApplicationSettings"]
+            json_settings = json.dumps(profiles_data["ApplicationSettings"])
+            proxy_model.setData(proxy_model.index(row, column), json_settings)
+
+        if "ApplicationDataFields" in common_keys:
+            column = header_key_dict["ApplicationDataFields"]
+            json_fields = json.dumps(profiles_data["ApplicationDataFields"])
+            proxy_model.setData(proxy_model.index(row, column), json_fields)
+
+        if "Application" in common_keys:
+            column = header_key_dict["Application"]
+            proxy_model.setData(proxy_model.index(row, column), profiles_data["Application"])
 
 
     def table_popup(self):
@@ -276,9 +317,6 @@ class SampleTableView(QTableView):
 
     @Slot(str, bool)
     def set_column_visibility_state(self, field, state):
-
-        print(field, state)
-
         i = self.model().sourceModel().fields.index(field)
 
         column_visible = not self.isColumnHidden(i)
@@ -299,12 +337,9 @@ class SampleTableView(QTableView):
         index = self.indexAt(pos)
         clicked_column = index.column()
 
-        print(index, clicked_column)
-
         selected_columns = self.get_selected_columns()
 
         # Get the name of the clicked column
-        print()
         colname = self.model().sourceModel().fields[clicked_column]
 
         # Clear the context menu
@@ -395,7 +430,6 @@ class SampleTableView(QTableView):
 
         # Delete needs to be in a separate if statement to work (for mysterious reasons)
         if event.key() == Qt.Key_Delete:
-            print("delete")
             self.delete_selection()
             return True
 
@@ -453,7 +487,7 @@ class SampleTableView(QTableView):
                 return False
 
             elif len(selected_indexes) == 1:
-                print("single")
+
                 regular_paste(selected_indexes, source_model, model)
                 self.selectionModel().clearSelection()
                 self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)

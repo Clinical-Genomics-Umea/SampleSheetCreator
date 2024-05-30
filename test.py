@@ -9,8 +9,7 @@ data = {
 }
 df = pd.DataFrame(data)
 
-print("Original DataFrame:")
-print(df)
+
 
 # Function to split by non-integer characters
 def split_lanes(lane):
