@@ -1,12 +1,14 @@
 from dataclasses import dataclass
 import pandas as pd
 import pandera as pa
-import re
 import json
 
 
 class SampleSheetV2:
     def __init__(self, run_info: dict, sample_df: pd.DataFrame):
+
+        if sample_df.empty:
+            return
 
         r1, i1, i2, r2 = run_info['Reads']['ReadProfile'].strip().split('-')
         self.run_cycles = dict()
@@ -23,20 +25,19 @@ class SampleSheetV2:
         self.applications = []
 
         sample_df_override = self.add_override_cycles(sample_df)
-        sample_df_override_lane_exploded = self.explode_lane_df(sample_df_override)
 
-        self.applications.append(BCLConvert(sample_df_override_lane_exploded))
+        self.applications.append(BCLConvert(sample_df_override))
 
-        used_applications = sample_df_override_lane_exploded['Application'].unique()
+        used_applications = sample_df_override['Application'].unique()
+        for app in used_applications:
+            df_subset = sample_df_override[sample_df_override['Application'] == app]
+            self.applications.append(Application(df_subset))
 
-        for up in used_applications:
-            df_up = sample_df_override_lane_exploded[sample_df_override_lane_exploded['Application'] == up]
-            if 'DragenGermline' == up:
-                self.applications.append(DragenGermline(df_up))
+        for app in self.applications:
+            ss = app.samplesheet_list()
 
-            if 'DragenEnrichment' == up:
-                self.applications.append(DragenEnrichment(df_up))
-
+            for line in ss:
+                print(line)
 
     def add_override_cycles(self, df):
         df['OverrideCycles'] = df.apply(lambda row: self.get_override_cycles(row['Index_I7'], row['Index_I5']), axis=1)
@@ -55,16 +56,6 @@ class SampleSheetV2:
         index2 = f"N{n_index2}I{i_index2}" if n_index2 > 0 else f"I{i_index2}"
 
         return f"{read1};{index1};{index2};{read2}"
-
-    def explode_lane_df(self, df: pd.DataFrame):
-        df['Lane'] = df['Lane'].apply(self.split_lanes)
-        df = df.explode('Lane')
-        df['Lane'] = df['Lane'].astype(int)
-        return df
-
-    @staticmethod
-    def split_lanes(lane_string: str):
-        return re.split(r'\D+', lane_string.strip())
 
 
 class Header:
@@ -120,13 +111,16 @@ class Sequencing:
 
 class BCLConvert:
     def __init__(self, df):
-        self.settings_header = "[BCLConvert_Settings]"
-        self.data_header = "[BCLConvert_Data]"
+        self.app_settings_header = "[BCLConvert_Settings]"
+        self.app_data_header = "[BCLConvert_Data]"
 
-        self.settings = dict()
+        self.app_settings = {
+            "SoftwareVersion": df.loc[0, 'SoftwareVersion'],
+            "FastqCompressionFormat": df.loc[0, 'FastqCompressionFormat']
+        }
 
-        self.fields = ["Lane",
-                       "Sample_ID",
+        data_fields = ["Sample_ID",
+                       "Lane",
                        "index",
                        "index2",
                        "AdapterRead1",
@@ -136,17 +130,53 @@ class BCLConvert:
                        "OverrideCycles"
                        ]
 
-        self.run_cycles = {
-            'read1': 0,
-            'index1': 0,
-            'index2': 0,
-            'read2': 0
-        }
-
         df.rename(columns={'Index_I7': 'index', 'Index_I5': 'index2'}, inplace=True)
-        self.data = df[self.fields]
+        self.data = df[data_fields]
 
-        print(self.data.to_string())
+    def samplesheet_list(self):
+
+        output = list()
+
+        output.append(self.app_settings_header)
+        for key, value in self.app_settings.items():
+            output.append(f"{key},{value}")
+
+        output.append("")
+        output.append(self.app_data_header)
+        output.extend(self.data.to_csv(sep=',', index=False).split("\n"))
+
+        return output
+
+    class Application:
+        def __init__(self, df):
+
+            app = df.loc[0, 'Application']
+            self.app_settings = json.loads(df.loc[0, 'ApplicationSettings'])
+            app_data = json.loads(df.loc[0, 'ApplicationData'])
+            data_fields = json.loads(df.loc[0, 'ApplicationDataFields'])
+
+            self.app_settings_header = f"[{app}_Settings]"
+            self.app_data_header = f"[{app}_Data]"
+
+            for key, value in app_data:
+                df[key] = value
+
+            self.data = df[data_fields]
+
+        def samplesheet_list(self):
+
+            output = list()
+
+            output.append(self.app_settings_header)
+            for key, value in self.app_settings.items():
+                output.append(f"{key}={value}")
+
+            output.append("")
+            output.append(self.app_data_header)
+            output.extend(self.data.to_csv(sep=',', index=False).split("\n"))
+
+            return output
+
 
     def validate(self):
 
@@ -169,6 +199,74 @@ class BCLConvert:
             },
             index=pa.Index(int),
         )
+
+
+class Application:
+    def __init__(self, df):
+
+        app = df.loc[0, 'Application']
+        self.app_settings = json.loads(df.loc[0, 'ApplicationSettings'])
+        app_data = json.loads(df.loc[0, 'ApplicationData'])
+        data_fields = json.loads(df.loc[0, 'ApplicationDataFields'])
+
+        print(app_data)
+
+        self.app_settings_header = f"[{app}_Settings]"
+        self.app_data_header = f"[{app}_Data]"
+
+        for key, value in app_data.items():
+            df[key] = value
+
+        print(df[data_fields].to_string())
+
+        self.data = self.reorder_columns(df[data_fields],"Sample_ID")
+
+    @staticmethod
+    def reorder_columns(df, first_column):
+        """
+        Reorder the columns of a DataFrame such that first_column is the first column
+        and second_column is the second column.
+
+        Parameters:
+        df (pd.DataFrame): The input DataFrame.
+        first_column (str): The name of the column to place first.
+        second_column (str): The name of the column to place second.
+
+        Returns:
+        pd.DataFrame: The DataFrame with reordered columns.
+        """
+        # Ensure the specified columns are in the DataFrame
+        if first_column not in df.columns:
+            raise ValueError("Specified columns must be present in the DataFrame")
+
+        # Get the list of all columns
+        all_columns = list(df.columns)
+
+        # Remove the desired columns from the list
+        all_columns.remove(first_column)
+
+        # Create the new column order
+        new_column_order = [first_column] + all_columns
+
+        # Reorder the DataFrame columns
+        df = df[new_column_order]
+
+        return df
+
+
+    def samplesheet_list(self):
+
+        output = list()
+
+        output.append(self.app_settings_header)
+        for key, value in self.app_settings.items():
+            output.append(f"{key}={value}")
+
+        output.append("")
+        output.append(self.app_data_header)
+        output.extend(self.data.to_csv(sep=',', index=False).split("\n"))
+
+        return output
 
 
 class DragenGermline:

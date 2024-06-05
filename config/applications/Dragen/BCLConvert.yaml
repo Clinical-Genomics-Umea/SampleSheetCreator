@@ -8,18 +8,21 @@ ApplicationSettings:
   FastqCompressionFormat: gzip
 
 ApplicationData:
-  AdapterRead1: CTGTCTCTTATACACATCT
-  AdapterRead2: CTGTCTCTTATACACATCT
+#  AdapterRead1: CTGTCTCTTATACACATCT
+#  AdapterRead2: CTGTCTCTTATACACATCT
   BarcodeMismatchesIndex1: 1
   BarcodeMismatchesIndex2: 1
 
 ApplicationDataFields:
-  - AdapterRead1
-  - AdapterRead2
-  - BarcodeMismatchesIndex1
-  - BarcodeMismatchesIndex2
-  - OverrideCycles
   - Sample_ID
   - Lane
   - Index
   - Index2
+  - OverrideCycles
+  - AdapterRead1
+  - AdapterRead2
+  - BarcodeMismatchesIndex1
+  - BarcodeMismatchesIndex2
+
+
+

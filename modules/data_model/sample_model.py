@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import re
 
 import pandas as pd
 import yaml
@@ -83,7 +84,6 @@ class SampleSheetModel(QStandardItemModel):
         self.set_empty_strings()
 
         self.select_samples = False
-
 
     def refresh_view(self):
         # Emit dataChanged signal to notify the view to update
@@ -177,30 +177,6 @@ class SampleSheetModel(QStandardItemModel):
             flags |= Qt.ItemIsDropEnabled
         return flags
 
-    # def set_profile_on_selected(self, selected_indexes, profile_name):
-    #     """
-    #     Sets the profile name on selected rows in the table.
-    #
-    #     Args:
-    #         selected_indexes (list): A list of QModelIndex objects representing the selected rows.
-    #         profile_name (str): The name of the profile to set.
-    #
-    #     Returns:
-    #         None
-    #     """
-    #     profile_name_column = self.fields.index("ProfileName")
-    #     self.blockSignals(True)
-    #     for index in selected_indexes:
-    #         new_index = self.index(index.row(), profile_name_column)
-    #         self.setData(new_index, profile_name)
-    #
-    #     self.blockSignals(False)
-    #     self.dataChanged.emit(
-    #         self.index(0, 0),
-    #         self.index(self.rowCount() - 1, self.columnCount() - 1),
-    #         Qt.DisplayRole
-    #     )
-
     def to_dataframe(self):
         # Get the number of rows and columns in the model
         rows = self.rowCount()
@@ -224,8 +200,26 @@ class SampleSheetModel(QStandardItemModel):
         headers = [self.headerData(i, Qt.Horizontal) for i in range(columns)]
         df.columns = headers
 
+        df['Index_I5_RC'] = df['Index_I5'].apply(self.reverse_complement)
+
         df.replace("", pd.NA, inplace=True)
         df.dropna(how='all', inplace=True)
+        df = self.explode_lane_df(df)
 
+        return df
+
+    @staticmethod
+    def reverse_complement(sequence):
+        complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+        return ''.join(complement[base] for base in reversed(sequence))
+
+    @staticmethod
+    def split_lanes(lane_string: str):
+        return re.split(r'\D+', lane_string.strip())
+
+    def explode_lane_df(self, df: pd.DataFrame):
+        df['Lane'] = df['Lane'].apply(self.split_lanes)
+        df = df.explode('Lane')
+        df['Lane'] = df['Lane'].astype(int)
         return df
 

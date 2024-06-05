@@ -17,6 +17,7 @@ fields:
     - AdapterRead1
     - AdapterRead2
     - FastqCompressionFormat
+    - SoftwareVersion
   ApplicationProfile:
     - Application
     - ApplicationProfile

@@ -76,16 +76,37 @@ def is_valid_used_cycles(series: pd.Series) -> pd.Series:
     return series.str.contains(pattern, na=False)
 
 
+def check_index_combination_uniqueness(df: pd.DataFrame) -> pd.Series:
+    # Group by 'Index_I7' and 'Index_I5' and check the number of unique 'Sample_ID's
+    return df.groupby(['Index_I7', 'Index_I5'])['Sample_ID'].nunique() <= 1
+
+
+def check_combination_uniqueness(df: pd.DataFrame) -> pd.Series:
+    """
+    Check if all combinations of items in two columns are unique.
+
+    Args:
+        df (pandas.DataFrame): The input DataFrame.
+        col1 (str): The name of the first column.
+        col2 (str): The name of the second column.
+
+    Returns:
+        pandas.Series: A Series of boolean values indicating if each combination is unique.
+    """
+
+    print(df.groupby(['Lane', 'Sample_ID']).size().eq(1))
+
+    return df.groupby(['Lane', 'Sample_ID']).size().eq(1)
+
 prevalidation_schema = DataFrameSchema(
     {
-        "Lane": Column(str, checks=Check(is_valid_lane_series), nullable=False),
+        "Lane": Column(int, nullable=False),
         "Sample_ID": Column(str, coerce=True,
-                            unique=True,
+                            unique=False,
                             nullable=False,
-                            checks=pa.Check(lambda s: s.str.len() >= 5,
+                            checks=pa.Check(lambda s: s.str.len() >= 3,
                                             error="Sample_ID is too short.")
                             ),
-        "ProfileName": Column(str, coerce=True, nullable=True),
         "FixedPos": Column(str, coerce=True, nullable=True),
         "Name_I7": Column(str, coerce=True, nullable=True),
         "Index_I7": Column(str,
@@ -121,11 +142,7 @@ prevalidation_schema = DataFrameSchema(
                                             error="Contains invalid characters. Seq can be empty or contain only A, T, C, G.")
                                    ],
                            ),
-        "UsedCycles": Column(str,
-                             checks=pa.Check(is_valid_used_cycles,
-                                             error="Invalid used cycles string"),
-                             coerce=True,
-                             nullable=False),
+        "IndexDefinitionKitName": Column(str, coerce=True, nullable=True),
         "BarcodeMismatchesIndex1": Column(int,
                                           checks=Check.in_range(0, 4,
                                                                 include_min=True,
@@ -145,11 +162,24 @@ prevalidation_schema = DataFrameSchema(
                                ),
         "AdapterRead2": Column(str, coerce=True, nullable=True),
         "FastqCompressionFormat": Column(str, coerce=True, nullable=True),
-        "Pipeline": Column(str, coerce=True, nullable=True),
-        "ReferenceGenomeDir": Column(str, coerce=True, nullable=True),
-        "VariantCallingMode": Column(str, coerce=True, nullable=True),
-        "IndexDefinitionKitName": Column(str, coerce=True, nullable=True),
+        "Application": Column(str, coerce=True, nullable=True),
+        "ApplicationProfile": Column(str, coerce=True, nullable=True),
+        "ApplicationSettings": Column(str, coerce=True, nullable=True),
+        "ApplicationData": Column(str, coerce=True, nullable=True),
+        "ApplicationDataFields": Column(str, coerce=True, nullable=True),
+        "SoftwareVersion": Column(str, coerce=True, nullable=False)
     },
+    checks=[pa.Check(
+                check_index_combination_uniqueness,
+                element_wise=False,
+                error="Combination of Index_I7 and Index_I5 is not unique across different Sample_ID."
+            ),
+            pa.Check(
+                check_combination_uniqueness,
+                element_wise=False,
+                error="Sample_ID is duplicated within the same Lane."
+            )
+    ],
     index=Index(int),
     strict=True,
     coerce=True,

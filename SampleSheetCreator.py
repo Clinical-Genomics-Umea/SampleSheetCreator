@@ -13,7 +13,7 @@ from PySide6.QtGui import QAction, QActionGroup, QPainter, QIcon
 from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRect
 
 
-from modules.columns_visibility import ColumnsTreeWidget
+from modules.visibility import ColumnsTreeWidget
 from modules.data_model.sample_model import SampleSheetModel
 from modules.indexes import Indexes
 from modules.make import Make
@@ -100,6 +100,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.make_action = QAction("make", self)
         self.config_action = QAction("config", self)
         self.edit_action = QAction("edit", self)
+
+        self.qagroup_leftmenu = QActionGroup(self)
+        self.qagroup_mainview = QActionGroup(self)
 
         # right sidemenu options
         self.columns_settings_button = QPushButton("Columns")
@@ -288,57 +291,65 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.file_action.setIcon(qta.icon('msc.files', options=[{'draw': 'image'}]))
         self.file_action.setCheckable(True)
         self.file_action.setChecked(False)
-        self.file_action.triggered.connect(self.on_tool_group_click)
+        self.file_action.triggered.connect(self.click_action_leftmenu)
 
         self.run_action.setIcon(qta.icon('msc.symbol-misc', options=[{'draw': 'image'}]))
         self.run_action.setCheckable(True)
         self.run_action.setChecked(False)
-        self.run_action.triggered.connect(self.on_tool_group_click)
+        self.run_action.triggered.connect(self.click_action_leftmenu)
 
         self.profiles_action.setIcon(qta.icon('msc.symbol-method', options=[{'draw': 'image'}]))
         self.profiles_action.setCheckable(True)
         self.profiles_action.setChecked(False)
-        self.profiles_action.triggered.connect(self.on_tool_group_click)
+        self.profiles_action.triggered.connect(self.click_action_leftmenu)
 
         self.indexes_action.setIcon(qta.icon('mdi6.barcode', options=[{'draw': 'image'}]))
         self.indexes_action.setCheckable(True)
         self.indexes_action.setChecked(False)
-        self.indexes_action.triggered.connect(self.on_tool_group_click)
+        self.indexes_action.triggered.connect(self.click_action_leftmenu)
 
         self.config_action.setIcon(qta.icon('msc.settings-gear', options=[{'draw': 'image'}]))
         self.config_action.setCheckable(True)
         self.config_action.setChecked(False)
-        self.config_action.triggered.connect(self.on_config_click)
+        self.config_action.triggered.connect(self.click_action_mainview)
 
         self.validate_action.setIcon(qta.icon('msc.check-all', options=[{'draw': 'image'}]))
         self.validate_action.setCheckable(True)
         self.validate_action.setChecked(False)
-        self.validate_action.triggered.connect(self.on_validate_click)
+        self.validate_action.triggered.connect(self.click_action_mainview)
 
         self.make_action.setIcon(qta.icon('msc.coffee', options=[{'draw': 'image'}]))
         self.make_action.setCheckable(True)
         self.make_action.setChecked(False)
-        self.make_action.triggered.connect(self.on_make_click)
+        self.make_action.triggered.connect(self.click_action_mainview)
 
         self.edit_action.setIcon(qta.icon('msc.unlock', options=[{'draw': 'image'}]))
         self.edit_action.setCheckable(True)
         self.edit_action.setChecked(False)
-        self.edit_action.triggered.connect(self.on_edit_click)
+        self.edit_action.triggered.connect(self.click_action_mainview)
 
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        qbgroup = QActionGroup(self)
-        qbgroup.setExclusionPolicy(QActionGroup.ExclusionPolicy.ExclusiveOptional)
-        qbgroup.addAction(self.file_action)
-        qbgroup.addAction(self.run_action)
-        qbgroup.addAction(self.profiles_action)
-        qbgroup.addAction(self.indexes_action)
+        self.qagroup_leftmenu.setExclusionPolicy(QActionGroup.ExclusionPolicy.ExclusiveOptional)
+        self.qagroup_leftmenu.addAction(self.file_action)
+        self.qagroup_leftmenu.addAction(self.run_action)
+        self.qagroup_leftmenu.addAction(self.profiles_action)
+        self.qagroup_leftmenu.addAction(self.indexes_action)
 
         self.left_toolBar.addAction(self.file_action)
         self.left_toolBar.addAction(self.run_action)
         self.left_toolBar.addAction(self.indexes_action)
         self.left_toolBar.addAction(self.profiles_action)
+
+
+        self.qagroup_mainview.setExclusionPolicy(QActionGroup.ExclusionPolicy.ExclusiveOptional)
+        self.qagroup_mainview.addAction(self.validate_action)
+        self.qagroup_mainview.addAction(self.make_action)
+        self.qagroup_mainview.addAction(self.edit_action)
+        self.qagroup_mainview.addAction(self.config_action)
+
+
         self.left_toolBar.addAction(self.validate_action)
         self.left_toolBar.addAction(self.make_action)
         self.left_toolBar.addWidget(spacer)
@@ -387,22 +398,91 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_edit_click(self):
         pass
 
-    def on_tool_group_click(self):
+    def leftmenu_shown(self):
+        menu_width = self.leftmenu_stackedWidget.width()
+        return menu_width > 0
+
+    def click_action_leftmenu(self):
         button = self.sender()
         button_text = button.text()
-
         is_checked = button.isChecked()
-        menu_width = self.leftmenu_stackedWidget.width()
-        menu_shown = menu_width > 0
-        if is_checked and not menu_shown:
+
+        if is_checked:
+            self.main_stackedWidget.setCurrentWidget(self.main_data)
+            for action in self.qagroup_mainview.actions():
+                action.setChecked(False)
+
+
+        if is_checked and not self.leftmenu_shown():
             self.leftmenu_stackedWidget.show()
             self.left_tab_anim["open"].start()
             self.leftmenu_stackedWidget.setCurrentWidget(self.left_action_tab_map[button_text])
-        elif not is_checked and menu_shown:
+        elif not is_checked and self.leftmenu_shown():
             self.left_tab_anim["close"].start()
             self.leftmenu_stackedWidget.hide()
         else:
             self.leftmenu_stackedWidget.setCurrentWidget(self.left_action_tab_map[button_text])
+
+    def click_action_mainview(self):
+        button = self.sender()
+        button_text = button.text()
+
+        is_checked = button.isChecked()
+
+        if self.leftmenu_shown():
+            self.left_tab_anim["close"].start()
+            self.leftmenu_stackedWidget.hide()
+
+            for action in self.qagroup_leftmenu.actions():
+                action.setChecked(False)
+
+        self.main_stackedWidget.setCurrentWidget(self.main_data)
+
+        if is_checked:
+            if button_text == "validate":
+                self.main_stackedWidget.setCurrentWidget(self.main_validation)
+                is_valid = self.prevalidate_widget.validate()
+
+                if not is_valid:
+                    return
+
+                self.data_validate_widget.validate()
+
+            elif button_text == "make":
+                self.main_stackedWidget.setCurrentWidget(self.main_make)
+                self.samplesheetv2 = SampleSheetV2(self.run_info_widget.get_data(), self.samples_model.to_dataframe())
+
+            elif button_text == "edit":
+                pass
+                # self.main_stackedWidget.setCurrentWidget(self.main_edit)
+
+            elif button_text == "config":
+                pass
+                # self.main_stackedWidget.setCurrentWidget(self.main_config)
+
+        else:
+            self.main_stackedWidget.setCurrentWidget(self.main_data)
+    
+        # if button_text == "make":
+        #     pass
+        #
+        # if button_text == "edit":
+        #     pass
+        #
+        # if button_text == "config":
+        #     pass
+        #
+        #
+
+        # if is_checked and not menu_shown:
+        #     self.leftmenu_stackedWidget.show()
+        #     self.left_tab_anim["open"].start()
+        #     self.leftmenu_stackedWidget.setCurrentWidget(self.left_action_tab_map[button_text])
+        # elif not is_checked and menu_shown:
+        #     self.left_tab_anim["close"].start()
+        #     self.leftmenu_stackedWidget.hide()
+        # else:
+        #     self.leftmenu_stackedWidget.setCurrentWidget(self.left_action_tab_map[button_text])
 
     def on_config_click(self):
         if self.config_action.isChecked():

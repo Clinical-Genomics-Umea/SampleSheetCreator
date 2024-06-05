@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, Q
                                QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit,
                                QPushButton, QMenu, QTableWidget, QTableWidgetItem)
 
+from modules.data_model.sample_model import SampleSheetModel
 from modules.run import RunInfo
 from modules.validation.heatmap import create_heatmap_table
 from modules.validation.validation_fns import substitutions_heatmap_df, split_df_by_lane, \
@@ -48,13 +49,8 @@ def flowcell_validation(flowcell, instrument, settings):
 
 
 def lane_validation(df, flowcell, instrument, settings):
-    allowed_lanes = set(settings['flowcells'][instrument]['type'][flowcell])
-    lane_strs = set(df['Lane'])
-
-    used_lanes = set()
-    for lane_str in lane_strs:
-        lanes_list = extract_numbers_from_string(lane_str)
-        used_lanes.update(lanes_list)
+    allowed_lanes = set(map(int, settings['flowcells'][instrument]['type'][flowcell]))
+    used_lanes = set(df['Lane'])
 
     disallowed_lanes = used_lanes.difference(allowed_lanes)
 
@@ -101,8 +97,9 @@ def load_from_yaml(config_file):
 
 
 class PreValidationWidget(QWidget):
-    def __init__(self, validation_settings_path: Path, model: QStandardItemModel, run_info: RunInfo):
+    def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfo):
         super().__init__()
+        self.setMinimumHeight(10)
         self.layout = QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
@@ -119,6 +116,9 @@ class PreValidationWidget(QWidget):
 
         self.flowcell = None
         self.instrument = None
+
+        self.setMinimumHeight(10)
+        self.table_widget.setMinimumHeight(10)
 
     def add_row(self, validator, is_valid, message):
         self.table_widget.insertRow(self.table_widget.rowCount())
@@ -144,8 +144,9 @@ class PreValidationWidget(QWidget):
         self.table_widget.setRowCount(0)
 
         run_data = self.run_info.get_data()
-        df = model_to_dataframe(self.model)
-        df.fillna('', inplace=True)
+        df = self.model.to_dataframe()
+
+        # df.fillna('', inplace=True)
 
         flowcell = run_data['Run_Extra']['FlowCellType']
         instrument = run_data['Header']['Instrument']
@@ -169,7 +170,7 @@ class PreValidationWidget(QWidget):
 
         try:
             prevalidation_schema.validate(df)
-            self.add_row("prevalidation schema", True, "OK")
+            self.add_row("prevalidation schema", True, "")
         except pa.errors.SchemaError as exc:
             self.add_row("prevalidation schema", False, str(exc))
             return False
@@ -178,7 +179,7 @@ class PreValidationWidget(QWidget):
 
 
 class DataValidationWidget(QWidget):
-    def __init__(self, validation_settings_path: Path, model: QStandardItemModel, run_info: RunInfo):
+    def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfo):
         super().__init__()
 
         self.model = model
@@ -208,7 +209,10 @@ class DataValidationWidget(QWidget):
         h_heatmap_layout.addSpacerItem(self.hspacer)
         return h_heatmap_layout
 
-    def get_tab(self, lane, lanes_df):
+    def get_tab(self, df):
+
+        lane = df["Lane"].iloc[0]
+
         tab_scroll_area = QScrollArea()
         tab_scroll_area.setFrameShape(QFrame.NoFrame)
 
@@ -217,21 +221,21 @@ class DataValidationWidget(QWidget):
         tab_content.setLayout(tab_content_layout)
 
         if not self.index_i5_rc:
-            indexes_i7_i5_df = concat_lenadjust_indexes(lanes_df[lane], 10, 10, "Index_I7", "Index_I5", "Sample_ID")
+            indexes_i7_i5_df = concat_lenadjust_indexes(df, 10, 10, "Index_I7", "Index_I5", "Sample_ID")
         else:
-            indexes_i7_i5_df = concat_lenadjust_indexes(lanes_df[lane], 10, 10, "Index_I7", "Index_I5_RC", "Sample_ID")
+            indexes_i7_i5_df = concat_lenadjust_indexes(df, 10, 10, "Index_I7", "Index_I5_RC", "Sample_ID")
 
         i7_i5_substitution_df = substitutions_heatmap_df(indexes_i7_i5_df)
         i7_i5_heatmap_table = create_heatmap_table(i7_i5_substitution_df)
 
-        indexes_i7_df = lenadjust_i7_indexes(lanes_df[lane], 10, "Index_I7", "Sample_ID")
+        indexes_i7_df = lenadjust_i7_indexes(df, 10, "Index_I7", "Sample_ID")
         i7_substitution_df = substitutions_heatmap_df(indexes_i7_df)
         i7_heatmap_table = create_heatmap_table(i7_substitution_df)
 
         if not self.index_i5_rc:
-            indexes_i5_df = lenadjust_i5_indexes(lanes_df[lane],  10, "Index_I5", "Sample_ID")
+            indexes_i5_df = lenadjust_i5_indexes(df, 10, "Index_I5", "Sample_ID")
         else:
-            indexes_i5_df = lenadjust_i5_indexes(lanes_df[lane], 10, "Index_I5_RC", "Sample_ID")
+            indexes_i5_df = lenadjust_i5_indexes(df, 10, "Index_I5_RC", "Sample_ID")
         i5_substitution_df = substitutions_heatmap_df(indexes_i5_df)
         i5_heatmap_table = create_heatmap_table(i5_substitution_df)
 
@@ -254,7 +258,7 @@ class DataValidationWidget(QWidget):
         tab_content_layout.addSpacerItem(self.vspacer_fixed)
         tab_content_layout.addWidget(QLabel(f"Color Balance Table for Lane {lane}"))
 
-        color_balance_table = ColorBalanceWidget(lanes_df[lane], self.index_i5_rc)
+        color_balance_table = ColorBalanceWidget(df, self.index_i5_rc)
         tab_content_layout.addWidget(color_balance_table)
         tab_content_layout.addSpacerItem(self.vspacer)
 
@@ -265,12 +269,18 @@ class DataValidationWidget(QWidget):
     def validate(self):
         self.validate_tabwidget.clear()
 
-        df = model_to_dataframe(self.model)
+        df = self.model.to_dataframe()
 
-        lanes_df = split_df_by_lane(df)
+        print(df.to_string())
 
-        for lane in lanes_df:
-            tab = self.get_tab(lane, lanes_df)
+        used_lanes = list(df['Lane'].unique())
+        print(used_lanes)
+        for lane in used_lanes:
+
+            df_lane = df[df['Lane'] == lane]
+
+            tab = self.get_tab(df_lane)
+
             self.validate_tabwidget.addTab(tab, f"Lane {lane}")
 
 
@@ -356,12 +366,6 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
         elif index.isValid() and index.column() == 3:
             self.paint_gg_i1_2_row(painter, option, index)
 
-        # elif index.isValid() and index.column() == 12:
-        #     self.paint_gg_i2_1_row(painter, option, index)
-        #
-        # elif index.isValid() and index.column() == 13:
-        #     self.paint_gg_i2_2_row(painter, option, index)
-        #
         elif index.isValid():
             super().paint(painter, option, index)
 
@@ -391,31 +395,6 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
         else:
             super().paint(painter, option, index)
 
-    # def paint_gg_i2_1_row(self, painter, option, index):
-    #     index_other = index.model().index(index.row(), 13)
-    #     value = index.data(Qt.DisplayRole)
-    #     value_other = index_other.data(Qt.DisplayRole)
-    #
-    #     if value == value_other == 'G':
-    #         painter.save()
-    #         painter.fillRect(option.rect, QColor(255, 127, 127))
-    #         super().paint(painter, option, index)
-    #         painter.restore()
-    #     else:
-    #         super().paint(painter, option, index)
-    #
-    # def paint_gg_i2_2_row(self, painter, option, index):
-    #     index_other = index.model().index(index.row(), 12)
-    #     value = index.data(Qt.DisplayRole)
-    #     value_other = index_other.data(Qt.DisplayRole)
-    #
-    #     if value == value_other == 'G':
-    #         painter.save()
-    #         painter.fillRect(option.rect, QColor(255, 127, 127))
-    #         super().paint(painter, option, index)
-    #         painter.restore()
-    #     else:
-    #         super().paint(painter, option, index)
 
 
     def paint_color_balance_row(self, painter, option, index):
@@ -514,23 +493,25 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
 
 
 class ColorBalanceWidget(QTableView):
-    def __init__(self, dataframe: pd.DataFrame, is_i5_rc, parent=None):
+    def __init__(self, df: pd.DataFrame, is_i5_rc, parent=None):
         super(ColorBalanceWidget, self).__init__(parent)
-        dataframe.reset_index()
-        dataframe['Proportion'] = "1"
+        df = df.copy()
+        df['Proportion'] = "1"
         if not is_i5_rc:
-            df = self.split_string_column(dataframe, 'Index_I7', 'Index_I5')
+            df_seq = self.split_string_column(df, 'Index_I7', 'Index_I5')
         else:
-            df = self.split_string_column(dataframe, 'Index_I7', 'Index_I5_RC')
+            df_seq = self.split_string_column(df, 'Index_I7', 'Index_I5_RC')
 
-        df.insert(0, 'Sample_ID', dataframe['Sample_ID'])
-        df.insert(1, "Proportion", dataframe['Proportion'])
+        print(df.to_string())
+
+        df_seq.insert(0, 'Sample_ID', df['Sample_ID'])
+        df_seq.insert(1, "Proportion", df['Proportion'])
         last_row_index = df.index[-1]
-        df.loc[last_row_index + 1] = pd.Series()
-        df.iloc[-1, 0] = "Summary"
-        df.iloc[-1, 1] = ""
+        df_seq.loc[last_row_index + 1] = pd.Series()
+        df_seq.iloc[-1, 0] = "Summary"
+        df_seq.iloc[-1, 1] = ""
 
-        self.standard_model = self.dataframe_to_colorbalance_model(df, is_i5_rc)
+        self.standard_model = self.dataframe_to_colorbalance_model(df_seq, is_i5_rc)
         self.setModel(self.standard_model)
         self.standard_model.update_summation()
         self.verticalHeader().setVisible(False)

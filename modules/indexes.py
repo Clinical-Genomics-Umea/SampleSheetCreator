@@ -226,27 +226,26 @@ class IndexKitDefinition:
 
     def process_resources(self):
         _meta = self.resources[self.resources['Type'] != 'FixedIndexPosition']
+
+        print(_meta.to_string())
+
         for row in _meta.itertuples():
             setattr(self, to_snake(row.Name), row.Value)
 
         if hasattr(self, "fixed_layout"):
-            setattr(self, "fixed_layout", self.convert_to_boolean(self.fixed_layout))
+            setattr(self, "fixed_layout", self._to_boolean(self.fixed_layout))
 
         _fixed_index_positions = self.resources[self.resources['Type'] == 'FixedIndexPosition'].copy()
         self.f_positions = _fixed_index_positions[["Name", "Value"]]
 
     def process_indexes(self):
-        _indexes_i7 = (
-            self.indexes_all[self.indexes_all['IndexReadNumber'] == 1]
-            .rename(columns={"Sequence": "Index_I7", "Name": "Name_I7"})
-            .drop(columns=['IndexReadNumber']).reset_index()
-        )
+        _indexes_i7 = self.indexes_all[self.indexes_all['IndexReadNumber'] == 1].copy()
+        _indexes_i7 = _indexes_i7.rename(columns={"Sequence": "Index_I7", "Name": "Name_I7"})
+        _indexes_i7 = _indexes_i7.drop(columns=['IndexReadNumber']).reset_index()
 
-        _indexes_i5 = (
-            self.indexes_all[self.indexes_all['IndexReadNumber'] == 2]
-            .rename(columns={"Sequence": "Index_I5", "Name": "Name_I5"})
-            .drop(columns=['IndexReadNumber']).reset_index()
-        )
+        _indexes_i5 = self.indexes_all[self.indexes_all['IndexReadNumber'] == 2].copy()
+        _indexes_i5 = _indexes_i5.rename(columns={"Sequence": "Index_I5", "Name": "Name_I5"})
+        _indexes_i5 = _indexes_i5.drop(columns=['IndexReadNumber']).reset_index()
 
         if not _indexes_i7.empty:
             self.indexes_i7 = _indexes_i7
@@ -269,10 +268,24 @@ class IndexKitDefinition:
                 _f_indexes = pd.merge(_f_indexes, _indexes_i5, on='Name_I5', how='outer')
 
             self.fixed_indexes = _f_indexes
-            # self.fixed_indexes.drop(["index_x", "index_y"],axis=1, inplace=True)
+
+        if hasattr(self, "adapter"):
+            self.indexes_i5['AdapterRead1'] = self.adapter
+            self.indexes_i7['AdapterRead1'] = self.adapter
+            self.fixed_indexes['AdapterRead1'] = self.adapter
+            self.indexes_i5['AdapterRead2'] = self.adapter
+            self.indexes_i7['AdapterRead2'] = self.adapter
+            self.fixed_indexes['AdapterRead2'] = self.adapter
+
+        if hasattr(self, "adapter_read2"):
+            self.indexes_i5['AdapterRead2'] = self.adapter_read2
+            self.indexes_i7['AdapterRead2'] = self.adapter_read2
+            self.fixed_indexes['AdapterRead2'] = self.adapter_read2
+
+
 
     @staticmethod
-    def convert_to_boolean(value):
+    def _to_boolean(value):
         value_lower = value.lower()
         if value_lower == "true":
             return True
@@ -281,29 +294,13 @@ class IndexKitDefinition:
         else:
             return None
 
-
-class IndexKitDefinitionMGR:
-    def __init__(self, index_dir_root: Path) -> None:
-
-        self.index_files = [f for f in index_dir_root.glob("**/*.tsv")]
-
-        self.idk_dict = {}
-
-        for f in self.index_files:
-            ikd = IndexKitDefinition(f)
-            self.idk_dict[ikd.name] = ikd
-
-    def get_idk_dict(self):
-        return self.idk_dict
-
-
 class IndexWidget(QWidget):
-    def __init__(self, index_df: pd.DataFrame, idk_name: str = None) -> None:
+    def __init__(self, index_df: pd.DataFrame, ikd_name: str = None) -> None:
 
         super().__init__()
 
         self.index_df = index_df
-        self.index_df['IndexDefinitionKitName'] = idk_name
+        self.index_df['IndexDefinitionKitName'] = ikd_name
         self.shown_fields = self.get_shown_fields()
 
         # setup sortfilterproxies
@@ -353,8 +350,11 @@ class IndexWidget(QWidget):
             editline.textChanged.connect(self.filter)
 
     def get_shown_fields(self):
-        s_fields = [f for f in self.index_df.columns if "Index" not in f]
-        return s_fields
+
+        possible_fields = ["Name_I7", "Name_I5", "FixedPos"]
+        shown_fields = [f for f in self.index_df.columns if f in possible_fields]
+
+        return shown_fields
 
     def set_shown_columns(self):
         """
@@ -391,7 +391,7 @@ class IndexWidget(QWidget):
 
 
 class IndexKitDefinitionWidget(QWidget):
-    def __init__(self, idk: IndexKitDefinition) -> None:
+    def __init__(self, ikd: IndexKitDefinition) -> None:
         super().__init__()
 
         self.layout = QHBoxLayout()
@@ -399,24 +399,16 @@ class IndexKitDefinitionWidget(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
 
-        self.index_kit_definition = idk
+        self.index_kit_definition = ikd
 
         self.index_widget_list = []
 
-        # print("fixed", idk.fixed_indexes)
-        # print("i7", idk.indexes_i7)
-        # print("i5", idk.indexes_i5)
+        if ikd.has_fixed_indexes and ikd.index_strategy == "DualOnly":
+            self.index_widget_list.append(IndexWidget(ikd.fixed_indexes, ikd.name))
 
-        # print(idk.name)
-        # print(idk.has_fixed_indexes)
-
-
-        if idk.has_fixed_indexes and idk.index_strategy == "DualOnly":
-            self.index_widget_list.append(IndexWidget(idk.fixed_indexes, idk.name))
-
-        elif not idk.has_fixed_indexes and idk.index_strategy == "DualOnly":
-            self.index_widget_list.append(IndexWidget(idk.indexes_i7, idk.name))
-            self.index_widget_list.append(IndexWidget(idk.indexes_i5, idk.name))
+        elif not ikd.has_fixed_indexes and ikd.index_strategy == "DualOnly":
+            self.index_widget_list.append(IndexWidget(ikd.indexes_i7, ikd.name))
+            self.index_widget_list.append(IndexWidget(ikd.indexes_i5, ikd.name))
 
         for index_widget in self.index_widget_list:
             self.layout.addWidget(index_widget)
