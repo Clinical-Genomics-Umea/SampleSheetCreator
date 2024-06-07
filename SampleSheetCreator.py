@@ -14,12 +14,12 @@ from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRect
 
 
 from modules.visibility import ColumnsTreeWidget
-from modules.data_model.sample_model import SampleSheetModel
+from modules.models import SampleSheetModel
 from modules.indexes import Indexes
-from modules.make import Make
+from modules.make import SampleSheetEdit
 from modules.applications import ApplicationProfiles
 from modules.run import RunSetup, RunInfo
-from modules.samplesheet.samplesheetv2 import SampleSheetV2
+from modules.samplesheet import SampleSheetV2
 from modules.validation.validation import DataValidationWidget, PreValidationWidget
 
 from modules.sample_view import SampleWidget
@@ -150,8 +150,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.validate_setup()
 
-        self.make_widget = Make(self.run_info_widget, self.sample_tableview)
-        self.make_setup()
+        self.samplesheetedit = SampleSheetEdit()
+        self.samplesheetedit_setup()
 
         self.indexes_widget = Indexes(Path("config/indexes"))
         self.indexes_setup()
@@ -170,9 +170,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout.addWidget(self.prevalidate_widget)
         layout.addWidget(self.data_validate_widget)
 
-    def make_setup(self):
+    def samplesheetedit_setup(self):
         layout = self.main_make.layout()
-        layout.addWidget(self.make_widget)
+        layout.addWidget(self.samplesheetedit)
 
     def columns_listview_setup(self):
         layout = self.rightmenu_columnsettings.layout()
@@ -450,7 +450,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             elif button_text == "make":
                 self.main_stackedWidget.setCurrentWidget(self.main_make)
-                self.samplesheetv2 = SampleSheetV2(self.run_info_widget.get_data(), self.samples_model.to_dataframe())
+                samplesheetv2 = SampleSheetV2(self.run_info_widget.get_data(), self.samples_model.to_dataframe())
+                self.samplesheetedit.set_samplesheetdata(samplesheetv2.samplesheetlist())
 
             elif button_text == "edit":
                 pass
@@ -510,7 +511,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if button.isChecked():
             self.main_stackedWidget.setCurrentWidget(self.main_make)
-            self.samplesheetv2 = SampleSheetV2(self.run_info_widget.get_data(), self.samples_model.to_dataframe())
+            samplesheetv2 = SampleSheetV2(self.run_info_widget.get_data(), self.samples_model.to_dataframe())
+            self.samplesheetedit.set_samplesheetdata(samplesheetv2.samplesheetlist())
+
 
         else:
             self.main_stackedWidget.setCurrentWidget(self.main_data)

@@ -4,109 +4,119 @@ import pandera as pa
 import json
 
 
+def runinfo_to_headerdata(runinfo: dict) -> dict:
+    header_dict = runinfo['Header']
+
+    instrument_type_to_platform = {
+        'NextSeq1000': 'NextSeq1000',
+        'NextSeq2000': 'NextSeq2000',
+        'NovaSeqX': 'NovaSeqXSeries'
+    }
+
+    if "InstrumentType" in header_dict and "InstrumentPlatform" not in header_dict:
+        instrument_type = header_dict.get("InstrumentType")
+        platform = instrument_type_to_platform.get(instrument_type)
+        if platform:
+            header_dict["InstrumentPlatform"] = platform
+
+    return header_dict
+
+
+def runinfo_to_readsdata(runinfo: dict) -> dict:
+    cycles_dict = dict()
+
+    read1_len, index1_len, index2_len, read2_len = runinfo['Reads']['ReadProfile'].strip().split('-')
+
+    cycles_dict['Read1Cycles'] = int(read1_len)
+    cycles_dict['Read2Cycles'] = int(index2_len)
+    cycles_dict['Index1Cycles'] = int(index2_len)
+    cycles_dict['Index2Cycles'] = int(read2_len)
+
+    return cycles_dict
+
+
 class SampleSheetV2:
-    def __init__(self, run_info: dict, sample_df: pd.DataFrame):
+    def __init__(self, header: dict = None, run_cycles: dict = None, sample_df: pd.DataFrame = None):
 
-        if sample_df.empty:
-            return
+        self.standalone = dict()
+        self.application = dict()
 
-        r1, i1, i2, r2 = run_info['Reads']['ReadProfile'].strip().split('-')
-        self.run_cycles = dict()
-        self.run_cycles['read1'] = int(r1)
-        self.run_cycles['index'] = int(i1)
-        self.run_cycles['index2'] = int(i2)
-        self.run_cycles['read2'] = int(r2)
+        self.standalone['Header'] = Header(header)
+        self.standalone['Reads'] = Reads(run_cycles)
 
-        self.standalones = dict()
+        override_adder = self.make_override_cycles_adder(run_cycles)
+        sample_df_override = override_adder(sample_df)
 
-        self.standalones['Header'] = Header(run_info)
-        self.standalones['Reads'] = Reads(run_info)
-
-        self.applications = []
-
-        sample_df_override = self.add_override_cycles(sample_df)
-
-        self.applications.append(BCLConvert(sample_df_override))
+        self.application['BCLConvert'] = BCLConvert(sample_df_override)
 
         used_applications = sample_df_override['Application'].unique()
         for app in used_applications:
             df_subset = sample_df_override[sample_df_override['Application'] == app]
-            self.applications.append(Application(df_subset))
+            self.application.append(Application(df_subset))
 
-        for app in self.applications:
-            ss = app.samplesheet_list()
 
-            for line in ss:
-                print(line)
+    def samplesheetlist(self):
+        samplesheet_list = []
 
-    def add_override_cycles(self, df):
-        df['OverrideCycles'] = df.apply(lambda row: self.get_override_cycles(row['Index_I7'], row['Index_I5']), axis=1)
-        return df
+        for alone in self.standalone:
+            samplesheet_list.extend(alone.sheetlist())
 
-    def get_override_cycles(self, index, index2):
-        len_index = len(str(index))
-        len_index2 = len(str(index2))
+        for app in self.application:
+            samplesheet_list.extend(app.appsheetlist())
 
-        read1 = f"Y{self.run_cycles['read1']}"
-        read2 = f"Y{self.run_cycles['read2']}"
+        return samplesheet_list
+    @staticmethod
+    def make_override_cycles_adder(run_cycles):
 
-        i_index1, n_index1 = len_index, self.run_cycles['index'] - len_index
-        i_index2, n_index2 = len_index2, self.run_cycles['index2'] - len_index2
-        index1 = f"{i_index1}N{n_index1}" if n_index1 > 0 else f"I{i_index1}"
-        index2 = f"N{n_index2}I{i_index2}" if n_index2 > 0 else f"I{i_index2}"
+        def add_override_cycles(index, index2):
+            len_index = len(str(index))
+            len_index2 = len(str(index2))
 
-        return f"{read1};{index1};{index2};{read2}"
+            read1 = f"Y{run_cycles['Read1Cycles']}"
+            read2 = f"Y{run_cycles['Read2Cycles']}"
+
+            i_index1, n_index1 = len_index, run_cycles['Index1Cycles'] - len_index
+            i_index2, n_index2 = len_index2, run_cycles['Index2Cycles'] - len_index2
+            index1 = f"{i_index1}N{n_index1}" if n_index1 > 0 else f"I{i_index1}"
+            index2 = f"N{n_index2}I{i_index2}" if n_index2 > 0 else f"I{i_index2}"
+
+            return f"{read1};{index1};{index2};{read2}"
+
+        return add_override_cycles
 
 
 class Header:
-    def __init__(self, run_info):
+    def __init__(self, headerdict):
         self.header = "[Header]"
-        self.data = {}
+        self.data = headerdict
 
-        self.set_data(run_info)
+    def sheetlist(self):
+        output = list()
 
-    def set_data(self, run_info):
-        self.data = {
-            'FileFormatVersion': run_info['Header']['FileFormatVersion'],
-            'RunName': run_info['Header']['RunName'],
-            'RunDescription': run_info['Header']['RunName'],
-            'InstrumentPlatform': self.get_platform(run_info['Header']['Instrument']),
-            'InstrumentType': run_info['Header']['Instrument']
-        }
+        output.append(self.header)
+        for key, value in self.data.items():
+            output.append(f"{key},{value}")
 
-    @staticmethod
-    def get_platform(instrument):
-        instrument_to_platform = {
-            'NextSeq1000': 'NextSeq1000',
-            'NextSeq2000': 'NextSeq2000',
-            'NovaSeqX': 'NovaSeqXSeries'
-        }
+        output.append("")
 
-        return instrument_to_platform[instrument]
+        return output
 
 
 class Reads:
-    def __init__(self, run_info: dict):
+    def __init__(self, cyclesdict: dict):
         self.header = "[Reads]"
-        self.data = {}
+        self.data = cyclesdict
 
-    def set_data(self, run_info: dict):
-        r1, i1, i2, r2 = run_info['Reads']['ReadProfile'].strip().split('-')
+    def sheetlist(self):
+        output = list()
 
-        self.data = {
-            'Read1Cycles': r1,
-            'Read2Cycles': r2,
-            'Index1Cycles': i1,
-            'Index2Cycles': i2,
-        }
+        output.append(self.header)
+        for key, value in self.data.items():
+            output.append(f"{key},{value}")
 
-@dataclass
-class Sequencing:
-    CustomIndex1Primer: str
-    CustomIndex2Primer: str
-    CustomRead1Primer: str
-    CustomRead2Primer: str
-    LibraryPrepKits: str
+        output.append("")
+
+        return output
 
 
 class BCLConvert:
@@ -121,8 +131,8 @@ class BCLConvert:
 
         data_fields = ["Sample_ID",
                        "Lane",
-                       "index",
-                       "index2",
+                       "Index",
+                       "Index2",
                        "AdapterRead1",
                        "AdapterRead2",
                        "BarcodeMismatchesIndex1",
@@ -130,10 +140,10 @@ class BCLConvert:
                        "OverrideCycles"
                        ]
 
-        df.rename(columns={'Index_I7': 'index', 'Index_I5': 'index2'}, inplace=True)
+        df.rename(columns={'Index_I7': 'Index', 'Index_I5': 'Index2'}, inplace=True)
         self.data = df[data_fields]
 
-    def samplesheet_list(self):
+    def appsheetlist(self):
 
         output = list()
 
@@ -163,20 +173,28 @@ class BCLConvert:
 
             self.data = df[data_fields]
 
-        def samplesheet_list(self):
+        def appsheetlist(self):
 
             output = list()
 
             output.append(self.app_settings_header)
             for key, value in self.app_settings.items():
-                output.append(f"{key}={value}")
+
+                if isinstance(value, str):
+                    value = value.lower()
+
+                if isinstance(value, bool):
+                    value = str(value).lower()
+
+                output.append(f"{key},{value}")
+
+                output.append(f"{key},{value}")
 
             output.append("")
             output.append(self.app_data_header)
             output.extend(self.data.to_csv(sep=',', index=False).split("\n"))
 
             return output
-
 
     def validate(self):
 
@@ -204,12 +222,12 @@ class BCLConvert:
 class Application:
     def __init__(self, df):
 
+        print(df)
+
         app = df.loc[0, 'Application']
         self.app_settings = json.loads(df.loc[0, 'ApplicationSettings'])
         app_data = json.loads(df.loc[0, 'ApplicationData'])
         data_fields = json.loads(df.loc[0, 'ApplicationDataFields'])
-
-        print(app_data)
 
         self.app_settings_header = f"[{app}_Settings]"
         self.app_data_header = f"[{app}_Data]"
@@ -219,7 +237,7 @@ class Application:
 
         print(df[data_fields].to_string())
 
-        self.data = self.reorder_columns(df[data_fields],"Sample_ID")
+        self.data = self.reorder_columns(df[data_fields], "Sample_ID")
 
     @staticmethod
     def reorder_columns(df, first_column):
@@ -253,14 +271,20 @@ class Application:
 
         return df
 
-
-    def samplesheet_list(self):
+    def appsheetlist(self):
 
         output = list()
 
         output.append(self.app_settings_header)
         for key, value in self.app_settings.items():
-            output.append(f"{key}={value}")
+
+            if isinstance(value, str):
+                value = value.lower()
+
+            if isinstance(value, bool):
+                value = str(value).lower()
+
+            output.append(f"{key},{value}")
 
         output.append("")
         output.append(self.app_data_header)
@@ -314,12 +338,8 @@ class DragenEnrichment:
                             "Sample_ID"]
 
 
-
-
-
 class DragenRNA:
     def __init__(self, dragen_germline_settings, dragen_germline_data):
-
         self.settings_header = "[DragenRNA_Settings]"
         self.data_header = "[DragenRNA_Data]"
 
@@ -345,7 +365,6 @@ class DragenRNA:
 
 class DragenSomatic:
     def __init__(self, dragen_germline_settings, dragen_germline_data):
-
         self.settings_header = "[DragenSomatic_Settings]"
         self.data_header = "[DragenSomatic_Data]"
 
@@ -369,7 +388,6 @@ class DragenSomatic:
 
 class DragenMethylation:
     def __init__(self, dragen_germline_settings, dragen_germline_data):
-
         self.settings_header = "[DragenMethylation_Settings]"
         self.data_header = "[DragenMethylation_Data]"
 
@@ -384,4 +402,3 @@ class DragenMethylation:
         self.data = pd.DataFrame(columns=["ReferenceGenomeDir",
                                           "MethylationProtocol",
                                           "Sample_ID"])
-

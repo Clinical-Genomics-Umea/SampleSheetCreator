@@ -5,8 +5,8 @@ Application: DragenGermline
 
 ApplicationSettings:
   SoftwareVersion: 4.1.23
-  KeepFastQ: True
   MapAlignOutFormat: bam
+  KeepFastq: true
 
 ApplicationData:
   ReferenceGenomeDir: hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2

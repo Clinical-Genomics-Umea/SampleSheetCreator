@@ -12,12 +12,11 @@ from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, Q
                                QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit,
                                QPushButton, QMenu, QTableWidget, QTableWidgetItem)
 
-from modules.data_model.sample_model import SampleSheetModel
+from modules.models import SampleSheetModel
 from modules.run import RunInfo
 from modules.validation.heatmap import create_heatmap_table
-from modules.validation.validation_fns import substitutions_heatmap_df, split_df_by_lane, \
-    model_to_dataframe, concat_lenadjust_indexes, lenadjust_i7_indexes, \
-    lenadjust_i5_indexes
+from modules.validation.validation_fns import (substitutions_heatmap_df,
+                                               concat_lenadjust_indexes, lenadjust_i7_indexes, lenadjust_i5_indexes)
 import pandera as pa
 from modules.validation.validation_schema import prevalidation_schema
 import yaml

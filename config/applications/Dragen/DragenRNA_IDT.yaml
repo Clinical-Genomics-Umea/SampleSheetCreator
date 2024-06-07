@@ -5,8 +5,8 @@ Application: DragenRna
 
 ApplicationSettings:
   SoftwareVersion: 4.1.23
-  KeepFastQ: True
   MapAlignOutFormat: bam
+  KeepFastq: true
 
 ApplicationData:
   DifferentialExpressionEnable: False

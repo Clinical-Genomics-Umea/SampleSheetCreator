@@ -5,11 +5,11 @@ Application: DragenEnrichment
 
 ApplicationSettings:
   SoftwareVersion: 4.1.23
-  KeepFastQ: True
   MapAlignOutFormat: bam
+  KeepFastq: true
 
 ApplicationData:
-  BedFile: test
+  BedFile: na
   ReferenceGenomeDir: hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2
   VariantCallingMode: AllVariantCallers
   GermlineOrSomatic: germline
