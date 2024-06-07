@@ -451,7 +451,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif button_text == "make":
                 self.main_stackedWidget.setCurrentWidget(self.main_make)
                 samplesheetv2 = SampleSheetV2(self.run_info_widget.get_data(), self.samples_model.to_dataframe())
-                self.samplesheetedit.set_samplesheetdata(samplesheetv2.samplesheetlist())
+                self.samplesheetedit.set_samplesheetdata(samplesheetv2.get_data())
 
             elif button_text == "edit":
                 pass
@@ -512,7 +512,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if button.isChecked():
             self.main_stackedWidget.setCurrentWidget(self.main_make)
             samplesheetv2 = SampleSheetV2(self.run_info_widget.get_data(), self.samples_model.to_dataframe())
-            self.samplesheetedit.set_samplesheetdata(samplesheetv2.samplesheetlist())
+            self.samplesheetedit.set_samplesheetdata(samplesheetv2.get_data())
 
 
         else:

@@ -4,67 +4,76 @@ import pandera as pa
 import json
 
 
-def runinfo_to_headerdata(runinfo: dict) -> dict:
-    header_dict = runinfo['Header']
+def extract_header_data(run_info: dict) -> dict:
+    header_data = run_info['Header']
 
-    instrument_type_to_platform = {
+    instrument_type_to_platform_mapping = {
         'NextSeq1000': 'NextSeq1000',
         'NextSeq2000': 'NextSeq2000',
         'NovaSeqX': 'NovaSeqXSeries'
     }
 
-    if "InstrumentType" in header_dict and "InstrumentPlatform" not in header_dict:
-        instrument_type = header_dict.get("InstrumentType")
-        platform = instrument_type_to_platform.get(instrument_type)
+    if "InstrumentType" in header_data and "InstrumentPlatform" not in header_data:
+        instrument_type = header_data.get("InstrumentType")
+        platform = instrument_type_to_platform_mapping.get(instrument_type)
         if platform:
-            header_dict["InstrumentPlatform"] = platform
+            header_data["InstrumentPlatform"] = platform
 
-    return header_dict
+    return header_data
 
 
-def runinfo_to_readsdata(runinfo: dict) -> dict:
-    cycles_dict = dict()
+def extract_read_cycles_data(run_info: dict) -> dict:
+    cycles_data = dict()
 
-    read1_len, index1_len, index2_len, read2_len = runinfo['Reads']['ReadProfile'].strip().split('-')
+    read1_len, index1_len, index2_len, read2_len = run_info['Reads']['ReadProfile'].strip().split('-')
 
-    cycles_dict['Read1Cycles'] = int(read1_len)
-    cycles_dict['Read2Cycles'] = int(index2_len)
-    cycles_dict['Index1Cycles'] = int(index2_len)
-    cycles_dict['Index2Cycles'] = int(read2_len)
+    cycles_data['Read1Cycles'] = int(read1_len)
+    cycles_data['Read2Cycles'] = int(index2_len)
+    cycles_data['Index1Cycles'] = int(index2_len)
+    cycles_data['Index2Cycles'] = int(read2_len)
 
-    return cycles_dict
+    return cycles_data
 
 
 class SampleSheetV2:
-    def __init__(self, header: dict = None, run_cycles: dict = None, sample_df: pd.DataFrame = None):
+    def __init__(self, header: dict = None, run_cycles: dict = None,
+                 sequencing_data: dict = None, sample_df: pd.DataFrame = None):
 
         self.standalone = dict()
         self.application = dict()
 
         self.standalone['Header'] = Header(header)
         self.standalone['Reads'] = Reads(run_cycles)
+        if sequencing_data is not None:
+            self.standalone['Sequencing'] = Sequencing(sequencing_data)
+
+        if sample_df is None:
+            sample_df = pd.DataFrame()
 
         override_adder = self.make_override_cycles_adder(run_cycles)
-        sample_df_override = override_adder(sample_df)
+        sample_df['OverrideCycles'] = sample_df.apply(lambda row: override_adder(row['Index_I7'],
+                                                                                 row['Index_I5']),
+                                                      axis=1)
 
-        self.application['BCLConvert'] = BCLConvert(sample_df_override)
+        self.application['BCLConvert'] = BCLConvert(sample_df)
 
-        used_applications = sample_df_override['Application'].unique()
+        used_applications = sample_df['Application'].unique()
         for app in used_applications:
-            df_subset = sample_df_override[sample_df_override['Application'] == app]
-            self.application.append(Application(df_subset))
+            df_subset = sample_df[sample_df['Application'] == app]
+            self.application[app] = Application(df_subset)
 
+    def datalist(self):
 
-    def samplesheetlist(self):
-        samplesheet_list = []
+        datalist = []
 
-        for alone in self.standalone:
-            samplesheet_list.extend(alone.sheetlist())
+        for app in self.standalone:
+            datalist.extend(self.standalone[app].datalist())
 
         for app in self.application:
-            samplesheet_list.extend(app.appsheetlist())
+            datalist.extend(self.application[app].sheetlist())
 
-        return samplesheet_list
+        return datalist
+
     @staticmethod
     def make_override_cycles_adder(run_cycles):
 
@@ -85,12 +94,29 @@ class SampleSheetV2:
         return add_override_cycles
 
 
+class Sequencing:
+    def __init__(self, sequencing_data):
+        self.header = "[Sequencing]"
+        self.data = sequencing_data
+
+    def datalist(self):
+        output = list()
+
+        output.append(self.header)
+        for key, value in self.data.items():
+            output.append(f"{key},{value}")
+
+        output.append("")
+
+        return output
+
+
 class Header:
     def __init__(self, headerdict):
         self.header = "[Header]"
         self.data = headerdict
 
-    def sheetlist(self):
+    def datalist(self):
         output = list()
 
         output.append(self.header)
@@ -103,11 +129,11 @@ class Header:
 
 
 class Reads:
-    def __init__(self, cyclesdict: dict):
+    def __init__(self, cyclesdata: dict):
         self.header = "[Reads]"
-        self.data = cyclesdict
+        self.data = cyclesdata
 
-    def sheetlist(self):
+    def datalist(self):
         output = list()
 
         output.append(self.header)
@@ -143,7 +169,7 @@ class BCLConvert:
         df.rename(columns={'Index_I7': 'Index', 'Index_I5': 'Index2'}, inplace=True)
         self.data = df[data_fields]
 
-    def appsheetlist(self):
+    def datalist(self):
 
         output = list()
 
@@ -156,45 +182,6 @@ class BCLConvert:
         output.extend(self.data.to_csv(sep=',', index=False).split("\n"))
 
         return output
-
-    class Application:
-        def __init__(self, df):
-
-            app = df.loc[0, 'Application']
-            self.app_settings = json.loads(df.loc[0, 'ApplicationSettings'])
-            app_data = json.loads(df.loc[0, 'ApplicationData'])
-            data_fields = json.loads(df.loc[0, 'ApplicationDataFields'])
-
-            self.app_settings_header = f"[{app}_Settings]"
-            self.app_data_header = f"[{app}_Data]"
-
-            for key, value in app_data:
-                df[key] = value
-
-            self.data = df[data_fields]
-
-        def appsheetlist(self):
-
-            output = list()
-
-            output.append(self.app_settings_header)
-            for key, value in self.app_settings.items():
-
-                if isinstance(value, str):
-                    value = value.lower()
-
-                if isinstance(value, bool):
-                    value = str(value).lower()
-
-                output.append(f"{key},{value}")
-
-                output.append(f"{key},{value}")
-
-            output.append("")
-            output.append(self.app_data_header)
-            output.extend(self.data.to_csv(sep=',', index=False).split("\n"))
-
-            return output
 
     def validate(self):
 
@@ -271,7 +258,7 @@ class Application:
 
         return df
 
-    def appsheetlist(self):
+    def datalist(self):
 
         output = list()
 
@@ -291,114 +278,3 @@ class Application:
         output.extend(self.data.to_csv(sep=',', index=False).split("\n"))
 
         return output
-
-
-class DragenGermline:
-    def __init__(self, df):
-        self.settings_header = "[DragenGermline_Settings]"
-        self.data_header = "[DragenGermline_Data]"
-
-        app_profile_list = df['AppProfile'].unique()
-        app_profile = json.loads(app_profile_list[0])
-
-        self.settings = app_profile['Settings']
-        self.data = pd.DataFrame()
-
-        for key, value in app_profile['Data'].items():
-            df[key] = value
-
-        self.fields = ["ReferenceGenomeDir",
-                       "VariantCallingMode",
-                       "QcCoverage1BedFile",
-                       "QcCoverage2BedFile",
-                       "QcCoverage3BedFile",
-                       "QcCrossContaminationVcfFile",
-                       "Sample_ID"]
-
-        self.data = df[self.fields]
-
-        print(self.data.to_string())
-
-
-class DragenEnrichment:
-    def __init__(self, df):
-        self.settings_header = "[DragenEnrichment_Settings]"
-        self.data_header = "[DragenEnrichment_Data]"
-
-        self.settings = {}
-        self.data = pd.DataFrame()
-
-        self.data_fields = ["ReferenceGenomeDir",
-                            "Bedfile",
-                            "GermlineOrSomatic",
-                            "AuxNoiseBaselineFile"
-                            "AuxCnvPanelOfNormalsFile"
-                            "QcCoverage1BedFile",
-                            "VariantCallingMode",
-                            "Sample_ID"]
-
-
-class DragenRNA:
-    def __init__(self, dragen_germline_settings, dragen_germline_data):
-        self.settings_header = "[DragenRNA_Settings]"
-        self.data_header = "[DragenRNA_Data]"
-
-        self.settings = {
-            'SoftwareVersion': "",
-            'AppVersion': "",
-            'KeepFastQ': True,
-            'MapAlignOutFormat': "bam",
-            'DifferentialExpressionEnable': ""
-        }
-
-        self.data = pd.DataFrame(columns=["ReferenceGenomeDir",
-                                          "RnaGeneAnnotationFile",
-                                          "RnaPipelineMode",
-                                          "DownSampleNumReads",
-                                          "Sample_ID",
-                                          "Comparison1"
-                                          "Comparison2"
-                                          "Comparison3",
-                                          "Comparison4",
-                                          "Comparison5"])
-
-
-class DragenSomatic:
-    def __init__(self, dragen_germline_settings, dragen_germline_data):
-        self.settings_header = "[DragenSomatic_Settings]"
-        self.data_header = "[DragenSomatic_Data]"
-
-        self.settings = {
-            'SoftwareVersion': "",
-            'AppVersion': "",
-            'KeepFastQ': True,
-            'MapAlignOutFormat': "bam",
-        }
-
-        self.data = pd.DataFrame(columns=["ReferenceGenomeDir",
-                                          "Bedfile",
-                                          "AuxNoiseBaselineFile",
-                                          "AuxSvNoiseBaselineFile",
-                                          "AuxCnvPopBAlleleVcfFile",
-                                          "AuxGermlineTaggingFile",
-                                          "QcCoverage1BedFile",
-                                          "VariantCallingMode",
-                                          "Sample_ID"])
-
-
-class DragenMethylation:
-    def __init__(self, dragen_germline_settings, dragen_germline_data):
-        self.settings_header = "[DragenMethylation_Settings]"
-        self.data_header = "[DragenMethylation_Data]"
-
-        self.settings = {
-            'SoftwareVersion': "",
-            'AppVersion': "",
-            'KeepFastQ': True,
-            'MapAlignOutFormat': "bam",
-            'UsesTaps': ""
-        }
-
-        self.data = pd.DataFrame(columns=["ReferenceGenomeDir",
-                                          "MethylationProtocol",
-                                          "Sample_ID"])
