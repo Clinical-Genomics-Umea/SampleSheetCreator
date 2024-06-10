@@ -7,57 +7,37 @@ import yaml
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItemModel
 
-from modules.run import RunInfo
+from modules.logic.utils import decode_bytes_json
+from modules.widgets.run import RunInfo
 
 
-def read_yaml_file(filename):
-    """
-    Read a YAML file and return its data.
-
-    Parameters:
-        filename (str): The name of the YAML file to read.
-
-    Returns:
-        dict: The data loaded from the YAML file, or None if the file is not found or an error occurred.
-    """
-    # Get the path to the directory of the current module
-    module_dir = Path(__file__).resolve().parent
-
-    # Combine the directory path with the provided filename to get the full path
-    file_path = module_dir / filename
-
-    try:
-        with open(file_path, 'r') as file:
-            # Load YAML data from the file
-            data = yaml.safe_load(file)
-        return data
-    except FileNotFoundError:
-        print(f"File '{filename}' not found in the module directory.")
-        return None
-    except Exception as e:
-        print(f"An error occurred while reading '{filename}': {e}")
-        return None
-
-
-def decode_bytes_json(data):
-    """
-    Decode bytes to JSON.
-
-    Args:
-        data (bytes): The bytes data to decode.
-
-    Returns:
-        dict: The decoded JSON data.
-
-    Raises:
-        ValueError: If there is an error decoding the JSON data.
-
-    """
-    try:
-        decoded_data = bytes(data).decode()
-        return json.loads(decoded_data)
-    except json.JSONDecodeError as e:
-        raise ValueError("Error decoding JSON data") from e
+# def read_yaml_file(filename):
+#     """
+#     Read a YAML file and return its data.
+#
+#     Parameters:
+#         filename (str): The name of the YAML file to read.
+#
+#     Returns:
+#         dict: The data loaded from the YAML file, or None if the file is not found or an error occurred.
+#     """
+#     # Get the path to the directory of the current module
+#     module_dir = Path(__file__).resolve().parent
+#
+#     # Combine the directory path with the provided filename to get the full path
+#     file_path = module_dir / filename
+#
+#     try:
+#         with open(file_path, 'r') as file:
+#             # Load YAML data from the file
+#             data = yaml.safe_load(file)
+#         return data
+#     except FileNotFoundError:
+#         print(f"File '{filename}' not found in the module directory.")
+#         return None
+#     except Exception as e:
+#         print(f"An error occurred while reading '{filename}': {e}")
+#         return None
 
 
 def get_column_headers(fields):
@@ -205,6 +185,8 @@ class SampleSheetModel(QStandardItemModel):
         df.replace("", pd.NA, inplace=True)
         df.dropna(how='all', inplace=True)
         df = self.explode_lane_df(df)
+
+        print("to dataframe", df.to_string())
 
         return df
 

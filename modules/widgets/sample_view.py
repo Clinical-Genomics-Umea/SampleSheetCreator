@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QTableView, QAbstractItemView, QApplication, QMenu
 
 import json
 
-from modules.run import RunInfo
+from modules.widgets.run import RunInfo
 
 
 def list2d_to_tabbed_str(data):

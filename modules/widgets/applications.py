@@ -3,24 +3,11 @@ import yaml
 import qtawesome as qta
 
 from PySide6.QtWidgets import (QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QSizePolicy,
-                               QSpacerItem, QLabel, QFormLayout, QFrame, QDialog, QTextEdit)
+                               QSpacerItem, QLabel, QFrame, QDialog, QTextEdit)
 
 from PySide6.QtCore import Signal, Qt
-from modules.sample_view import SampleTableView
-
-
-def read_yaml_file(file):
-    # Get the path to the directory of the current module
-
-    try:
-        with open(file, 'r') as file:
-            # Load YAML data from the file
-            data = yaml.safe_load(file)
-        return data
-    except FileNotFoundError:
-        return None
-    except Exception as e:
-        return None
+from modules.widgets.sample_view import SampleTableView
+from modules.logic.utils import read_yaml_file
 
 
 class ClickableLabel(QLabel):
@@ -123,33 +110,6 @@ class ApplicationProfileWidget(QWidget):
     def profile_name(self):
         return self.profile_name['ProfileName']
 
-#
-# class ApplicationProfileWidget(QWidget):
-#     profile_data_signal = Signal(dict)
-#
-#     def __init__(self, profile_data: dict):
-#         super().__init__()
-#
-#         self.profile_data = profile_data
-#
-#         profile_button = QPushButton("apply")
-#         profile_button.setMaximumWidth(50)
-#
-#         layout = QHBoxLayout(self)
-#         layout.addWidget(profile_button)
-#
-#         layout.setContentsMargins(0, 0, 0, 0)
-#
-#         profile_button.clicked.connect(self.send_profile_data)
-#
-#         self.setLayout(layout)
-#
-#     def send_profile_data(self):
-#         self.profile_data_signal.emit(self.profile_data)
-
-
-    def profile_name(self):
-        return self.profile_name['ProfileName']
 
 
 class ApplicationProfileMGR:

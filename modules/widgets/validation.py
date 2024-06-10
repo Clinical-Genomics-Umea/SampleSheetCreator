@@ -10,17 +10,14 @@ from PySide6.QtGui import QStandardItemModel, QColor, QPen, QStandardItem, QPain
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QLabel, QHeaderView,
                                QAbstractScrollArea, QScrollArea,
                                QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit,
-                               QPushButton, QMenu, QTableWidget, QTableWidgetItem)
+                               QPushButton, QMenu, QTableWidget, QTableWidgetItem, QItemDelegate)
 
-from modules.models import SampleSheetModel
-from modules.run import RunInfo
-from modules.validation.heatmap import create_heatmap_table
-from modules.validation.validation_fns import (substitutions_heatmap_df,
-                                               concat_lenadjust_indexes, lenadjust_i7_indexes, lenadjust_i5_indexes)
+from modules.widgets.models import SampleSheetModel
+from modules.widgets.run import RunInfo
+from modules.logic.validation_fns import (substitutions_heatmap_df, padded_index_df)
 import pandera as pa
-from modules.validation.validation_schema import prevalidation_schema
+from modules.logic.validation_schema import prevalidation_schema
 import yaml
-
 
 
 def extract_numbers_from_string(input_string):
@@ -219,23 +216,22 @@ class DataValidationWidget(QWidget):
         tab_content_layout = QVBoxLayout()
         tab_content.setLayout(tab_content_layout)
 
-        if not self.index_i5_rc:
-            indexes_i7_i5_df = concat_lenadjust_indexes(df, 10, 10, "Index_I7", "Index_I5", "Sample_ID")
-        else:
-            indexes_i7_i5_df = concat_lenadjust_indexes(df, 10, 10, "Index_I7", "Index_I5_RC", "Sample_ID")
+        indexes_i7_padded = padded_index_df(df, 10, "Index_I7", "Sample_ID")
 
-        i7_i5_substitution_df = substitutions_heatmap_df(indexes_i7_i5_df)
+        if not self.index_i5_rc:
+            indexes_i5_padded = padded_index_df(df, 10, "Index_I5", "Sample_ID")
+        else:
+            indexes_i5_padded = padded_index_df(df, 10, "Index_I5_RC", "Sample_ID")
+
+        indexes_i7_i5_padded = pd.merge(indexes_i7_padded, indexes_i5_padded, on="Sample_ID")
+
+        i7_i5_substitution_df = substitutions_heatmap_df(indexes_i7_i5_padded)
         i7_i5_heatmap_table = create_heatmap_table(i7_i5_substitution_df)
 
-        indexes_i7_df = lenadjust_i7_indexes(df, 10, "Index_I7", "Sample_ID")
-        i7_substitution_df = substitutions_heatmap_df(indexes_i7_df)
+        i7_substitution_df = substitutions_heatmap_df(indexes_i7_padded)
         i7_heatmap_table = create_heatmap_table(i7_substitution_df)
 
-        if not self.index_i5_rc:
-            indexes_i5_df = lenadjust_i5_indexes(df, 10, "Index_I5", "Sample_ID")
-        else:
-            indexes_i5_df = lenadjust_i5_indexes(df, 10, "Index_I5_RC", "Sample_ID")
-        i5_substitution_df = substitutions_heatmap_df(indexes_i5_df)
+        i5_substitution_df = substitutions_heatmap_df(indexes_i5_padded)
         i5_heatmap_table = create_heatmap_table(i5_substitution_df)
 
         h_i7_i5_heatmap_layout = self.get_widget_hlayout(i7_i5_heatmap_table)
@@ -612,5 +608,80 @@ class NpEncoder(json.JSONEncoder):
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
+
+
+# Heatmap
+
+def set_heatmap_table_properties(table):
+
+    table.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    table.setContentsMargins(0, 0, 0, 0)
+    table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+    h_header_height = table.horizontalHeader().height()
+    row_height = table.rowHeight(0)
+    no_items = table.columnCount()
+    table.setMaximumHeight(h_header_height + row_height * no_items + 5)
+
+    table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+
+    table.setItemDelegate(NonEditableDelegate())
+
+    return table
+
+
+def create_heatmap_table(data: pd.DataFrame) -> QTableWidget:
+    heatmap_table_widget = QTableWidget(data.shape[0], data.shape[1])
+    heatmap_table_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+    heatmap_table_widget.setHorizontalHeaderLabels(data.columns)
+    heatmap_table_widget.setVerticalHeaderLabels(data.index)
+
+    for row in range(data.shape[0]):
+        for col in range(data.shape[1]):
+            cell_value = int(data.iat[row, col])
+
+            if row == col:
+                continue
+
+            if cell_value < 5:
+                red_intensity = int(192 + (255 - 192) * (cell_value / 4))
+                color = QColor(red_intensity, 0, 0)
+            else:
+                green_intensity = int(192 + (255 - 192) * (1 - ((cell_value - 4) / (data.max().max() - 4))))
+                color = QColor(0, green_intensity, 0)
+
+            widget = QWidget()
+            widget.setAutoFillBackground(True)
+            widget.setStyleSheet(f"background-color: {color.name()};")
+
+            layout = QVBoxLayout()
+            label = QLabel(str(cell_value))
+            label.setAlignment(Qt.AlignCenter)
+            layout.addWidget(label)
+            widget.setLayout(layout)
+
+            heatmap_table_widget.setCellWidget(row, col, widget)
+
+    heatmap_table_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    heatmap_table_widget.setContentsMargins(0, 0, 0, 0)
+    heatmap_table_widget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    heatmap_table_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+    h_header_height = heatmap_table_widget.horizontalHeader().height()
+    row_height = heatmap_table_widget.rowHeight(0)
+    no_items = heatmap_table_widget.columnCount()
+    heatmap_table_widget.setMaximumHeight(h_header_height + row_height * no_items + 5)
+
+    heatmap_table_widget.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+    heatmap_table_widget.setItemDelegate(NonEditableDelegate())
+
+    return heatmap_table_widget
+
+
+class NonEditableDelegate(QItemDelegate):
+    def createEditor(self, parent, option, index):
+        # Return None to make the item non-editable
+        return None
 
 

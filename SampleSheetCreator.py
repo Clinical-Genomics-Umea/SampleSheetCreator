@@ -13,16 +13,16 @@ from PySide6.QtGui import QAction, QActionGroup, QPainter, QIcon
 from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRect
 
 
-from modules.visibility import ColumnsTreeWidget
-from modules.models import SampleSheetModel
-from modules.indexes import Indexes
-from modules.make import SampleSheetEdit
-from modules.applications import ApplicationProfiles
-from modules.run import RunSetup, RunInfo
-from modules.samplesheet import SampleSheetV2
-from modules.validation.validation import DataValidationWidget, PreValidationWidget
+from modules.widgets.visibility import ColumnsTreeWidget
+from modules.widgets.models import SampleSheetModel
+from modules.widgets.indexes import Indexes
+from modules.widgets.make import SampleSheetEdit
+from modules.widgets.applications import ApplicationProfiles
+from modules.widgets.run import RunSetup, RunInfo
+from modules.widgets.samplesheet import SampleSheetV2
+from modules.widgets.validation import DataValidationWidget, PreValidationWidget
 
-from modules.sample_view import SampleWidget
+from modules.widgets.sample_view import SampleWidget
 from ui.mw import Ui_MainWindow
 import qtawesome as qta
 import qdarktheme
@@ -450,8 +450,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             elif button_text == "make":
                 self.main_stackedWidget.setCurrentWidget(self.main_make)
-                samplesheetv2 = SampleSheetV2(self.run_info_widget.get_data(), self.samples_model.to_dataframe())
-                self.samplesheetedit.set_samplesheetdata(samplesheetv2.get_data())
+                sample_df = self.samples_model.to_dataframe()
+                run_info = self.run_info_widget.get_data()
+
+                samplesheetv2 = SampleSheetV2(header=run_info['Header'],
+                                              run_cycles=run_info['Reads']['ReadProfile'],
+                                              # sequencing_data=run_info['Sequencing'],
+                                              sample_df=sample_df)
+
+                self.samplesheetedit.set_samplesheetdata(samplesheetv2.datalist())
 
             elif button_text == "edit":
                 pass

@@ -25,42 +25,6 @@ def is_valid_i5_index(input_series: pd.Series):
     """
     return pd.Series(input_series.isna() | input_series.str.contains(r'^[ATCG]*$'), dtype=bool)
 
-#
-# def is_valid_used_cycles(series):
-#     """
-#     Validate a pandas Series containing strings composed of 'A', 'T', 'C', 'G', or NaN (empty).
-#
-#     Args:
-#         series (pandas.Series): The input Series to validate.
-#
-#     Returns:
-#         pandas.Series: A Series of boolean values indicating if each item meets the conditions.
-#     """
-#     # Create a mask to check for valid conditions
-#     mask = (series.isna()) | (series.str.match(r'^[ATCG]*$'))
-#     result = mask.astype(bool)
-#
-#     return result
-
-#
-# def is_valid_used_cycles(series):
-#     """
-#     Validate a pandas Series where each item contains a string of 4 integers separated by semicolons.
-#
-#     Args:
-#         series (pandas.Series): The input Series to validate.
-#
-#     Returns:
-#         pandas.Series: A Series of boolean values indicating if each item meets the condition.
-#     """
-#     # Create a regex pattern to match the required format
-#     pattern = r'^\d{1,3};\d{1,2};\d{1,2};\d{1,3}$'
-#
-#     # Use the str.match method to apply the regex pattern and return a boolean Series
-#     result = series.str.match(pattern, na=False)
-#
-#     return result
-
 
 def is_valid_used_cycles(series: pd.Series) -> pd.Series:
     """

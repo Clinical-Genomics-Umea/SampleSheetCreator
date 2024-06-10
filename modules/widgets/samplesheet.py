@@ -4,35 +4,23 @@ import pandera as pa
 import json
 
 
-def extract_header_data(run_info: dict) -> dict:
-    header_data = run_info['Header']
-
-    instrument_type_to_platform_mapping = {
-        'NextSeq1000': 'NextSeq1000',
-        'NextSeq2000': 'NextSeq2000',
-        'NovaSeqX': 'NovaSeqXSeries'
-    }
-
-    if "InstrumentType" in header_data and "InstrumentPlatform" not in header_data:
-        instrument_type = header_data.get("InstrumentType")
-        platform = instrument_type_to_platform_mapping.get(instrument_type)
-        if platform:
-            header_data["InstrumentPlatform"] = platform
-
-    return header_data
-
-
-def extract_read_cycles_data(run_info: dict) -> dict:
-    cycles_data = dict()
-
-    read1_len, index1_len, index2_len, read2_len = run_info['Reads']['ReadProfile'].strip().split('-')
-
-    cycles_data['Read1Cycles'] = int(read1_len)
-    cycles_data['Read2Cycles'] = int(index2_len)
-    cycles_data['Index1Cycles'] = int(index2_len)
-    cycles_data['Index2Cycles'] = int(read2_len)
-
-    return cycles_data
+# def extract_header_data(run_info: dict) -> dict:
+#     header_data = run_info['Header']
+#
+#     instrument_type_to_platform_mapping = {
+#         'NextSeq1000': 'NextSeq1000',
+#         'NextSeq2000': 'NextSeq2000',
+#         'NovaSeqX': 'NovaSeqXSeries'
+#     }
+#
+#     if "InstrumentType" in header_data and "InstrumentPlatform" not in header_data:
+#         instrument_type = header_data.get("InstrumentType")
+#         platform = instrument_type_to_platform_mapping.get(instrument_type)
+#         if platform:
+#             header_data["InstrumentPlatform"] = platform
+#
+#     return header_data
+#
 
 
 class SampleSheetV2:
@@ -44,13 +32,22 @@ class SampleSheetV2:
 
         self.standalone['Header'] = Header(header)
         self.standalone['Reads'] = Reads(run_cycles)
+
+        reads_data = self.standalone['Reads'].data
+
         if sequencing_data is not None:
             self.standalone['Sequencing'] = Sequencing(sequencing_data)
 
         if sample_df is None:
             sample_df = pd.DataFrame()
 
-        override_adder = self.make_override_cycles_adder(run_cycles)
+        override_adder = self.make_override_cycles_adder(reads_data)
+
+        print("sample_df")
+        print(sample_df.to_string())
+        print("end")
+
+
         sample_df['OverrideCycles'] = sample_df.apply(lambda row: override_adder(row['Index_I7'],
                                                                                  row['Index_I5']),
                                                       axis=1)
@@ -70,7 +67,7 @@ class SampleSheetV2:
             datalist.extend(self.standalone[app].datalist())
 
         for app in self.application:
-            datalist.extend(self.application[app].sheetlist())
+            datalist.extend(self.application[app].datalist())
 
         return datalist
 
@@ -129,9 +126,9 @@ class Header:
 
 
 class Reads:
-    def __init__(self, cyclesdata: dict):
+    def __init__(self, run_cycles: dict):
         self.header = "[Reads]"
-        self.data = cyclesdata
+        self.data = self.extract_reads_data(run_cycles)
 
     def datalist(self):
         output = list()
@@ -143,6 +140,19 @@ class Reads:
         output.append("")
 
         return output
+
+    @staticmethod
+    def extract_reads_data(run_cycles: str) -> dict:
+        reads_data = dict()
+
+        read1_len, index1_len, index2_len, read2_len = run_cycles.strip().split('-')
+
+        reads_data['Read1Cycles'] = int(read1_len)
+        reads_data['Read2Cycles'] = int(index2_len)
+        reads_data['Index1Cycles'] = int(index2_len)
+        reads_data['Index2Cycles'] = int(read2_len)
+
+        return reads_data
 
 
 class BCLConvert:

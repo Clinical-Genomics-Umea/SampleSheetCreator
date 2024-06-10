@@ -4,8 +4,8 @@ import pandas as pd
 from PySide6.QtWidgets import (QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QSizePolicy,
                                QSpacerItem, QLabel, QFormLayout, QFrame, QTextEdit, QFileDialog, QMessageBox)
 
-from modules.run import RunInfo
-from modules.sample_view import SampleTableView
+from modules.widgets.run import RunInfo
+from modules.widgets.sample_view import SampleTableView
 
 
 class SampleSheetEdit(QWidget):
@@ -29,7 +29,6 @@ class SampleSheetEdit(QWidget):
         self.textedit.setLineWrapMode(QTextEdit.NoWrap)
         self.main_layout.addWidget(self.textedit)
         self.save_button.clicked.connect(self.export_samplesheet)
-
 
     def set_samplesheetdata(self, samplesheet: list[str]):
         self.textedit.clear()
