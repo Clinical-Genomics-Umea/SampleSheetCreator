@@ -12,7 +12,8 @@ from PySide6.QtWidgets import QMainWindow, QApplication, QSizePolicy, QFileDialo
 from PySide6.QtGui import QAction, QActionGroup, QPainter, QIcon
 from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRect
 
-
+from modules.logic.utils import read_yaml_file
+from modules.widgets.settings import SettingsWidget
 from modules.widgets.visibility import ColumnsTreeWidget
 from modules.widgets.models import SampleSheetModel
 from modules.widgets.indexes import Indexes
@@ -36,33 +37,6 @@ def get_dialog_options():
     return QFileDialog.Options() | QFileDialog.DontUseNativeDialog
 
 
-def read_yaml_file(filename):
-    """
-    Read a YAML file and return its data.
-
-    Parameters:
-        filename (str): The name of the YAML file to read.
-
-    Returns:
-        dict: The data loaded from the YAML file, or None if the file is not found or an error occurred.
-    """
-    # Get the path to the directory of the current module
-    module_dir = os.path.dirname(__file__)
-
-    # Combine the directory path with the provided filename to get the full path
-    file_path = os.path.join(module_dir, filename)
-
-    try:
-        with open(file_path, 'r') as file:
-            # Load YAML data from the file
-            data = yaml.safe_load(file)
-        return data
-    except FileNotFoundError:
-        return None
-    except Exception as e:
-        return None
-
-
 def clear_layout(layout):
     # Iterate through layout items in reverse order
     while layout.count():
@@ -78,7 +52,6 @@ def clear_layout(layout):
             widget = item.widget()
             widget.setParent(None)  # Remove from parent
             widget.deleteLater()  # Schedule for deletion
-
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -98,8 +71,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.indexes_action = QAction("indexes", self)
         self.validate_action = QAction("validate", self)
         self.make_action = QAction("make", self)
-        self.config_action = QAction("config", self)
-        self.edit_action = QAction("edit", self)
+        self.settings_action = QAction("settings", self)
+        # self.edit_action = QAction("edit", self)
 
         self.qagroup_leftmenu = QActionGroup(self)
         self.qagroup_mainview = QActionGroup(self)
@@ -165,6 +138,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.leftmenu_stackedWidget.setMaximumWidth(0)
         self.rightmenu_stackedWidget.setMaximumWidth(0)
 
+        self.settings = SettingsWidget()
+        self.settings_setup()
+
+    def settings_setup(self):
+        layout = self.main_settings.layout()
+        layout.addWidget(self.settings)
+
     def validate_setup(self):
         layout = self.main_validation.layout()
         layout.addWidget(self.prevalidate_widget)
@@ -180,21 +160,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.columns_treeview.field_visibility_state_changed.connect(self.sample_tableview.set_column_visibility_state)
         self.sample_tableview.field_visibility_state_changed.connect(self.columns_treeview.set_column_visibility_state)
-
-    # def on_samples_tableview_selection_changed(self):
-    #     selection_model = self.sample_tableview.selectionModel()
-    #     selected_indexes = selection_model.selectedIndexes()
-    #     if len(selected_indexes) == 1 and selected_indexes:
-    #         model = self.sample_tableview.model()
-    #         data = model.data(selected_indexes[0], Qt.DisplayRole)
-    #         column = selected_indexes[0].column()
-    #         row = selected_indexes[0].row()
-    #         column_name = self.sample_tableview.horizontalHeader().model().headerData(column, Qt.Horizontal)
-    #         self.field_view.setText(f"{row}, {column_name}: {data}")
-
-    # @Slot(str)
-    # def set_field_view_text(self, text):
-    #     self.field_view.setText(text)
 
     def menu_animations_setup(self):
         self.left_tab_anim["open"] = self.make_animation(self.leftmenu_stackedWidget, 0, 300)
@@ -266,11 +231,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
-    # def add_button_pressed(self):
-    #     send_button = self.sender()
-    #     selected_indexes = self.sample_tableview.selectedIndexes()
-    #     self.samples_model.set_profile_on_selected(selected_indexes, send_button.profile_name)
-
     def left_tool_actions_setup(self):
         """
         Set up the tool actions for the application.
@@ -285,7 +245,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             "profiles": self.leftmenu_profiles,
             "indexes": self.leftmenu_indexes,
             "config": self.leftmenu_config,
-            # "edit": self.leftmenu_edit,
         }
 
         self.file_action.setIcon(qta.icon('msc.files', options=[{'draw': 'image'}]))
@@ -308,10 +267,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.indexes_action.setChecked(False)
         self.indexes_action.triggered.connect(self.click_action_leftmenu)
 
-        self.config_action.setIcon(qta.icon('msc.settings-gear', options=[{'draw': 'image'}]))
-        self.config_action.setCheckable(True)
-        self.config_action.setChecked(False)
-        self.config_action.triggered.connect(self.click_action_mainview)
+        self.settings_action.setIcon(qta.icon('msc.settings-gear', options=[{'draw': 'image'}]))
+        self.settings_action.setCheckable(True)
+        self.settings_action.setChecked(False)
+        self.settings_action.triggered.connect(self.click_action_mainview)
 
         self.validate_action.setIcon(qta.icon('msc.check-all', options=[{'draw': 'image'}]))
         self.validate_action.setCheckable(True)
@@ -323,10 +282,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.make_action.setChecked(False)
         self.make_action.triggered.connect(self.click_action_mainview)
 
-        self.edit_action.setIcon(qta.icon('msc.unlock', options=[{'draw': 'image'}]))
-        self.edit_action.setCheckable(True)
-        self.edit_action.setChecked(False)
-        self.edit_action.triggered.connect(self.click_action_mainview)
+        # self.edit_action.setIcon(qta.icon('msc.unlock', options=[{'draw': 'image'}]))
+        # self.edit_action.setCheckable(True)
+        # self.edit_action.setChecked(False)
+        # self.edit_action.triggered.connect(self.click_action_mainview)
 
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -346,15 +305,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.qagroup_mainview.setExclusionPolicy(QActionGroup.ExclusionPolicy.ExclusiveOptional)
         self.qagroup_mainview.addAction(self.validate_action)
         self.qagroup_mainview.addAction(self.make_action)
-        self.qagroup_mainview.addAction(self.edit_action)
-        self.qagroup_mainview.addAction(self.config_action)
+        # self.qagroup_mainview.addAction(self.edit_action)
+        self.qagroup_mainview.addAction(self.settings_action)
 
 
         self.left_toolBar.addAction(self.validate_action)
         self.left_toolBar.addAction(self.make_action)
         self.left_toolBar.addWidget(spacer)
-        self.left_toolBar.addAction(self.edit_action)
-        self.left_toolBar.addAction(self.config_action)
+        # self.left_toolBar.addAction(self.edit_action)
+        self.left_toolBar.addAction(self.settings_action)
 
     def right_tool_actions_setup(self):
         """
@@ -460,13 +419,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
                 self.samplesheetedit.set_samplesheetdata(samplesheetv2.datalist())
 
-            elif button_text == "edit":
-                pass
-                # self.main_stackedWidget.setCurrentWidget(self.main_edit)
-
-            elif button_text == "config":
-                pass
-                # self.main_stackedWidget.setCurrentWidget(self.main_config)
+            elif button_text == "settings":
+                self.main_stackedWidget.setCurrentWidget(self.main_settings)
 
         else:
             self.main_stackedWidget.setCurrentWidget(self.main_data)

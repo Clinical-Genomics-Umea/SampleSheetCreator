@@ -6,10 +6,11 @@ fields:
     - Sample_ID
   Indexes:
     - FixedPos
-    - Name_I7
-    - Index_I7
-    - Name_I5
-    - Index_I5
+    - IndexI7Name
+    - IndexI7
+    - IndexI5Name
+    - IndexI5
+    - OverrideCyclesPattern
     - IndexDefinitionKitName
   BCLConvert:
     - BarcodeMismatchesIndex1

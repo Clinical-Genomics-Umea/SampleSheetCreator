@@ -1,0 +1,158 @@
+
+
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "overridecycles_pattern": {
+      "type": "string"
+    },
+    "index_kit": {
+      "type": "object",
+      "properties": {
+        "Checksum": {
+          "type": "string"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "DisplayName": {
+          "type": "string"
+        },
+        "FileFormatVersion": {
+          "type": "string"
+        },
+        "Version": {
+          "type": "string"
+        },
+        "Description": {
+          "type": "string"
+        },
+        "IndexStrategy": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "Checksum",
+        "Name",
+        "DisplayName",
+        "FileFormatVersion",
+        "Version",
+        "Description",
+        "IndexStrategy"
+      ]
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "Adapter": {
+          "type": "string"
+        },
+        "AdapterRead2": {
+          "type": "string"
+        },
+        "FixedLayout": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "Adapter",
+        "AdapterRead2",
+        "FixedLayout"
+      ]
+    },
+    "indices_i7": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "IndexI7Name": {
+              "type": "string"
+            },
+            "IndexI7": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "IndexI7Name",
+            "IndexI7"
+          ]
+        }
+      ]
+    },
+    "indices_i5": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "IndexI5Name": {
+              "type": "string"
+            },
+            "IndexI5": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "IndexI5Name",
+            "IndexI5"
+          ]
+        }
+      ]
+    },
+    "supported_library_prep_kits": {
+      "type": "array",
+      "items": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "fixed_dual_indexes": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "FixedPos": {
+              "type": "string"
+            },
+            "IndexI7Name": {
+              "type": "string"
+            },
+            "IndexI5Name": {
+              "type": "string"
+            },
+            "IndexI7": {
+              "type": "string"
+            },
+            "IndexI5": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "FixedPos",
+            "IndexI7Name",
+            "IndexI5Name",
+            "IndexI7",
+            "IndexI5"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "overridecycles_pattern",
+    "index_kit",
+    "resources",
+    "indices_i7",
+    "indices_i5",
+    "supported_library_prep_kits",
+    "fixed_dual_indexes"
+  ]
+}
+

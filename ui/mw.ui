@@ -316,6 +316,9 @@
           </property>
          </layout>
         </widget>
+        <widget class="QWidget" name="main_settings">
+         <layout class="QVBoxLayout" name="verticalLayout_11"/>
+        </widget>
         <widget class="QWidget" name="main_make">
          <layout class="QVBoxLayout" name="verticalLayout_13"/>
         </widget>

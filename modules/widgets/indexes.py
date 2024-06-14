@@ -237,48 +237,55 @@ class IndexKitDefinitionWidget(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
 
-        self.index_kit_definition = ikd
+        self.ikd = ikd
+        self.idk_widget_list = []
 
-        self.index_widget_list = []
+        self.name = ikd.index_kit["Name"]
+        if ikd.indices_dual_fixed:
+            self.idk_widget_list.append(IndexWidget(ikd.indices_dual_fixed, self.name))
 
-        if ikd.has_fixed_indexes and ikd.index_strategy == "DualOnly":
-            self.index_widget_list.append(IndexWidget(ikd.fixed_indexes, ikd.name))
+        elif ikd.indices_i7 and ikd.indices_i5:
+            self.idk_widget_list.append(IndexWidget(ikd.indices_i7, self.name))
+            self.idk_widget_list.append(IndexWidget(ikd.indices_i5, self.name))
 
-        elif not ikd.has_fixed_indexes and ikd.index_strategy == "DualOnly":
-            self.index_widget_list.append(IndexWidget(ikd.indexes_i7, ikd.name))
-            self.index_widget_list.append(IndexWidget(ikd.indexes_i5, ikd.name))
+        elif ikd.indices_i7:
+            self.idk_widget_list.append(IndexWidget(ikd.indices_i7, self.name))
 
-        for index_widget in self.index_widget_list:
+        for index_widget in self.idk_widget_list:
             self.layout.addWidget(index_widget)
 
 
 class IndexPanelWidgetMGR:
-    def __init__(self, index_dir_root: Path) -> None:
+    def __init__(self, index_dir_root: Path, index_schema_path: Path) -> None:
 
-        self.idk_widgets = {}
-        idk_dict = self.get_idk_dict(index_dir_root)
+        self.ikd_widgets = {}
+        idk_dict = self._create_index_kit_def_dict(index_dir_root, index_schema_path)
 
         for name in idk_dict:
-            self.idk_widgets[name] = IndexKitDefinitionWidget(idk_dict[name])
+            self.ikd_widgets[name] = IndexKitDefinitionWidget(idk_dict[name])
 
     @staticmethod
-    def get_idk_dict(index_dir_root) -> dict:
-        index_files = [f for f in index_dir_root.glob("**/*.tsv")]
+    def _create_index_kit_def_dict(index_dir_root: Path, index_schema_path: Path) -> dict:
+        index_files = [f for f in index_dir_root.glob("**/*.json")]
 
-        idk_dict = {}
+        ikd_dict = {}
 
-        for f in index_files:
-            ikd = IndexKitDefinition(f)
-            idk_dict[ikd.name] = ikd
+        for file in index_files:
+            ikd = IndexKitDefinition(file, index_schema_path)
 
-        return idk_dict
+            name = ikd.index_kit["Name"]
+            ikd_dict[name] = ikd
 
+        return ikd_dict
 
-    def get_index_panel_widget(self, idk_name):
-        return self.idk_widgets[idk_name]
+    def index_kit_def_widgets(self) -> dict:
+        return self.ikd_widgets
 
-    def get_index_panel_widget_names(self):
-        return self.idk_widgets.keys()
+    def index_panel_widget_by_name(self, idk_name):
+        return self.ikd_widgets[idk_name]
+
+    def index_panel_widget_names(self):
+        return self.ikd_widgets.keys()
 
 
 class Indexes(QWidget):
@@ -305,11 +312,11 @@ class Indexes(QWidget):
         self.layout.addWidget(indexes_label)
         self.layout.addWidget(self.index_toolbox)
 
-        index_kit_names = self.index_panel_mgr.get_index_panel_widget_names()
+        index_kit_dict = self.index_panel_mgr.index_kit_def_widgets()
 
-        for name in index_kit_names:
-            self.index_widgets[name] = self.index_panel_mgr.get_index_panel_widget(name)
-            self.index_toolbox.addItem(self.index_widgets[name], name)
+        for index_kit_widget in index_kit_dict:
+            self.index_widgets[index_kit_widget.name] = index_kit_widget
+            self.index_toolbox.addItem(index_kit_widget, index_kit_widget.name)
 
 
 
