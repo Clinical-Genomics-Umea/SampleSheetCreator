@@ -106,7 +106,7 @@ class RunSetup(QWidget):
         }
 
 
-class RunInfo(QWidget):
+class RunInfoWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setContentsMargins(0, 0, 0, 0)
@@ -115,7 +115,6 @@ class RunInfo(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
         self.sections = {}
-        # self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
 
     def setup(self, data):
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -131,6 +130,7 @@ class RunInfo(QWidget):
 
     def set_data(self, data: dict):
         for section, subdata in data.items():
+            print(f"Setting data for {section}: {subdata}")
             self.sections[section].set_data(subdata)
 
     def add_widget(self, widget):

@@ -4,61 +4,63 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-    "overridecycles_pattern": {
-      "type": "string"
-    },
     "index_kit": {
       "type": "object",
       "properties": {
-        "Checksum": {
+        "checksum": {
           "type": "string"
         },
-        "Name": {
+        "name": {
           "type": "string"
         },
-        "DisplayName": {
+        "display_name": {
           "type": "string"
         },
-        "FileFormatVersion": {
+        "file_format_version": {
           "type": "string"
         },
-        "Version": {
+        "version": {
           "type": "string"
         },
-        "Description": {
+        "description": {
           "type": "string"
         },
-        "IndexStrategy": {
+        "index_strategy": {
+          "type": "string"
+        },
+        "overridecycles_pattern": {
           "type": "string"
         }
       },
       "required": [
-        "Checksum",
-        "Name",
-        "DisplayName",
-        "FileFormatVersion",
-        "Version",
-        "Description",
-        "IndexStrategy"
+        "checksum",
+        "name",
+        "display_name",
+        "file_format_version",
+        "version",
+        "description",
+        "index_strategy",
+        "override_cycles_pattern"
       ]
     },
     "resources": {
       "type": "object",
       "properties": {
-        "Adapter": {
+        "adapter": {
           "type": "string"
         },
-        "AdapterRead2": {
+        "adapter_read2": {
           "type": "string"
         },
-        "FixedLayout": {
+        "fixed_layout": {
+          "type": "string"
+        },
+        "u_m_i_compatible": {
           "type": "string"
         }
       },
       "required": [
-        "Adapter",
-        "AdapterRead2",
-        "FixedLayout"
+        "adapter"
       ]
     },
     "indices_i7": {
@@ -67,16 +69,16 @@
         {
           "type": "object",
           "properties": {
-            "IndexI7Name": {
+            "index_i7_name": {
               "type": "string"
             },
-            "IndexI7": {
+            "index_i7": {
               "type": "string"
             }
           },
           "required": [
-            "IndexI7Name",
-            "IndexI7"
+            "index_i7_name",
+            "index_i7"
           ]
         }
       ]
@@ -87,16 +89,16 @@
         {
           "type": "object",
           "properties": {
-            "IndexI5Name": {
+            "index_i5_name": {
               "type": "string"
             },
-            "IndexI5": {
+            "index_i5": {
               "type": "string"
             }
           },
           "required": [
-            "IndexI5Name",
-            "IndexI5"
+            "index_i5_name",
+            "index_i5"
           ]
         }
       ]
@@ -106,53 +108,48 @@
       "items": [
         {
           "type": "string"
-        },
-        {
-          "type": "string"
         }
       ]
     },
-    "fixed_dual_indexes": {
+    "indices_dual_fixed": {
       "type": "array",
       "items": [
         {
           "type": "object",
           "properties": {
-            "FixedPos": {
+            "fixed_pos": {
               "type": "string"
             },
-            "IndexI7Name": {
+            "index_i7_name": {
               "type": "string"
             },
-            "IndexI5Name": {
+            "index_i5_name": {
               "type": "string"
             },
-            "IndexI7": {
+            "index_i7": {
               "type": "string"
             },
-            "IndexI5": {
+            "index_i5": {
               "type": "string"
             }
           },
           "required": [
-            "FixedPos",
-            "IndexI7Name",
-            "IndexI5Name",
-            "IndexI7",
-            "IndexI5"
+            "fixed_pos",
+            "index_i7_name",
+            "index_i5_name",
+            "index_i7",
+            "index_i5"
           ]
         }
       ]
     }
   },
   "required": [
-    "overridecycles_pattern",
     "index_kit",
     "resources",
     "indices_i7",
     "indices_i5",
     "supported_library_prep_kits",
-    "fixed_dual_indexes"
+    "indices_dual_fixed"
   ]
 }
-

@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QTableView, QAbstractItemView, QApplication, QMenu
 
 import json
 
-from modules.widgets.run import RunInfo
+from modules.widgets.run import RunInfoWidget
 
 
 def list2d_to_tabbed_str(data):
@@ -135,7 +135,8 @@ class SampleWidget(QWidget):
             # self.sampleview.clearSelection()
             self.sampleview.setSelectionMode(QAbstractItemView.ContiguousSelection)
 
-    def selected_rows_columns_count(self, selected_indexes):
+    @staticmethod
+    def selected_rows_columns_count(selected_indexes):
 
         selected_rows = {index.row() for index in selected_indexes}
         selected_columns = {index.column() for index in selected_indexes}
@@ -217,7 +218,8 @@ class SampleTableView(QTableView):
         self.original_top_left_selection = None
         self.resizeColumnsToContents()
 
-    def get_header_key_dict(self, model: QAbstractItemModel) -> dict:
+    @staticmethod
+    def get_header_key_dict(model: QAbstractItemModel) -> dict:
         header_key_dict = {}
         for column in range(model.columnCount()):
             header_item = model.horizontalHeaderItem(column)
@@ -287,7 +289,6 @@ class SampleTableView(QTableView):
         if "Application" in common_keys:
             column = header_key_dict["Application"]
             proxy_model.setData(proxy_model.index(row, column), profiles_data["Application"])
-
 
     def table_popup(self):
         self.table_context_menu.exec(QCursor.pos())

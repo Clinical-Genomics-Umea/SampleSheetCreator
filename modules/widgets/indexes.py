@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget, QLineEdit, QTableView, QHead
     QHBoxLayout, QSizePolicy, QSpacerItem, QAbstractItemView, QToolBox, QLabel
 
 from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt
+from camel_converter import to_pascal
 
 from modules.logic.indexes import IndexKitDefinition
 
@@ -38,9 +39,9 @@ def create_chained_sfproxies(model_names: list) -> dict:
     return chained_models
 
 
-class TableModel(QAbstractTableModel):
+class IndexTableModel(QAbstractTableModel):
     def __init__(self, dataframe: pd.DataFrame):
-        super(TableModel, self).__init__()
+        super(IndexTableModel, self).__init__()
 
         self.dataframe = dataframe
 
@@ -132,19 +133,22 @@ class TableModel(QAbstractTableModel):
         return mime_data
 
 
-class IndexWidget(QWidget):
-    def __init__(self, index_df: pd.DataFrame, ikd_name: str = None) -> None:
+class IDKWidget(QWidget):
+    def __init__(self, index_df: pd.DataFrame) -> None:
 
         super().__init__()
 
-        self.index_df = index_df
-        self.index_df['IndexDefinitionKitName'] = ikd_name
+        pascal_case_col_map = {col: to_pascal(col) for col in index_df.columns}
+        self.index_df = index_df.rename(columns=pascal_case_col_map)
+
         self.shown_fields = self.get_shown_fields()
 
         # setup sortfilterproxies
-        self.sortfilterproxy = {field: QSortFilterProxyModel() for field in self.shown_fields}
+
+        self.sfproxy = {field: QSortFilterProxyModel() for field in self.shown_fields}
 
         # create filter lineedits
+
         self.filter_editlines_layout = QHBoxLayout()
         self.filter_editlines = {field: QLineEdit() for field in self.shown_fields}
 
@@ -163,7 +167,7 @@ class IndexWidget(QWidget):
 
         # create model and chained proxies
 
-        self.model = TableModel(self.index_df)
+        self.model = IndexTableModel(self.index_df)
         self.chained_proxies = create_chained_sfproxies(self.shown_fields)
 
         # setup tableview
@@ -189,7 +193,7 @@ class IndexWidget(QWidget):
 
     def get_shown_fields(self):
 
-        possible_fields = ["Name_I7", "Name_I5", "FixedPos"]
+        possible_fields = ["IndexI7Name", "IndexI5Name", "FixedPos"]
         shown_fields = [f for f in self.index_df.columns if f in possible_fields]
 
         return shown_fields
@@ -228,7 +232,7 @@ class IndexWidget(QWidget):
         self.chained_proxies[name].setFilterFixedString(filter_text)
 
 
-class IndexKitDefinitionWidget(QWidget):
+class IKDWidgetContainer(QWidget):
     def __init__(self, ikd: IndexKitDefinition) -> None:
         super().__init__()
 
@@ -240,68 +244,36 @@ class IndexKitDefinitionWidget(QWidget):
         self.ikd = ikd
         self.idk_widget_list = []
 
-        self.name = ikd.index_kit["Name"]
-        if ikd.indices_dual_fixed:
-            self.idk_widget_list.append(IndexWidget(ikd.indices_dual_fixed, self.name))
+        name = ikd.name()
+        if ikd.has_indices_dual_fixed():
+            print(name, ikd.indices_dual_fixed())
+            self.idk_widget_list.append(IDKWidget(ikd.indices_dual_fixed()))
 
-        elif ikd.indices_i7 and ikd.indices_i5:
-            self.idk_widget_list.append(IndexWidget(ikd.indices_i7, self.name))
-            self.idk_widget_list.append(IndexWidget(ikd.indices_i5, self.name))
+        elif ikd.has_indices_i7() and ikd.has_indices_i5():
+            self.idk_widget_list.append(IDKWidget(ikd.indices_i7()))
+            self.idk_widget_list.append(IDKWidget(ikd.indices_i5()))
 
-        elif ikd.indices_i7:
-            self.idk_widget_list.append(IndexWidget(ikd.indices_i7, self.name))
+        elif ikd.has_indices_i7():
+            self.idk_widget_list.append(IDKWidget(ikd.indices_i7()))
 
         for index_widget in self.idk_widget_list:
             self.layout.addWidget(index_widget)
 
 
-class IndexPanelWidgetMGR:
-    def __init__(self, index_dir_root: Path, index_schema_path: Path) -> None:
-
-        self.ikd_widgets = {}
-        idk_dict = self._create_index_kit_def_dict(index_dir_root, index_schema_path)
-
-        for name in idk_dict:
-            self.ikd_widgets[name] = IndexKitDefinitionWidget(idk_dict[name])
-
-    @staticmethod
-    def _create_index_kit_def_dict(index_dir_root: Path, index_schema_path: Path) -> dict:
-        index_files = [f for f in index_dir_root.glob("**/*.json")]
-
-        ikd_dict = {}
-
-        for file in index_files:
-            ikd = IndexKitDefinition(file, index_schema_path)
-
-            name = ikd.index_kit["Name"]
-            ikd_dict[name] = ikd
-
-        return ikd_dict
-
-    def index_kit_def_widgets(self) -> dict:
-        return self.ikd_widgets
-
-    def index_panel_widget_by_name(self, idk_name):
-        return self.ikd_widgets[idk_name]
-
-    def index_panel_widget_names(self):
-        return self.ikd_widgets.keys()
-
-
-class Indexes(QWidget):
+class IndexKitToolbox(QWidget):
     def __init__(self, indexes_base_path: Path):
         super().__init__()
+        index_schema_path = Path("config/indexes/indexes_json_schema.json")
+        idk_list = self._ikd_list(indexes_base_path, index_schema_path)
+        print(idk_list)
+        self.ikd_widgets = {idk.name(): IKDWidgetContainer(idk) for idk in idk_list}
 
         self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
+        self.toolbox = QToolBox()
 
-        self.index_toolbox = QToolBox()
-        self.index_panel_mgr = IndexPanelWidgetMGR(indexes_base_path)
-        self.index_widgets = {}
+        self._setup()
 
-        self.setup()
-
-    def setup(self):
+    def _setup(self):
 
         self.layout.setSpacing(5)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -310,14 +282,17 @@ class Indexes(QWidget):
         indexes_label.setStyleSheet("font-weight: bold")
 
         self.layout.addWidget(indexes_label)
-        self.layout.addWidget(self.index_toolbox)
+        self.layout.addWidget(self.toolbox)
 
-        index_kit_dict = self.index_panel_mgr.index_kit_def_widgets()
+        for name, ikdw in self.ikd_widgets.items():
+            self.toolbox.addItem(ikdw, name)
 
-        for index_kit_widget in index_kit_dict:
-            self.index_widgets[index_kit_widget.name] = index_kit_widget
-            self.index_toolbox.addItem(index_kit_widget, index_kit_widget.name)
+        self.setLayout(self.layout)
 
+    @staticmethod
+    def _ikd_list(index_dir_root: Path, index_schema_path: Path) -> list:
 
+        index_files = [f for f in index_dir_root.glob("*.json")]
+        print(index_files)
 
-
+        return [IndexKitDefinition(f, index_schema_path) for f in index_files]

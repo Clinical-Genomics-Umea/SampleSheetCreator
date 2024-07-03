@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (QPushButton, QVBoxLayout, QWidget, QHBoxLayout, Q
                                QSpacerItem, QLabel, QFrame, QDialog, QTextEdit)
 
 from PySide6.QtCore import Signal, Qt
-from modules.widgets.sample_view import SampleTableView
+from modules.widgets.sampleview import SampleTableView
 from modules.logic.utils import read_yaml_file
 
 

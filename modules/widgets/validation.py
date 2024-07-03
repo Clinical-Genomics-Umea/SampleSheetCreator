@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, Q
                                QPushButton, QMenu, QTableWidget, QTableWidgetItem, QItemDelegate)
 
 from modules.widgets.models import SampleSheetModel
-from modules.widgets.run import RunInfo
+from modules.widgets.run import RunInfoWidget
 from modules.logic.validation_fns import (substitutions_heatmap_df, padded_index_df)
 import pandera as pa
 from modules.logic.validation_schema import prevalidation_schema
@@ -93,7 +93,7 @@ def load_from_yaml(config_file):
 
 
 class PreValidationWidget(QWidget):
-    def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfo):
+    def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfoWidget):
         super().__init__()
         self.setMinimumHeight(10)
         self.layout = QVBoxLayout()
@@ -175,11 +175,12 @@ class PreValidationWidget(QWidget):
 
 
 class DataValidationWidget(QWidget):
-    def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfo):
+    def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfoWidget):
         super().__init__()
 
         self.model = model
         self.run_info_data = run_info.get_data()
+        print(self.run_info_data)
         instrument = self.run_info_data['Header']['Instrument']
         settings = load_from_yaml(validation_settings_path)
         self.index_i5_rc = settings['flowcells'][instrument]
@@ -216,12 +217,12 @@ class DataValidationWidget(QWidget):
         tab_content_layout = QVBoxLayout()
         tab_content.setLayout(tab_content_layout)
 
-        indexes_i7_padded = padded_index_df(df, 10, "Index_I7", "Sample_ID")
+        indexes_i7_padded = padded_index_df(df, 10, "IndexI7", "Sample_ID")
 
         if not self.index_i5_rc:
-            indexes_i5_padded = padded_index_df(df, 10, "Index_I5", "Sample_ID")
+            indexes_i5_padded = padded_index_df(df, 10, "IndexI5", "Sample_ID")
         else:
-            indexes_i5_padded = padded_index_df(df, 10, "Index_I5_RC", "Sample_ID")
+            indexes_i5_padded = padded_index_df(df, 10, "IndexI5RC", "Sample_ID")
 
         indexes_i7_i5_padded = pd.merge(indexes_i7_padded, indexes_i5_padded, on="Sample_ID")
 
@@ -493,9 +494,9 @@ class ColorBalanceWidget(QTableView):
         df = df.copy()
         df['Proportion'] = "1"
         if not is_i5_rc:
-            df_seq = self.split_string_column(df, 'Index_I7', 'Index_I5')
+            df_seq = self.split_string_column(df, 'IndexI7', 'IndexI5')
         else:
-            df_seq = self.split_string_column(df, 'Index_I7', 'Index_I5_RC')
+            df_seq = self.split_string_column(df, 'IndexI7', 'IndexI5RC')
 
         print(df.to_string())
 

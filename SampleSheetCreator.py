@@ -16,14 +16,14 @@ from modules.logic.utils import read_yaml_file
 from modules.widgets.settings import SettingsWidget
 from modules.widgets.visibility import ColumnsTreeWidget
 from modules.widgets.models import SampleSheetModel
-from modules.widgets.indexes import Indexes
+from modules.widgets.indexes import IndexKitToolbox
 from modules.widgets.make import SampleSheetEdit
 from modules.widgets.applications import ApplicationProfiles
-from modules.widgets.run import RunSetup, RunInfo
+from modules.widgets.run import RunSetup, RunInfoWidget
 from modules.widgets.samplesheet import SampleSheetV2
 from modules.widgets.validation import DataValidationWidget, PreValidationWidget
 
-from modules.widgets.sample_view import SampleWidget
+from modules.widgets.sampleview import SampleWidget
 from ui.mw import Ui_MainWindow
 import qtawesome as qta
 import qdarktheme
@@ -110,7 +110,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.file_tab_setup()
 
         self.run_setup_widget = RunSetup(Path("config/run/run_settings.yaml"))
-        self.run_info_widget = RunInfo()
+        self.run_info_widget = RunInfoWidget()
         self.run_setup()
 
         self.prevalidate_widget = PreValidationWidget(Path("config/validation/validation_settings.yaml"),
@@ -126,7 +126,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.samplesheetedit = SampleSheetEdit()
         self.samplesheetedit_setup()
 
-        self.indexes_widget = Indexes(Path("config/indexes"))
+        self.indexes_widget = IndexKitToolbox(Path("config/indexes/indexes_json"))
         self.indexes_setup()
 
         self.application_profiles_widget = ApplicationProfiles(Path("config/applications"),

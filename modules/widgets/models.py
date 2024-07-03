@@ -8,7 +8,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItemModel
 
 from modules.logic.utils import decode_bytes_json
-from modules.widgets.run import RunInfo
+from modules.widgets.run import RunInfoWidget
 
 
 # def read_yaml_file(filename):
@@ -117,6 +117,9 @@ class SampleSheetModel(QStandardItemModel):
         """
         json_data_qba = data.data("application/json")
         decoded_data = decode_bytes_json(json_data_qba)
+
+        print(decoded_data)
+
         start_row = parent.row()
 
         self.blockSignals(True)
@@ -180,7 +183,7 @@ class SampleSheetModel(QStandardItemModel):
         headers = [self.headerData(i, Qt.Horizontal) for i in range(columns)]
         df.columns = headers
 
-        df['Index_I5_RC'] = df['Index_I5'].apply(self.reverse_complement)
+        df['IndexI5RC'] = df['IndexI5'].apply(self.reverse_complement)
 
         df.replace("", pd.NA, inplace=True)
         df.dropna(how='all', inplace=True)

@@ -11,7 +11,7 @@ fields:
     - IndexI5Name
     - IndexI5
     - OverrideCyclesPattern
-    - IndexDefinitionKitName
+    - IndexKitDefinitionName
   BCLConvert:
     - BarcodeMismatchesIndex1
     - BarcodeMismatchesIndex2

@@ -42,7 +42,7 @@ def is_valid_used_cycles(series: pd.Series) -> pd.Series:
 
 def check_index_combination_uniqueness(df: pd.DataFrame) -> pd.Series:
     # Group by 'Index_I7' and 'Index_I5' and check the number of unique 'Sample_ID's
-    return df.groupby(['Index_I7', 'Index_I5'])['Sample_ID'].nunique() <= 1
+    return df.groupby(['IndexI7', 'IndexI5'])['Sample_ID'].nunique() <= 1
 
 
 def check_combination_uniqueness(df: pd.DataFrame) -> pd.Series:
@@ -72,8 +72,8 @@ prevalidation_schema = DataFrameSchema(
                                             error="Sample_ID is too short.")
                             ),
         "FixedPos": Column(str, coerce=True, nullable=True),
-        "Name_I7": Column(str, coerce=True, nullable=True),
-        "Index_I7": Column(str,
+        "IndexI7Name": Column(str, coerce=True, nullable=True),
+        "IndexI7": Column(str,
                            checks=[pa.Check(lambda s: s.str.len() >= 8,
                                             error="Index is too short."),
                                    pa.Check(lambda s: s.str.len() <= 10,
@@ -83,8 +83,8 @@ prevalidation_schema = DataFrameSchema(
                                    ],
                            nullable=False),
 
-        "Name_I5": Column(str, coerce=True, nullable=True),
-        "Index_I5": Column(str,
+        "IndexI5Name": Column(str, coerce=True, nullable=True),
+        "IndexI5": Column(str,
                            coerce=True,
                            nullable=True,
                            checks=[pa.Check(lambda s: s.str.len() >= 8,
@@ -95,7 +95,7 @@ prevalidation_schema = DataFrameSchema(
                                             error="Contains invalid characters. Seq can be empty or contain only A, T, C, G.")
                                    ],
                            ),
-        "Index_I5_RC": Column(str,
+        "IndexI5RC": Column(str,
                            coerce=True,
                            nullable=True,
                            checks=[pa.Check(lambda s: s.str.len() >= 8,
@@ -106,7 +106,6 @@ prevalidation_schema = DataFrameSchema(
                                             error="Contains invalid characters. Seq can be empty or contain only A, T, C, G.")
                                    ],
                            ),
-        "IndexDefinitionKitName": Column(str, coerce=True, nullable=True),
         "BarcodeMismatchesIndex1": Column(int,
                                           checks=Check.in_range(0, 4,
                                                                 include_min=True,
@@ -126,6 +125,8 @@ prevalidation_schema = DataFrameSchema(
                                ),
         "AdapterRead2": Column(str, coerce=True, nullable=True),
         "FastqCompressionFormat": Column(str, coerce=True, nullable=True),
+        "OverrideCyclesPattern": Column(str, coerce=True, nullable=True),
+        "IndexKitDefinitionName": Column(str, coerce=True, nullable=True),
         "Application": Column(str, coerce=True, nullable=True),
         "ApplicationProfile": Column(str, coerce=True, nullable=True),
         "ApplicationSettings": Column(str, coerce=True, nullable=True),

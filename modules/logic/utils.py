@@ -3,6 +3,7 @@ from PySide6.QtGui import QStandardItemModel, QStandardItem
 import pandas as pd
 import numpy as np
 import yaml
+import json
 
 
 def dataframe_to_qstandarditemmodel(dataframe):

@@ -2,26 +2,9 @@ from dataclasses import dataclass
 import pandas as pd
 import pandera as pa
 import json
-
-
-# def extract_header_data(run_info: dict) -> dict:
-#     header_data = run_info['Header']
-#
-#     instrument_type_to_platform_mapping = {
-#         'NextSeq1000': 'NextSeq1000',
-#         'NextSeq2000': 'NextSeq2000',
-#         'NovaSeqX': 'NovaSeqXSeries'
-#     }
-#
-#     if "InstrumentType" in header_data and "InstrumentPlatform" not in header_data:
-#         instrument_type = header_data.get("InstrumentType")
-#         platform = instrument_type_to_platform_mapping.get(instrument_type)
-#         if platform:
-#             header_data["InstrumentPlatform"] = platform
-#
-#     return header_data
-#
-
+import re
+from string import Template
+from functools import partial
 
 class SampleSheetV2:
     def __init__(self, header: dict = None, run_cycles: dict = None,
@@ -41,16 +24,13 @@ class SampleSheetV2:
         if sample_df is None:
             sample_df = pd.DataFrame()
 
-        override_adder = self.make_override_cycles_adder(reads_data)
-
-        print("sample_df")
-        print(sample_df.to_string())
-        print("end")
-
-
-        sample_df['OverrideCycles'] = sample_df.apply(lambda row: override_adder(row['Index_I7'],
-                                                                                 row['Index_I5']),
+        override_adder = partial(self.override_cycles, run_cycles=run_cycles)
+        sample_df['OverrideCycles'] = sample_df.apply(lambda row: override_adder(row['IndexI7'],
+                                                                                 row['IndexI5'],
+                                                                                 row['OverrideCyclesPattern']),
                                                       axis=1)
+
+        print(sample_df.to_string())
 
         self.application['BCLConvert'] = BCLConvert(sample_df)
 
@@ -71,24 +51,151 @@ class SampleSheetV2:
 
         return datalist
 
+    def _fill_i1_pat(self, i1_pat, i1_len, runcycles):
+        placeholder = "ix1"
+        pattern = r'([A-Z])(\d+)'
+        matches = re.findall(pattern, i1_pat)
+        known_sum = 0
+
+        for match in matches:
+            known_sum += int(match[1])
+
+        # placeholder_value = runcycles - known_sum
+        placeholder_value = i1_len
+        tot_index_cycles = i1_len + known_sum
+        empty_index_cycles = runcycles - tot_index_cycles
+
+        if empty_index_cycles > 0:
+            i1_pat = f"N{empty_index_cycles}{i1_pat}"
+
+        t = Template(i1_pat)
+        completed_str = t.substitute({placeholder: placeholder_value})
+        return completed_str
+
+    def override_cycles(self, index, index2, override_cycles_pattern, run_cycles):
+
+        r1, i1, i2, r2 = run_cycles.split('-')
+        r1_runc, i1_runc, i2_runc, r2_runc = int(r1), int(i1), int(i2), int(r2)
+
+        r1_runc, i1_runc, i2_runc, r2_runc = 171, 8, 8, 171
+
+        i1_len = len(index)
+        i2_len = len(index2)
+
+        r1_pat, i1_pat, i2_pat, r2_pat = override_cycles_pattern.split('-')
+
+        print(r1_runc, i1_runc, i2_runc, r2_runc)
+
+        r1_str = self._fill_oc_read('$r1', r1_pat, r1_runc)
+        i1_str = self._n_pad_right('$i1', i1_pat, i1_len, i1_runc)
+        i2_str = self._n_pad_left('$i2', i2_pat, i2_len, i2_runc)
+        r2_str = self._fill_oc_read('$r2', r2_pat, r2_runc)
+
+        return f"{r1_str};{i1_str};{i2_str};{r2_str}"
+
+
     @staticmethod
-    def make_override_cycles_adder(run_cycles):
+    def _validate(s):
+        pattern_r = r'([A-Z]\d+)+'
+        return bool(re.fullmatch(pattern_r, s))
 
-        def add_override_cycles(index, index2):
-            len_index = len(str(index))
-            len_index2 = len(str(index2))
+    @staticmethod
+    def _get_known_len(matches):
+        known_len = 0
+        for match in matches:
+            known_len += int(match[1])
 
-            read1 = f"Y{run_cycles['Read1Cycles']}"
-            read2 = f"Y{run_cycles['Read2Cycles']}"
+        return known_len
 
-            i_index1, n_index1 = len_index, run_cycles['Index1Cycles'] - len_index
-            i_index2, n_index2 = len_index2, run_cycles['Index2Cycles'] - len_index2
-            index1 = f"{i_index1}N{n_index1}" if n_index1 > 0 else f"I{i_index1}"
-            index2 = f"N{n_index2}I{i_index2}" if n_index2 > 0 else f"I{i_index2}"
+    def _fill_oc_read(self, placeholder, oc_pattern, runcycles):
 
-            return f"{read1};{index1};{index2};{read2}"
+        oc_pattern_replaced = oc_pattern.replace(placeholder, str(0))
 
-        return add_override_cycles
+        pattern = r'([A-Z])(\d+)'
+
+        if not self._validate(oc_pattern_replaced):
+            return "invalid oc pattern"
+
+        matches = re.findall(pattern, oc_pattern_replaced)
+        matches = [list(t) for t in matches]
+
+        known_len = self._get_known_len(matches)
+
+        if known_len == runcycles:
+            return oc_pattern_replaced
+
+        if known_len < runcycles:
+            unaccounted_cycles = runcycles - known_len
+
+            for match in matches:
+                if match[0] == "Y":
+                    match[1] = str(int(match[1]) + unaccounted_cycles)
+
+            oc_pattern_replaced_updated = "".join([match[0] + match[1] for match in matches])
+
+            return oc_pattern_replaced_updated
+
+    def _n_pad_left(self, placeholder, oc_pattern, index_len, runcycles):
+
+        oc_pattern_replaced = oc_pattern.replace(placeholder, str(index_len))
+
+        pattern = r'([A-Z])(\d+)'
+
+        if index_len > runcycles:
+            return "index_len > runcycles"
+
+        if not self._validate(oc_pattern_replaced):
+            return "invalid oc pattern"
+
+        matches = re.findall(pattern, oc_pattern_replaced)
+        matches = [list(t) for t in matches]
+        known_len = self._get_known_len(matches)
+
+        if known_len == runcycles:
+            return oc_pattern_replaced
+
+        if known_len < runcycles:
+            unaccounted_cycles = runcycles - known_len
+            if not matches[0][0] == "N":
+                matches.insert(0, ("N", str(unaccounted_cycles)))
+            else:
+                accounted_n_left = int(matches[0][1])
+                updated_accounted_n_left = accounted_n_left + unaccounted_cycles
+                matches[0] = [matches[0][0], str(updated_accounted_n_left)]
+
+            oc_pattern_replaced_updated = "".join([match[0] + match[1] for match in matches])
+
+            return oc_pattern_replaced_updated
+
+    def _n_pad_right(self, placeholder, oc_pattern, index_len, runcycles):
+        oc_pattern_replaced = oc_pattern.replace(placeholder, str(index_len))
+
+        pattern = r'([A-Z])(\d+)'
+
+        if index_len > runcycles:
+            return "index_len > runcycles"
+
+        if not self._validate(oc_pattern_replaced):
+            return "invalid oc pattern"
+
+        matches = re.findall(pattern, oc_pattern_replaced)
+        known_len = self._get_known_len(matches)
+
+        if known_len == runcycles:
+            return oc_pattern_replaced
+
+        if known_len < runcycles:
+            unaccounted_cycles = runcycles - known_len
+            if not matches[-1][0] == "N":
+                matches.append(("N", str(unaccounted_cycles)))
+            else:
+                accounted_n_right = int(matches[-1][1])
+                updated_accounted_n_right = accounted_n_right + unaccounted_cycles
+                matches[-1] = [matches[-1][0], str(updated_accounted_n_right)]
+
+            oc_pattern_replaced_updated = "".join([match[0] + match[1] for match in matches])
+
+            return oc_pattern_replaced_updated
 
 
 class Sequencing:
@@ -176,7 +283,7 @@ class BCLConvert:
                        "OverrideCycles"
                        ]
 
-        df.rename(columns={'Index_I7': 'Index', 'Index_I5': 'Index2'}, inplace=True)
+        df.rename(columns={'IndexI7': 'Index', 'IndexI5': 'Index2'}, inplace=True)
         self.data = df[data_fields]
 
     def datalist(self):

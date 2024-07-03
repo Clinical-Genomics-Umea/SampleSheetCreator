@@ -4,8 +4,8 @@ import pandas as pd
 from PySide6.QtWidgets import (QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QSizePolicy,
                                QSpacerItem, QLabel, QFormLayout, QFrame, QTextEdit, QFileDialog, QMessageBox)
 
-from modules.widgets.run import RunInfo
-from modules.widgets.sample_view import SampleTableView
+from modules.widgets.run import RunInfoWidget
+from modules.widgets.sampleview import SampleTableView
 
 
 class SampleSheetEdit(QWidget):
