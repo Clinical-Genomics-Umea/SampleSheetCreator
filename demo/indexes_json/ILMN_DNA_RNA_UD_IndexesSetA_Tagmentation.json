@@ -1,0 +1,1469 @@
+{
+    "index_kit": {
+        "checksum": "RcnenBGUL8EloyNqvph2vQ==",
+        "name": "Ilmn DNA-RNA UD Indexes SetA Tagmentation",
+        "display_name": "Ilmn DNA-RNA UD Indexes SetA Tagmentation",
+        "file_format_version": "1",
+        "version": "1",
+        "description": "Illumina DNA-RNA UD Indexes Set A (96 Indexes) Tagmentation",
+        "index_strategy": "DualOnly",
+        "override_cycles_pattern": "Y$r1-I$i1-I$i2-Y$r2"
+    },
+    "resources": {
+        "adapter": "CTGTCTCTTATACACATCT",
+        "u_m_i_compatible": "OptionalAndFalse",
+        "fixed_layout": "true"
+    },
+    "indices_i7": [
+        {
+            "index_i7_name": "UDP0001",
+            "index_i7": "GAACTGAGCG"
+        },
+        {
+            "index_i7_name": "UDP0002",
+            "index_i7": "AGGTCAGATA"
+        },
+        {
+            "index_i7_name": "UDP0003V3",
+            "index_i7": "CGACATCCGA"
+        },
+        {
+            "index_i7_name": "UDP0004",
+            "index_i7": "ATTCCATAAG"
+        },
+        {
+            "index_i7_name": "UDP0005V3",
+            "index_i7": "CACAATAGGA"
+        },
+        {
+            "index_i7_name": "UDP0006",
+            "index_i7": "AACATCGCGC"
+        },
+        {
+            "index_i7_name": "UDP0007",
+            "index_i7": "CTAGTGCTCT"
+        },
+        {
+            "index_i7_name": "UDP0008",
+            "index_i7": "GATCAAGGCA"
+        },
+        {
+            "index_i7_name": "UDP0009",
+            "index_i7": "GACTGAGTAG"
+        },
+        {
+            "index_i7_name": "UDP0010",
+            "index_i7": "AGTCAGACGA"
+        },
+        {
+            "index_i7_name": "UDP0011",
+            "index_i7": "CCGTATGTTC"
+        },
+        {
+            "index_i7_name": "UDP0012",
+            "index_i7": "GAGTCATAGG"
+        },
+        {
+            "index_i7_name": "UDP0013",
+            "index_i7": "CTTGCCATTA"
+        },
+        {
+            "index_i7_name": "UDP0014",
+            "index_i7": "GAAGCGGCAC"
+        },
+        {
+            "index_i7_name": "UDP0015",
+            "index_i7": "TCCATTGCCG"
+        },
+        {
+            "index_i7_name": "UDP0016",
+            "index_i7": "CGGTTACGGC"
+        },
+        {
+            "index_i7_name": "UDP0017",
+            "index_i7": "GAGAATGGTT"
+        },
+        {
+            "index_i7_name": "UDP0018",
+            "index_i7": "AGAGGCAACC"
+        },
+        {
+            "index_i7_name": "UDP0019",
+            "index_i7": "CCATCATTAG"
+        },
+        {
+            "index_i7_name": "UDP0020",
+            "index_i7": "GATAGGCCGA"
+        },
+        {
+            "index_i7_name": "UDP0021",
+            "index_i7": "ATGGTTGACT"
+        },
+        {
+            "index_i7_name": "UDP0022",
+            "index_i7": "TATTGCGCTC"
+        },
+        {
+            "index_i7_name": "UDP0023",
+            "index_i7": "ACGCCTTGTT"
+        },
+        {
+            "index_i7_name": "UDP0024",
+            "index_i7": "TTCTACATAC"
+        },
+        {
+            "index_i7_name": "UDP0025",
+            "index_i7": "AACCATAGAA"
+        },
+        {
+            "index_i7_name": "UDP0026",
+            "index_i7": "GGTTGCGAGG"
+        },
+        {
+            "index_i7_name": "UDP0027",
+            "index_i7": "TAAGCATCCA"
+        },
+        {
+            "index_i7_name": "UDP0028",
+            "index_i7": "ACCACGACAT"
+        },
+        {
+            "index_i7_name": "UDP0029",
+            "index_i7": "GCCGCACTCT"
+        },
+        {
+            "index_i7_name": "UDP0030",
+            "index_i7": "CCACCAGGCA"
+        },
+        {
+            "index_i7_name": "UDP0031",
+            "index_i7": "GTGACACGCA"
+        },
+        {
+            "index_i7_name": "UDP0032",
+            "index_i7": "ACAGTGTATG"
+        },
+        {
+            "index_i7_name": "UDP0033",
+            "index_i7": "TGATTATACG"
+        },
+        {
+            "index_i7_name": "UDP0034",
+            "index_i7": "CAGCCGCGTA"
+        },
+        {
+            "index_i7_name": "UDP0035",
+            "index_i7": "GGTAACTCGC"
+        },
+        {
+            "index_i7_name": "UDP0036",
+            "index_i7": "ACCGGCCGTA"
+        },
+        {
+            "index_i7_name": "UDP0037",
+            "index_i7": "TGTAATCGAC"
+        },
+        {
+            "index_i7_name": "UDP0038",
+            "index_i7": "GTGCAGACAG"
+        },
+        {
+            "index_i7_name": "UDP0039",
+            "index_i7": "CAATCGGCTG"
+        },
+        {
+            "index_i7_name": "UDP0040",
+            "index_i7": "TATGTAGTCA"
+        },
+        {
+            "index_i7_name": "UDP0041",
+            "index_i7": "ACTCGGCAAT"
+        },
+        {
+            "index_i7_name": "UDP0042",
+            "index_i7": "GTCTAATGGC"
+        },
+        {
+            "index_i7_name": "UDP0043",
+            "index_i7": "CCATCTCGCC"
+        },
+        {
+            "index_i7_name": "UDP0044",
+            "index_i7": "CTGCGAGCCA"
+        },
+        {
+            "index_i7_name": "UDP0045",
+            "index_i7": "CGTTATTCTA"
+        },
+        {
+            "index_i7_name": "UDP0046V3",
+            "index_i7": "GCAACATGGA"
+        },
+        {
+            "index_i7_name": "UDP0047",
+            "index_i7": "GTCCTGGATA"
+        },
+        {
+            "index_i7_name": "UDP0048",
+            "index_i7": "CAGTGGCACT"
+        },
+        {
+            "index_i7_name": "UDP0049",
+            "index_i7": "AGTGTTGCAC"
+        },
+        {
+            "index_i7_name": "UDP0050",
+            "index_i7": "GACACCATGT"
+        },
+        {
+            "index_i7_name": "UDP0051",
+            "index_i7": "CCTGTCTGTC"
+        },
+        {
+            "index_i7_name": "UDP0052",
+            "index_i7": "TGATGTAAGA"
+        },
+        {
+            "index_i7_name": "UDP0053V3",
+            "index_i7": "TAGTTCGGTA"
+        },
+        {
+            "index_i7_name": "UDP0054V3",
+            "index_i7": "CTATTACTAC"
+        },
+        {
+            "index_i7_name": "UDP0055V3",
+            "index_i7": "TAGCATAACC"
+        },
+        {
+            "index_i7_name": "UDP0056V3",
+            "index_i7": "ACTCTATTGT"
+        },
+        {
+            "index_i7_name": "UDP0057",
+            "index_i7": "TCTATCCTAA"
+        },
+        {
+            "index_i7_name": "UDP0058",
+            "index_i7": "CTCGCTTCGG"
+        },
+        {
+            "index_i7_name": "UDP0059",
+            "index_i7": "CTGTTGGTCC"
+        },
+        {
+            "index_i7_name": "UDP0060",
+            "index_i7": "TTACCTGGAA"
+        },
+        {
+            "index_i7_name": "UDP0061",
+            "index_i7": "TGGCTAATCA"
+        },
+        {
+            "index_i7_name": "UDP0062",
+            "index_i7": "AACACTGTTA"
+        },
+        {
+            "index_i7_name": "UDP0063",
+            "index_i7": "ATTGCGCGGT"
+        },
+        {
+            "index_i7_name": "UDP0064",
+            "index_i7": "TGGCGCGAAC"
+        },
+        {
+            "index_i7_name": "UDP0065",
+            "index_i7": "TAATGTGTCT"
+        },
+        {
+            "index_i7_name": "UDP0066",
+            "index_i7": "ATACCAACGC"
+        },
+        {
+            "index_i7_name": "UDP0067",
+            "index_i7": "AGGATGTGCT"
+        },
+        {
+            "index_i7_name": "UDP0068",
+            "index_i7": "CACGGAACAA"
+        },
+        {
+            "index_i7_name": "UDP0069V3",
+            "index_i7": "CCAAGGCCTT"
+        },
+        {
+            "index_i7_name": "UDP0070V3",
+            "index_i7": "TTACTCCACA"
+        },
+        {
+            "index_i7_name": "UDP0071V3",
+            "index_i7": "AGTAGAAGTG"
+        },
+        {
+            "index_i7_name": "UDP0072V3",
+            "index_i7": "TACGAGTCCA"
+        },
+        {
+            "index_i7_name": "UDP0073V3",
+            "index_i7": "TCTCATGATA"
+        },
+        {
+            "index_i7_name": "UDP0074V3",
+            "index_i7": "CGAGGCCAAG"
+        },
+        {
+            "index_i7_name": "UDP0075V3",
+            "index_i7": "TTCACGAGAC"
+        },
+        {
+            "index_i7_name": "UDP0076V3",
+            "index_i7": "GCGTGGATGG"
+        },
+        {
+            "index_i7_name": "UDP0077",
+            "index_i7": "TCTGGTATCC"
+        },
+        {
+            "index_i7_name": "UDP0078",
+            "index_i7": "CATTAGTGCG"
+        },
+        {
+            "index_i7_name": "UDP0079",
+            "index_i7": "ACGGTCAGGA"
+        },
+        {
+            "index_i7_name": "UDP0080",
+            "index_i7": "GGCAAGCCAG"
+        },
+        {
+            "index_i7_name": "UDP0081",
+            "index_i7": "TGTCGCTGGT"
+        },
+        {
+            "index_i7_name": "UDP0082",
+            "index_i7": "ACCGTTACAA"
+        },
+        {
+            "index_i7_name": "UDP0083",
+            "index_i7": "TATGCCTTAC"
+        },
+        {
+            "index_i7_name": "UDP0084V3",
+            "index_i7": "ACTGGATCTA"
+        },
+        {
+            "index_i7_name": "UDP0085",
+            "index_i7": "TGGTACCTAA"
+        },
+        {
+            "index_i7_name": "UDP0086",
+            "index_i7": "TTGGAATTCC"
+        },
+        {
+            "index_i7_name": "UDP0087",
+            "index_i7": "CCTCTACATG"
+        },
+        {
+            "index_i7_name": "UDP0088",
+            "index_i7": "GGAGCGTGTA"
+        },
+        {
+            "index_i7_name": "UDP0089",
+            "index_i7": "GTCCGTAAGC"
+        },
+        {
+            "index_i7_name": "UDP0090",
+            "index_i7": "ACTTCAAGCG"
+        },
+        {
+            "index_i7_name": "UDP0091",
+            "index_i7": "TCAGAAGGCG"
+        },
+        {
+            "index_i7_name": "UDP0092",
+            "index_i7": "GCGTTGGTAT"
+        },
+        {
+            "index_i7_name": "UDP0093",
+            "index_i7": "ACATATCCAG"
+        },
+        {
+            "index_i7_name": "UDP0094",
+            "index_i7": "TCATAGATTG"
+        },
+        {
+            "index_i7_name": "UDP0095",
+            "index_i7": "GTATTCCACC"
+        },
+        {
+            "index_i7_name": "UDP0096",
+            "index_i7": "CCTCCGTCCA"
+        }
+    ],
+    "indices_i5": [
+        {
+            "index_i5_name": "UDP0001",
+            "index_i5": "TCGTGGAGCG"
+        },
+        {
+            "index_i5_name": "UDP0002",
+            "index_i5": "CTACAAGATA"
+        },
+        {
+            "index_i5_name": "UDP0003V3",
+            "index_i5": "TACGTTCATT"
+        },
+        {
+            "index_i5_name": "UDP0004",
+            "index_i5": "TGCCTGGTGG"
+        },
+        {
+            "index_i5_name": "UDP0005V3",
+            "index_i5": "TCCATCCGAG"
+        },
+        {
+            "index_i5_name": "UDP0006",
+            "index_i5": "GTCCACTTGT"
+        },
+        {
+            "index_i5_name": "UDP0007",
+            "index_i5": "TGGAACAGTA"
+        },
+        {
+            "index_i5_name": "UDP0008",
+            "index_i5": "CCTTGTTAAT"
+        },
+        {
+            "index_i5_name": "UDP0009",
+            "index_i5": "GTTGATAGTG"
+        },
+        {
+            "index_i5_name": "UDP0010",
+            "index_i5": "ACCAGCGACA"
+        },
+        {
+            "index_i5_name": "UDP0011",
+            "index_i5": "CATACACTGT"
+        },
+        {
+            "index_i5_name": "UDP0012",
+            "index_i5": "GTGTGGCGCT"
+        },
+        {
+            "index_i5_name": "UDP0013",
+            "index_i5": "ATCACGAAGG"
+        },
+        {
+            "index_i5_name": "UDP0014",
+            "index_i5": "CGGCTCTACT"
+        },
+        {
+            "index_i5_name": "UDP0015",
+            "index_i5": "GAATGCACGA"
+        },
+        {
+            "index_i5_name": "UDP0016",
+            "index_i5": "AAGACTATAG"
+        },
+        {
+            "index_i5_name": "UDP0017",
+            "index_i5": "TCGGCAGCAA"
+        },
+        {
+            "index_i5_name": "UDP0018",
+            "index_i5": "CTAATGATGG"
+        },
+        {
+            "index_i5_name": "UDP0019",
+            "index_i5": "GGTTGCCTCT"
+        },
+        {
+            "index_i5_name": "UDP0020",
+            "index_i5": "CGCACATGGC"
+        },
+        {
+            "index_i5_name": "UDP0021",
+            "index_i5": "GGCCTGTCCT"
+        },
+        {
+            "index_i5_name": "UDP0022",
+            "index_i5": "CTGTGTTAGG"
+        },
+        {
+            "index_i5_name": "UDP0023",
+            "index_i5": "TAAGGAACGT"
+        },
+        {
+            "index_i5_name": "UDP0024",
+            "index_i5": "CTAACTGTAA"
+        },
+        {
+            "index_i5_name": "UDP0025",
+            "index_i5": "GGCGAGATGG"
+        },
+        {
+            "index_i5_name": "UDP0026",
+            "index_i5": "AATAGAGCAA"
+        },
+        {
+            "index_i5_name": "UDP0027",
+            "index_i5": "TCAATCCATT"
+        },
+        {
+            "index_i5_name": "UDP0028",
+            "index_i5": "TCGTATGCGG"
+        },
+        {
+            "index_i5_name": "UDP0029",
+            "index_i5": "TCCGACCTCG"
+        },
+        {
+            "index_i5_name": "UDP0030",
+            "index_i5": "CTTATGGAAT"
+        },
+        {
+            "index_i5_name": "UDP0031",
+            "index_i5": "GCTTACGGAC"
+        },
+        {
+            "index_i5_name": "UDP0032",
+            "index_i5": "GAACATACGG"
+        },
+        {
+            "index_i5_name": "UDP0033",
+            "index_i5": "GTCGATTACA"
+        },
+        {
+            "index_i5_name": "UDP0034",
+            "index_i5": "ACTAGCCGTG"
+        },
+        {
+            "index_i5_name": "UDP0035",
+            "index_i5": "AAGTTGGTGA"
+        },
+        {
+            "index_i5_name": "UDP0036",
+            "index_i5": "TGGCAATATT"
+        },
+        {
+            "index_i5_name": "UDP0037",
+            "index_i5": "GATCACCGCG"
+        },
+        {
+            "index_i5_name": "UDP0038",
+            "index_i5": "TACCATCCGT"
+        },
+        {
+            "index_i5_name": "UDP0039",
+            "index_i5": "GCTGTAGGAA"
+        },
+        {
+            "index_i5_name": "UDP0040",
+            "index_i5": "CGCACTAATG"
+        },
+        {
+            "index_i5_name": "UDP0041",
+            "index_i5": "GACAACTGAA"
+        },
+        {
+            "index_i5_name": "UDP0042",
+            "index_i5": "AGTGGTCAGG"
+        },
+        {
+            "index_i5_name": "UDP0043",
+            "index_i5": "TTCTATGGTT"
+        },
+        {
+            "index_i5_name": "UDP0044",
+            "index_i5": "AATCCGGCCA"
+        },
+        {
+            "index_i5_name": "UDP0045",
+            "index_i5": "CCATAAGGTT"
+        },
+        {
+            "index_i5_name": "UDP0046V3",
+            "index_i5": "CTTGTCTTAA"
+        },
+        {
+            "index_i5_name": "UDP0047",
+            "index_i5": "CGGTGGCGAA"
+        },
+        {
+            "index_i5_name": "UDP0048",
+            "index_i5": "TAACAATAGG"
+        },
+        {
+            "index_i5_name": "UDP0049",
+            "index_i5": "CTGGTACACG"
+        },
+        {
+            "index_i5_name": "UDP0050",
+            "index_i5": "TCAACGTGTA"
+        },
+        {
+            "index_i5_name": "UDP0051",
+            "index_i5": "ACTGTTGTGA"
+        },
+        {
+            "index_i5_name": "UDP0052",
+            "index_i5": "GTGCGTCCTT"
+        },
+        {
+            "index_i5_name": "UDP0053V3",
+            "index_i5": "CCATGTGTAG"
+        },
+        {
+            "index_i5_name": "UDP0054V3",
+            "index_i5": "GAGTCTCTCC"
+        },
+        {
+            "index_i5_name": "UDP0055V3",
+            "index_i5": "GCTATGCGCA"
+        },
+        {
+            "index_i5_name": "UDP0056V3",
+            "index_i5": "ATCGCATATG"
+        },
+        {
+            "index_i5_name": "UDP0057",
+            "index_i5": "CGTCGACTGG"
+        },
+        {
+            "index_i5_name": "UDP0058",
+            "index_i5": "TACTAGTCAA"
+        },
+        {
+            "index_i5_name": "UDP0059",
+            "index_i5": "ATAGACCGTT"
+        },
+        {
+            "index_i5_name": "UDP0060",
+            "index_i5": "ACAGTTCCAG"
+        },
+        {
+            "index_i5_name": "UDP0061",
+            "index_i5": "AGGCATGTAG"
+        },
+        {
+            "index_i5_name": "UDP0062",
+            "index_i5": "GCAAGTCTCA"
+        },
+        {
+            "index_i5_name": "UDP0063",
+            "index_i5": "TTGGCTCCGC"
+        },
+        {
+            "index_i5_name": "UDP0064",
+            "index_i5": "AACTGATACT"
+        },
+        {
+            "index_i5_name": "UDP0065",
+            "index_i5": "GTAAGGCATA"
+        },
+        {
+            "index_i5_name": "UDP0066",
+            "index_i5": "AATTGCTGCG"
+        },
+        {
+            "index_i5_name": "UDP0067",
+            "index_i5": "TTACAATTCC"
+        },
+        {
+            "index_i5_name": "UDP0068",
+            "index_i5": "AACCTAGCAC"
+        },
+        {
+            "index_i5_name": "UDP0069V3",
+            "index_i5": "TCGAAGTACT"
+        },
+        {
+            "index_i5_name": "UDP0070V3",
+            "index_i5": "GACACCGATG"
+        },
+        {
+            "index_i5_name": "UDP0071V3",
+            "index_i5": "CTAGCGTCGA"
+        },
+        {
+            "index_i5_name": "UDP0072V3",
+            "index_i5": "TAGCGAAGCA"
+        },
+        {
+            "index_i5_name": "UDP0073V3",
+            "index_i5": "AACACGTGGA"
+        },
+        {
+            "index_i5_name": "UDP0074V3",
+            "index_i5": "GTGTTACCGG"
+        },
+        {
+            "index_i5_name": "UDP0075V3",
+            "index_i5": "AGATTGTTAC"
+        },
+        {
+            "index_i5_name": "UDP0076V3",
+            "index_i5": "TTGACCAATG"
+        },
+        {
+            "index_i5_name": "UDP0077",
+            "index_i5": "CGTTGCTTAC"
+        },
+        {
+            "index_i5_name": "UDP0078",
+            "index_i5": "TGACTACATA"
+        },
+        {
+            "index_i5_name": "UDP0079",
+            "index_i5": "CGGCCTCGTT"
+        },
+        {
+            "index_i5_name": "UDP0080",
+            "index_i5": "CAAGCATCCG"
+        },
+        {
+            "index_i5_name": "UDP0081",
+            "index_i5": "TCGTCTGACT"
+        },
+        {
+            "index_i5_name": "UDP0082",
+            "index_i5": "CTCATAGCGA"
+        },
+        {
+            "index_i5_name": "UDP0083",
+            "index_i5": "AGACACATTA"
+        },
+        {
+            "index_i5_name": "UDP0084V3",
+            "index_i5": "TCGCCGCTAG"
+        },
+        {
+            "index_i5_name": "UDP0085",
+            "index_i5": "CATGAGTACT"
+        },
+        {
+            "index_i5_name": "UDP0086",
+            "index_i5": "ACGTCAATAC"
+        },
+        {
+            "index_i5_name": "UDP0087",
+            "index_i5": "GATACCTCCT"
+        },
+        {
+            "index_i5_name": "UDP0088",
+            "index_i5": "ATCCGTAAGT"
+        },
+        {
+            "index_i5_name": "UDP0089",
+            "index_i5": "CGTGTATCTT"
+        },
+        {
+            "index_i5_name": "UDP0090",
+            "index_i5": "GAACCATGAA"
+        },
+        {
+            "index_i5_name": "UDP0091",
+            "index_i5": "GGCCATCATA"
+        },
+        {
+            "index_i5_name": "UDP0092",
+            "index_i5": "ACATACTTCC"
+        },
+        {
+            "index_i5_name": "UDP0093",
+            "index_i5": "TATGTGCAAT"
+        },
+        {
+            "index_i5_name": "UDP0094",
+            "index_i5": "GATTAAGGTG"
+        },
+        {
+            "index_i5_name": "UDP0095",
+            "index_i5": "ATGTAGACAA"
+        },
+        {
+            "index_i5_name": "UDP0096",
+            "index_i5": "CACATCGGTG"
+        }
+    ],
+    "indices_dual_fixed": [
+        {
+            "fixed_pos": "A01",
+            "index_i7_name": "UDP0001",
+            "index_i5_name": "UDP0001",
+            "index_i7": "GAACTGAGCG",
+            "index_i5": "TCGTGGAGCG"
+        },
+        {
+            "fixed_pos": "A02",
+            "index_i7_name": "UDP0009",
+            "index_i5_name": "UDP0009",
+            "index_i7": "GACTGAGTAG",
+            "index_i5": "GTTGATAGTG"
+        },
+        {
+            "fixed_pos": "A03",
+            "index_i7_name": "UDP0017",
+            "index_i5_name": "UDP0017",
+            "index_i7": "GAGAATGGTT",
+            "index_i5": "TCGGCAGCAA"
+        },
+        {
+            "fixed_pos": "A04",
+            "index_i7_name": "UDP0025",
+            "index_i5_name": "UDP0025",
+            "index_i7": "AACCATAGAA",
+            "index_i5": "GGCGAGATGG"
+        },
+        {
+            "fixed_pos": "A05",
+            "index_i7_name": "UDP0033",
+            "index_i5_name": "UDP0033",
+            "index_i7": "TGATTATACG",
+            "index_i5": "GTCGATTACA"
+        },
+        {
+            "fixed_pos": "A06",
+            "index_i7_name": "UDP0041",
+            "index_i5_name": "UDP0041",
+            "index_i7": "ACTCGGCAAT",
+            "index_i5": "GACAACTGAA"
+        },
+        {
+            "fixed_pos": "A07",
+            "index_i7_name": "UDP0049",
+            "index_i5_name": "UDP0049",
+            "index_i7": "AGTGTTGCAC",
+            "index_i5": "CTGGTACACG"
+        },
+        {
+            "fixed_pos": "A08",
+            "index_i7_name": "UDP0057",
+            "index_i5_name": "UDP0057",
+            "index_i7": "TCTATCCTAA",
+            "index_i5": "CGTCGACTGG"
+        },
+        {
+            "fixed_pos": "A09",
+            "index_i7_name": "UDP0065",
+            "index_i5_name": "UDP0065",
+            "index_i7": "TAATGTGTCT",
+            "index_i5": "GTAAGGCATA"
+        },
+        {
+            "fixed_pos": "A10",
+            "index_i7_name": "UDP0073V3",
+            "index_i5_name": "UDP0073V3",
+            "index_i7": "TCTCATGATA",
+            "index_i5": "AACACGTGGA"
+        },
+        {
+            "fixed_pos": "A11",
+            "index_i7_name": "UDP0081",
+            "index_i5_name": "UDP0081",
+            "index_i7": "TGTCGCTGGT",
+            "index_i5": "TCGTCTGACT"
+        },
+        {
+            "fixed_pos": "A12",
+            "index_i7_name": "UDP0089",
+            "index_i5_name": "UDP0089",
+            "index_i7": "GTCCGTAAGC",
+            "index_i5": "CGTGTATCTT"
+        },
+        {
+            "fixed_pos": "B01",
+            "index_i7_name": "UDP0002",
+            "index_i5_name": "UDP0002",
+            "index_i7": "AGGTCAGATA",
+            "index_i5": "CTACAAGATA"
+        },
+        {
+            "fixed_pos": "B02",
+            "index_i7_name": "UDP0010",
+            "index_i5_name": "UDP0010",
+            "index_i7": "AGTCAGACGA",
+            "index_i5": "ACCAGCGACA"
+        },
+        {
+            "fixed_pos": "B03",
+            "index_i7_name": "UDP0018",
+            "index_i5_name": "UDP0018",
+            "index_i7": "AGAGGCAACC",
+            "index_i5": "CTAATGATGG"
+        },
+        {
+            "fixed_pos": "B04",
+            "index_i7_name": "UDP0026",
+            "index_i5_name": "UDP0026",
+            "index_i7": "GGTTGCGAGG",
+            "index_i5": "AATAGAGCAA"
+        },
+        {
+            "fixed_pos": "B05",
+            "index_i7_name": "UDP0034",
+            "index_i5_name": "UDP0034",
+            "index_i7": "CAGCCGCGTA",
+            "index_i5": "ACTAGCCGTG"
+        },
+        {
+            "fixed_pos": "B06",
+            "index_i7_name": "UDP0042",
+            "index_i5_name": "UDP0042",
+            "index_i7": "GTCTAATGGC",
+            "index_i5": "AGTGGTCAGG"
+        },
+        {
+            "fixed_pos": "B07",
+            "index_i7_name": "UDP0050",
+            "index_i5_name": "UDP0050",
+            "index_i7": "GACACCATGT",
+            "index_i5": "TCAACGTGTA"
+        },
+        {
+            "fixed_pos": "B08",
+            "index_i7_name": "UDP0058",
+            "index_i5_name": "UDP0058",
+            "index_i7": "CTCGCTTCGG",
+            "index_i5": "TACTAGTCAA"
+        },
+        {
+            "fixed_pos": "B09",
+            "index_i7_name": "UDP0066",
+            "index_i5_name": "UDP0066",
+            "index_i7": "ATACCAACGC",
+            "index_i5": "AATTGCTGCG"
+        },
+        {
+            "fixed_pos": "B10",
+            "index_i7_name": "UDP0074V3",
+            "index_i5_name": "UDP0074V3",
+            "index_i7": "CGAGGCCAAG",
+            "index_i5": "GTGTTACCGG"
+        },
+        {
+            "fixed_pos": "B11",
+            "index_i7_name": "UDP0082",
+            "index_i5_name": "UDP0082",
+            "index_i7": "ACCGTTACAA",
+            "index_i5": "CTCATAGCGA"
+        },
+        {
+            "fixed_pos": "B12",
+            "index_i7_name": "UDP0090",
+            "index_i5_name": "UDP0090",
+            "index_i7": "ACTTCAAGCG",
+            "index_i5": "GAACCATGAA"
+        },
+        {
+            "fixed_pos": "C01",
+            "index_i7_name": "UDP0003V3",
+            "index_i5_name": "UDP0003V3",
+            "index_i7": "CGACATCCGA",
+            "index_i5": "TACGTTCATT"
+        },
+        {
+            "fixed_pos": "C02",
+            "index_i7_name": "UDP0011",
+            "index_i5_name": "UDP0011",
+            "index_i7": "CCGTATGTTC",
+            "index_i5": "CATACACTGT"
+        },
+        {
+            "fixed_pos": "C03",
+            "index_i7_name": "UDP0019",
+            "index_i5_name": "UDP0019",
+            "index_i7": "CCATCATTAG",
+            "index_i5": "GGTTGCCTCT"
+        },
+        {
+            "fixed_pos": "C04",
+            "index_i7_name": "UDP0027",
+            "index_i5_name": "UDP0027",
+            "index_i7": "TAAGCATCCA",
+            "index_i5": "TCAATCCATT"
+        },
+        {
+            "fixed_pos": "C05",
+            "index_i7_name": "UDP0035",
+            "index_i5_name": "UDP0035",
+            "index_i7": "GGTAACTCGC",
+            "index_i5": "AAGTTGGTGA"
+        },
+        {
+            "fixed_pos": "C06",
+            "index_i7_name": "UDP0043",
+            "index_i5_name": "UDP0043",
+            "index_i7": "CCATCTCGCC",
+            "index_i5": "TTCTATGGTT"
+        },
+        {
+            "fixed_pos": "C07",
+            "index_i7_name": "UDP0051",
+            "index_i5_name": "UDP0051",
+            "index_i7": "CCTGTCTGTC",
+            "index_i5": "ACTGTTGTGA"
+        },
+        {
+            "fixed_pos": "C08",
+            "index_i7_name": "UDP0059",
+            "index_i5_name": "UDP0059",
+            "index_i7": "CTGTTGGTCC",
+            "index_i5": "ATAGACCGTT"
+        },
+        {
+            "fixed_pos": "C09",
+            "index_i7_name": "UDP0067",
+            "index_i5_name": "UDP0067",
+            "index_i7": "AGGATGTGCT",
+            "index_i5": "TTACAATTCC"
+        },
+        {
+            "fixed_pos": "C10",
+            "index_i7_name": "UDP0075V3",
+            "index_i5_name": "UDP0075V3",
+            "index_i7": "TTCACGAGAC",
+            "index_i5": "AGATTGTTAC"
+        },
+        {
+            "fixed_pos": "C11",
+            "index_i7_name": "UDP0083",
+            "index_i5_name": "UDP0083",
+            "index_i7": "TATGCCTTAC",
+            "index_i5": "AGACACATTA"
+        },
+        {
+            "fixed_pos": "C12",
+            "index_i7_name": "UDP0091",
+            "index_i5_name": "UDP0091",
+            "index_i7": "TCAGAAGGCG",
+            "index_i5": "GGCCATCATA"
+        },
+        {
+            "fixed_pos": "D01",
+            "index_i7_name": "UDP0004",
+            "index_i5_name": "UDP0004",
+            "index_i7": "ATTCCATAAG",
+            "index_i5": "TGCCTGGTGG"
+        },
+        {
+            "fixed_pos": "D02",
+            "index_i7_name": "UDP0012",
+            "index_i5_name": "UDP0012",
+            "index_i7": "GAGTCATAGG",
+            "index_i5": "GTGTGGCGCT"
+        },
+        {
+            "fixed_pos": "D03",
+            "index_i7_name": "UDP0020",
+            "index_i5_name": "UDP0020",
+            "index_i7": "GATAGGCCGA",
+            "index_i5": "CGCACATGGC"
+        },
+        {
+            "fixed_pos": "D04",
+            "index_i7_name": "UDP0028",
+            "index_i5_name": "UDP0028",
+            "index_i7": "ACCACGACAT",
+            "index_i5": "TCGTATGCGG"
+        },
+        {
+            "fixed_pos": "D05",
+            "index_i7_name": "UDP0036",
+            "index_i5_name": "UDP0036",
+            "index_i7": "ACCGGCCGTA",
+            "index_i5": "TGGCAATATT"
+        },
+        {
+            "fixed_pos": "D06",
+            "index_i7_name": "UDP0044",
+            "index_i5_name": "UDP0044",
+            "index_i7": "CTGCGAGCCA",
+            "index_i5": "AATCCGGCCA"
+        },
+        {
+            "fixed_pos": "D07",
+            "index_i7_name": "UDP0052",
+            "index_i5_name": "UDP0052",
+            "index_i7": "TGATGTAAGA",
+            "index_i5": "GTGCGTCCTT"
+        },
+        {
+            "fixed_pos": "D08",
+            "index_i7_name": "UDP0060",
+            "index_i5_name": "UDP0060",
+            "index_i7": "TTACCTGGAA",
+            "index_i5": "ACAGTTCCAG"
+        },
+        {
+            "fixed_pos": "D09",
+            "index_i7_name": "UDP0068",
+            "index_i5_name": "UDP0068",
+            "index_i7": "CACGGAACAA",
+            "index_i5": "AACCTAGCAC"
+        },
+        {
+            "fixed_pos": "D10",
+            "index_i7_name": "UDP0076V3",
+            "index_i5_name": "UDP0076V3",
+            "index_i7": "GCGTGGATGG",
+            "index_i5": "TTGACCAATG"
+        },
+        {
+            "fixed_pos": "D11",
+            "index_i7_name": "UDP0084V3",
+            "index_i5_name": "UDP0084V3",
+            "index_i7": "ACTGGATCTA",
+            "index_i5": "TCGCCGCTAG"
+        },
+        {
+            "fixed_pos": "D12",
+            "index_i7_name": "UDP0092",
+            "index_i5_name": "UDP0092",
+            "index_i7": "GCGTTGGTAT",
+            "index_i5": "ACATACTTCC"
+        },
+        {
+            "fixed_pos": "E01",
+            "index_i7_name": "UDP0005V3",
+            "index_i5_name": "UDP0005V3",
+            "index_i7": "CACAATAGGA",
+            "index_i5": "TCCATCCGAG"
+        },
+        {
+            "fixed_pos": "E02",
+            "index_i7_name": "UDP0013",
+            "index_i5_name": "UDP0013",
+            "index_i7": "CTTGCCATTA",
+            "index_i5": "ATCACGAAGG"
+        },
+        {
+            "fixed_pos": "E03",
+            "index_i7_name": "UDP0021",
+            "index_i5_name": "UDP0021",
+            "index_i7": "ATGGTTGACT",
+            "index_i5": "GGCCTGTCCT"
+        },
+        {
+            "fixed_pos": "E04",
+            "index_i7_name": "UDP0029",
+            "index_i5_name": "UDP0029",
+            "index_i7": "GCCGCACTCT",
+            "index_i5": "TCCGACCTCG"
+        },
+        {
+            "fixed_pos": "E05",
+            "index_i7_name": "UDP0037",
+            "index_i5_name": "UDP0037",
+            "index_i7": "TGTAATCGAC",
+            "index_i5": "GATCACCGCG"
+        },
+        {
+            "fixed_pos": "E06",
+            "index_i7_name": "UDP0045",
+            "index_i5_name": "UDP0045",
+            "index_i7": "CGTTATTCTA",
+            "index_i5": "CCATAAGGTT"
+        },
+        {
+            "fixed_pos": "E07",
+            "index_i7_name": "UDP0053V3",
+            "index_i5_name": "UDP0053V3",
+            "index_i7": "TAGTTCGGTA",
+            "index_i5": "CCATGTGTAG"
+        },
+        {
+            "fixed_pos": "E08",
+            "index_i7_name": "UDP0061",
+            "index_i5_name": "UDP0061",
+            "index_i7": "TGGCTAATCA",
+            "index_i5": "AGGCATGTAG"
+        },
+        {
+            "fixed_pos": "E09",
+            "index_i7_name": "UDP0069V3",
+            "index_i5_name": "UDP0069V3",
+            "index_i7": "CCAAGGCCTT",
+            "index_i5": "TCGAAGTACT"
+        },
+        {
+            "fixed_pos": "E10",
+            "index_i7_name": "UDP0077",
+            "index_i5_name": "UDP0077",
+            "index_i7": "TCTGGTATCC",
+            "index_i5": "CGTTGCTTAC"
+        },
+        {
+            "fixed_pos": "E11",
+            "index_i7_name": "UDP0085",
+            "index_i5_name": "UDP0085",
+            "index_i7": "TGGTACCTAA",
+            "index_i5": "CATGAGTACT"
+        },
+        {
+            "fixed_pos": "E12",
+            "index_i7_name": "UDP0093",
+            "index_i5_name": "UDP0093",
+            "index_i7": "ACATATCCAG",
+            "index_i5": "TATGTGCAAT"
+        },
+        {
+            "fixed_pos": "F01",
+            "index_i7_name": "UDP0006",
+            "index_i5_name": "UDP0006",
+            "index_i7": "AACATCGCGC",
+            "index_i5": "GTCCACTTGT"
+        },
+        {
+            "fixed_pos": "F02",
+            "index_i7_name": "UDP0014",
+            "index_i5_name": "UDP0014",
+            "index_i7": "GAAGCGGCAC",
+            "index_i5": "CGGCTCTACT"
+        },
+        {
+            "fixed_pos": "F03",
+            "index_i7_name": "UDP0022",
+            "index_i5_name": "UDP0022",
+            "index_i7": "TATTGCGCTC",
+            "index_i5": "CTGTGTTAGG"
+        },
+        {
+            "fixed_pos": "F04",
+            "index_i7_name": "UDP0030",
+            "index_i5_name": "UDP0030",
+            "index_i7": "CCACCAGGCA",
+            "index_i5": "CTTATGGAAT"
+        },
+        {
+            "fixed_pos": "F05",
+            "index_i7_name": "UDP0038",
+            "index_i5_name": "UDP0038",
+            "index_i7": "GTGCAGACAG",
+            "index_i5": "TACCATCCGT"
+        },
+        {
+            "fixed_pos": "F06",
+            "index_i7_name": "UDP0046V3",
+            "index_i5_name": "UDP0046V3",
+            "index_i7": "GCAACATGGA",
+            "index_i5": "CTTGTCTTAA"
+        },
+        {
+            "fixed_pos": "F07",
+            "index_i7_name": "UDP0054V3",
+            "index_i5_name": "UDP0054V3",
+            "index_i7": "CTATTACTAC",
+            "index_i5": "GAGTCTCTCC"
+        },
+        {
+            "fixed_pos": "F08",
+            "index_i7_name": "UDP0062",
+            "index_i5_name": "UDP0062",
+            "index_i7": "AACACTGTTA",
+            "index_i5": "GCAAGTCTCA"
+        },
+        {
+            "fixed_pos": "F09",
+            "index_i7_name": "UDP0070V3",
+            "index_i5_name": "UDP0070V3",
+            "index_i7": "TTACTCCACA",
+            "index_i5": "GACACCGATG"
+        },
+        {
+            "fixed_pos": "F10",
+            "index_i7_name": "UDP0078",
+            "index_i5_name": "UDP0078",
+            "index_i7": "CATTAGTGCG",
+            "index_i5": "TGACTACATA"
+        },
+        {
+            "fixed_pos": "F11",
+            "index_i7_name": "UDP0086",
+            "index_i5_name": "UDP0086",
+            "index_i7": "TTGGAATTCC",
+            "index_i5": "ACGTCAATAC"
+        },
+        {
+            "fixed_pos": "F12",
+            "index_i7_name": "UDP0094",
+            "index_i5_name": "UDP0094",
+            "index_i7": "TCATAGATTG",
+            "index_i5": "GATTAAGGTG"
+        },
+        {
+            "fixed_pos": "G01",
+            "index_i7_name": "UDP0007",
+            "index_i5_name": "UDP0007",
+            "index_i7": "CTAGTGCTCT",
+            "index_i5": "TGGAACAGTA"
+        },
+        {
+            "fixed_pos": "G02",
+            "index_i7_name": "UDP0015",
+            "index_i5_name": "UDP0015",
+            "index_i7": "TCCATTGCCG",
+            "index_i5": "GAATGCACGA"
+        },
+        {
+            "fixed_pos": "G03",
+            "index_i7_name": "UDP0023",
+            "index_i5_name": "UDP0023",
+            "index_i7": "ACGCCTTGTT",
+            "index_i5": "TAAGGAACGT"
+        },
+        {
+            "fixed_pos": "G04",
+            "index_i7_name": "UDP0031",
+            "index_i5_name": "UDP0031",
+            "index_i7": "GTGACACGCA",
+            "index_i5": "GCTTACGGAC"
+        },
+        {
+            "fixed_pos": "G05",
+            "index_i7_name": "UDP0039",
+            "index_i5_name": "UDP0039",
+            "index_i7": "CAATCGGCTG",
+            "index_i5": "GCTGTAGGAA"
+        },
+        {
+            "fixed_pos": "G06",
+            "index_i7_name": "UDP0047",
+            "index_i5_name": "UDP0047",
+            "index_i7": "GTCCTGGATA",
+            "index_i5": "CGGTGGCGAA"
+        },
+        {
+            "fixed_pos": "G07",
+            "index_i7_name": "UDP0055V3",
+            "index_i5_name": "UDP0055V3",
+            "index_i7": "TAGCATAACC",
+            "index_i5": "GCTATGCGCA"
+        },
+        {
+            "fixed_pos": "G08",
+            "index_i7_name": "UDP0063",
+            "index_i5_name": "UDP0063",
+            "index_i7": "ATTGCGCGGT",
+            "index_i5": "TTGGCTCCGC"
+        },
+        {
+            "fixed_pos": "G09",
+            "index_i7_name": "UDP0071V3",
+            "index_i5_name": "UDP0071V3",
+            "index_i7": "AGTAGAAGTG",
+            "index_i5": "CTAGCGTCGA"
+        },
+        {
+            "fixed_pos": "G10",
+            "index_i7_name": "UDP0079",
+            "index_i5_name": "UDP0079",
+            "index_i7": "ACGGTCAGGA",
+            "index_i5": "CGGCCTCGTT"
+        },
+        {
+            "fixed_pos": "G11",
+            "index_i7_name": "UDP0087",
+            "index_i5_name": "UDP0087",
+            "index_i7": "CCTCTACATG",
+            "index_i5": "GATACCTCCT"
+        },
+        {
+            "fixed_pos": "G12",
+            "index_i7_name": "UDP0095",
+            "index_i5_name": "UDP0095",
+            "index_i7": "GTATTCCACC",
+            "index_i5": "ATGTAGACAA"
+        },
+        {
+            "fixed_pos": "H01",
+            "index_i7_name": "UDP0008",
+            "index_i5_name": "UDP0008",
+            "index_i7": "GATCAAGGCA",
+            "index_i5": "CCTTGTTAAT"
+        },
+        {
+            "fixed_pos": "H02",
+            "index_i7_name": "UDP0016",
+            "index_i5_name": "UDP0016",
+            "index_i7": "CGGTTACGGC",
+            "index_i5": "AAGACTATAG"
+        },
+        {
+            "fixed_pos": "H03",
+            "index_i7_name": "UDP0024",
+            "index_i5_name": "UDP0024",
+            "index_i7": "TTCTACATAC",
+            "index_i5": "CTAACTGTAA"
+        },
+        {
+            "fixed_pos": "H04",
+            "index_i7_name": "UDP0032",
+            "index_i5_name": "UDP0032",
+            "index_i7": "ACAGTGTATG",
+            "index_i5": "GAACATACGG"
+        },
+        {
+            "fixed_pos": "H05",
+            "index_i7_name": "UDP0040",
+            "index_i5_name": "UDP0040",
+            "index_i7": "TATGTAGTCA",
+            "index_i5": "CGCACTAATG"
+        },
+        {
+            "fixed_pos": "H06",
+            "index_i7_name": "UDP0048",
+            "index_i5_name": "UDP0048",
+            "index_i7": "CAGTGGCACT",
+            "index_i5": "TAACAATAGG"
+        },
+        {
+            "fixed_pos": "H07",
+            "index_i7_name": "UDP0056V3",
+            "index_i5_name": "UDP0056V3",
+            "index_i7": "ACTCTATTGT",
+            "index_i5": "ATCGCATATG"
+        },
+        {
+            "fixed_pos": "H08",
+            "index_i7_name": "UDP0064",
+            "index_i5_name": "UDP0064",
+            "index_i7": "TGGCGCGAAC",
+            "index_i5": "AACTGATACT"
+        },
+        {
+            "fixed_pos": "H09",
+            "index_i7_name": "UDP0072V3",
+            "index_i5_name": "UDP0072V3",
+            "index_i7": "TACGAGTCCA",
+            "index_i5": "TAGCGAAGCA"
+        },
+        {
+            "fixed_pos": "H10",
+            "index_i7_name": "UDP0080",
+            "index_i5_name": "UDP0080",
+            "index_i7": "GGCAAGCCAG",
+            "index_i5": "CAAGCATCCG"
+        },
+        {
+            "fixed_pos": "H11",
+            "index_i7_name": "UDP0088",
+            "index_i5_name": "UDP0088",
+            "index_i7": "GGAGCGTGTA",
+            "index_i5": "ATCCGTAAGT"
+        },
+        {
+            "fixed_pos": "H12",
+            "index_i7_name": "UDP0096",
+            "index_i5_name": "UDP0096",
+            "index_i7": "CCTCCGTCCA",
+            "index_i5": "CACATCGGTG"
+        }
+    ],
+    "supported_library_prep_kits": [
+        "Illumina RNA Prep with Enrichment",
+        "Illumina DNA Prep with Enrichment",
+        "Illumina DNA Prep",
+        "Nextera XT"
+    ]
+}

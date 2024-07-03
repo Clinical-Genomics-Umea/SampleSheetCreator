@@ -1,0 +1,795 @@
+{
+    "override_cycle_pattern": "Y<read1_len>;I<index1_len>;I<index2_len>;Y<read2_len>",
+    "index_kit": {
+        "Checksum": "NA",
+        "Name": "Ilmn DNA-RNA UD Indexes SetD Tag No Fix",
+        "DisplayName": "Ilmn DNA-RNA UD Indexes SetD Tag No Fix",
+        "FileFormatVersion": "1",
+        "Version": "1",
+        "Description": "Illumina DNA-RNA UD Indexes Set D (96 Indexes) Tag No Fixed Pos",
+        "IndexStrategy": "DualOnly"
+    },
+    "resources": {
+        "Adapter": "CTGTCTCTTATACACATCT",
+        "UMICompatible": "OptionalAndFalse",
+        "FixedLayout": "false"
+    },
+    "indices_i7": [
+        {
+            "IndexI7Name": "UDP0289V2",
+            "IndexI7": "AGATAGTAGC"
+        },
+        {
+            "IndexI7Name": "UDP0290V2",
+            "IndexI7": "ATTAGAAGAC"
+        },
+        {
+            "IndexI7Name": "UDP0291V2",
+            "IndexI7": "GCTCGCACAT"
+        },
+        {
+            "IndexI7Name": "UDP0292",
+            "IndexI7": "AATATTGCCA"
+        },
+        {
+            "IndexI7Name": "UDP0293",
+            "IndexI7": "TCGTGCATTC"
+        },
+        {
+            "IndexI7Name": "UDP0294",
+            "IndexI7": "AAGATACACG"
+        },
+        {
+            "IndexI7Name": "UDP0295",
+            "IndexI7": "TGCAATGAAT"
+        },
+        {
+            "IndexI7Name": "UDP0296",
+            "IndexI7": "CTATGAAGGA"
+        },
+        {
+            "IndexI7Name": "UDP0297",
+            "IndexI7": "GAAGACTAGA"
+        },
+        {
+            "IndexI7Name": "UDP0298V3",
+            "IndexI7": "CCAGGTTATC"
+        },
+        {
+            "IndexI7Name": "UDP0299",
+            "IndexI7": "TTCACTCACT"
+        },
+        {
+            "IndexI7Name": "UDP0300",
+            "IndexI7": "GGTCCGCTTC"
+        },
+        {
+            "IndexI7Name": "UDP0301V2",
+            "IndexI7": "TAGTGGCTTG"
+        },
+        {
+            "IndexI7Name": "UDP0302",
+            "IndexI7": "ATTGAGGTCC"
+        },
+        {
+            "IndexI7Name": "UDP0303",
+            "IndexI7": "GGAGAGACTC"
+        },
+        {
+            "IndexI7Name": "UDP0304",
+            "IndexI7": "CCGCTCCGTT"
+        },
+        {
+            "IndexI7Name": "UDP0305",
+            "IndexI7": "ATACATCACA"
+        },
+        {
+            "IndexI7Name": "UDP0306",
+            "IndexI7": "TAGGTATGTT"
+        },
+        {
+            "IndexI7Name": "UDP0307",
+            "IndexI7": "CACCTAGCAC"
+        },
+        {
+            "IndexI7Name": "UDP0308",
+            "IndexI7": "TTCAAGTATG"
+        },
+        {
+            "IndexI7Name": "UDP0309",
+            "IndexI7": "TTAAGACAAG"
+        },
+        {
+            "IndexI7Name": "UDP0310",
+            "IndexI7": "CACCTCTCTT"
+        },
+        {
+            "IndexI7Name": "UDP0311",
+            "IndexI7": "TTCTCGTGCA"
+        },
+        {
+            "IndexI7Name": "UDP0312",
+            "IndexI7": "GCTAGGAAGT"
+        },
+        {
+            "IndexI7Name": "UDP0313",
+            "IndexI7": "TTAATAGCAC"
+        },
+        {
+            "IndexI7Name": "UDP0314",
+            "IndexI7": "CATTCACGCT"
+        },
+        {
+            "IndexI7Name": "UDP0315",
+            "IndexI7": "GGCACTAAGG"
+        },
+        {
+            "IndexI7Name": "UDP0316",
+            "IndexI7": "ATTCGGTACA"
+        },
+        {
+            "IndexI7Name": "UDP0317",
+            "IndexI7": "ACTAATCTCC"
+        },
+        {
+            "IndexI7Name": "UDP0318",
+            "IndexI7": "TGTGTTAGTA"
+        },
+        {
+            "IndexI7Name": "UDP0319",
+            "IndexI7": "CAACGACCTA"
+        },
+        {
+            "IndexI7Name": "UDP0320",
+            "IndexI7": "CGGTCGGCAT"
+        },
+        {
+            "IndexI7Name": "UDP0321V3",
+            "IndexI7": "GTAACTCCGC"
+        },
+        {
+            "IndexI7Name": "UDP0322",
+            "IndexI7": "CTCGTAGGCA"
+        },
+        {
+            "IndexI7Name": "UDP0323",
+            "IndexI7": "AAGTTCTAGT"
+        },
+        {
+            "IndexI7Name": "UDP0324",
+            "IndexI7": "CCAAGAGGTG"
+        },
+        {
+            "IndexI7Name": "UDP0325",
+            "IndexI7": "ATATCTGCTT"
+        },
+        {
+            "IndexI7Name": "UDP0326",
+            "IndexI7": "TGGATCTGGC"
+        },
+        {
+            "IndexI7Name": "UDP0327",
+            "IndexI7": "TTGAATCCAA"
+        },
+        {
+            "IndexI7Name": "UDP0328",
+            "IndexI7": "CACGGCTAGT"
+        },
+        {
+            "IndexI7Name": "UDP0329",
+            "IndexI7": "GAGCTTGCCG"
+        },
+        {
+            "IndexI7Name": "UDP0330",
+            "IndexI7": "AGCTAGCTTC"
+        },
+        {
+            "IndexI7Name": "UDP0331",
+            "IndexI7": "CAATCCTTGT"
+        },
+        {
+            "IndexI7Name": "UDP0332",
+            "IndexI7": "CACCTGTTGC"
+        },
+        {
+            "IndexI7Name": "UDP0333",
+            "IndexI7": "CGTCACCTTG"
+        },
+        {
+            "IndexI7Name": "UDP0334",
+            "IndexI7": "AATGACTGGT"
+        },
+        {
+            "IndexI7Name": "UDP0335",
+            "IndexI7": "ATGATTCCGG"
+        },
+        {
+            "IndexI7Name": "UDP0336",
+            "IndexI7": "TTAGGCTCAA"
+        },
+        {
+            "IndexI7Name": "UDP0337",
+            "IndexI7": "TGTAAGGTGG"
+        },
+        {
+            "IndexI7Name": "UDP0338",
+            "IndexI7": "CAACTGCAAC"
+        },
+        {
+            "IndexI7Name": "UDP0339",
+            "IndexI7": "ACATGAGTGA"
+        },
+        {
+            "IndexI7Name": "UDP0340",
+            "IndexI7": "GCAACCAGTC"
+        },
+        {
+            "IndexI7Name": "UDP0341",
+            "IndexI7": "GAGCGACGAT"
+        },
+        {
+            "IndexI7Name": "UDP0342",
+            "IndexI7": "CGAACGCACC"
+        },
+        {
+            "IndexI7Name": "UDP0343",
+            "IndexI7": "TCTTACGCCG"
+        },
+        {
+            "IndexI7Name": "UDP0344",
+            "IndexI7": "AGCTGATGTC"
+        },
+        {
+            "IndexI7Name": "UDP0345",
+            "IndexI7": "CTGAATTAGT"
+        },
+        {
+            "IndexI7Name": "UDP0346",
+            "IndexI7": "TAAGGAGGAA"
+        },
+        {
+            "IndexI7Name": "UDP0347",
+            "IndexI7": "AGCTTACACA"
+        },
+        {
+            "IndexI7Name": "UDP0348",
+            "IndexI7": "AACCAGCCAC"
+        },
+        {
+            "IndexI7Name": "UDP0349",
+            "IndexI7": "CTTAAGTCGA"
+        },
+        {
+            "IndexI7Name": "UDP0350",
+            "IndexI7": "GCCTAACGTG"
+        },
+        {
+            "IndexI7Name": "UDP0351",
+            "IndexI7": "ACTTACTTCA"
+        },
+        {
+            "IndexI7Name": "UDP0352",
+            "IndexI7": "CGCATTCCGT"
+        },
+        {
+            "IndexI7Name": "UDP0353",
+            "IndexI7": "GATATCACAC"
+        },
+        {
+            "IndexI7Name": "UDP0354",
+            "IndexI7": "AGCGCTGTGT"
+        },
+        {
+            "IndexI7Name": "UDP0355",
+            "IndexI7": "TCACCGCGCT"
+        },
+        {
+            "IndexI7Name": "UDP0356",
+            "IndexI7": "GATAGCCTTG"
+        },
+        {
+            "IndexI7Name": "UDP0357",
+            "IndexI7": "CCTGGACGCA"
+        },
+        {
+            "IndexI7Name": "UDP0358",
+            "IndexI7": "TTACGCACCT"
+        },
+        {
+            "IndexI7Name": "UDP0359",
+            "IndexI7": "TCGTTGCTGC"
+        },
+        {
+            "IndexI7Name": "UDP0360",
+            "IndexI7": "CGACAAGGAT"
+        },
+        {
+            "IndexI7Name": "UDP0361",
+            "IndexI7": "GTGTACCTTC"
+        },
+        {
+            "IndexI7Name": "UDP0362",
+            "IndexI7": "ACCTGGCCAA"
+        },
+        {
+            "IndexI7Name": "UDP0363",
+            "IndexI7": "TGTCTGGCCT"
+        },
+        {
+            "IndexI7Name": "UDP0364",
+            "IndexI7": "AGTTAATGCT"
+        },
+        {
+            "IndexI7Name": "UDP0365",
+            "IndexI7": "GGTGAGTAAT"
+        },
+        {
+            "IndexI7Name": "UDP0366",
+            "IndexI7": "TACTCTGCGC"
+        },
+        {
+            "IndexI7Name": "UDP0367",
+            "IndexI7": "AGGTATGGCG"
+        },
+        {
+            "IndexI7Name": "UDP0368",
+            "IndexI7": "TCCAGCCTGC"
+        },
+        {
+            "IndexI7Name": "UDP0369V3",
+            "IndexI7": "GATGAATTCA"
+        },
+        {
+            "IndexI7Name": "UDP0370V3",
+            "IndexI7": "ATCCGGCAGC"
+        },
+        {
+            "IndexI7Name": "UDP0371V3",
+            "IndexI7": "ACGAACCATG"
+        },
+        {
+            "IndexI7Name": "UDP0372V3",
+            "IndexI7": "CAACCAAGTA"
+        },
+        {
+            "IndexI7Name": "UDP0373",
+            "IndexI7": "GTTGCGTTCA"
+        },
+        {
+            "IndexI7Name": "UDP0374",
+            "IndexI7": "CTTCAACCAC"
+        },
+        {
+            "IndexI7Name": "UDP0375",
+            "IndexI7": "TCTATTCAGT"
+        },
+        {
+            "IndexI7Name": "UDP0376",
+            "IndexI7": "CAAGACGTCC"
+        },
+        {
+            "IndexI7Name": "UDP0377",
+            "IndexI7": "TGAGTACAAC"
+        },
+        {
+            "IndexI7Name": "UDP0378",
+            "IndexI7": "CCGCGGTTCT"
+        },
+        {
+            "IndexI7Name": "UDP0379",
+            "IndexI7": "ATTGATACTG"
+        },
+        {
+            "IndexI7Name": "UDP0380",
+            "IndexI7": "GGATTATGGA"
+        },
+        {
+            "IndexI7Name": "UDP0381",
+            "IndexI7": "TGGTTCTCAT"
+        },
+        {
+            "IndexI7Name": "UDP0382",
+            "IndexI7": "TCAACCACGA"
+        },
+        {
+            "IndexI7Name": "UDP0383",
+            "IndexI7": "TATGAACTTG"
+        },
+        {
+            "IndexI7Name": "UDP0384",
+            "IndexI7": "AGTGGTTAAG"
+        }
+    ],
+    "indices_i5": [
+        {
+            "IndexI5Name": "UDP0289V2",
+            "IndexI5": "GGCACGCCAT"
+        },
+        {
+            "IndexI5Name": "UDP0290V2",
+            "IndexI5": "GCAGGCTGGA"
+        },
+        {
+            "IndexI5Name": "UDP0291V2",
+            "IndexI5": "ATGGCTTAAT"
+        },
+        {
+            "IndexI5Name": "UDP0292",
+            "IndexI5": "CGGTGACACC"
+        },
+        {
+            "IndexI5Name": "UDP0293",
+            "IndexI5": "GCGTTGGTAT"
+        },
+        {
+            "IndexI5Name": "UDP0294",
+            "IndexI5": "TGTGCTAACA"
+        },
+        {
+            "IndexI5Name": "UDP0295",
+            "IndexI5": "CCAGAAGTAA"
+        },
+        {
+            "IndexI5Name": "UDP0296",
+            "IndexI5": "CTTATACCTG"
+        },
+        {
+            "IndexI5Name": "UDP0297",
+            "IndexI5": "ACTAGAACTT"
+        },
+        {
+            "IndexI5Name": "UDP0298V3",
+            "IndexI5": "GAATGCAGTT"
+        },
+        {
+            "IndexI5Name": "UDP0299",
+            "IndexI5": "TATCATGAGA"
+        },
+        {
+            "IndexI5Name": "UDP0300",
+            "IndexI5": "CTCACACAAG"
+        },
+        {
+            "IndexI5Name": "UDP0301V2",
+            "IndexI5": "AGTTACTTGG"
+        },
+        {
+            "IndexI5Name": "UDP0302",
+            "IndexI5": "CGGATTATAT"
+        },
+        {
+            "IndexI5Name": "UDP0303",
+            "IndexI5": "TTGAAGCAGA"
+        },
+        {
+            "IndexI5Name": "UDP0304",
+            "IndexI5": "TACGGCGAAG"
+        },
+        {
+            "IndexI5Name": "UDP0305",
+            "IndexI5": "TCTCCATTGA"
+        },
+        {
+            "IndexI5Name": "UDP0306",
+            "IndexI5": "CGAGACCAAG"
+        },
+        {
+            "IndexI5Name": "UDP0307",
+            "IndexI5": "TGCTGGACAT"
+        },
+        {
+            "IndexI5Name": "UDP0308",
+            "IndexI5": "GATGGTATCG"
+        },
+        {
+            "IndexI5Name": "UDP0309",
+            "IndexI5": "GGCTTAATTG"
+        },
+        {
+            "IndexI5Name": "UDP0310",
+            "IndexI5": "CTCGACTCCT"
+        },
+        {
+            "IndexI5Name": "UDP0311",
+            "IndexI5": "ATACACAGAG"
+        },
+        {
+            "IndexI5Name": "UDP0312",
+            "IndexI5": "TCTCGGACGA"
+        },
+        {
+            "IndexI5Name": "UDP0313",
+            "IndexI5": "ACCACGTCTG"
+        },
+        {
+            "IndexI5Name": "UDP0314",
+            "IndexI5": "GTTGTACTCA"
+        },
+        {
+            "IndexI5Name": "UDP0315",
+            "IndexI5": "TCAGGTCAAC"
+        },
+        {
+            "IndexI5Name": "UDP0316",
+            "IndexI5": "AGTCCGAGGA"
+        },
+        {
+            "IndexI5Name": "UDP0317",
+            "IndexI5": "CACTTAATCT"
+        },
+        {
+            "IndexI5Name": "UDP0318",
+            "IndexI5": "TACTCTGTTA"
+        },
+        {
+            "IndexI5Name": "UDP0319",
+            "IndexI5": "GCGACTCGAT"
+        },
+        {
+            "IndexI5Name": "UDP0320",
+            "IndexI5": "CTAGGCAAGG"
+        },
+        {
+            "IndexI5Name": "UDP0321V3",
+            "IndexI5": "AATAGAACGG"
+        },
+        {
+            "IndexI5Name": "UDP0322",
+            "IndexI5": "TCATCCTCTT"
+        },
+        {
+            "IndexI5Name": "UDP0323",
+            "IndexI5": "GGTAAGATAA"
+        },
+        {
+            "IndexI5Name": "UDP0324",
+            "IndexI5": "AACGAGCCAG"
+        },
+        {
+            "IndexI5Name": "UDP0325",
+            "IndexI5": "TAGACAATCT"
+        },
+        {
+            "IndexI5Name": "UDP0326",
+            "IndexI5": "CAATGCTGAA"
+        },
+        {
+            "IndexI5Name": "UDP0327",
+            "IndexI5": "GTCACGGTGT"
+        },
+        {
+            "IndexI5Name": "UDP0328",
+            "IndexI5": "GGTGTACAAG"
+        },
+        {
+            "IndexI5Name": "UDP0329",
+            "IndexI5": "AGGTTGCAGG"
+        },
+        {
+            "IndexI5Name": "UDP0330",
+            "IndexI5": "TAATACGGAG"
+        },
+        {
+            "IndexI5Name": "UDP0331",
+            "IndexI5": "CGAAGACGCA"
+        },
+        {
+            "IndexI5Name": "UDP0332",
+            "IndexI5": "ATTGACACAT"
+        },
+        {
+            "IndexI5Name": "UDP0333",
+            "IndexI5": "CAGCCGATTG"
+        },
+        {
+            "IndexI5Name": "UDP0334",
+            "IndexI5": "TCTCACGCGT"
+        },
+        {
+            "IndexI5Name": "UDP0335",
+            "IndexI5": "CTCTGACGTG"
+        },
+        {
+            "IndexI5Name": "UDP0336",
+            "IndexI5": "TCGAATGGAA"
+        },
+        {
+            "IndexI5Name": "UDP0337",
+            "IndexI5": "AAGGCCTTGG"
+        },
+        {
+            "IndexI5Name": "UDP0338",
+            "IndexI5": "TGAACGCAAC"
+        },
+        {
+            "IndexI5Name": "UDP0339",
+            "IndexI5": "CCGCTTAGCT"
+        },
+        {
+            "IndexI5Name": "UDP0340",
+            "IndexI5": "CACCGAGGAA"
+        },
+        {
+            "IndexI5Name": "UDP0341",
+            "IndexI5": "CGTATAATCA"
+        },
+        {
+            "IndexI5Name": "UDP0342",
+            "IndexI5": "ATGACAGAAC"
+        },
+        {
+            "IndexI5Name": "UDP0343",
+            "IndexI5": "ATTCATTGCA"
+        },
+        {
+            "IndexI5Name": "UDP0344",
+            "IndexI5": "TCATGTCCTG"
+        },
+        {
+            "IndexI5Name": "UDP0345",
+            "IndexI5": "AATTCGATCG"
+        },
+        {
+            "IndexI5Name": "UDP0346",
+            "IndexI5": "TTCCGACATT"
+        },
+        {
+            "IndexI5Name": "UDP0347",
+            "IndexI5": "TGGCACGACC"
+        },
+        {
+            "IndexI5Name": "UDP0348",
+            "IndexI5": "GCCACAGCAC"
+        },
+        {
+            "IndexI5Name": "UDP0349",
+            "IndexI5": "CAGTAGTTGT"
+        },
+        {
+            "IndexI5Name": "UDP0350",
+            "IndexI5": "AGCTCTCAAG"
+        },
+        {
+            "IndexI5Name": "UDP0351",
+            "IndexI5": "TCTGGAATTA"
+        },
+        {
+            "IndexI5Name": "UDP0352",
+            "IndexI5": "ATTAGTGGAG"
+        },
+        {
+            "IndexI5Name": "UDP0353",
+            "IndexI5": "GACTATATGT"
+        },
+        {
+            "IndexI5Name": "UDP0354",
+            "IndexI5": "CGTTCGGAAC"
+        },
+        {
+            "IndexI5Name": "UDP0355",
+            "IndexI5": "TCGATACTAG"
+        },
+        {
+            "IndexI5Name": "UDP0356",
+            "IndexI5": "TACCACAATG"
+        },
+        {
+            "IndexI5Name": "UDP0357",
+            "IndexI5": "TGGTATACCA"
+        },
+        {
+            "IndexI5Name": "UDP0358",
+            "IndexI5": "GCTCTCGTTG"
+        },
+        {
+            "IndexI5Name": "UDP0359",
+            "IndexI5": "GTCTCGTGAA"
+        },
+        {
+            "IndexI5Name": "UDP0360",
+            "IndexI5": "AAGGCCACCT"
+        },
+        {
+            "IndexI5Name": "UDP0361",
+            "IndexI5": "CTGTGAGCTA"
+        },
+        {
+            "IndexI5Name": "UDP0362",
+            "IndexI5": "TCACAGATCG"
+        },
+        {
+            "IndexI5Name": "UDP0363",
+            "IndexI5": "AGAAGCCAAT"
+        },
+        {
+            "IndexI5Name": "UDP0364",
+            "IndexI5": "ACTGCAGCCG"
+        },
+        {
+            "IndexI5Name": "UDP0365",
+            "IndexI5": "AACATCTAGT"
+        },
+        {
+            "IndexI5Name": "UDP0366",
+            "IndexI5": "CCTTACTATG"
+        },
+        {
+            "IndexI5Name": "UDP0367",
+            "IndexI5": "GTGGCGAGAC"
+        },
+        {
+            "IndexI5Name": "UDP0368",
+            "IndexI5": "GCCAGATCCA"
+        },
+        {
+            "IndexI5Name": "UDP0369V3",
+            "IndexI5": "TGCTGTGATT"
+        },
+        {
+            "IndexI5Name": "UDP0370V3",
+            "IndexI5": "GATCGAATAA"
+        },
+        {
+            "IndexI5Name": "UDP0371V3",
+            "IndexI5": "ACTGAATTAC"
+        },
+        {
+            "IndexI5Name": "UDP0372V3",
+            "IndexI5": "CCATCCACGC"
+        },
+        {
+            "IndexI5Name": "UDP0373",
+            "IndexI5": "GTTGCAGTTG"
+        },
+        {
+            "IndexI5Name": "UDP0374",
+            "IndexI5": "TTATGCGCCT"
+        },
+        {
+            "IndexI5Name": "UDP0375",
+            "IndexI5": "TCTCAGTACA"
+        },
+        {
+            "IndexI5Name": "UDP0376",
+            "IndexI5": "AGTATACGGA"
+        },
+        {
+            "IndexI5Name": "UDP0377",
+            "IndexI5": "ACGCTTGGAC"
+        },
+        {
+            "IndexI5Name": "UDP0378",
+            "IndexI5": "GGAGTAGATT"
+        },
+        {
+            "IndexI5Name": "UDP0379",
+            "IndexI5": "TACACGCTCC"
+        },
+        {
+            "IndexI5Name": "UDP0380",
+            "IndexI5": "TCCGATAGAG"
+        },
+        {
+            "IndexI5Name": "UDP0381",
+            "IndexI5": "CTCAAGGCCG"
+        },
+        {
+            "IndexI5Name": "UDP0382",
+            "IndexI5": "CAAGTTCATA"
+        },
+        {
+            "IndexI5Name": "UDP0383",
+            "IndexI5": "AATCCTTAGG"
+        },
+        {
+            "IndexI5Name": "UDP0384",
+            "IndexI5": "GGTGGAATAC"
+        }
+    ],
+    "supported_library_prep_kits": [
+        "Illumina RNA Prep with Enrichment",
+        "Illumina DNA Prep with Enrichment",
+        "Illumina DNA Prep",
+        "Nextera XT"
+    ]
+}
