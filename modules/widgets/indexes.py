@@ -246,7 +246,7 @@ class IKDWidgetContainer(QWidget):
 
         name = ikd.name()
         if ikd.has_indices_dual_fixed():
-            print(name, ikd.indices_dual_fixed())
+            # print(name, ikd.indices_dual_fixed())
             self.idk_widget_list.append(IDKWidget(ikd.indices_dual_fixed()))
 
         elif ikd.has_indices_i7() and ikd.has_indices_i5():
@@ -265,7 +265,7 @@ class IndexKitToolbox(QWidget):
         super().__init__()
         index_schema_path = Path("config/indexes/indexes_json_schema.json")
         idk_list = self._ikd_list(indexes_base_path, index_schema_path)
-        print(idk_list)
+        # print(idk_list)
         self.ikd_widgets = {idk.name(): IKDWidgetContainer(idk) for idk in idk_list}
 
         self.layout = QVBoxLayout()
@@ -293,6 +293,6 @@ class IndexKitToolbox(QWidget):
     def _ikd_list(index_dir_root: Path, index_schema_path: Path) -> list:
 
         index_files = [f for f in index_dir_root.glob("*.json")]
-        print(index_files)
+        # print(index_files)
 
         return [IndexKitDefinition(f, index_schema_path) for f in index_files]

@@ -30,8 +30,6 @@ class SampleSheetV2:
                                                                                  row['OverrideCyclesPattern']),
                                                       axis=1)
 
-        print(sample_df.to_string())
-
         self.application['BCLConvert'] = BCLConvert(sample_df)
 
         used_applications = sample_df['Application'].unique()
@@ -83,8 +81,6 @@ class SampleSheetV2:
         i2_len = len(index2)
 
         r1_pat, i1_pat, i2_pat, r2_pat = override_cycles_pattern.split('-')
-
-        print(r1_runc, i1_runc, i2_runc, r2_runc)
 
         r1_str = self._fill_oc_read('$r1', r1_pat, r1_runc)
         i1_str = self._n_pad_right('$i1', i1_pat, i1_len, i1_runc)
@@ -326,8 +322,6 @@ class BCLConvert:
 class Application:
     def __init__(self, df):
 
-        print(df)
-
         app = df.loc[0, 'Application']
         self.app_settings = json.loads(df.loc[0, 'ApplicationSettings'])
         app_data = json.loads(df.loc[0, 'ApplicationData'])
@@ -338,8 +332,6 @@ class Application:
 
         for key, value in app_data.items():
             df[key] = value
-
-        print(df[data_fields].to_string())
 
         self.data = self.reorder_columns(df[data_fields], "Sample_ID")
 

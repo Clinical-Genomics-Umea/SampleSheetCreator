@@ -246,11 +246,11 @@ class DroppableHeader(QHeaderView):
     def __init__(self, orientation, parent=None):
         super().__init__(orientation, parent)
         self.setAcceptDrops(True)
-        print("DroppableHeader initialized and set to accept drops.")
+        # print("DroppableHeader initialized and set to accept drops.")
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasText():
-            print("Drag enter event accepted.")
+            # print("Drag enter event accepted.")
             event.acceptProposedAction()
         else:
             print("Drag enter event ignored.")

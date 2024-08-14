@@ -29,10 +29,7 @@ class IndexKitDefinition:
 
         try:
             validate(instance=indata, schema=schema)
-            print(index_json_path, 'is valid')
         except jsonschema.ValidationError as e:
-            print(index_json_path, schema_path)
-            print("error:", e)
             self._index_import_error = e
             return
 
@@ -101,13 +98,13 @@ def run_import():
 
         obj = IndexKitDefinition(j, index_schema)
 
-        print("import error:", obj._index_import_error)
-        print("override_pattern:", obj._overridecycles_pattern)
-        print("index_kit:", obj._index_kit)
-        print("supported_library_prep_kits:", obj._supported_library_prep_kits)
-        print("indices_i7:", obj._indices_i7)
-        print("indices_i5:", obj._indices_i5)
-        print("indices_dual_fixed", obj._indices_dual_fixed)
+        # print("import error:", obj._index_import_error)
+        # print("override_pattern:", obj._overridecycles_pattern)
+        # print("index_kit:", obj._index_kit)
+        # print("supported_library_prep_kits:", obj._supported_library_prep_kits)
+        # print("indices_i7:", obj._indices_i7)
+        # print("indices_i5:", obj._indices_i5)
+        # print("indices_dual_fixed", obj._indices_dual_fixed)
 
         run_cycles = {
             'rd1': 151,
@@ -117,7 +114,6 @@ def run_import():
         }
 
         outstr = obj._overridecycles_pattern.format(**run_cycles)
-        print("str pattern", outstr)
 
 def run_convert():
     index_root = Path(r'C:\Dev\PyCharmProjects\SampleSheetCreator\config\indexes\Illumina_UDI')

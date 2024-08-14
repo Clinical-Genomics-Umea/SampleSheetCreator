@@ -5,4 +5,5 @@ old/stylesheets
 .idea
 __pycache__
 
-
+/.venv/
+/old/

@@ -7,7 +7,7 @@ import yaml
 from pathlib import Path
 
 from PySide6.QtWidgets import QMainWindow, QApplication, QSizePolicy, QFileDialog, \
-    QWidget, QPushButton, QGraphicsScene, QGraphicsView, QFrame
+    QWidget, QPushButton, QGraphicsScene, QGraphicsView, QFrame, QTabWidget
 
 from PySide6.QtGui import QAction, QActionGroup, QPainter, QIcon
 from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRect
@@ -26,11 +26,14 @@ from modules.widgets.validation import DataValidationWidget, PreValidationWidget
 from modules.widgets.sampleview import SampleWidget
 from ui.mw import Ui_MainWindow
 import qtawesome as qta
+import pywinstyles
 import qdarktheme
 
 sys.argv += ['-platform', 'windows:darkmode=2']
 __author__ = "Pär Larsson"
 __version__ = "2.0.0.a"
+
+# os.environ['QT_API'] = 'pyside6'
 
 
 def get_dialog_options():
@@ -52,6 +55,7 @@ def clear_layout(layout):
             widget = item.widget()
             widget.setParent(None)  # Remove from parent
             widget.deleteLater()  # Schedule for deletion
+
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -116,10 +120,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.prevalidate_widget = PreValidationWidget(Path("config/validation/validation_settings.yaml"),
                                                       self.samples_model,
                                                       self.run_info_widget)
-        self.data_validate_widget = DataValidationWidget(
+        self.datavalidate_widget = DataValidationWidget(
                                                     Path("config/validation/validation_settings.yaml"),
                                                     self.samples_model,
                                                     self.run_info_widget)
+
+        self.validation_tabwidget = QTabWidget()
 
         self.validate_setup()
 
@@ -147,8 +153,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def validate_setup(self):
         layout = self.main_validation.layout()
-        layout.addWidget(self.prevalidate_widget)
-        layout.addWidget(self.data_validate_widget)
+        layout.addWidget(self.validation_tabwidget)
+
+        self.validation_tabwidget.addTab(self.prevalidate_widget, "Pre-Validation")
+        self.validation_tabwidget.addTab(self.datavalidate_widget, "Data-Validation")
+        self.datavalidate_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
 
     def samplesheetedit_setup(self):
         layout = self.main_make.layout()
@@ -405,7 +415,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if not is_valid:
                     return
 
-                self.data_validate_widget.validate()
+                self.datavalidate_widget.validate()
 
             elif button_text == "make":
                 self.main_stackedWidget.setCurrentWidget(self.main_make)
@@ -462,7 +472,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if not is_valid:
                 return
 
-            self.data_validate_widget.validate()
+            self.datavalidate_widget.validate()
         else:
             self.main_stackedWidget.setCurrentWidget(self.main_data)
 
@@ -493,8 +503,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    qdarktheme.setup_theme("light")
+    # app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyside6'))
+    # app.setStyle('fusion')
+    qdarktheme.setup_theme("dark")
     window = MainWindow()
+    pywinstyles.apply_style(window, "dark")
     window.setGeometry(QRect(300, 300, 640, 480))  # arbitrary size/location
     window.show()
     sys.exit(app.exec())

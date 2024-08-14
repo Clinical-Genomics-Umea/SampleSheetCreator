@@ -51,7 +51,7 @@ def lane_validation(df, flowcell, instrument, settings):
     disallowed_lanes = used_lanes.difference(allowed_lanes)
 
     if disallowed_lanes:
-        return False, f"Disallowed lane(s) '{disallowed_lanes}' present in the Lane column."
+        return False, f"Lane(s) {disallowed_lanes} incompatible with selected flowcell."
 
     return True, ""
 
@@ -66,112 +66,79 @@ def sample_count_validation(df):
     return True, ""
 
 
-def get_table_widget():
-    tw = QTableWidget()
-    tw.setColumnCount(3)
-    tw.setHorizontalHeaderLabels(["validator", "status", "error"])
-
-    tw.setColumnWidth(0, 150)
-    tw.setColumnWidth(1, 100)
-
-    header = tw.horizontalHeader()
-    header.setSectionResizeMode(2, QHeaderView.Stretch)
-    tw.setContentsMargins(0, 0, 0, 0)
-
-    size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-    tw.setSizePolicy(size_policy)
-
-    tw.setMinimumHeight(170)
-    tw.setMaximumHeight(170)
-
-    return tw
-
-
 def load_from_yaml(config_file):
     with open(config_file, 'r') as file:
         return yaml.safe_load(file)
 
 
-class PreValidationWidget(QWidget):
+class PreValidationWidget(QTableWidget):
     def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfoWidget):
         super().__init__()
-        self.setMinimumHeight(10)
+        self.setColumnCount(3)
+        self.setHorizontalHeaderLabels(["Validator", "Status", "Message"])
         self.layout = QVBoxLayout()
-        self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
-        self.table_widget = get_table_widget()
-        self.layout.addWidget(self.table_widget)
-
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)
-        self.table_widget.setContentsMargins(0, 0, 0, 0)
-
-        self.settings = load_from_yaml(validation_settings_path)
 
         self.model = model
         self.run_info = run_info
+        self.settings = load_from_yaml(validation_settings_path)
 
         self.flowcell = None
         self.instrument = None
 
-        self.setMinimumHeight(10)
-        self.table_widget.setMinimumHeight(10)
+        self.setColumnWidth(0, 200)
+        self.setColumnWidth(1, 200)
+        self.horizontalHeader().setStretchLastSection(True)
 
-    def add_row(self, validator, is_valid, message):
-        self.table_widget.insertRow(self.table_widget.rowCount())
+    def add_row(self, validator_text, is_valid, message):
+        self.insertRow(self.rowCount())
+        last_row = self.rowCount() - 1
 
-        item1 = QTableWidgetItem(validator)
+        validator_item = QTableWidgetItem(validator_text)
+        status_item = QTableWidgetItem("OK" if is_valid else "FAIL")
+        status_item.setForeground(QBrush(QColor(0, 200, 0)) if is_valid else QBrush(QColor(200, 0, 0)))
 
-        if is_valid:
-            item2 = QTableWidgetItem("OK")
-            item2.setForeground(QBrush(QColor(0, 200, 0)))
-        else:
-            item2 = QTableWidgetItem(str("FAIL"))
-            item2.setForeground(QBrush(QColor(200, 0, 0)))
+        message_item = QTableWidgetItem(message)
 
-        item3 = QTableWidgetItem(message)
-
-        last_row = self.table_widget.rowCount() - 1
-
-        self.table_widget.setItem(last_row, 0, item1)
-        self.table_widget.setItem(last_row, 1, item2)
-        self.table_widget.setItem(last_row, 2, item3)
+        self.setItem(last_row, 0, validator_item)
+        self.setItem(last_row, 1, status_item)
+        self.setItem(last_row, 2, message_item)
 
     def validate(self):
-        self.table_widget.setRowCount(0)
+        self.setRowCount(0)
+
+        statuses = []
 
         run_data = self.run_info.get_data()
         df = self.model.to_dataframe()
+        df = df.replace(r'^\s*$', np.nan, regex=True)
 
-        # df.fillna('', inplace=True)
-
-        flowcell = run_data['Run_Extra']['FlowCellType']
+        flowcell_type = run_data['Run_Extra']['FlowCellType']
         instrument = run_data['Header']['Instrument']
 
-        is_valid, message = flowcell_validation(flowcell, instrument, self.settings)
-        self.add_row("flowcell validation", is_valid, message)
-        if not is_valid:
-            return False
+        validations = [
+            ("flowcell validation", flowcell_validation(flowcell_type, instrument, self.settings)),
+            ("lane validation", lane_validation(df, flowcell_type, instrument, self.settings)),
+            ("sample count validation", sample_count_validation(df))
+        ]
 
-        is_valid, message = lane_validation(df, flowcell, instrument, self.settings)
-        self.add_row("lane validation", is_valid, message)
-        if not is_valid:
-            return False
-
-        is_valid, message = sample_count_validation(df)
-        self.add_row("sample count validation", is_valid, message)
-        if not is_valid:
-            return False
-
-        df = df.replace(r'^\s*$', np.nan, regex=True)
+        for validation_name, (is_valid, message) in validations:
+            self.add_row(validation_name, is_valid, message)
+            statuses.append(is_valid)
 
         try:
             prevalidation_schema.validate(df)
             self.add_row("prevalidation schema", True, "")
+            statuses.append(True)
         except pa.errors.SchemaError as exc:
             self.add_row("prevalidation schema", False, str(exc))
-            return False
+            statuses.append(False)
 
-        return True
+        self.horizontalHeader().setSectionResizeMode(3, QHeaderView.Stretch)
+
+        return all(statuses)
 
 
 class DataValidationWidget(QWidget):
@@ -180,7 +147,7 @@ class DataValidationWidget(QWidget):
 
         self.model = model
         self.run_info_data = run_info.get_data()
-        print(self.run_info_data)
+
         instrument = self.run_info_data['Header']['Instrument']
         settings = load_from_yaml(validation_settings_path)
         self.index_i5_rc = settings['flowcells'][instrument]
@@ -188,6 +155,7 @@ class DataValidationWidget(QWidget):
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setLayout(self.layout)
 
         self.hspacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -267,10 +235,7 @@ class DataValidationWidget(QWidget):
 
         df = self.model.to_dataframe()
 
-        print(df.to_string())
-
         used_lanes = list(df['Lane'].unique())
-        print(used_lanes)
         for lane in used_lanes:
 
             df_lane = df[df['Lane'] == lane]
@@ -497,8 +462,6 @@ class ColorBalanceWidget(QTableView):
             df_seq = self.split_string_column(df, 'IndexI7', 'IndexI5')
         else:
             df_seq = self.split_string_column(df, 'IndexI7', 'IndexI5RC')
-
-        print(df.to_string())
 
         df_seq.insert(0, 'Sample_ID', df['Sample_ID'])
         df_seq.insert(1, "Proportion", df['Proportion'])

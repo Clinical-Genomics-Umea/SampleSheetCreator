@@ -189,7 +189,7 @@ class SampleSheetModel(QStandardItemModel):
         df.dropna(how='all', inplace=True)
         df = self.explode_lane_df(df)
 
-        print("to dataframe", df.to_string())
+        # print("to dataframe", df.to_string())
 
         return df
 
