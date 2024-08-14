@@ -51,7 +51,7 @@ def lane_validation(df, flowcell, instrument, settings):
     disallowed_lanes = used_lanes.difference(allowed_lanes)
 
     if disallowed_lanes:
-        return False, f"Lane(s) {disallowed_lanes} incompatible with selected flowcell."
+        return False, f"Lane(s) {disallowed_lanes} incompatible with selected flowcell {flowcell}."
 
     return True, ""
 
@@ -125,6 +125,7 @@ class PreValidationWidget(QTableWidget):
         ]
 
         for validation_name, (is_valid, message) in validations:
+            print(validation_name, is_valid, message)
             self.add_row(validation_name, is_valid, message)
             statuses.append(is_valid)
 
@@ -135,8 +136,6 @@ class PreValidationWidget(QTableWidget):
         except pa.errors.SchemaError as exc:
             self.add_row("prevalidation schema", False, str(exc))
             statuses.append(False)
-
-        self.horizontalHeader().setSectionResizeMode(3, QHeaderView.Stretch)
 
         return all(statuses)
 

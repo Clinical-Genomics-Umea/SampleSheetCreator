@@ -22,64 +22,6 @@ def get_base(string, index):
         return string[index]
 
 
-# def concat_lenadjust_indexes(df: pd.DataFrame, i7_maxlen: int, i5_maxlen: int, i7_colname: str, i5_colname: str, id_name: str) -> pd.DataFrame:
-#     """
-#     Concatenate i7 and i5 indexes from the DataFrame.
-#     Args:
-#         df (pd.DataFrame): The input DataFrame containing the indexes.
-#         i7_maxlen (int): The maximum length of i7 indexes.
-#         i5_maxlen (int): The maximum length of i5 indexes.
-#         i7_colname (str): The column name for i7 indexes.
-#         i5_colname (str): The column name for i5 indexes.
-#         id_name (str): The column name for the identifier.
-#     Returns:
-#         pd.DataFrame: A DataFrame with concatenated i7 and i5 indexes.
-#     """
-#     # Generate column names for i7 and i5 indexes
-#     i7_names = [f"I7_{i + 1}" for i in range(i7_maxlen)]
-#     i5_names = [f"I5_{i + 1}" for i in range(i5_maxlen)]
-#
-#     # Extract i7 indexes
-#     i7_df = df[i7_colname].apply(lambda x: pd.Series(get_base(x, i) for i in range(i7_maxlen))).fillna(np.nan)
-#     i7_df.columns = i7_names
-#
-#     # Extract i5 indexes
-#     i5_df = df[i5_colname].apply(lambda x: pd.Series(get_base(x, i) for i in range(i5_maxlen))).fillna(np.nan)
-#     i5_df.columns = i5_names
-#
-#     # Concatenate indexes and return the resulting DataFrame
-#     concatenated_indexes_df = pd.concat([df[id_name], i7_df, i5_df], axis=1)
-#     return concatenated_indexes_df
-
-
-# def concat_padded_indexes(df: pd.DataFrame, i7_maxlen: int, i5_maxlen: int, i7_colname: str, i5_colname: str, id_name: str) -> pd.DataFrame:
-#     """
-#     Concatenate i7 and i5 indexes from the DataFrame.
-#     Args:
-#         df (pd.DataFrame): The input DataFrame containing the indexes.
-#         i7_maxlen (int): The maximum length of i7 indexes.
-#         i5_maxlen (int): The maximum length of i5 indexes.
-#         i7_colname (str): The column name for i7 indexes.
-#         i5_colname (str): The column name for i5 indexes.
-#         id_name (str): The column name for the identifier.
-#     Returns:
-#         pd.DataFrame: A DataFrame with concatenated i7 and i5 indexes.
-#     """
-#     # Generate column names for i7 and i5 indexes
-#     i7_names = [f"I7_{i + 1}" for i in range(i7_maxlen)]
-#     i5_names = [f"I5_{i + 1}" for i in range(i5_maxlen)]
-#
-#     # Extract i7 indexes
-#     i7_df = df[i7_colname].apply(lambda x: pd.Series(get_base(x, i) for i in range(i7_maxlen))).fillna(np.nan)
-#     i7_df.columns = i7_names
-#
-#     # Extract i5 indexes
-#     i5_df = df[i5_colname].apply(lambda x: pd.Series(get_base(x, i) for i in range(i5_maxlen))).fillna(np.nan)
-#     i5_df.columns = i5_names
-#
-#     # Concatenate indexes and return the resulting DataFrame
-#     return pd.concat([df[id_name], i7_df, i5_df], axis=1)
-
 
 def padded_index_df(df: pd.DataFrame, len: int, col_name: str, id_name: str) -> pd.DataFrame:
 

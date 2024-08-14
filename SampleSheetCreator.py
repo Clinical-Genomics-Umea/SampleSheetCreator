@@ -9,11 +9,12 @@ from pathlib import Path
 from PySide6.QtWidgets import QMainWindow, QApplication, QSizePolicy, QFileDialog, \
     QWidget, QPushButton, QGraphicsScene, QGraphicsView, QFrame, QTabWidget
 
-from PySide6.QtGui import QAction, QActionGroup, QPainter, QIcon
+from PySide6.QtGui import QAction, QActionGroup, QPainter, QIcon, QColor
 from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRect
 
 from modules.logic.utils import read_yaml_file
 from modules.widgets.settings import SettingsWidget
+from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
 from modules.widgets.visibility import ColumnsTreeWidget
 from modules.widgets.models import SampleSheetModel
 from modules.widgets.indexes import IndexKitToolbox
@@ -67,6 +68,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setMinimumWidth(1000)
         self.left_toolBar.setMovable(False)
         self.left_toolBar.setIconSize(QSize(40, 40))
+
+        self.spinner = WaitingSpinner(self)
 
         # left sidemenu options
         self.file_action = QAction("file", self)
@@ -409,13 +412,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if is_checked:
             if button_text == "validate":
+                self.spinner.start()
+                print("starting")
                 self.main_stackedWidget.setCurrentWidget(self.main_validation)
+
                 is_valid = self.prevalidate_widget.validate()
 
                 if not is_valid:
+                    self.spinner.stop()
                     return
 
                 self.datavalidate_widget.validate()
+                self.spinner.stop()
+                print("stopping")
 
             elif button_text == "make":
                 self.main_stackedWidget.setCurrentWidget(self.main_make)
@@ -467,12 +476,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         button = self.sender()
 
         if button.isChecked():
+            self.spinner_thread = SpinnerThread(self.spinner_overlay)
+            self.spinner_thread.start()
+
             self.main_stackedWidget.setCurrentWidget(self.main_validation)
             is_valid = self.prevalidate_widget.validate()
             if not is_valid:
+                self.spinner_thread.stop()
                 return
 
             self.datavalidate_widget.validate()
+            self.spinner_thread.stop()
         else:
             self.main_stackedWidget.setCurrentWidget(self.main_data)
 
