@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import re
 from pathlib import Path
-from PySide6.QtCore import Qt, QSize, QEvent
+from PySide6.QtCore import Qt, QSize, QEvent, QThread
 from PySide6.QtGui import QStandardItemModel, QColor, QPen, QStandardItem, QPainter, QIntValidator, \
     QTextCursor, QTextDocument, QTextBlockFormat, QBrush
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QLabel, QHeaderView,
@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, Q
 from modules.widgets.models import SampleSheetModel
 from modules.widgets.run import RunInfoWidget
 from modules.logic.validation_fns import (substitutions_heatmap_df, padded_index_df)
+from modules.logic.validation import PreValidatorWorker
 import pandera as pa
 from modules.logic.validation_schema import prevalidation_schema
 import yaml
@@ -74,6 +75,10 @@ def load_from_yaml(config_file):
 class PreValidationWidget(QTableWidget):
     def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfoWidget):
         super().__init__()
+
+        self.thread = None
+        self.worker = None
+
         self.setColumnCount(3)
         self.setHorizontalHeaderLabels(["Validator", "Status", "Message"])
         self.layout = QVBoxLayout()
@@ -83,6 +88,7 @@ class PreValidationWidget(QTableWidget):
 
         self.model = model
         self.run_info = run_info
+        self.validation_settings_path = validation_settings_path
         self.settings = load_from_yaml(validation_settings_path)
 
         self.flowcell = None
@@ -106,38 +112,56 @@ class PreValidationWidget(QTableWidget):
         self.setItem(last_row, 1, status_item)
         self.setItem(last_row, 2, message_item)
 
+    def populate_table(self, validation_results):
+        self.insertRow(self.rowCount())
+
+        for validator_text, (is_valid, message) in validation_results.items():
+            self.add_row(validator_text, is_valid, message)
+
+
     def validate(self):
         self.setRowCount(0)
 
-        statuses = []
+        self.thread = QThread()
+        self.worker = PreValidatorWorker(self.validation_settings_path, self.model, self.run_info)
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.run)
 
-        run_data = self.run_info.get_data()
-        df = self.model.to_dataframe()
-        df = df.replace(r'^\s*$', np.nan, regex=True)
+        self.worker.finished.connect(self.populate_table)
 
-        flowcell_type = run_data['Run_Extra']['FlowCellType']
-        instrument = run_data['Header']['Instrument']
 
-        validations = [
-            ("flowcell validation", flowcell_validation(flowcell_type, instrument, self.settings)),
-            ("lane validation", lane_validation(df, flowcell_type, instrument, self.settings)),
-            ("sample count validation", sample_count_validation(df))
-        ]
 
-        for validation_name, (is_valid, message) in validations:
-            print(validation_name, is_valid, message)
-            self.add_row(validation_name, is_valid, message)
-            statuses.append(is_valid)
+        worker.start()
 
-        try:
-            prevalidation_schema.validate(df)
-            self.add_row("prevalidation schema", True, "")
-            statuses.append(True)
-        except pa.errors.SchemaError as exc:
-            self.add_row("prevalidation schema", False, str(exc))
-            statuses.append(False)
-
-        return all(statuses)
+        # statuses = []
+        #
+        # run_data = self.run_info.get_data()
+        # df = self.model.to_dataframe()
+        # df = df.replace(r'^\s*$', np.nan, regex=True)
+        #
+        # flowcell_type = run_data['Run_Extra']['FlowCellType']
+        # instrument = run_data['Header']['Instrument']
+        #
+        # validations = [
+        #     ("flowcell validation", flowcell_validation(flowcell_type, instrument, self.settings)),
+        #     ("lane validation", lane_validation(df, flowcell_type, instrument, self.settings)),
+        #     ("sample count validation", sample_count_validation(df))
+        # ]
+        #
+        # for validation_name, (is_valid, message) in validations:
+        #     print(validation_name, is_valid, message)
+        #     self.add_row(validation_name, is_valid, message)
+        #     statuses.append(is_valid)
+        #
+        # try:
+        #     prevalidation_schema.validate(df)
+        #     self.add_row("prevalidation schema", True, "")
+        #     statuses.append(True)
+        # except pa.errors.SchemaError as exc:
+        #     self.add_row("prevalidation schema", False, str(exc))
+        #     statuses.append(False)
+        #
+        # return all(statuses)
 
 
 class DataValidationWidget(QWidget):
