@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import re
 from pathlib import Path
-from PySide6.QtCore import Qt, QSize, QEvent, QThread
+from PySide6.QtCore import Qt, QSize, QEvent, QThread, Slot
 from PySide6.QtGui import QStandardItemModel, QColor, QPen, QStandardItem, QPainter, QIntValidator, \
     QTextCursor, QTextDocument, QTextBlockFormat, QBrush
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QLabel, QHeaderView,
@@ -12,12 +12,13 @@ from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, Q
                                QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit,
                                QPushButton, QMenu, QTableWidget, QTableWidgetItem, QItemDelegate)
 
+from modules.WaitingSpinner.spinner import WaitingSpinner
 from modules.widgets.models import SampleSheetModel
 from modules.widgets.run import RunInfoWidget
 from modules.logic.validation_fns import (substitutions_heatmap_df, padded_index_df)
-from modules.logic.validation import PreValidatorWorker
-import pandera as pa
-from modules.logic.validation_schema import prevalidation_schema
+from modules.logic.validation import PreValidatorWorker, load_from_yaml, DataValidationWorker
+# import pandera as pa
+# from modules.logic.validation_schema import prevalidation_schema
 import yaml
 
 
@@ -36,48 +37,14 @@ def extract_numbers_from_string(input_string):
     return numbers if numbers else []
 
 
-def flowcell_validation(flowcell, instrument, settings):
-    if instrument not in settings['flowcells']:
-        return False, f"Instrument '{instrument}' not present in validation_settings.yaml ."
-    if flowcell not in settings['flowcells'][instrument]['type']:
-        return False, f"flowcell '{flowcell}' not present in validation_settings.yaml ."
-
-    return True, ""
-
-
-def lane_validation(df, flowcell, instrument, settings):
-    allowed_lanes = set(map(int, settings['flowcells'][instrument]['type'][flowcell]))
-    used_lanes = set(df['Lane'])
-
-    disallowed_lanes = used_lanes.difference(allowed_lanes)
-
-    if disallowed_lanes:
-        return False, f"Lane(s) {disallowed_lanes} incompatible with selected flowcell {flowcell}."
-
-    return True, ""
-
-
-def sample_count_validation(df):
-    if not isinstance(df, pd.DataFrame):
-        return False, "Data could not be converted to a pandas dataframe."
-
-    if df.empty:
-        return False, "No data to validate (empty dataframe)."
-
-    return True, ""
-
-
-def load_from_yaml(config_file):
-    with open(config_file, 'r') as file:
-        return yaml.safe_load(file)
-
-
 class PreValidationWidget(QTableWidget):
     def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfoWidget):
         super().__init__()
 
         self.thread = None
         self.worker = None
+
+        self.spinner = WaitingSpinner(self)
 
         self.setColumnCount(3)
         self.setHorizontalHeaderLabels(["Validator", "Status", "Message"])
@@ -112,61 +79,44 @@ class PreValidationWidget(QTableWidget):
         self.setItem(last_row, 1, status_item)
         self.setItem(last_row, 2, message_item)
 
-    def populate_table(self, validation_results):
-        self.insertRow(self.rowCount())
+    # def populate_table(self, validation_results):
+    #     self.insertRow(self.rowCount())
+    #
+    #     for validator_text, (is_valid, message) in validation_results.items():
+    #         self.add_row(validator_text, is_valid, message)
 
-        for validator_text, (is_valid, message) in validation_results.items():
-            self.add_row(validator_text, is_valid, message)
-
-
-    def validate(self):
-        self.setRowCount(0)
-
+    def run_worker_thread(self):
         self.thread = QThread()
         self.worker = PreValidatorWorker(self.validation_settings_path, self.model, self.run_info)
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
+        self.worker.data_ready.connect(self.populate)
+        self.worker.data_ready.connect(self.thread.quit)
+        self.worker.data_ready.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
 
-        self.worker.finished.connect(self.populate_table)
+        self.spinner.start()
 
+        self.thread.start()
 
+    @Slot(dict)
+    def populate(self, validation_results):
+        self.spinner.stop()
+        self.setRowCount(0)
 
-        worker.start()
-
-        # statuses = []
-        #
-        # run_data = self.run_info.get_data()
-        # df = self.model.to_dataframe()
-        # df = df.replace(r'^\s*$', np.nan, regex=True)
-        #
-        # flowcell_type = run_data['Run_Extra']['FlowCellType']
-        # instrument = run_data['Header']['Instrument']
-        #
-        # validations = [
-        #     ("flowcell validation", flowcell_validation(flowcell_type, instrument, self.settings)),
-        #     ("lane validation", lane_validation(df, flowcell_type, instrument, self.settings)),
-        #     ("sample count validation", sample_count_validation(df))
-        # ]
-        #
-        # for validation_name, (is_valid, message) in validations:
-        #     print(validation_name, is_valid, message)
-        #     self.add_row(validation_name, is_valid, message)
-        #     statuses.append(is_valid)
-        #
-        # try:
-        #     prevalidation_schema.validate(df)
-        #     self.add_row("prevalidation schema", True, "")
-        #     statuses.append(True)
-        # except pa.errors.SchemaError as exc:
-        #     self.add_row("prevalidation schema", False, str(exc))
-        #     statuses.append(False)
-        #
-        # return all(statuses)
+        for validation_name, (is_valid, message) in validation_results.items():
+            print(validation_name, is_valid, message)
+            self.add_row(validation_name, is_valid, message)
 
 
 class DataValidationWidget(QWidget):
     def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfoWidget):
         super().__init__()
+
+        self.worker = None
+        self.thread = None
+
+        self.spinner = WaitingSpinner(self)
 
         self.model = model
         self.run_info_data = run_info.get_data()
@@ -197,9 +147,7 @@ class DataValidationWidget(QWidget):
         h_heatmap_layout.addSpacerItem(self.hspacer)
         return h_heatmap_layout
 
-    def get_tab(self, df):
-
-        lane = df["Lane"].iloc[0]
+    def get_tab(self, substitutions, lane):
 
         tab_scroll_area = QScrollArea()
         tab_scroll_area.setFrameShape(QFrame.NoFrame)
@@ -208,23 +156,9 @@ class DataValidationWidget(QWidget):
         tab_content_layout = QVBoxLayout()
         tab_content.setLayout(tab_content_layout)
 
-        indexes_i7_padded = padded_index_df(df, 10, "IndexI7", "Sample_ID")
-
-        if not self.index_i5_rc:
-            indexes_i5_padded = padded_index_df(df, 10, "IndexI5", "Sample_ID")
-        else:
-            indexes_i5_padded = padded_index_df(df, 10, "IndexI5RC", "Sample_ID")
-
-        indexes_i7_i5_padded = pd.merge(indexes_i7_padded, indexes_i5_padded, on="Sample_ID")
-
-        i7_i5_substitution_df = substitutions_heatmap_df(indexes_i7_i5_padded)
-        i7_i5_heatmap_table = create_heatmap_table(i7_i5_substitution_df)
-
-        i7_substitution_df = substitutions_heatmap_df(indexes_i7_padded)
-        i7_heatmap_table = create_heatmap_table(i7_substitution_df)
-
-        i5_substitution_df = substitutions_heatmap_df(indexes_i5_padded)
-        i5_heatmap_table = create_heatmap_table(i5_substitution_df)
+        i7_i5_heatmap_table = create_heatmap_table(substitutions["i7_i5_substitutions"])
+        i7_heatmap_table = create_heatmap_table(substitutions["i7_substitutions"])
+        i5_heatmap_table = create_heatmap_table(substitutions["i5_substitutions"])
 
         h_i7_i5_heatmap_layout = self.get_widget_hlayout(i7_i5_heatmap_table)
         h_i7_heatmap_layout = self.get_widget_hlayout(i7_heatmap_table)
@@ -243,15 +177,39 @@ class DataValidationWidget(QWidget):
 
         tab_content_layout.addLayout(v_heatmap_layout)
         tab_content_layout.addSpacerItem(self.vspacer_fixed)
-        tab_content_layout.addWidget(QLabel(f"Color Balance Table for Lane {lane}"))
+        tab_content_layout.addWidget(QLabel(f"color balance table"))
 
-        color_balance_table = ColorBalanceWidget(df, self.index_i5_rc)
-        tab_content_layout.addWidget(color_balance_table)
-        tab_content_layout.addSpacerItem(self.vspacer)
+        # color_balance_table = ColorBalanceWidget(df, self.index_i5_rc)
+        # tab_content_layout.addWidget(color_balance_table)
+        # tab_content_layout.addSpacerItem(self.vspacer)
 
         tab_scroll_area.setWidget(tab_content)
 
         return tab_scroll_area
+
+    def run_worker_thread(self):
+        self.thread = QThread()
+        self.worker = DataValidationWorker(self.model, self.index_i5_rc)
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.run)
+        self.worker.data_ready.connect(self.populate)
+        self.worker.data_ready.connect(self.thread.quit)
+        self.worker.data_ready.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+
+        self.spinner.start()
+
+        self.thread.start()
+
+    @Slot(dict)
+    def populate(self, results):
+        self.spinner.stop()
+        print("results datavalidation:", results)
+        for lane in results:
+            tab = self.get_tab(results[lane], lane)
+            self.validate_tabwidget.addTab(tab, f"Lane {lane}")
+
+
 
     def validate(self):
         self.validate_tabwidget.clear()

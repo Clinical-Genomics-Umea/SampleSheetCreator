@@ -10,12 +10,47 @@ from modules.logic.validation_fns import padded_index_df, substitutions_heatmap_
 from modules.logic.validation_schema import prevalidation_schema
 from modules.widgets.models import SampleSheetModel
 from modules.widgets.run import RunInfoWidget
-from modules.widgets.validation import flowcell_validation, lane_validation, sample_count_validation, load_from_yaml, \
-    create_heatmap_table
+import yaml
+
+
+def load_from_yaml(config_file):
+    with open(config_file, 'r') as file:
+        return yaml.safe_load(file)
+
+
+def flowcell_validation(flowcell, instrument, settings):
+    if instrument not in settings['flowcells']:
+        return False, f"Instrument '{instrument}' not present in validation_settings.yaml ."
+    if flowcell not in settings['flowcells'][instrument]['type']:
+        return False, f"flowcell '{flowcell}' not present in validation_settings.yaml ."
+
+    return True, ""
+
+
+def lane_validation(df, flowcell, instrument, settings):
+    allowed_lanes = set(map(int, settings['flowcells'][instrument]['type'][flowcell]))
+    used_lanes = set(df['Lane'])
+
+    disallowed_lanes = used_lanes.difference(allowed_lanes)
+
+    if disallowed_lanes:
+        return False, f"Lane(s) {disallowed_lanes} incompatible with selected flowcell {flowcell}."
+
+    return True, ""
+
+
+def sample_count_validation(df):
+    if not isinstance(df, pd.DataFrame):
+        return False, "Data could not be converted to a pandas dataframe."
+
+    if df.empty:
+        return False, "No data to validate (empty dataframe)."
+
+    return True, ""
 
 
 class PreValidatorWorker(QObject):
-    finished = Signal(dict[str, tuple[bool, str]])
+    data_ready = Signal(dict)
 
     def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfoWidget):
         super().__init__()
@@ -25,60 +60,57 @@ class PreValidatorWorker(QObject):
         self.settings = load_from_yaml(validation_settings_path)
 
     def run(self):
-        run_data = self.run_info.get_data()
-        df = self.model.to_dataframe()
-        df = df.replace(r'^\s*$', np.nan, regex=True)
+        """Execute validation tasks and emit results."""
+        results = {}
+        rundata = self.run_info.get_data()
+        dataframe = self.model.to_dataframe().replace(r'^\s*$', np.nan, regex=True)
 
-        flowcell_type = run_data['Run_Extra']['FlowCellType']
-        instrument = run_data['Header']['Instrument']
+        flowcell_type = rundata['Run_Extra']['FlowCellType']
+        instrument = rundata['Header']['Instrument']
 
-        res = {}
-
-        res["flowcell_validation"] = flowcell_validation(flowcell_type, instrument, self.settings)
-        res["lane_validation"] = lane_validation(df, flowcell_type, instrument, self.settings)
-        res["sample_count_validation"] = sample_count_validation(df)
+        results['flowcell'] = flowcell_validation(flowcell_type, instrument, self.settings)
+        results['lane'] = lane_validation(dataframe, flowcell_type, instrument, self.settings)
+        results['sample_count'] = sample_count_validation(dataframe)
 
         try:
-            prevalidation_schema.validate(df)
-            res["prevalidation_schema"] = (True, "")
-        except pa.errors.SchemaError as exc:
-            res["prevalidation schema"] = (False, str(exc))
+            prevalidation_schema.validate(dataframe)
+            results['prevalidation_schema'] = (True, "")
+        except pa.errors.SchemaError as error:
+            results['prevalidation_schema'] = (False, str(error))
 
-        self.finished.emit(res)
+        self.data_ready.emit(results)
 
 
 class DataValidationWorker(QObject):
-    finished_i7_i5 = Signal(DataFrame)
-    finished_i7 = Signal(DataFrame)
-    finished_i5 = Signal(DataFrame)
+    data_ready = Signal(dict)
 
-    def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfoWidget):
+    def __init__(self, model: SampleSheetModel, index_i5_rc):
         super().__init__()
 
         self.df = model.to_dataframe()
-        self.run_info_data = run_info.get_data()
+        self.index_i5_rc = index_i5_rc
 
-        instrument = self.run_info_data['Header']['Instrument']
-        settings = load_from_yaml(validation_settings_path)
-        self.index_i5_rc = settings['flowcells'][instrument]
+        print(self.df, self.index_i5_rc)
 
     def run(self):
+        result = {}
+        unique_lanes = self.df['Lane'].unique()
 
-        indexes_i7_padded = padded_index_df(self.df, 10, "IndexI7", "Sample_ID")
+        for lane in unique_lanes:
+            lane_result = {}
+            lane_df = self.df[self.df['Lane'] == lane]
 
-        if not self.index_i5_rc:
-            indexes_i5_padded = padded_index_df(self.df, 10, "IndexI5", "Sample_ID")
-        else:
-            indexes_i5_padded = padded_index_df(self.df, 10, "IndexI5RC", "Sample_ID")
+            i7_padded_indexes = padded_index_df(lane_df, 10, "IndexI7", "Sample_ID")
+            i5_padded_indexes = padded_index_df(lane_df, 10, "IndexI5RC" if self.index_i5_rc else "IndexI5",
+                                                "Sample_ID")
 
-        indexes_i7_i5_padded = pd.merge(indexes_i7_padded, indexes_i5_padded, on="Sample_ID")
+            merged_indexes = pd.merge(i7_padded_indexes, i5_padded_indexes, on="Sample_ID")
 
-        i7_i5_substitution_df = substitutions_heatmap_df(indexes_i7_i5_padded)
-        self.finished_i7_i5.emit(i7_i5_substitution_df)
+            lane_result["i7_i5_substitutions"] = substitutions_heatmap_df(merged_indexes)
+            lane_result["i7_substitutions"] = substitutions_heatmap_df(i7_padded_indexes)
+            lane_result["i5_substitutions"] = substitutions_heatmap_df(i5_padded_indexes)
 
-        i7_substitution_df = substitutions_heatmap_df(indexes_i7_padded)
-        self.finished_i7.emit(i7_substitution_df)
+            result[lane] = lane_result
 
-        i5_substitution_df = substitutions_heatmap_df(indexes_i5_padded)
-        self.finished_i5.emit(i5_substitution_df)
+        self.data_ready.emit(result)
 

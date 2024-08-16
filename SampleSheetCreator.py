@@ -159,8 +159,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout.addWidget(self.validation_tabwidget)
 
         self.validation_tabwidget.addTab(self.prevalidate_widget, "Pre-Validation")
+        self.prevalidate_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.validation_tabwidget.addTab(self.datavalidate_widget, "Data-Validation")
         self.datavalidate_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        self.runvalidate_pushButton.clicked.connect(self.run_validation)
+
+    def run_validation(self):
+        self.prevalidate_widget.run_worker_thread()
+        self.datavalidate_widget.run_worker_thread()
+
 
 
     def samplesheetedit_setup(self):
@@ -412,19 +420,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if is_checked:
             if button_text == "validate":
-                self.spinner.start()
-                print("starting")
                 self.main_stackedWidget.setCurrentWidget(self.main_validation)
-
-                is_valid = self.prevalidate_widget.validate()
-
-                if not is_valid:
-                    self.spinner.stop()
-                    return
-
-                self.datavalidate_widget.validate()
-                self.spinner.stop()
-                print("stopping")
 
             elif button_text == "make":
                 self.main_stackedWidget.setCurrentWidget(self.main_make)
@@ -471,37 +467,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.main_stackedWidget.setCurrentWidget(self.main_data)
 
-    def on_validate_click(self):
+    # def on_validate_click(self):
+    #
+    #     button = self.sender()
+    #
+    #     if button.isChecked():
+    #         self.spinner_thread = SpinnerThread(self.spinner_overlay)
+    #         self.spinner_thread.start()
+    #
+    #         self.main_stackedWidget.setCurrentWidget(self.main_validation)
+    #         is_valid = self.prevalidate_widget.validate()
+    #         if not is_valid:
+    #             self.spinner_thread.stop()
+    #             return
+    #
+    #         self.datavalidate_widget.validate()
+    #         self.spinner_thread.stop()
+    #     else:
+    #         self.main_stackedWidget.setCurrentWidget(self.main_data)
 
-        button = self.sender()
-
-        if button.isChecked():
-            self.spinner_thread = SpinnerThread(self.spinner_overlay)
-            self.spinner_thread.start()
-
-            self.main_stackedWidget.setCurrentWidget(self.main_validation)
-            is_valid = self.prevalidate_widget.validate()
-            if not is_valid:
-                self.spinner_thread.stop()
-                return
-
-            self.datavalidate_widget.validate()
-            self.spinner_thread.stop()
-        else:
-            self.main_stackedWidget.setCurrentWidget(self.main_data)
-
-    def on_make_click(self):
-
-        button = self.sender()
-
-        if button.isChecked():
-            self.main_stackedWidget.setCurrentWidget(self.main_make)
-            samplesheetv2 = SampleSheetV2(self.run_info_widget.get_data(), self.samples_model.to_dataframe())
-            self.samplesheetedit.set_samplesheetdata(samplesheetv2.get_data())
-
-
-        else:
-            self.main_stackedWidget.setCurrentWidget(self.main_data)
+    # def on_make_click(self):
+    #
+    #     button = self.sender()
+    #
+    #     if button.isChecked():
+    #         self.main_stackedWidget.setCurrentWidget(self.main_make)
+    #         samplesheetv2 = SampleSheetV2(self.run_info_widget.get_data(), self.samples_model.to_dataframe())
+    #         self.samplesheetedit.set_samplesheetdata(samplesheetv2.get_data())
+    #
+    #     else:
+    #         self.main_stackedWidget.setCurrentWidget(self.main_data)
 
     def load_worklist(self):
         options = get_dialog_options()
