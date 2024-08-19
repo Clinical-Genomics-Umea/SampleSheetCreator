@@ -22,7 +22,7 @@ from modules.widgets.make import SampleSheetEdit
 from modules.widgets.applications import ApplicationProfiles
 from modules.widgets.run import RunSetup, RunInfoWidget
 from modules.widgets.samplesheet import SampleSheetV2
-from modules.widgets.validation import DataValidationWidget, PreValidationWidget
+from modules.widgets.validation import IndexDistanceValidationWidget, PreValidationWidget, ColorBalanceValidationWidget
 
 from modules.widgets.sampleview import SampleWidget
 from ui.mw import Ui_MainWindow
@@ -123,10 +123,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.prevalidate_widget = PreValidationWidget(Path("config/validation/validation_settings.yaml"),
                                                       self.samples_model,
                                                       self.run_info_widget)
-        self.datavalidate_widget = DataValidationWidget(
+        self.indexdistancevalidation_widget = IndexDistanceValidationWidget(
                                                     Path("config/validation/validation_settings.yaml"),
                                                     self.samples_model,
                                                     self.run_info_widget)
+
+        self.colorbalancevalidation_widget = ColorBalanceValidationWidget(
+            Path("config/validation/validation_settings.yaml"),
+            self.samples_model,
+            self.run_info_widget)
+
 
         self.validation_tabwidget = QTabWidget()
 
@@ -158,18 +164,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout = self.main_validation.layout()
         layout.addWidget(self.validation_tabwidget)
 
-        self.validation_tabwidget.addTab(self.prevalidate_widget, "Pre-Validation")
+        self.validation_tabwidget.addTab(self.prevalidate_widget, "pre-validation")
         self.prevalidate_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.validation_tabwidget.addTab(self.datavalidate_widget, "Data-Validation")
-        self.datavalidate_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.validation_tabwidget.addTab(self.indexdistancevalidation_widget, "index distance validation")
+        self.indexdistancevalidation_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.validation_tabwidget.addTab(self.colorbalancevalidation_widget, "color balance validation")
+        self.colorbalancevalidation_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.runvalidate_pushButton.clicked.connect(self.run_validation)
 
     def run_validation(self):
+        self.spinner.start()
         self.prevalidate_widget.run_worker_thread()
-        self.datavalidate_widget.run_worker_thread()
-
-
+        self.indexdistancevalidation_widget.run_worker_thread()
+        self.colorbalancevalidation_widget.populate()
+        self.spinner.stop()
 
     def samplesheetedit_setup(self):
         layout = self.main_make.layout()

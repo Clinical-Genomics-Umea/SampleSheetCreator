@@ -12,29 +12,12 @@ from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, Q
                                QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit,
                                QPushButton, QMenu, QTableWidget, QTableWidgetItem, QItemDelegate)
 
-from modules.WaitingSpinner.spinner import WaitingSpinner
+# from modules.WaitingSpinner.spinner import WaitingSpinner
 from modules.widgets.models import SampleSheetModel
 from modules.widgets.run import RunInfoWidget
-from modules.logic.validation_fns import (substitutions_heatmap_df, padded_index_df)
 from modules.logic.validation import PreValidatorWorker, load_from_yaml, DataValidationWorker
-# import pandera as pa
-# from modules.logic.validation_schema import prevalidation_schema
-import yaml
 
-
-def extract_numbers_from_string(input_string):
-    """
-    Extracts all numbers in a string that are one digit or longer.
-
-    Parameters:
-        input_string (str): The input string to extract numbers from.
-
-    Returns:
-        list: A list of all numbers found in the input string. If no numbers are found, returns an empty list.
-    """
-
-    numbers = re.findall(r'\d+', input_string)
-    return numbers if numbers else []
+from modules.logic.validation_fns import padded_index_df
 
 
 class PreValidationWidget(QTableWidget):
@@ -44,7 +27,7 @@ class PreValidationWidget(QTableWidget):
         self.thread = None
         self.worker = None
 
-        self.spinner = WaitingSpinner(self)
+        # self.spinner = WaitingSpinner(self)
 
         self.setColumnCount(3)
         self.setHorizontalHeaderLabels(["Validator", "Status", "Message"])
@@ -79,51 +62,44 @@ class PreValidationWidget(QTableWidget):
         self.setItem(last_row, 1, status_item)
         self.setItem(last_row, 2, message_item)
 
-    # def populate_table(self, validation_results):
-    #     self.insertRow(self.rowCount())
-    #
-    #     for validator_text, (is_valid, message) in validation_results.items():
-    #         self.add_row(validator_text, is_valid, message)
-
     def run_worker_thread(self):
         self.thread = QThread()
         self.worker = PreValidatorWorker(self.validation_settings_path, self.model, self.run_info)
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
-        self.worker.data_ready.connect(self.populate)
+        self.worker.data_ready.connect(self._populate)
         self.worker.data_ready.connect(self.thread.quit)
         self.worker.data_ready.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
 
-        self.spinner.start()
+        # self.spinner.start()
 
         self.thread.start()
 
     @Slot(dict)
-    def populate(self, validation_results):
-        self.spinner.stop()
+    def _populate(self, validation_results):
+        # self.spinner.stop()
         self.setRowCount(0)
 
         for validation_name, (is_valid, message) in validation_results.items():
-            print(validation_name, is_valid, message)
             self.add_row(validation_name, is_valid, message)
 
 
-class DataValidationWidget(QWidget):
+class IndexDistanceValidationWidget(QTabWidget):
     def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfoWidget):
         super().__init__()
 
         self.worker = None
         self.thread = None
 
-        self.spinner = WaitingSpinner(self)
+        # self.spinner = WaitingSpinner(self)
 
         self.model = model
         self.run_info_data = run_info.get_data()
 
         instrument = self.run_info_data['Header']['Instrument']
         settings = load_from_yaml(validation_settings_path)
-        self.index_i5_rc = settings['flowcells'][instrument]
+        self.i5_rc = settings['flowcells'][instrument]['i5_rc']
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -135,19 +111,17 @@ class DataValidationWidget(QWidget):
         self.vspacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.vspacer_fixed = QSpacerItem(1, 20, QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        self.validate_tabwidget = QTabWidget()
-        self.validate_tabwidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        self.layout.addWidget(self.validate_tabwidget)
+        # self.layout.addWidget(self.datavalidate_tabwidget)
 
-
-    def get_widget_hlayout(self, table_widget):
+    def get_heatmap_hlayout(self, table_widget):
         h_heatmap_layout = QHBoxLayout()
         h_heatmap_layout.addWidget(table_widget)
         h_heatmap_layout.addSpacerItem(self.hspacer)
         return h_heatmap_layout
 
-    def get_tab(self, substitutions, lane):
+    def get_tab(self, substitutions):
 
         tab_scroll_area = QScrollArea()
         tab_scroll_area.setFrameShape(QFrame.NoFrame)
@@ -156,74 +130,167 @@ class DataValidationWidget(QWidget):
         tab_content_layout = QVBoxLayout()
         tab_content.setLayout(tab_content_layout)
 
-        i7_i5_heatmap_table = create_heatmap_table(substitutions["i7_i5_substitutions"])
-        i7_heatmap_table = create_heatmap_table(substitutions["i7_substitutions"])
-        i5_heatmap_table = create_heatmap_table(substitutions["i5_substitutions"])
+        i7_i5_heatmap_table = self.heatmap_tablewidget(substitutions["i7_i5_substitutions"])
+        i7_heatmap_table = self.heatmap_tablewidget(substitutions["i7_substitutions"])
+        i5_heatmap_table = self.heatmap_tablewidget(substitutions["i5_substitutions"])
 
-        h_i7_i5_heatmap_layout = self.get_widget_hlayout(i7_i5_heatmap_table)
-        h_i7_heatmap_layout = self.get_widget_hlayout(i7_heatmap_table)
-        h_i5_heatmap_layout = self.get_widget_hlayout(i5_heatmap_table)
+        h_i7_i5_heatmap_layout = self.get_heatmap_hlayout(i7_i5_heatmap_table)
+        h_i7_heatmap_layout = self.get_heatmap_hlayout(i7_heatmap_table)
+        h_i5_heatmap_layout = self.get_heatmap_hlayout(i5_heatmap_table)
 
         v_heatmap_layout = QVBoxLayout()
+
         v_heatmap_layout.addWidget(QLabel(f"index I7 + I5 mismatch heatmap "))
         v_heatmap_layout.addLayout(h_i7_i5_heatmap_layout)
         v_heatmap_layout.addSpacerItem(self.vspacer)
+
         v_heatmap_layout.addWidget(QLabel(f"index I7 mismatch heatmap "))
         v_heatmap_layout.addLayout(h_i7_heatmap_layout)
         v_heatmap_layout.addSpacerItem(self.vspacer)
+
         v_heatmap_layout.addWidget(QLabel(f"index I5 mismatch heatmap "))
         v_heatmap_layout.addLayout(h_i5_heatmap_layout)
         v_heatmap_layout.addSpacerItem(self.vspacer)
 
         tab_content_layout.addLayout(v_heatmap_layout)
         tab_content_layout.addSpacerItem(self.vspacer_fixed)
-        tab_content_layout.addWidget(QLabel(f"color balance table"))
-
-        # color_balance_table = ColorBalanceWidget(df, self.index_i5_rc)
-        # tab_content_layout.addWidget(color_balance_table)
-        # tab_content_layout.addSpacerItem(self.vspacer)
 
         tab_scroll_area.setWidget(tab_content)
 
         return tab_scroll_area
 
+    @staticmethod
+    def heatmap_tablewidget(data: pd.DataFrame) -> QTableWidget:
+        heatmap_tablewidget = QTableWidget(data.shape[0], data.shape[1])
+        heatmap_tablewidget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        heatmap_tablewidget.setHorizontalHeaderLabels(data.columns)
+        heatmap_tablewidget.setVerticalHeaderLabels(data.index)
+
+        for row in range(data.shape[0]):
+            for col in range(data.shape[1]):
+                cell_value = int(data.iat[row, col])
+
+                if row == col:
+                    continue
+
+                if cell_value < 5:
+                    red_intensity = int(192 + (255 - 192) * (cell_value / 4))
+                    color = QColor(red_intensity, 0, 0)
+                else:
+                    green_intensity = int(192 + (255 - 192) * (1 - ((cell_value - 4) / (data.max().max() - 4))))
+                    color = QColor(0, green_intensity, 0)
+
+                widget = QWidget()
+                widget.setAutoFillBackground(True)
+                widget.setStyleSheet(f"background-color: {color.name()};")
+
+                layout = QVBoxLayout()
+                label = QLabel(str(cell_value))
+                label.setAlignment(Qt.AlignCenter)
+                layout.addWidget(label)
+                widget.setLayout(layout)
+
+                heatmap_tablewidget.setCellWidget(row, col, widget)
+
+        heatmap_tablewidget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        heatmap_tablewidget.setContentsMargins(0, 0, 0, 0)
+        heatmap_tablewidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        heatmap_tablewidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        h_header_height = heatmap_tablewidget.horizontalHeader().height()
+        row_height = heatmap_tablewidget.rowHeight(0)
+        no_items = heatmap_tablewidget.columnCount()
+        heatmap_tablewidget.setMaximumHeight(h_header_height + row_height * no_items + 5)
+
+        heatmap_tablewidget.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        heatmap_tablewidget.setItemDelegate(NonEditableDelegate())
+
+        return heatmap_tablewidget
+
     def run_worker_thread(self):
         self.thread = QThread()
-        self.worker = DataValidationWorker(self.model, self.index_i5_rc)
+        self.worker = DataValidationWorker(self.model, self.i5_rc)
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
-        self.worker.data_ready.connect(self.populate)
-        self.worker.data_ready.connect(self.thread.quit)
-        self.worker.data_ready.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
+        self.worker.results_ready.connect(self._populate)
 
-        self.spinner.start()
-
+        # self.spinner.start()
         self.thread.start()
+        print("data validation thread started")
 
-    @Slot(dict)
-    def populate(self, results):
-        self.spinner.stop()
-        print("results datavalidation:", results)
+    @Slot(object)
+    def _populate(self, results):
+
+        # self.spinner.stop()
+        self.thread.quit()
+        self.worker.deleteLater()
+        self.thread.deleteLater()
+
+        self.delete_tabs()
+
         for lane in results:
-            tab = self.get_tab(results[lane], lane)
-            self.validate_tabwidget.addTab(tab, f"Lane {lane}")
+            tab = self.get_tab(results[lane])
+            self.addTab(tab, f"Lane {lane}")
+
+    def delete_tabs(self):
+        # Remove and delete each tab widget
+        while self.count() > 0:
+            widget = self.widget(0)  # Get the first widget in the tab widget
+            self.removeTab(0)  # Remove the tab
+            widget.deleteLater()
 
 
+class ColorBalanceValidationWidget(QTabWidget):
 
-    def validate(self):
-        self.validate_tabwidget.clear()
+    def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfoWidget):
+        super().__init__()
 
-        df = self.model.to_dataframe()
+        self.model = model
+        self.run_info_data = run_info.get_data()
 
-        used_lanes = list(df['Lane'].unique())
-        for lane in used_lanes:
+        instrument = self.run_info_data['Header']['Instrument']
+        settings = load_from_yaml(validation_settings_path)
+        self.i5_rc = settings['flowcells'][instrument]['i5_rc']
 
-            df_lane = df[df['Lane'] == lane]
+        self.setContentsMargins(0, 0, 0, 0)
+        self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setLayout(self.layout)
 
-            tab = self.get_tab(df_lane)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-            self.validate_tabwidget.addTab(tab, f"Lane {lane}")
+        # self.vspacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+    def delete_tabs(self):
+        # Remove and delete each tab widget
+        while self.count() > 0:
+            widget = self.widget(0)  # Get the first widget in the tab widget
+            self.removeTab(0)  # Remove the tab
+            widget.deleteLater()
+
+    def populate(self):
+        self.delete_tabs()
+
+        df = self.model.to_dataframe().replace(r'^\s*$', np.nan, regex=True)
+
+        unique_lanes = df['Lane'].unique()
+
+        for lane in unique_lanes:
+            lane_df = df[df['Lane'] == lane]
+
+            i7_padded_indexes = padded_index_df(lane_df, 10, "IndexI7", "Sample_ID")
+            i5_padded_indexes = padded_index_df(lane_df, 10, "IndexI5RC" if self.i5_rc else "IndexI5",
+                                                "Sample_ID")
+
+            merged_indexes = pd.merge(i7_padded_indexes, i5_padded_indexes, on="Sample_ID")
+
+            tab_scroll_area = QScrollArea()
+            tab_scroll_area.setFrameShape(QFrame.NoFrame)
+
+            color_balance_table = ColorBalanceWidget(merged_indexes)
+
+            self.addTab(color_balance_table, f"Lane {lane}")
 
 
 class IndexColorBalanceModel(QStandardItemModel):
@@ -422,7 +489,7 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
 
 
     def commitAndCloseEditor(self):
-        print("hello")
+
         editor = self.sender()
         if isinstance(editor, QPushButton):
             self.commitData.emit(editor)
@@ -435,23 +502,21 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
 
 
 class ColorBalanceWidget(QTableView):
-    def __init__(self, df: pd.DataFrame, is_i5_rc, parent=None):
+    def __init__(self, merged_df, parent=None):
         super(ColorBalanceWidget, self).__init__(parent)
-        df = df.copy()
+        df = merged_df.copy()
+
         df['Proportion'] = "1"
-        if not is_i5_rc:
-            df_seq = self.split_string_column(df, 'IndexI7', 'IndexI5')
-        else:
-            df_seq = self.split_string_column(df, 'IndexI7', 'IndexI5RC')
 
-        df_seq.insert(0, 'Sample_ID', df['Sample_ID'])
-        df_seq.insert(1, "Proportion", df['Proportion'])
+        cols = ['Sample_ID', 'Proportion'] + [col for col in df.columns if col not in ['Sample_ID', 'Proportion']]
+        df = df[cols]
+
         last_row_index = df.index[-1]
-        df_seq.loc[last_row_index + 1] = pd.Series()
-        df_seq.iloc[-1, 0] = "Summary"
-        df_seq.iloc[-1, 1] = ""
+        df.loc[last_row_index + 1] = pd.Series()
+        df.iloc[-1, 0] = "Summary"
+        df.iloc[-1, 1] = ""
 
-        self.standard_model = self.dataframe_to_colorbalance_model(df_seq, is_i5_rc)
+        self.standard_model = self.dataframe_to_colorbalance_model(df)
         self.setModel(self.standard_model)
         self.standard_model.update_summation()
         self.verticalHeader().setVisible(False)
@@ -471,19 +536,16 @@ class ColorBalanceWidget(QTableView):
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.setFixedWidth(1500)
 
-    def dataframe_to_colorbalance_model(self, dataframe, is_i5_rc):
+    def dataframe_to_colorbalance_model(self, dataframe):
         """
         Convert a Pandas DataFrame to a QStandardItemModel.
 
         :param dataframe: Pandas DataFrame to convert.
         :return: QStandardItemModel representing the DataFrame.
-
-        Args:
-            is_i5_rc:
         """
         model = IndexColorBalanceModel(parent=self)
 
-        column_names = [col_name.replace('Index_', '') for col_name in dataframe.columns]
+        column_names = [col_name.replace('Index', '') for col_name in dataframe.columns]
 
         # Set the column headers as the model's horizontal headers
         model.setHorizontalHeaderLabels(column_names)
@@ -557,71 +619,23 @@ class NpEncoder(json.JSONEncoder):
 
 # Heatmap
 
-def set_heatmap_table_properties(table):
-
-    table.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-    table.setContentsMargins(0, 0, 0, 0)
-    table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-    table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-    h_header_height = table.horizontalHeader().height()
-    row_height = table.rowHeight(0)
-    no_items = table.columnCount()
-    table.setMaximumHeight(h_header_height + row_height * no_items + 5)
-
-    table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
-
-    table.setItemDelegate(NonEditableDelegate())
-
-    return table
-
-
-def create_heatmap_table(data: pd.DataFrame) -> QTableWidget:
-    heatmap_table_widget = QTableWidget(data.shape[0], data.shape[1])
-    heatmap_table_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-    heatmap_table_widget.setHorizontalHeaderLabels(data.columns)
-    heatmap_table_widget.setVerticalHeaderLabels(data.index)
-
-    for row in range(data.shape[0]):
-        for col in range(data.shape[1]):
-            cell_value = int(data.iat[row, col])
-
-            if row == col:
-                continue
-
-            if cell_value < 5:
-                red_intensity = int(192 + (255 - 192) * (cell_value / 4))
-                color = QColor(red_intensity, 0, 0)
-            else:
-                green_intensity = int(192 + (255 - 192) * (1 - ((cell_value - 4) / (data.max().max() - 4))))
-                color = QColor(0, green_intensity, 0)
-
-            widget = QWidget()
-            widget.setAutoFillBackground(True)
-            widget.setStyleSheet(f"background-color: {color.name()};")
-
-            layout = QVBoxLayout()
-            label = QLabel(str(cell_value))
-            label.setAlignment(Qt.AlignCenter)
-            layout.addWidget(label)
-            widget.setLayout(layout)
-
-            heatmap_table_widget.setCellWidget(row, col, widget)
-
-    heatmap_table_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-    heatmap_table_widget.setContentsMargins(0, 0, 0, 0)
-    heatmap_table_widget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-    heatmap_table_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-    h_header_height = heatmap_table_widget.horizontalHeader().height()
-    row_height = heatmap_table_widget.rowHeight(0)
-    no_items = heatmap_table_widget.columnCount()
-    heatmap_table_widget.setMaximumHeight(h_header_height + row_height * no_items + 5)
-
-    heatmap_table_widget.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
-    heatmap_table_widget.setItemDelegate(NonEditableDelegate())
-
-    return heatmap_table_widget
+# def set_heatmap_table_properties(table):
+#
+#     table.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+#     table.setContentsMargins(0, 0, 0, 0)
+#     table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+#     table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+#
+#     h_header_height = table.horizontalHeader().height()
+#     row_height = table.rowHeight(0)
+#     no_items = table.columnCount()
+#     table.setMaximumHeight(h_header_height + row_height * no_items + 5)
+#
+#     table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+#
+#     table.setItemDelegate(NonEditableDelegate())
+#
+#     return table
 
 
 class NonEditableDelegate(QItemDelegate):

@@ -276,7 +276,7 @@ class Ui_MainWindow(object):
         self.open_samplesheet_pushButton.setText(QCoreApplication.translate("MainWindow", u"Open Samplesheet", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Load Worklist", None))
         self.load_worklist_toolButton.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.runvalidate_pushButton.setText(QCoreApplication.translate("MainWindow", u"Run validate", None))
+        self.runvalidate_pushButton.setText(QCoreApplication.translate("MainWindow", u"Validate", None))
         self.left_toolBar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))
     # retranslateUi
 

@@ -4,9 +4,8 @@ import numpy as np
 import pandas as pd
 import pandera as pa
 from PySide6.QtCore import QObject, Signal
-from pandas import DataFrame
 
-from modules.logic.validation_fns import padded_index_df, substitutions_heatmap_df
+from modules.logic.validation_fns import padded_index_df
 from modules.logic.validation_schema import prevalidation_schema
 from modules.widgets.models import SampleSheetModel
 from modules.widgets.run import RunInfoWidget
@@ -82,15 +81,13 @@ class PreValidatorWorker(QObject):
 
 
 class DataValidationWorker(QObject):
-    data_ready = Signal(dict)
+    results_ready = Signal(object)
 
-    def __init__(self, model: SampleSheetModel, index_i5_rc):
+    def __init__(self, model: SampleSheetModel, i5_rc: bool):
         super().__init__()
 
         self.df = model.to_dataframe()
-        self.index_i5_rc = index_i5_rc
-
-        print(self.df, self.index_i5_rc)
+        self.i5_rc = i5_rc
 
     def run(self):
         result = {}
@@ -101,16 +98,39 @@ class DataValidationWorker(QObject):
             lane_df = self.df[self.df['Lane'] == lane]
 
             i7_padded_indexes = padded_index_df(lane_df, 10, "IndexI7", "Sample_ID")
-            i5_padded_indexes = padded_index_df(lane_df, 10, "IndexI5RC" if self.index_i5_rc else "IndexI5",
+            i5_padded_indexes = padded_index_df(lane_df, 10, "IndexI5RC" if self.i5_rc else "IndexI5",
                                                 "Sample_ID")
 
             merged_indexes = pd.merge(i7_padded_indexes, i5_padded_indexes, on="Sample_ID")
 
-            lane_result["i7_i5_substitutions"] = substitutions_heatmap_df(merged_indexes)
-            lane_result["i7_substitutions"] = substitutions_heatmap_df(i7_padded_indexes)
-            lane_result["i5_substitutions"] = substitutions_heatmap_df(i5_padded_indexes)
+            lane_result["i7_i5_substitutions"] = self.substitutions_heatmap_df(merged_indexes)
+            lane_result["i7_substitutions"] = self.substitutions_heatmap_df(i7_padded_indexes)
+            lane_result["i5_substitutions"] = self.substitutions_heatmap_df(i5_padded_indexes)
 
-            result[lane] = lane_result
+            result[int(lane)] = lane_result
 
-        self.data_ready.emit(result)
+        print("worker datavalidation ")
+        self.results_ready.emit(result)
+
+    def substitutions_heatmap_df(self, indexes_df: pd.DataFrame, id_colname="Sample_ID"):
+        a = indexes_df.drop(id_colname, axis=1).to_numpy()
+
+        header = list(indexes_df[id_colname])
+        return pd.pandas.DataFrame(self.get_row_mismatch_matrix(a), index=header, columns=header)
+
+    def get_row_mismatch_matrix(self, array: np.ndarray) -> np.ndarray:
+        # Reshape A and B to 3D arrays with dimensions (N, 1, K) and (1, M, K), respectively
+        array1 = array[:, np.newaxis, :]
+        array2 = array[np.newaxis, :, :]
+
+        # Apply the custom function using vectorized operations
+        return np.sum(np.vectorize(self.cmp_bases)(array1, array2), axis=2)
+
+
+    @staticmethod
+    def cmp_bases(v1, v2):
+        if isinstance(v1, str) and isinstance(v2, str):
+            return np.sum(v1 != v2)
+
+        return 0
 

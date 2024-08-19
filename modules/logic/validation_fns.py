@@ -87,28 +87,10 @@ def padded_index_df(df: pd.DataFrame, len: int, col_name: str, id_name: str) -> 
 #     return lenadjust_indexes_df
 
 
-def cmp_bases(v1, v2):
-    if isinstance(v1, str) and isinstance(v2, str):
-        return np.sum(v1 != v2)
-
-    return 0
 
 
-def get_row_mismatch_matrix(array: np.ndarray) -> np.ndarray:
-
-    # Reshape A and B to 3D arrays with dimensions (N, 1, K) and (1, M, K), respectively
-    array1 = array[:, np.newaxis, :]
-    array2 = array[np.newaxis, :, :]
-
-    # Apply the custom function using vectorized operations
-    return np.sum(np.vectorize(cmp_bases)(array1, array2), axis=2)
 
 
-def substitutions_heatmap_df(indexes_df: pd.DataFrame, id_colname="Sample_ID"):
-    a = indexes_df.drop(id_colname, axis=1).to_numpy()
-
-    header = list(indexes_df[id_colname])
-    return pd.pandas.DataFrame(get_row_mismatch_matrix(a), index=header, columns=header)
 
 
 

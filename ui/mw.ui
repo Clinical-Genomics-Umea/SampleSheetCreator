@@ -319,7 +319,7 @@
             <item>
              <widget class="QPushButton" name="runvalidate_pushButton">
               <property name="text">
-               <string>Run validate</string>
+               <string>Validate</string>
               </property>
              </widget>
             </item>
