@@ -10,7 +10,7 @@ from PySide6.QtGui import QStandardItemModel, QColor, QPen, QStandardItem, QPain
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QLabel, QHeaderView,
                                QAbstractScrollArea, QScrollArea,
                                QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit,
-                               QPushButton, QMenu, QTableWidget, QTableWidgetItem, QItemDelegate)
+                               QPushButton, QMenu, QTableWidget, QTableWidgetItem, QItemDelegate, QLayout)
 
 # from modules.WaitingSpinner.spinner import WaitingSpinner
 from modules.widgets.models import SampleSheetModel
@@ -62,6 +62,7 @@ class PreValidationWidget(QTableWidget):
         self.setItem(last_row, 1, status_item)
         self.setItem(last_row, 2, message_item)
 
+
     def run_worker_thread(self):
         self.thread = QThread()
         self.worker = PreValidatorWorker(self.validation_settings_path, self.model, self.run_info)
@@ -78,6 +79,7 @@ class PreValidationWidget(QTableWidget):
 
     @Slot(dict)
     def _populate(self, validation_results):
+        print("poplate prevalidation widget")
         # self.spinner.stop()
         self.setRowCount(0)
 
@@ -207,6 +209,11 @@ class IndexDistanceValidationWidget(QTabWidget):
 
         return heatmap_tablewidget
 
+    def run_validate(self):
+        self.delete_tabs()
+        self.run_worker_thread()
+
+
     def run_worker_thread(self):
         self.thread = QThread()
         self.worker = DataValidationWorker(self.model, self.i5_rc)
@@ -220,13 +227,12 @@ class IndexDistanceValidationWidget(QTabWidget):
 
     @Slot(object)
     def _populate(self, results):
+        print("poplate index distance validation widget")
 
         # self.spinner.stop()
         self.thread.quit()
         self.worker.deleteLater()
         self.thread.deleteLater()
-
-        self.delete_tabs()
 
         for lane in results:
             tab = self.get_tab(results[lane])
@@ -237,7 +243,28 @@ class IndexDistanceValidationWidget(QTabWidget):
         while self.count() > 0:
             widget = self.widget(0)  # Get the first widget in the tab widget
             self.removeTab(0)  # Remove the tab
-            widget.deleteLater()
+            self.clear_widget(widget)
+
+    def clear_widget(self, widget: QWidget):
+        # Step 1: Clear the layout if it exists
+        layout = widget.layout()
+        if layout:
+            # Clear the layout and delete its contents
+            while layout.count() > 0:
+                item = layout.takeAt(0)
+                child_widget = item.widget()
+                if child_widget:
+                    child_widget.deleteLater()
+                sub_layout = item.layout()
+                if sub_layout:
+                    self.clear_widget(sub_layout.widget())
+                item.deleteLater()
+
+            # Optionally, delete the layout itself
+            widget.setLayout(None)
+
+        for child in widget.findChildren(QWidget):
+            child.deleteLater()
 
 
 class ColorBalanceValidationWidget(QTabWidget):
@@ -262,12 +289,34 @@ class ColorBalanceValidationWidget(QTabWidget):
 
         # self.vspacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
+    def clear_widget(self, widget: QWidget):
+        # Step 1: Clear the layout if it exists
+        layout = widget.layout()
+        if layout:
+            # Clear the layout and delete its contents
+            while layout.count() > 0:
+                item = layout.takeAt(0)
+                child_widget = item.widget()
+                if child_widget:
+                    child_widget.deleteLater()
+                sub_layout = item.layout()
+                if sub_layout:
+                    self.clear_widget(sub_layout.widget())
+                item.deleteLater()
+
+            # Optionally, delete the layout itself
+            widget.setLayout(None)
+
+        for child in widget.findChildren(QWidget):
+            child.deleteLater()
+
+
     def delete_tabs(self):
         # Remove and delete each tab widget
         while self.count() > 0:
             widget = self.widget(0)  # Get the first widget in the tab widget
             self.removeTab(0)  # Remove the tab
-            widget.deleteLater()
+            self.clear_widget(widget)
 
     def populate(self):
         self.delete_tabs()
