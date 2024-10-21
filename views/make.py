@@ -1,11 +1,23 @@
 from dataclasses import dataclass
 
 import pandas as pd
-from PySide6.QtWidgets import (QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QSizePolicy,
-                               QSpacerItem, QLabel, QFormLayout, QFrame, QTextEdit, QFileDialog, QMessageBox)
+from PySide6.QtWidgets import (
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+    QHBoxLayout,
+    QSizePolicy,
+    QSpacerItem,
+    QLabel,
+    QFormLayout,
+    QFrame,
+    QTextEdit,
+    QFileDialog,
+    QMessageBox,
+)
 
-from modules.widgets.run import RunInfoWidget
-from modules.widgets.sampleview import SampleTableView
+from views.run import RunInfoWidget
+from views.sampleview import SampleTableView
 
 
 class SampleSheetEdit(QWidget):
@@ -37,7 +49,9 @@ class SampleSheetEdit(QWidget):
     def export_samplesheet(self):
 
         # Open a file dialog to choose the save location and file name
-        file_path, _ = QFileDialog.getSaveFileName(self, "Save SampleSheet", "", "CSV Files (*.csv);;All Files (*)")
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Save SampleSheet", "", "CSV Files (*.csv);;All Files (*)"
+        )
 
         if file_path:
             try:
@@ -45,13 +59,13 @@ class SampleSheetEdit(QWidget):
                 text = self.textedit.toPlainText()
 
                 # Write the text to the file
-                with open(file_path, 'w') as file:
+                with open(file_path, "w") as file:
                     file.write(text)
 
                 # Inform the user that the file was saved successfully
                 QMessageBox.information(self, "Success", "File saved successfully!")
             except Exception as e:
                 # Inform the user in case of an error
-                QMessageBox.critical(self, "Error", f"An error occurred while saving the file: {e}")
-
-
+                QMessageBox.critical(
+                    self, "Error", f"An error occurred while saving the file: {e}"
+                )

@@ -2,19 +2,29 @@ from pathlib import Path
 import yaml
 import qtawesome as qta
 
-from PySide6.QtWidgets import (QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QSizePolicy,
-                               QSpacerItem, QLabel, QFrame, QDialog, QTextEdit)
+from PySide6.QtWidgets import (
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+    QHBoxLayout,
+    QSizePolicy,
+    QSpacerItem,
+    QLabel,
+    QFrame,
+    QDialog,
+    QTextEdit,
+)
 
 from PySide6.QtCore import Signal, Qt
-from modules.widgets.sampleview import SampleTableView
-from modules.logic.utils import read_yaml_file
+from views.sampleview import SampleTableView
+from models.utils import read_yaml_file
 
 
 class ClickableLabel(QLabel):
     def __init__(self, text, data, parent=None):
         super().__init__(text, parent)
         self.data = data
-        self.name = data['ApplicationProfile']
+        self.name = data["ApplicationProfile"]
         self.setCursor(Qt.PointingHandCursor)  # Change the cursor to a hand pointer
 
     def mousePressEvent(self, event):
@@ -25,7 +35,7 @@ class ClickableLabel(QLabel):
         # Create a popup dialog
         dialog = QDialog(self)
         dialog.setWindowTitle(self.name)
-        dialog.setWindowIcon(qta.icon('msc.symbol-method', options=[{'draw': 'image'}]))
+        dialog.setWindowIcon(qta.icon("msc.symbol-method", options=[{"draw": "image"}]))
 
         # Add content to the popup dialog
         layout = QVBoxLayout(dialog)
@@ -38,9 +48,13 @@ class ClickableLabel(QLabel):
 
 
 class ApplicationProfiles(QWidget):
-    def __init__(self, application_profile_basepath: Path, sample_tableview: SampleTableView):
+    def __init__(
+        self, application_profile_basepath: Path, sample_tableview: SampleTableView
+    ):
         super().__init__()
-        self.profile_mgr = ApplicationProfileMGR(Path(application_profile_basepath), sample_tableview)
+        self.profile_mgr = ApplicationProfileMGR(
+            Path(application_profile_basepath), sample_tableview
+        )
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
 
@@ -70,9 +84,10 @@ class ApplicationProfiles(QWidget):
                 pw = profile_widgets[group][name]
                 self.vertical_layout.addWidget(pw)
 
-        self.main_layout.addSpacerItem(QSpacerItem(20, 40,
-                                                   QSizePolicy.Minimum,
-                                                   QSizePolicy.Expanding))
+        self.main_layout.addSpacerItem(
+            QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        )
+
     @staticmethod
     def get_line():
         line = QFrame()
@@ -90,13 +105,15 @@ class ApplicationProfileWidget(QWidget):
         self.data = data
         profile_button = QPushButton("apply")
         profile_button.setMaximumWidth(50)
-        label = ClickableLabel(self.data['ApplicationProfile'], self.data)
+        label = ClickableLabel(self.data["ApplicationProfile"], self.data)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.addWidget(label)
-        layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        layout.addSpacerItem(
+            QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        )
         layout.addWidget(profile_button)
         layout.addSpacerItem(QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Fixed))
 
@@ -108,12 +125,13 @@ class ApplicationProfileWidget(QWidget):
         self.profile_data_signal.emit(self.data)
 
     def profile_name(self):
-        return self.profile_name['ProfileName']
-
+        return self.profile_name["ProfileName"]
 
 
 class ApplicationProfileMGR:
-    def __init__(self, applicationprofiles_dirpath: Path, sample_tableview: SampleTableView) -> None:
+    def __init__(
+        self, applicationprofiles_dirpath: Path, sample_tableview: SampleTableView
+    ) -> None:
         # setup profile files
 
         application_files = [f for f in applicationprofiles_dirpath.glob("**/*.yaml")]
@@ -125,7 +143,7 @@ class ApplicationProfileMGR:
 
             profile_data = read_yaml_file(file)
             group = file.parent.name
-            profile_name = profile_data['ApplicationProfile']
+            profile_name = profile_data["ApplicationProfile"]
 
             pw = ApplicationProfileWidget(profile_data)
 

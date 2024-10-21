@@ -7,8 +7,8 @@ import yaml
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItemModel
 
-from modules.logic.utils import decode_bytes_json
-from modules.widgets.run import RunInfoWidget
+from models.utils import decode_bytes_json
+from views.run import RunInfoWidget
 
 
 # def read_yaml_file(filename):
@@ -55,12 +55,12 @@ class SampleSheetModel(QStandardItemModel):
     def __init__(self, sample_settings):
         super(SampleSheetModel, self).__init__()
 
-        self.sections_fields = sample_settings['fields']
+        self.sections_fields = sample_settings["fields"]
         self.fields = get_column_headers(self.sections_fields)
 
         self.setColumnCount(len(self.fields))
         self.setHorizontalHeaderLabels(self.fields)
-        self.setRowCount(sample_settings['row_count'])
+        self.setRowCount(sample_settings["row_count"])
         self.set_empty_strings()
 
         self.select_samples = False
@@ -135,7 +135,7 @@ class SampleSheetModel(QStandardItemModel):
         self.dataChanged.emit(
             self.index(0, 0),
             self.index(self.rowCount() - 1, self.columnCount() - 1),
-            Qt.DisplayRole
+            Qt.DisplayRole,
         )
 
         return True
@@ -183,10 +183,10 @@ class SampleSheetModel(QStandardItemModel):
         headers = [self.headerData(i, Qt.Horizontal) for i in range(columns)]
         df.columns = headers
 
-        df['IndexI5RC'] = df['IndexI5'].apply(self.reverse_complement)
+        df["IndexI5RC"] = df["IndexI5"].apply(self.reverse_complement)
 
         df.replace("", pd.NA, inplace=True)
-        df.dropna(how='all', inplace=True)
+        df.dropna(how="all", inplace=True)
         df = self.explode_lane_df(df)
 
         # print("to dataframe", df.to_string())
@@ -195,16 +195,15 @@ class SampleSheetModel(QStandardItemModel):
 
     @staticmethod
     def reverse_complement(sequence):
-        complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
-        return ''.join(complement[base] for base in reversed(sequence))
+        complement = {"A": "T", "T": "A", "C": "G", "G": "C"}
+        return "".join(complement[base] for base in reversed(sequence))
 
     @staticmethod
     def split_lanes(lane_string: str):
-        return re.split(r'\D+', lane_string.strip())
+        return re.split(r"\D+", lane_string.strip())
 
     def explode_lane_df(self, df: pd.DataFrame):
-        df['Lane'] = df['Lane'].apply(self.split_lanes)
-        df = df.explode('Lane')
-        df['Lane'] = df['Lane'].astype(int)
+        df["Lane"] = df["Lane"].apply(self.split_lanes)
+        df = df.explode("Lane")
+        df["Lane"] = df["Lane"].astype(int)
         return df
-

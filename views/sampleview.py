@@ -1,12 +1,31 @@
 from PySide6.QtGui import QKeyEvent, QClipboard, QCursor, QStandardItemModel, QFont
-from PySide6.QtCore import Qt, Signal, QPoint, Slot, QItemSelectionModel, QSortFilterProxyModel, QAbstractItemModel
-from PySide6.QtWidgets import QTableView, QAbstractItemView, QApplication, QMenu, \
-    QVBoxLayout, QLabel, QHeaderView, QWidget, QLineEdit, QPushButton, QCheckBox, \
-    QHBoxLayout
+from PySide6.QtCore import (
+    Qt,
+    Signal,
+    QPoint,
+    Slot,
+    QItemSelectionModel,
+    QSortFilterProxyModel,
+    QAbstractItemModel,
+)
+from PySide6.QtWidgets import (
+    QTableView,
+    QAbstractItemView,
+    QApplication,
+    QMenu,
+    QVBoxLayout,
+    QLabel,
+    QHeaderView,
+    QWidget,
+    QLineEdit,
+    QPushButton,
+    QCheckBox,
+    QHBoxLayout,
+)
 
 import json
 
-from modules.widgets.run import RunInfoWidget
+from views.run import RunInfoWidget
 
 
 def list2d_to_tabbed_str(data):
@@ -23,10 +42,10 @@ def list2d_to_tabbed_str(data):
 
     for row in data:
         # Use join to concatenate the elements in each row with tab '\t' as the separator
-        tab_delimited_row = '\t'.join(map(str, row))
+        tab_delimited_row = "\t".join(map(str, row))
         tab_delimited_rows.append(tab_delimited_row)
 
-    return '\n'.join(tab_delimited_rows)
+    return "\n".join(tab_delimited_rows)
 
 
 def clipboard_text_to_model():
@@ -37,14 +56,14 @@ def clipboard_text_to_model():
         return None
 
     text = mime_data.text()
-    rows = text.split('\n')
+    rows = text.split("\n")
     rows = [row for row in rows if row]  # remove empty rows
 
-    max_cols = max(len(row.split('\t')) for row in rows)
+    max_cols = max(len(row.split("\t")) for row in rows)
     dummy_model = QStandardItemModel(len(rows), max_cols)
 
     for r_count, r in enumerate(rows):
-        for c_count, value in enumerate(r.split('\t')):
+        for c_count, value in enumerate(r.split("\t")):
             dummy_model.setData(dummy_model.index(r_count, c_count), value, Qt.EditRole)
 
     return dummy_model
@@ -65,7 +84,11 @@ def regular_paste(selected_indexes, source_model, target_proxy_model):
         for col in range(source_col_count):
             idx = source_model.index(row, col)
             value = source_model.data(idx, Qt.DisplayRole)
-            target_proxy_model.setData(target_proxy_model.index(start_row + row, start_col + col), value, Qt.EditRole)
+            target_proxy_model.setData(
+                target_proxy_model.index(start_row + row, start_col + col),
+                value,
+                Qt.EditRole,
+            )
 
     target_proxy_model.blockSignals(False)
 
@@ -119,7 +142,9 @@ class SampleWidget(QWidget):
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
         header.setMinimumSectionSize(100)
 
-        self.sampleview.selectionModel().selectionChanged.connect(self.on_sampleview_selection_changed)
+        self.sampleview.selectionModel().selectionChanged.connect(
+            self.on_sampleview_selection_changed
+        )
         self.filter_edit.textChanged.connect(filter_proxy_model.set_filter_text)
         self.extended_selection_pushbutton.clicked.connect(self.set_selection_mode)
         horizontal_header = self.sampleview.horizontalHeader()
@@ -154,7 +179,11 @@ class SampleWidget(QWidget):
             data = model.data(selected_indexes[0], Qt.DisplayRole)
             column = selected_indexes[0].column()
             row = selected_indexes[0].row() + 1
-            column_name = self.sampleview.horizontalHeader().model().headerData(column, Qt.Horizontal)
+            column_name = (
+                self.sampleview.horizontalHeader()
+                .model()
+                .headerData(column, Qt.Horizontal)
+            )
 
             if data is None:
                 data = "Empty"
@@ -172,7 +201,7 @@ class SampleWidget(QWidget):
 class CustomProxyModel(QSortFilterProxyModel):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.filter_text = ''
+        self.filter_text = ""
 
     def filterAcceptsRow(self, source_row, source_parent):
         if not self.filter_text:
@@ -242,16 +271,28 @@ class SampleTableView(QTableView):
 
         for row in selected_rows:
             if profiles_data["Application"] == "BCLConvert":
-                self._set_data(proxy_model, header_key_dict, row, "ApplicationSettings", profiles_data)
-                self._set_data(proxy_model, header_key_dict, row, "ApplicationData", profiles_data)
+                self._set_data(
+                    proxy_model,
+                    header_key_dict,
+                    row,
+                    "ApplicationSettings",
+                    profiles_data,
+                )
+                self._set_data(
+                    proxy_model, header_key_dict, row, "ApplicationData", profiles_data
+                )
             else:
-                self._set_application_data(proxy_model, header_key_dict, row, profiles_data)
+                self._set_application_data(
+                    proxy_model, header_key_dict, row, profiles_data
+                )
 
         source_model.blockSignals(False)
         source_model.dataChanged.emit(
             source_model.index(0, 0),
-            source_model.index(source_model.rowCount() - 1, source_model.columnCount() - 1),
-            Qt.DisplayRole
+            source_model.index(
+                source_model.rowCount() - 1, source_model.columnCount() - 1
+            ),
+            Qt.DisplayRole,
         )
 
     @staticmethod
@@ -265,11 +306,15 @@ class SampleTableView(QTableView):
     @staticmethod
     def _set_application_data(proxy_model, header_key_dict, row, profiles_data):
 
-        common_keys = set(header_key_dict.keys()).intersection(set(profiles_data.keys()))
+        common_keys = set(header_key_dict.keys()).intersection(
+            set(profiles_data.keys())
+        )
 
         if "ApplicationProfile" in common_keys:
             column = header_key_dict["ApplicationProfile"]
-            proxy_model.setData(proxy_model.index(row, column), profiles_data["ApplicationProfile"])
+            proxy_model.setData(
+                proxy_model.index(row, column), profiles_data["ApplicationProfile"]
+            )
 
         if "ApplicationData" in common_keys:
             column = header_key_dict["ApplicationData"]
@@ -288,7 +333,9 @@ class SampleTableView(QTableView):
 
         if "Application" in common_keys:
             column = header_key_dict["Application"]
-            proxy_model.setData(proxy_model.index(row, column), profiles_data["Application"])
+            proxy_model.setData(
+                proxy_model.index(row, column), profiles_data["Application"]
+            )
 
     def table_popup(self):
         self.table_context_menu.exec(QCursor.pos())
@@ -314,7 +361,7 @@ class SampleTableView(QTableView):
         return {
             self.model().sourceModel().fields[i]: not self.isColumnHidden(i)
             for i in range(self.model().columnCount())
-            }
+        }
 
     @Slot(str, bool)
     def set_column_visibility_state(self, field, state):
@@ -348,15 +395,23 @@ class SampleTableView(QTableView):
 
         # Create an action to hide the selected clicked column
         if not selected_columns:
-            hide_clicked_action = self.header_context_menu.addAction(f"Hide field ({colname})")
-            hide_clicked_action.triggered.connect(lambda: self.setColumnHidden(clicked_column, True))
+            hide_clicked_action = self.header_context_menu.addAction(
+                f"Hide field ({colname})"
+            )
+            hide_clicked_action.triggered.connect(
+                lambda: self.setColumnHidden(clicked_column, True)
+            )
             self.header_context_menu.exec(QCursor.pos())
             return
 
         # Create an action to hide the selected columns
         if len(selected_columns) > 0:
-            hide_selected_cols = self.header_context_menu.addAction("Hide selected fields")
-            hide_selected_cols.triggered.connect(lambda: self.set_columns_hidden(selected_columns))
+            hide_selected_cols = self.header_context_menu.addAction(
+                "Hide selected fields"
+            )
+            hide_selected_cols.triggered.connect(
+                lambda: self.set_columns_hidden(selected_columns)
+            )
             self.header_context_menu.exec(QCursor.pos())
             return
 
@@ -379,7 +434,6 @@ class SampleTableView(QTableView):
         selection_model = self.selectionModel()
         selected_indexes = selection_model.selectedColumns()
         return [column.column() for column in selected_indexes]
-
 
     def copy_selection(self):
         selected_data = self.get_selected_data()
@@ -421,7 +475,7 @@ class SampleTableView(QTableView):
         model.dataChanged.emit(
             model.index(0, 0),
             model.index(model.rowCount() - 1, model.columnCount() - 1),
-            Qt.DisplayRole
+            Qt.DisplayRole,
         )
 
     def keyPressEvent(self, event: QKeyEvent):
@@ -437,30 +491,46 @@ class SampleTableView(QTableView):
         match event.key(), event.modifiers():
 
             case Qt.Key_Left:
-                new_index = self.selectionModel().index(current_index.row(), current_index.column() - 1)
-                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
+                new_index = self.selectionModel().index(
+                    current_index.row(), current_index.column() - 1
+                )
+                self.selectionModel().setCurrentIndex(
+                    new_index, QItemSelectionModel.ClearAndSelect
+                )
                 self.scrollTo(new_index)
                 return True
 
             case Qt.Key_Right:
-                new_index = self.selectionModel().index(current_index.row(), current_index.column() + 1)
-                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
+                new_index = self.selectionModel().index(
+                    current_index.row(), current_index.column() + 1
+                )
+                self.selectionModel().setCurrentIndex(
+                    new_index, QItemSelectionModel.ClearAndSelect
+                )
                 self.scrollTo(new_index)
                 return True
 
             case Qt.Key_Up:
-                new_index = self.selectionModel().index(current_index.row() - 1, current_index.column())
-                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
+                new_index = self.selectionModel().index(
+                    current_index.row() - 1, current_index.column()
+                )
+                self.selectionModel().setCurrentIndex(
+                    new_index, QItemSelectionModel.ClearAndSelect
+                )
                 self.scrollTo(new_index)
                 return True
 
             case Qt.Key_Down:
-                new_index = self.selectionModel().index(current_index.row() + 1, current_index.column())
-                self.selectionModel().setCurrentIndex(new_index, QItemSelectionModel.ClearAndSelect)
+                new_index = self.selectionModel().index(
+                    current_index.row() + 1, current_index.column()
+                )
+                self.selectionModel().setCurrentIndex(
+                    new_index, QItemSelectionModel.ClearAndSelect
+                )
                 self.scrollTo(new_index)
                 return True
 
-            case  Qt.Key_C, Qt.ControlModifier:
+            case Qt.Key_C, Qt.ControlModifier:
                 self.copy_selection()
                 return True
 
@@ -499,9 +569,12 @@ class SampleTableView(QTableView):
                     source_index = source_model.index(0, 0)
 
                     for idx in selected_indexes:
-                        model.setData(idx, source_model.data(source_index,  Qt.DisplayRole), Qt.EditRole)
+                        model.setData(
+                            idx,
+                            source_model.data(source_index, Qt.DisplayRole),
+                            Qt.EditRole,
+                        )
 
                 return True
 
         return False
-

@@ -3,13 +3,24 @@ from pathlib import Path
 import pandas as pd
 
 
-from PySide6.QtWidgets import QVBoxLayout, QWidget, QLineEdit, QTableView, QHeaderView, \
-    QHBoxLayout, QSizePolicy, QSpacerItem, QAbstractItemView, QToolBox, QLabel
+from PySide6.QtWidgets import (
+    QVBoxLayout,
+    QWidget,
+    QLineEdit,
+    QTableView,
+    QHeaderView,
+    QHBoxLayout,
+    QSizePolicy,
+    QSpacerItem,
+    QAbstractItemView,
+    QToolBox,
+    QLabel,
+)
 
 from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt
 from camel_converter import to_pascal
 
-from modules.logic.indexes import IndexKitDefinition
+from models.indexes import IndexKitDefinition
 
 
 def create_chained_sfproxies(model_names: list) -> dict:
@@ -34,7 +45,9 @@ def create_chained_sfproxies(model_names: list) -> dict:
         if i > 0:
             chained_keys = list(chained_models.keys())
             previous_model_name = chained_keys[i - 1]
-            chained_models[model_name].setSourceModel(chained_models[previous_model_name])
+            chained_models[model_name].setSourceModel(
+                chained_models[previous_model_name]
+            )
 
     return chained_models
 
@@ -122,12 +135,12 @@ class IndexTableModel(QAbstractTableModel):
         mime_data = QMimeData()
         row_indexes = {index.row() for index in indexes}
         df = pd.DataFrame(self.dataframe, index=list(row_indexes))
-        records = df.to_dict(orient='records')
+        records = df.to_dict(orient="records")
 
         # Convert the records to JSON
         json_data = json.dumps(records)
 
-        bytes_data = bytes(json_data, 'utf-8')
+        bytes_data = bytes(json_data, "utf-8")
         mime_data.setData("application/json", bytes_data)
 
         return mime_data
@@ -157,7 +170,9 @@ class IDKWidget(QWidget):
             editline.setObjectName(field)
             self.filter_editlines_layout.addWidget(editline)
 
-        self.filter_editlines_layout.addItem(QSpacerItem(16, 16, QSizePolicy.Fixed, QSizePolicy.Fixed))
+        self.filter_editlines_layout.addItem(
+            QSpacerItem(16, 16, QSizePolicy.Fixed, QSizePolicy.Fixed)
+        )
 
         # setup main layout
         self.layout = QVBoxLayout()
@@ -211,7 +226,9 @@ class IDKWidget(QWidget):
         header = self.tableview.horizontalHeader()
 
         for column in range(model.columnCount()):
-            header_item = header.model().headerData(column, Qt.Horizontal, Qt.DisplayRole)
+            header_item = header.model().headerData(
+                column, Qt.Horizontal, Qt.DisplayRole
+            )
 
             if header_item not in self.shown_fields:
                 self.tableview.setColumnHidden(column, True)

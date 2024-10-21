@@ -1,8 +1,19 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QLineEdit, QPushButton, QMessageBox, \
-    QSpacerItem, QSizePolicy, QGroupBox, QLabel
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QListWidget,
+    QLineEdit,
+    QPushButton,
+    QMessageBox,
+    QSpacerItem,
+    QSizePolicy,
+    QGroupBox,
+    QLabel,
+)
 from PySide6.QtCore import Slot
 
-from modules.logic.settings import SettingsManager
+from models.settings import SettingsManager
 
 
 class SettingsWidget(QWidget):
@@ -17,7 +28,9 @@ class SettingsWidget(QWidget):
 
         self.main_layout.addWidget(UsersWidget(self.settings))
 
-        self.main_layout.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding,QSizePolicy.Expanding))
+        self.main_layout.addSpacerItem(
+            QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Expanding)
+        )
 
 
 class UsersWidget(QWidget):
@@ -35,12 +48,12 @@ class UsersWidget(QWidget):
         self.remove_layout = QHBoxLayout()
 
         # Widgets
-        self.header_label = QLabel('Users')
+        self.header_label = QLabel("Users")
         self.header_label.setStyleSheet("font-weight: bold;")
         self.user_list = QListWidget()
         self.user_input = QLineEdit()
-        self.add_button = QPushButton('Add User')
-        self.remove_button = QPushButton('Remove Selected User')
+        self.add_button = QPushButton("Add User")
+        self.remove_button = QPushButton("Remove Selected User")
 
         # Setting up input layout
         self.input_layout.addWidget(self.user_input)
@@ -51,7 +64,9 @@ class UsersWidget(QWidget):
         self.main_layout.addLayout(self.input_layout)
         self.main_layout.addWidget(self.user_list)
 
-        self.remove_layout.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        self.remove_layout.addSpacerItem(
+            QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        )
         self.remove_layout.addWidget(self.remove_button)
         self.main_layout.addLayout(self.remove_layout)
 
@@ -71,7 +86,7 @@ class UsersWidget(QWidget):
             self.user_input.clear()
             self.save_users()
         else:
-            QMessageBox.warning(self, 'Input Error', 'User name cannot be empty!')
+            QMessageBox.warning(self, "Input Error", "User name cannot be empty!")
 
     def save_users(self):
         users = [self.user_list.item(i).text() for i in range(self.user_list.count())]
@@ -89,7 +104,7 @@ class UsersWidget(QWidget):
     def remove_user(self):
         selected_items = self.user_list.selectedItems()
         if not selected_items:
-            QMessageBox.warning(self, 'Selection Error', 'No user selected!')
+            QMessageBox.warning(self, "Selection Error", "No user selected!")
             return
         for item in selected_items:
             self.user_list.takeItem(self.user_list.row(item))

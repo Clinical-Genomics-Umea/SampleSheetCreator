@@ -5,23 +5,56 @@ import pandas as pd
 import re
 from pathlib import Path
 from PySide6.QtCore import Qt, QSize, QEvent, QThread, Slot
-from PySide6.QtGui import QStandardItemModel, QColor, QPen, QStandardItem, QPainter, QIntValidator, \
-    QTextCursor, QTextDocument, QTextBlockFormat, QBrush
-from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QLabel, QHeaderView,
-                               QAbstractScrollArea, QScrollArea,
-                               QStyledItemDelegate, QTableView, QTabWidget, QFrame, QLineEdit,
-                               QPushButton, QMenu, QTableWidget, QTableWidgetItem, QItemDelegate, QLayout)
+from PySide6.QtGui import (
+    QStandardItemModel,
+    QColor,
+    QPen,
+    QStandardItem,
+    QPainter,
+    QIntValidator,
+    QTextCursor,
+    QTextDocument,
+    QTextBlockFormat,
+    QBrush,
+)
+from PySide6.QtWidgets import (
+    QWidget,
+    QHBoxLayout,
+    QVBoxLayout,
+    QSpacerItem,
+    QSizePolicy,
+    QLabel,
+    QHeaderView,
+    QAbstractScrollArea,
+    QScrollArea,
+    QStyledItemDelegate,
+    QTableView,
+    QTabWidget,
+    QFrame,
+    QLineEdit,
+    QPushButton,
+    QMenu,
+    QTableWidget,
+    QTableWidgetItem,
+    QItemDelegate,
+    QLayout,
+)
 
 # from modules.WaitingSpinner.spinner import WaitingSpinner
-from modules.widgets.models import SampleSheetModel
-from modules.widgets.run import RunInfoWidget
-from modules.logic.validation import PreValidatorWorker, load_from_yaml, DataValidationWorker
+from models.models import SampleSheetModel
+from views.run import RunInfoWidget
+from models.validation import PreValidatorWorker, load_from_yaml, DataValidationWorker
 
-from modules.logic.validation_fns import padded_index_df
+from models.validation_fns import padded_index_df
 
 
 class PreValidationWidget(QTableWidget):
-    def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfoWidget):
+    def __init__(
+        self,
+        validation_settings_path: Path,
+        model: SampleSheetModel,
+        run_info: RunInfoWidget,
+    ):
         super().__init__()
 
         self.thread = None
@@ -54,7 +87,9 @@ class PreValidationWidget(QTableWidget):
 
         validator_item = QTableWidgetItem(validator_text)
         status_item = QTableWidgetItem("OK" if is_valid else "FAIL")
-        status_item.setForeground(QBrush(QColor(0, 200, 0)) if is_valid else QBrush(QColor(200, 0, 0)))
+        status_item.setForeground(
+            QBrush(QColor(0, 200, 0)) if is_valid else QBrush(QColor(200, 0, 0))
+        )
 
         message_item = QTableWidgetItem(message)
 
@@ -62,18 +97,27 @@ class PreValidationWidget(QTableWidget):
         self.setItem(last_row, 1, status_item)
         self.setItem(last_row, 2, message_item)
 
+    def run_validate(self):
+
+        df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True)
+        print(df)
+        if df.empty:
+            return
+
+        self.run_worker_thread()
 
     def run_worker_thread(self):
+
         self.thread = QThread()
-        self.worker = PreValidatorWorker(self.validation_settings_path, self.model, self.run_info)
+        self.worker = PreValidatorWorker(
+            self.validation_settings_path, self.model, self.run_info
+        )
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
         self.worker.data_ready.connect(self._populate)
         self.worker.data_ready.connect(self.thread.quit)
         self.worker.data_ready.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
-
-        # self.spinner.start()
 
         self.thread.start()
 
@@ -88,7 +132,12 @@ class PreValidationWidget(QTableWidget):
 
 
 class IndexDistanceValidationWidget(QTabWidget):
-    def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfoWidget):
+    def __init__(
+        self,
+        validation_settings_path: Path,
+        model: SampleSheetModel,
+        run_info: RunInfoWidget,
+    ):
         super().__init__()
 
         self.worker = None
@@ -99,9 +148,9 @@ class IndexDistanceValidationWidget(QTabWidget):
         self.model = model
         self.run_info_data = run_info.get_data()
 
-        instrument = self.run_info_data['Header']['Instrument']
+        instrument = self.run_info_data["Header"]["Instrument"]
         settings = load_from_yaml(validation_settings_path)
-        self.i5_rc = settings['flowcells'][instrument]['i5_rc']
+        self.i5_rc = settings["flowcells"][instrument]["i5_rc"]
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -132,7 +181,9 @@ class IndexDistanceValidationWidget(QTabWidget):
         tab_content_layout = QVBoxLayout()
         tab_content.setLayout(tab_content_layout)
 
-        i7_i5_heatmap_table = self.heatmap_tablewidget(substitutions["i7_i5_substitutions"])
+        i7_i5_heatmap_table = self.heatmap_tablewidget(
+            substitutions["i7_i5_substitutions"]
+        )
         i7_heatmap_table = self.heatmap_tablewidget(substitutions["i7_substitutions"])
         i5_heatmap_table = self.heatmap_tablewidget(substitutions["i5_substitutions"])
 
@@ -179,7 +230,11 @@ class IndexDistanceValidationWidget(QTabWidget):
                     red_intensity = int(192 + (255 - 192) * (cell_value / 4))
                     color = QColor(red_intensity, 0, 0)
                 else:
-                    green_intensity = int(192 + (255 - 192) * (1 - ((cell_value - 4) / (data.max().max() - 4))))
+                    green_intensity = int(
+                        192
+                        + (255 - 192)
+                        * (1 - ((cell_value - 4) / (data.max().max() - 4)))
+                    )
                     color = QColor(0, green_intensity, 0)
 
                 widget = QWidget()
@@ -202,17 +257,25 @@ class IndexDistanceValidationWidget(QTabWidget):
         h_header_height = heatmap_tablewidget.horizontalHeader().height()
         row_height = heatmap_tablewidget.rowHeight(0)
         no_items = heatmap_tablewidget.columnCount()
-        heatmap_tablewidget.setMaximumHeight(h_header_height + row_height * no_items + 5)
+        heatmap_tablewidget.setMaximumHeight(
+            h_header_height + row_height * no_items + 5
+        )
 
-        heatmap_tablewidget.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        heatmap_tablewidget.setSizeAdjustPolicy(
+            QAbstractScrollArea.AdjustToContentsOnFirstShow
+        )
         heatmap_tablewidget.setItemDelegate(NonEditableDelegate())
 
         return heatmap_tablewidget
 
     def run_validate(self):
         self.delete_tabs()
-        self.run_worker_thread()
+        df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True).dropna()
+        print(df)
+        if df.empty:
+            return
 
+        self.run_worker_thread()
 
     def run_worker_thread(self):
         self.thread = QThread()
@@ -269,15 +332,20 @@ class IndexDistanceValidationWidget(QTabWidget):
 
 class ColorBalanceValidationWidget(QTabWidget):
 
-    def __init__(self, validation_settings_path: Path, model: SampleSheetModel, run_info: RunInfoWidget):
+    def __init__(
+        self,
+        validation_settings_path: Path,
+        model: SampleSheetModel,
+        run_info: RunInfoWidget,
+    ):
         super().__init__()
 
         self.model = model
         self.run_info_data = run_info.get_data()
 
-        instrument = self.run_info_data['Header']['Instrument']
+        instrument = self.run_info_data["Header"]["Instrument"]
         settings = load_from_yaml(validation_settings_path)
-        self.i5_rc = settings['flowcells'][instrument]['i5_rc']
+        self.i5_rc = settings["flowcells"][instrument]["i5_rc"]
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -310,7 +378,6 @@ class ColorBalanceValidationWidget(QTabWidget):
         for child in widget.findChildren(QWidget):
             child.deleteLater()
 
-
     def delete_tabs(self):
         # Remove and delete each tab widget
         while self.count() > 0:
@@ -318,21 +385,37 @@ class ColorBalanceValidationWidget(QTabWidget):
             self.removeTab(0)  # Remove the tab
             self.clear_widget(widget)
 
-    def populate(self):
+    def run_validate(self):
+
+        df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True).dropna()
+        print(df)
+
+        if df.empty:
+            return
+
         self.delete_tabs()
+        self.populate()
 
-        df = self.model.to_dataframe().replace(r'^\s*$', np.nan, regex=True)
+    def populate(self):
 
-        unique_lanes = df['Lane'].unique()
+        df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True).dropna()
+
+        if df.empty:
+            return
+
+        unique_lanes = df["Lane"].unique()
 
         for lane in unique_lanes:
-            lane_df = df[df['Lane'] == lane]
+            lane_df = df[df["Lane"] == lane]
 
             i7_padded_indexes = padded_index_df(lane_df, 10, "IndexI7", "Sample_ID")
-            i5_padded_indexes = padded_index_df(lane_df, 10, "IndexI5RC" if self.i5_rc else "IndexI5",
-                                                "Sample_ID")
+            i5_padded_indexes = padded_index_df(
+                lane_df, 10, "IndexI5RC" if self.i5_rc else "IndexI5", "Sample_ID"
+            )
 
-            merged_indexes = pd.merge(i7_padded_indexes, i5_padded_indexes, on="Sample_ID")
+            merged_indexes = pd.merge(
+                i7_padded_indexes, i5_padded_indexes, on="Sample_ID"
+            )
 
             tab_scroll_area = QScrollArea()
             tab_scroll_area.setFrameShape(QFrame.NoFrame)
@@ -351,7 +434,7 @@ class IndexColorBalanceModel(QStandardItemModel):
     def update_summation(self):
 
         for col in range(2, self.columnCount()):
-            bases_count = {'A': 0, 'C': 0, 'G': 0, 'T': 0}
+            bases_count = {"A": 0, "C": 0, "G": 0, "T": 0}
             merged = {}
 
             for row in range(self.rowCount() - 1):
@@ -363,8 +446,8 @@ class IndexColorBalanceModel(QStandardItemModel):
             normalized_color_counts = self.normalize(color_counts)
             normalized_base_counts = self.normalize(bases_count)
 
-            merged['colors'] = normalized_color_counts
-            merged['bases'] = normalized_base_counts
+            merged["colors"] = normalized_color_counts
+            merged["bases"] = normalized_base_counts
             norm_json = json.dumps(merged)
 
             last_row = self.rowCount() - 1
@@ -372,7 +455,7 @@ class IndexColorBalanceModel(QStandardItemModel):
 
     @staticmethod
     def merge(dict1, dict2):
-        res = dict1 | {'--': '---'} | dict2
+        res = dict1 | {"--": "---"} | dict2
         return res
 
     @staticmethod
@@ -384,28 +467,30 @@ class IndexColorBalanceModel(QStandardItemModel):
             total = 0.00001
 
         # Normalize the values and create a new dictionary
-        normalized_dict = {key: round(value / total, 2) for key, value in input_dict.items()}
+        normalized_dict = {
+            key: round(value / total, 2) for key, value in input_dict.items()
+        }
 
         return normalized_dict
 
     @staticmethod
     def base_to_color_count(dict1):
         color_count = {
-            'B': 0,
-            'G': 0,
-            'D': 0,
+            "B": 0,
+            "G": 0,
+            "D": 0,
         }
 
         for base, count in dict1.items():
-            if base == 'A':
-                color_count['B'] = count
-            elif base == 'C':
-                color_count['B'] = count * 0.5
-                color_count['G'] = count * 0.5
-            elif base == 'T':
-                color_count['G'] = count
-            elif base == 'G':
-                color_count['D'] = count
+            if base == "A":
+                color_count["B"] = count
+            elif base == "C":
+                color_count["B"] = count * 0.5
+                color_count["G"] = count * 0.5
+            elif base == "T":
+                color_count["G"] = count
+            elif base == "G":
+                color_count["D"] = count
 
         return color_count
 
@@ -432,7 +517,7 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
         value = index.data(Qt.DisplayRole)
         value_other = index_other.data(Qt.DisplayRole)
 
-        if value == value_other == 'G':
+        if value == value_other == "G":
             painter.save()
             painter.fillRect(option.rect, QColor(255, 127, 127))
             super().paint(painter, option, index)
@@ -445,7 +530,7 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
         value = index.data(Qt.DisplayRole)
         value_other = index_other.data(Qt.DisplayRole)
 
-        if value == value_other == 'G':
+        if value == value_other == "G":
             painter.save()
             painter.fillRect(option.rect, QColor(255, 127, 127))
             super().paint(painter, option, index)
@@ -453,16 +538,18 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
         else:
             super().paint(painter, option, index)
 
-
-
     def paint_color_balance_row(self, painter, option, index):
         json_data = index.data(Qt.DisplayRole)
         if json_data:
             data = json.loads(json_data)
 
-            color_lines = "\n".join([f"{key}: {value}" for key, value in data['colors'].items()])
-            bases_lines = "\n".join([f"{key}: {value}" for key, value in data['bases'].items()])
-            multiline = color_lines + '\n----\n' + bases_lines
+            color_lines = "\n".join(
+                [f"{key}: {value}" for key, value in data["colors"].items()]
+            )
+            bases_lines = "\n".join(
+                [f"{key}: {value}" for key, value in data["bases"].items()]
+            )
+            multiline = color_lines + "\n----\n" + bases_lines
 
             document = QTextDocument()
             document.setPlainText(multiline)
@@ -470,7 +557,7 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
             # if data['colors']['Da'] > 0.5:
             #     self.setDarkBackgroundColorWarning(document, QColor(255, 127, 127))
 
-            if data['colors']['G'] < 0.1:
+            if data["colors"]["G"] < 0.1:
                 self.setNoGreenBackgroundColorWarning(document, QColor(255, 127, 127))
 
             # Adjust the document size to the cell size
@@ -481,7 +568,6 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
             painter.translate(option.rect.topLeft())
             document.drawContents(painter)
             painter.restore()
-
 
     def setDarkBackgroundColorWarning(self, document, color):
         cursor = QTextCursor(document)
@@ -534,8 +620,9 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
             return super().editorEvent(event, model, option, index)
 
     def menuAction(self, index, action_text):
-        print(f"Double-clicked cell at row {index.row()}, column {index.column()}. Action: {action_text}")
-
+        print(
+            f"Double-clicked cell at row {index.row()}, column {index.column()}. Action: {action_text}"
+        )
 
     def commitAndCloseEditor(self):
 
@@ -555,9 +642,11 @@ class ColorBalanceWidget(QTableView):
         super(ColorBalanceWidget, self).__init__(parent)
         df = merged_df.copy()
 
-        df['Proportion'] = "1"
+        df["Proportion"] = "1"
 
-        cols = ['Sample_ID', 'Proportion'] + [col for col in df.columns if col not in ['Sample_ID', 'Proportion']]
+        cols = ["Sample_ID", "Proportion"] + [
+            col for col in df.columns if col not in ["Sample_ID", "Proportion"]
+        ]
         df = df[cols]
 
         last_row_index = df.index[-1]
@@ -594,7 +683,7 @@ class ColorBalanceWidget(QTableView):
         """
         model = IndexColorBalanceModel(parent=self)
 
-        column_names = [col_name.replace('Index', '') for col_name in dataframe.columns]
+        column_names = [col_name.replace("Index", "") for col_name in dataframe.columns]
 
         # Set the column headers as the model's horizontal headers
         model.setHorizontalHeaderLabels(column_names)
@@ -624,15 +713,24 @@ class ColorBalanceWidget(QTableView):
 
         for row in range(row_count):
             i5_i7_index_boundry_rect = self.visualRect(model.index(row, 11))
-            painter.drawLine(i5_i7_index_boundry_rect.topRight(), i5_i7_index_boundry_rect.bottomRight())
+            painter.drawLine(
+                i5_i7_index_boundry_rect.topRight(),
+                i5_i7_index_boundry_rect.bottomRight(),
+            )
 
         for row in range(row_count):
             i5_i7_index_boundry_rect = self.visualRect(model.index(row, 0))
-            painter.drawLine(i5_i7_index_boundry_rect.topRight(), i5_i7_index_boundry_rect.bottomRight())
+            painter.drawLine(
+                i5_i7_index_boundry_rect.topRight(),
+                i5_i7_index_boundry_rect.bottomRight(),
+            )
 
         for row in range(row_count):
             i5_i7_index_boundry_rect = self.visualRect(model.index(row, 1))
-            painter.drawLine(i5_i7_index_boundry_rect.topRight(), i5_i7_index_boundry_rect.bottomRight())
+            painter.drawLine(
+                i5_i7_index_boundry_rect.topRight(),
+                i5_i7_index_boundry_rect.bottomRight(),
+            )
 
     @staticmethod
     def split_string_column(input_df, column_name1, column_name2):
@@ -691,5 +789,3 @@ class NonEditableDelegate(QItemDelegate):
     def createEditor(self, parent, option, index):
         # Return None to make the item non-editable
         return None
-
-

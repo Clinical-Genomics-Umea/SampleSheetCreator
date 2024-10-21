@@ -1,11 +1,24 @@
 from pathlib import Path
 
 from PySide6.QtGui import QFont, Qt
-from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QFormLayout, QLineEdit, QComboBox, QGridLayout, QPushButton, \
-    QGroupBox, QFrame, QHBoxLayout, QSpacerItem, QSizePolicy
+from PySide6.QtWidgets import (
+    QVBoxLayout,
+    QWidget,
+    QLabel,
+    QFormLayout,
+    QLineEdit,
+    QComboBox,
+    QGridLayout,
+    QPushButton,
+    QGroupBox,
+    QFrame,
+    QHBoxLayout,
+    QSpacerItem,
+    QSizePolicy,
+)
 import yaml
 
-from ui.run_settings_form_grid import Ui_Form
+from views.ui.run_settings_form_grid import Ui_Form
 
 
 def extract_widget_data(widget):
@@ -21,7 +34,7 @@ def extract_widget_data(widget):
         return widget.text()
     if isinstance(widget, QComboBox):
         return widget.currentText()
-    return widget.text() if isinstance(widget, QLabel) else ''
+    return widget.text() if isinstance(widget, QLabel) else ""
 
 
 def make_widget(widget_type, data):
@@ -50,7 +63,7 @@ def make_widget(widget_type, data):
 
 
 def load_from_yaml(config_file):
-    with open(config_file, 'r') as file:
+    with open(config_file, "r") as file:
         return yaml.safe_load(file)
 
 
@@ -86,8 +99,8 @@ class RunSetup(QWidget):
 
             for field in self.run_config[section]:
 
-                widget_type = self.run_config[section][field]['control']
-                widget_data = self.run_config[section][field]['data']
+                widget_type = self.run_config[section][field]["control"]
+                widget_data = self.run_config[section][field]["data"]
                 widget = make_widget(widget_type, widget_data)
 
                 self.input_widgets[section][field] = widget
@@ -99,8 +112,7 @@ class RunSetup(QWidget):
     def get_data(self):
         return {
             section: {
-                field: extract_widget_data(widget)
-                for field, widget in fields.items()
+                field: extract_widget_data(widget) for field, widget in fields.items()
             }
             for section, fields in self.input_widgets.items()
         }
