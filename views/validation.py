@@ -41,7 +41,7 @@ from PySide6.QtWidgets import (
 )
 
 # from modules.WaitingSpinner.spinner import WaitingSpinner
-from models.models import SampleSheetModel
+from models.sample_sheet_model import SampleSheetModel
 from views.run import RunInfoWidget
 from models.validation import PreValidatorWorker, load_from_yaml, DataValidationWorker
 

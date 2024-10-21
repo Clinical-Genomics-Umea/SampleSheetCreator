@@ -26,7 +26,7 @@ from models.utils import read_yaml_file
 from views.settings import SettingsWidget
 from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
 from views.visibility import ColumnsTreeWidget
-from models.models import SampleSheetModel
+from models.sample_sheet_model import SampleSheetModel
 from views.indexes import IndexKitToolbox
 from views.make import SampleSheetEdit
 from views.applications import ApplicationProfiles

@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt
 from camel_converter import to_pascal
 
-from models.indexes import IndexKitDefinition
+from models.indexes_model import IndexKitDefinition
 
 
 def create_chained_sfproxies(model_names: list) -> dict:
