@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 
 from PySide6.QtCore import Signal, Qt
 from views.sampleview import SampleTableView
-from models.utils import read_yaml_file
+from utils.utils import read_yaml_file
 
 
 class ClickableLabel(QLabel):

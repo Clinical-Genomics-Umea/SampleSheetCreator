@@ -5,6 +5,7 @@ from io import StringIO
 from pathlib import Path
 import json
 import jsonschema
+from PySide6.QtCore import QObject
 from jsonschema import validate
 from camel_converter import to_snake
 

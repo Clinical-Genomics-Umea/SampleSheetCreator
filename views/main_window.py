@@ -20,18 +20,16 @@ from PySide6.QtWidgets import (
 )
 
 from PySide6.QtGui import QAction, QActionGroup, QPainter, QIcon
-from PySide6.QtCore import QPropertyAnimation, Qt, QSize
+from PySide6.QtCore import QPropertyAnimation, Qt, QSize, Signal
 
-from models.utils import read_yaml_file
 from views.settings import SettingsWidget
 from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
 from views.visibility import ColumnsTreeWidget
-from models.sample_sheet_model import SampleSheetModel
-from views.indexes import IndexKitToolbox
+from views.index import IndexKitToolbox
 from views.make import SampleSheetEdit
-from views.applications import ApplicationProfiles
+from views.profile import ApplicationProfiles
 from views.run import RunSetup, RunInfoWidget
-from views.samplesheet import SampleSheetV2
+from models.samplesheet import SampleSheetV2
 from views.validation import (
     IndexDistanceValidationWidget,
     PreValidationWidget,
@@ -71,11 +69,14 @@ def clear_layout(layout):
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-    def __init__(self):
+
+    run_validate = Signal()
+
+    def __init__(self, sample_settings_path):
         super(MainWindow, self).__init__()
         self.setupUi(self)
         self.main_version = __version__
-        self.setWindowTitle(f"Illuminator {self.main_version}")
+        self.setWindowTitle(f"SampleCheater {self.main_version}")
         self.setWindowIcon(
             QIcon(qta.icon("ri.settings-line", options=[{"draw": "image"}]))
         )
@@ -95,84 +96,81 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.settings_action = QAction("settings", self)
         # self.edit_action = QAction("edit", self)
 
-        self.qagroup_leftmenu = QActionGroup(self)
-        self.qagroup_mainview = QActionGroup(self)
+        self.left_tool_action_group = QActionGroup(self)
+        self.actiongroup_mainview = QActionGroup(self)
 
         # right sidemenu options
         self.columns_settings_button = QPushButton("Columns")
         self.columns_settings_button.setObjectName("columns_settings")
 
-        self.left_action_tab_map = {}
+        self.left_tool_action_map = {}
         self.left_tool_actions_setup()
 
         self.right_action_tab_map = {}
         self.right_tool_actions_setup()
 
-        sample_settings_path = read_yaml_file("config/sample_settings.yaml")
-        self.samples_model = SampleSheetModel(sample_settings_path)
-        self.samples_widget = SampleWidget(self.samples_model)
-        self.sample_tableview = self.samples_widget.sampleview
-        self.sample_tableview_setup()
+        self.sample_widget = SampleWidget()
 
+        #
         # columns settings widget
         self.columns_treeview = ColumnsTreeWidget(sample_settings_path)
         self.columns_listview_setup()
-
-        self.left_tab_anim = {}
-        self.right_tab_anim = {}
-
-        self.menu_animations_setup()
-
-        self.leftmenu_stackedWidget.setMaximumWidth(0)
+        #
+        # self.left_tab_anim = {}
+        # self.right_tab_anim = {}
+        #
+        # self.menu_animations_setup()
+        #
+        self.leftmenu_stackedWidget.setFixedWidth(300)
         self.leftmenu_stackedWidget.hide()
-        self.rightmenu_stackedWidget.setMaximumWidth(0)
+        self.rightmenu_stackedWidget.setFixedWidth(250)
         self.rightmenu_stackedWidget.hide()
-
+        #
         # self.file_tab_setup()
 
         self.run_setup_widget = RunSetup(Path("config/run/run_settings.yaml"))
         self.run_info_widget = RunInfoWidget()
-        self.run_setup()
-
-        self.prevalidate_widget = PreValidationWidget(
-            Path("config/validation/validation_settings.yaml"),
-            self.samples_model,
-            self.run_info_widget,
-        )
-        self.indexdistancevalidation_widget = IndexDistanceValidationWidget(
-            Path("config/validation/validation_settings.yaml"),
-            self.samples_model,
-            self.run_info_widget,
-        )
-
-        self.colorbalancevalidation_widget = ColorBalanceValidationWidget(
-            Path("config/validation/validation_settings.yaml"),
-            self.samples_model,
-            self.run_info_widget,
-        )
-
-        self.validation_tabwidget = QTabWidget()
-
-        self.validate_setup()
-
-        self.samplesheetedit = SampleSheetEdit()
-        self.samplesheetedit_setup()
-
-        self.indexes_widget = IndexKitToolbox(Path("config/indexes/indexes_json"))
-        self.indexes_setup()
-
-        self.application_profiles_widget = ApplicationProfiles(
-            Path("config/applications"), self.sample_tableview
-        )
-        self.profile_setup()
-
-        self.menu_animations_setup()
-
-        self.leftmenu_stackedWidget.setMaximumWidth(0)
-        self.rightmenu_stackedWidget.setMaximumWidth(0)
-
-        self.settings = SettingsWidget()
-        self.settings_setup()
+        self.run_info_setup()
+        #
+        # self.prevalidate_widget = PreValidationWidget(
+        #     Path("config/validation/validation_settings.yaml"),
+        #     self.samples_model,
+        #     self.run_info_widget,
+        # )
+        # self.indexdistancevalidation_widget = IndexDistanceValidationWidget(
+        #     Path("config/validation/validation_settings.yaml"),
+        #     self.samples_model,
+        #     self.run_info_widget,
+        # )
+        #
+        # self.colorbalancevalidation_widget = ColorBalanceValidationWidget(
+        #     Path("config/validation/validation_settings.yaml"),
+        #     self.samples_model,
+        #     self.run_info_widget,
+        # )
+        #
+        # self.validation_tabwidget = QTabWidget()
+        #
+        # self.validate_setup()
+        #
+        # self.samplesheetedit = SampleSheetEdit()
+        # self.samplesheetedit_setup()
+        #
+        # self.indexes_widget = IndexKitToolbox(Path("config/indexes/indexes_json"))
+        # self.indexes_setup()
+        #
+        # self.application_profiles_widget = ApplicationProfiles(
+        #     Path("config/applications"), self.sample_tableview
+        # )
+        # self.profile_setup()
+        #
+        # self.menu_animations_setup()
+        #
+        # self.leftmenu_stackedWidget.setMaximumWidth(0)
+        # self.rightmenu_stackedWidget.setMaximumWidth(0)
+        #
+        # self.settings = SettingsWidget()
+        # self.settings_setup()
 
     def settings_setup(self):
         layout = self.main_settings.layout()
@@ -217,35 +215,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout.addWidget(self.columns_treeview)
 
         self.columns_treeview.field_visibility_state_changed.connect(
-            self.sample_tableview.set_column_visibility_state
+            self.sample_widget.sample_view.set_column_visibility_state
         )
-        self.sample_tableview.field_visibility_state_changed.connect(
+        self.sample_widget.sample_view.field_visibility_state_changed.connect(
             self.columns_treeview.set_column_visibility_state
         )
 
-    def menu_animations_setup(self):
-        self.left_tab_anim["open"] = self.make_animation(
-            self.leftmenu_stackedWidget, 0, 300
-        )
-        self.left_tab_anim["close"] = self.make_animation(
-            self.leftmenu_stackedWidget, 300, 0
-        )
+    # def menu_animations_setup(self):
+    #     self.left_tab_anim["open"] = self.make_animation(
+    #         self.leftmenu_stackedWidget, 0, 300
+    #     )
+    #     self.left_tab_anim["close"] = self.make_animation(
+    #         self.leftmenu_stackedWidget, 300, 0
+    #     )
+    #
+    #     self.right_tab_anim["open"] = self.make_animation(
+    #         self.rightmenu_stackedWidget, 0, 250
+    #     )
+    #     self.right_tab_anim["close"] = self.make_animation(
+    #         self.rightmenu_stackedWidget, 250, 0
+    #     )
 
-        self.right_tab_anim["open"] = self.make_animation(
-            self.rightmenu_stackedWidget, 0, 250
-        )
-        self.right_tab_anim["close"] = self.make_animation(
-            self.rightmenu_stackedWidget, 250, 0
-        )
-
-    @staticmethod
-    def make_animation(menu_widget, start_width, end_width):
-        animation = QPropertyAnimation(menu_widget, b"maximumWidth")
-        animation.setStartValue(start_width)
-        animation.setEndValue(end_width)
-        animation.setDuration(5)
-
-        return animation
+    # @staticmethod
+    # def make_animation(menu_widget, start_width, end_width):
+    #     animation = QPropertyAnimation(menu_widget, b"maximumWidth")
+    #     animation.setStartValue(start_width)
+    #     animation.setEndValue(end_width)
+    #     animation.setDuration(5)
+    #
+    #     return animation
 
     def get_vertical_button_view(self, button: QPushButton):
         button.setFixedSize(100, 20)
@@ -272,14 +270,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         return view
 
-    def sample_tableview_setup(self):
+    def sample_widget_setup(self):
 
         layout = self.main_data.layout()
         clear_layout(layout)
-        layout.addWidget(self.samples_widget)
+        layout.addWidget(self.sample_widget)
         self.main_stackedWidget.setCurrentWidget(self.main_data)
 
-    def run_setup(self):
+    def run_info_setup(self):
         self.leftmenu_runsetup.layout().addWidget(self.run_setup_widget)
         self.verticalLayout.insertWidget(0, self.run_info_widget)
         self.run_info_widget.setup(self.run_setup_widget.get_data())
@@ -303,6 +301,59 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
+    def handle_left_toolbar_action(self):
+        """Handle main view actions"""
+
+        known_actions = {
+            "file",
+            "run",
+            "profiles",
+            "indexes",
+            "config",
+            "validate",
+            "make",
+        }
+
+        main_data_actions = {"file", "run", "profiles", "indexes"}
+
+        action = self.sender()
+        action_id = action.data()
+        is_checked = action.isChecked()
+
+        if action_id not in known_actions:
+            return
+
+        if is_checked:
+            if action_id in main_data_actions:
+                self.main_stackedWidget.setCurrentWidget(self.main_data)
+            elif action_id == "validate":
+                self.main_stackedWidget.setCurrentWidget(self.main_validation)
+                self.run_validate.emit()
+            elif action_id == "make":
+                self.main_stackedWidget.setCurrentWidget(self.main_make)
+            elif action_id == "config":
+                self.main_stackedWidget.setCurrentWidget(self.main_settings)
+
+        if is_checked:
+            if action_id == "file":
+                self.leftmenu_stackedWidget.show()
+                self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_file)
+            elif action_id == "run":
+                self.leftmenu_stackedWidget.show()
+                self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_runsetup)
+            elif action_id == "profiles":
+                self.leftmenu_stackedWidget.show()
+                self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_profiles)
+            elif action_id == "indexes":
+                self.leftmenu_stackedWidget.show()
+                self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_indexes)
+            else:
+                return
+
+        if not is_checked:
+            self.leftmenu_stackedWidget.hide()
+            self.main_stackedWidget.setCurrentWidget(self.main_data)
+
     def left_tool_actions_setup(self):
         """
         Set up the tool actions for the application.
@@ -311,7 +362,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         available in the application. It also sets up the icons, checkable states, and
         connections for each tool action.
         """
-        self.left_action_tab_map = {
+        self.left_tool_action_map = {
             "file": self.leftmenu_file,
             "run": self.leftmenu_runsetup,
             "profiles": self.leftmenu_profiles,
@@ -322,81 +373,84 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.file_action.setIcon(qta.icon("msc.files", options=[{"draw": "image"}]))
         self.file_action.setCheckable(True)
         self.file_action.setChecked(False)
-        self.file_action.triggered.connect(self.click_action_leftmenu)
+        self.file_action.setData("file")
+        # self.file_action.triggered.connect(self.click_action_leftmenu)
 
         self.run_action.setIcon(
             qta.icon("msc.symbol-misc", options=[{"draw": "image"}])
         )
         self.run_action.setCheckable(True)
         self.run_action.setChecked(False)
-        self.run_action.triggered.connect(self.click_action_leftmenu)
+        self.run_action.setData("run")
+        # self.run_action.triggered.connect(self.click_action_leftmenu)
 
         self.profiles_action.setIcon(
             qta.icon("msc.symbol-method", options=[{"draw": "image"}])
         )
         self.profiles_action.setCheckable(True)
         self.profiles_action.setChecked(False)
-        self.profiles_action.triggered.connect(self.click_action_leftmenu)
+        self.profiles_action.setData("profiles")
+        # self.profiles_action.triggered.connect(self.click_action_leftmenu)
 
         self.indexes_action.setIcon(
             qta.icon("mdi6.barcode", options=[{"draw": "image"}])
         )
         self.indexes_action.setCheckable(True)
         self.indexes_action.setChecked(False)
-        self.indexes_action.triggered.connect(self.click_action_leftmenu)
+        self.indexes_action.setData("indexes")
+        # self.indexes_action.triggered.connect(self.click_action_leftmenu)
 
         self.settings_action.setIcon(
             qta.icon("msc.settings-gear", options=[{"draw": "image"}])
         )
         self.settings_action.setCheckable(True)
         self.settings_action.setChecked(False)
-        self.settings_action.triggered.connect(self.click_action_mainview)
+        self.settings_action.setData("config")
+        # self.settings_action.triggered.connect(self.click_action_mainview)
 
         self.validate_action.setIcon(
             qta.icon("msc.check-all", options=[{"draw": "image"}])
         )
         self.validate_action.setCheckable(True)
         self.validate_action.setChecked(False)
-        self.validate_action.triggered.connect(self.click_action_mainview)
+        self.validate_action.setData("validate")
+        # self.validate_action.triggered.connect(self.click_action_mainview)
 
         self.make_action.setIcon(qta.icon("msc.coffee", options=[{"draw": "image"}]))
         self.make_action.setCheckable(True)
         self.make_action.setChecked(False)
-        self.make_action.triggered.connect(self.click_action_mainview)
-
-        # self.edit_action.setIcon(qta.icon('msc.unlock', options=[{'draw': 'image'}]))
-        # self.edit_action.setCheckable(True)
-        # self.edit_action.setChecked(False)
-        # self.edit_action.triggered.connect(self.click_action_mainview)
+        self.make_action.setData("make")
+        # self.make_action.triggered.connect(self.click_action_mainview)
 
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        self.qagroup_leftmenu.setExclusionPolicy(
+        self.left_tool_action_group.setExclusionPolicy(
             QActionGroup.ExclusionPolicy.ExclusiveOptional
         )
-        self.qagroup_leftmenu.addAction(self.file_action)
-        self.qagroup_leftmenu.addAction(self.run_action)
-        self.qagroup_leftmenu.addAction(self.profiles_action)
-        self.qagroup_leftmenu.addAction(self.indexes_action)
+        self.left_tool_action_group.addAction(self.file_action)
+        self.left_tool_action_group.addAction(self.run_action)
+        self.left_tool_action_group.addAction(self.profiles_action)
+        self.left_tool_action_group.addAction(self.indexes_action)
+        self.left_tool_action_group.addAction(self.settings_action)
+        self.left_tool_action_group.addAction(self.validate_action)
+        self.left_tool_action_group.addAction(self.make_action)
 
         self.left_toolBar.addAction(self.file_action)
         self.left_toolBar.addAction(self.run_action)
         self.left_toolBar.addAction(self.indexes_action)
         self.left_toolBar.addAction(self.profiles_action)
 
-        self.qagroup_mainview.setExclusionPolicy(
-            QActionGroup.ExclusionPolicy.ExclusiveOptional
-        )
-        self.qagroup_mainview.addAction(self.validate_action)
-        self.qagroup_mainview.addAction(self.make_action)
-        # self.qagroup_mainview.addAction(self.edit_action)
-        self.qagroup_mainview.addAction(self.settings_action)
+        # self.actiongroup_mainview.setExclusionPolicy(
+        #     QActionGroup.ExclusionPolicy.ExclusiveOptional
+        # )
+        # self.actiongroup_mainview.addAction(self.validate_action)
+        # self.actiongroup_mainview.addAction(self.make_action)
+        # self.actiongroup_mainview.addAction(self.settings_action)
 
         self.left_toolBar.addAction(self.validate_action)
         self.left_toolBar.addAction(self.make_action)
         self.left_toolBar.addWidget(spacer)
-        # self.left_toolBar.addAction(self.edit_action)
         self.left_toolBar.addAction(self.settings_action)
 
     def right_tool_actions_setup(self):
@@ -423,27 +477,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         sender = self.sender()
         obj_id = sender.objectName()
 
+        print(obj_id)
+
         is_checked = sender.isChecked()
-        menu_width = self.rightmenu_stackedWidget.width()
-        menu_shown = menu_width > 0
-        if is_checked and not menu_shown:
+        # menu_width = self.rightmenu_stackedWidget.width()
+        # menu_shown = menu_width > 0
+        if is_checked:
             self.rightmenu_stackedWidget.show()
-            self.right_tab_anim["open"].start()
             self.rightmenu_stackedWidget.setCurrentWidget(
                 self.right_action_tab_map[obj_id]
             )
-        elif not is_checked and menu_shown:
-            self.right_tab_anim["close"].start()
-            self.rightmenu_stackedWidget.hide()
         else:
-            self.rightmenu_stackedWidget.setCurrentWidget(
-                self.right_action_tab_map[obj_id]
-            )
+            # self.right_tab_anim["close"].start()
+            self.rightmenu_stackedWidget.hide()
+
+        self.rightmenu_stackedWidget.setCurrentWidget(self.right_action_tab_map[obj_id])
 
     def on_edit_click(self):
         pass
 
-    def leftmenu_shown(self):
+    def leftmenu_visible(self):
         menu_width = self.leftmenu_stackedWidget.width()
         return menu_width > 0
 
@@ -454,21 +507,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if is_checked:
             self.main_stackedWidget.setCurrentWidget(self.main_data)
-            for action in self.qagroup_mainview.actions():
+            for action in self.actiongroup_mainview.actions():
                 action.setChecked(False)
 
-        if is_checked and not self.leftmenu_shown():
+        if is_checked and not self.leftmenu_visible():
             self.leftmenu_stackedWidget.show()
             self.left_tab_anim["open"].start()
             self.leftmenu_stackedWidget.setCurrentWidget(
-                self.left_action_tab_map[button_text]
+                self.left_tool_action_map[button_text]
             )
-        elif not is_checked and self.leftmenu_shown():
+        elif not is_checked and self.leftmenu_visible():
             self.left_tab_anim["close"].start()
             self.leftmenu_stackedWidget.hide()
         else:
             self.leftmenu_stackedWidget.setCurrentWidget(
-                self.left_action_tab_map[button_text]
+                self.left_tool_action_map[button_text]
             )
 
     def click_action_mainview(self):
@@ -477,11 +530,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         is_checked = button.isChecked()
 
-        if self.leftmenu_shown():
+        if self.leftmenu_visible():
             self.left_tab_anim["close"].start()
             self.leftmenu_stackedWidget.hide()
 
-            for action in self.qagroup_leftmenu.actions():
+            for action in self.left_tool_action_group.actions():
                 action.setChecked(False)
 
         self.main_stackedWidget.setCurrentWidget(self.main_data)

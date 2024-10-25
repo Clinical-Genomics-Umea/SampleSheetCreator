@@ -98,22 +98,19 @@ def regular_paste(selected_indexes, source_model, target_proxy_model):
 
 
 class SampleWidget(QWidget):
-    def __init__(self, samplemodel: QStandardItemModel):
+    def __init__(self):
         super().__init__()
 
         vbox = QVBoxLayout()
         vbox.setContentsMargins(0, 0, 0, 0)
 
         self.filter_edit = QLineEdit()
-        self.samplemodel = samplemodel
+        self.samples_model = None
 
-        filter_proxy_model = CustomProxyModel()
-        filter_proxy_model.setSourceModel(samplemodel)
-
-        self.sampleview = SampleTableView()
-        self.cellvalue = QLabel("")
-        self.cellvalue.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        self.cellvalue.setFont(QFont("Arial", 8))
+        self.sample_view = SampleTableView()
+        self.cell_value = QLabel("")
+        self.cell_value.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.cell_value.setFont(QFont("Arial", 8))
         self.extended_selection_pushbutton = QPushButton("extended selection")
         self.extended_selection_pushbutton.setCheckable(True)
         self.clear_selection_btn = QPushButton("clear selection")
@@ -131,34 +128,38 @@ class SampleWidget(QWidget):
         hbox.addLayout(hbox_filter)
 
         vbox.addLayout(hbox)
-        vbox.addWidget(self.sampleview)
-        vbox.addWidget(self.cellvalue)
+        vbox.addWidget(self.sample_view)
+        vbox.addWidget(self.cell_value)
         self.setLayout(vbox)
 
-        self.sampleview.setModel(filter_proxy_model)
-
-        self.sampleview.setContextMenuPolicy(Qt.CustomContextMenu)
-        header = self.sampleview.horizontalHeader()
+        self.sample_view.setContextMenuPolicy(Qt.CustomContextMenu)
+        header = self.sample_view.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
         header.setMinimumSectionSize(100)
 
-        self.sampleview.selectionModel().selectionChanged.connect(
-            self.on_sampleview_selection_changed
-        )
-        self.filter_edit.textChanged.connect(filter_proxy_model.set_filter_text)
         self.extended_selection_pushbutton.clicked.connect(self.set_selection_mode)
-        horizontal_header = self.sampleview.horizontalHeader()
+        horizontal_header = self.sample_view.horizontalHeader()
         horizontal_header.setSectionsClickable(False)
         self.set_selection_mode()
+
+    def set_model(self, samples_model: QStandardItemModel):
+        filter_proxy_model = CustomProxyModel()
+        filter_proxy_model.setSourceModel(samples_model)
+        self.sample_view.setModel(samples_model)
+        self.filter_edit.textChanged.connect(filter_proxy_model.set_filter_text)
+
+        self.sample_view.selectionModel().selectionChanged.connect(
+            self.on_sampleview_selection_changed
+        )
 
     def set_selection_mode(self):
         if self.extended_selection_pushbutton.isChecked():
             # self.sampleview.clearSelection()
-            self.sampleview.setSelectionMode(QAbstractItemView.ExtendedSelection)
+            self.sample_view.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         else:
             # self.sampleview.clearSelection()
-            self.sampleview.setSelectionMode(QAbstractItemView.ContiguousSelection)
+            self.sample_view.setSelectionMode(QAbstractItemView.ContiguousSelection)
 
     @staticmethod
     def selected_rows_columns_count(selected_indexes):
@@ -169,18 +170,18 @@ class SampleWidget(QWidget):
         return len(selected_rows), len(selected_columns)
 
     def on_sampleview_selection_changed(self):
-        selection_model = self.sampleview.selectionModel()
+        selection_model = self.sample_view.selectionModel()
         selected_indexes = selection_model.selectedIndexes()
         srows, scols = self.selected_rows_columns_count(selected_indexes)
 
         if srows == 1 and scols == 1 and selected_indexes:
-            model = self.sampleview.model()
+            model = self.sample_view.model()
 
             data = model.data(selected_indexes[0], Qt.DisplayRole)
             column = selected_indexes[0].column()
             row = selected_indexes[0].row() + 1
             column_name = (
-                self.sampleview.horizontalHeader()
+                self.sample_view.horizontalHeader()
                 .model()
                 .headerData(column, Qt.Horizontal)
             )
@@ -190,12 +191,12 @@ class SampleWidget(QWidget):
             elif data == "":
                 data = "Empty"
 
-            self.cellvalue.setText(f"{column_name}, {row}:  {data}")
+            self.cell_value.setText(f"{column_name}, {row}:  {data}")
 
         elif srows > 1 or scols > 1 and selected_indexes:
-            self.cellvalue.setText(f"multiple ... ")
+            self.cell_value.setText(f"multiple ... ")
         else:
-            self.cellvalue.setText("")
+            self.cell_value.setText("")
 
 
 class CustomProxyModel(QSortFilterProxyModel):

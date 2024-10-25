@@ -41,11 +41,28 @@ from PySide6.QtWidgets import (
 )
 
 # from modules.WaitingSpinner.spinner import WaitingSpinner
-from models.sample_sheet_model import SampleSheetModel
+from models.samplesheet_model import SampleSheetModel
 from views.run import RunInfoWidget
-from models.validation import PreValidatorWorker, load_from_yaml, DataValidationWorker
+from controllers.validation import (
+    PreValidatorWorker,
+    load_from_yaml,
+    DataValidationWorker,
+)
 
-from models.validation_fns import padded_index_df
+from models.validation_fns import padded_index_df, NpEncoder
+from models.validation_models import IndexColorBalanceModel
+
+
+class ValidationWidget(QTabWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.pre_validation_widget = PreValidationWidget()
+        self.index_validation_widget = IndexDistanceValidationWidget()
+        self.color_balance_validation_widget = ColorBalanceValidationWidget()
+        self.addTab(self.pre_validation_widget, "pre-validation")
+        self.addTab(self.index_validation_widget, "index validation")
+        self.addTab(self.color_balance_validation_widget, "color balance validation")
 
 
 class PreValidationWidget(QTableWidget):
@@ -114,7 +131,7 @@ class PreValidationWidget(QTableWidget):
         )
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
-        self.worker.data_ready.connect(self._populate)
+        self.worker.data_ready.connect(self.populate)
         self.worker.data_ready.connect(self.thread.quit)
         self.worker.data_ready.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
@@ -122,7 +139,7 @@ class PreValidationWidget(QTableWidget):
         self.thread.start()
 
     @Slot(dict)
-    def _populate(self, validation_results):
+    def populate(self, validation_results):
         print("poplate prevalidation widget")
         # self.spinner.stop()
         self.setRowCount(0)
@@ -425,76 +442,6 @@ class ColorBalanceValidationWidget(QTabWidget):
             self.addTab(color_balance_table, f"Lane {lane}")
 
 
-class IndexColorBalanceModel(QStandardItemModel):
-
-    def __init__(self, parent):
-        super(IndexColorBalanceModel, self).__init__(parent=parent)
-        self.dataChanged.connect(self.update_summation)
-
-    def update_summation(self):
-
-        for col in range(2, self.columnCount()):
-            bases_count = {"A": 0, "C": 0, "G": 0, "T": 0}
-            merged = {}
-
-            for row in range(self.rowCount() - 1):
-                proportion = int(self.item(row, 1).text())
-                base = self.item(row, col).text()
-                bases_count[base] += proportion
-
-            color_counts = self.base_to_color_count(bases_count)
-            normalized_color_counts = self.normalize(color_counts)
-            normalized_base_counts = self.normalize(bases_count)
-
-            merged["colors"] = normalized_color_counts
-            merged["bases"] = normalized_base_counts
-            norm_json = json.dumps(merged)
-
-            last_row = self.rowCount() - 1
-            self.setData(self.index(last_row, col), norm_json, Qt.EditRole)
-
-    @staticmethod
-    def merge(dict1, dict2):
-        res = dict1 | {"--": "---"} | dict2
-        return res
-
-    @staticmethod
-    def normalize(input_dict):
-        # Calculate the sum of values in the input dictionary
-        total = sum(input_dict.values())
-
-        if total == 0:
-            total = 0.00001
-
-        # Normalize the values and create a new dictionary
-        normalized_dict = {
-            key: round(value / total, 2) for key, value in input_dict.items()
-        }
-
-        return normalized_dict
-
-    @staticmethod
-    def base_to_color_count(dict1):
-        color_count = {
-            "B": 0,
-            "G": 0,
-            "D": 0,
-        }
-
-        for base, count in dict1.items():
-            if base == "A":
-                color_count["B"] = count
-            elif base == "C":
-                color_count["B"] = count * 0.5
-                color_count["G"] = count * 0.5
-            elif base == "T":
-                color_count["G"] = count
-            elif base == "G":
-                color_count["D"] = count
-
-        return color_count
-
-
 class ColorBalanceRowDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
 
@@ -751,17 +698,6 @@ class ColorBalanceWidget(QTableView):
         df2.columns = [f"{column_name2}_{i + 1}" for i in range(10)]
 
         return pd.concat([df1, df2], axis=1)
-
-
-class NpEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.integer):
-            return int(obj)
-        if isinstance(obj, np.floating):
-            return float(obj)
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return super(NpEncoder, self).default(obj)
 
 
 # Heatmap

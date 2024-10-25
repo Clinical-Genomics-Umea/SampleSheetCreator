@@ -1,3 +1,4 @@
+import json
 import re
 
 import numpy as np
@@ -5,13 +6,24 @@ import pandas as pd
 from PySide6.QtWidgets import QVBoxLayout, QTableWidget, QTableWidgetItem
 from PySide6.QtCore import Qt
 
-pd.set_option('future.no_silent_downcasting', True)
+pd.set_option("future.no_silent_downcasting", True)
 
 
 # def explode_df_by_lane(df):
 #     exploded_df = df.assign(Lane=df['Lane'].str.split(',')).explode('Lane')
 #     exploded_df['Lane'] = exploded_df['Lane'].astype(int)
 #     return exploded_df
+
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
 
 
 def get_base(string, index):
@@ -22,8 +34,9 @@ def get_base(string, index):
         return string[index]
 
 
-
-def padded_index_df(df: pd.DataFrame, len: int, col_name: str, id_name: str) -> pd.DataFrame:
+def padded_index_df(
+    df: pd.DataFrame, len: int, col_name: str, id_name: str
+) -> pd.DataFrame:
 
     index_type = col_name.replace("Index_", "")
 
@@ -31,11 +44,16 @@ def padded_index_df(df: pd.DataFrame, len: int, col_name: str, id_name: str) -> 
     pos_names = [f"{index_type}_{i + 1}" for i in range(len)]
 
     # Extract i7 indexes
-    i7_df = df[col_name].apply(lambda x: pd.Series(get_base(x, i) for i in range(len))).fillna(np.nan)
+    i7_df = (
+        df[col_name]
+        .apply(lambda x: pd.Series(get_base(x, i) for i in range(len)))
+        .fillna(np.nan)
+    )
     i7_df.columns = pos_names
 
     # Concatenate indexes and return the resulting DataFrame
     return pd.concat([df[id_name], i7_df], axis=1)
+
 
 # def lenadjust_i7_indexes(df: pd.DataFrame, i7_maxlen: int, i7_colname: str, id_name: str) -> pd.DataFrame:
 #     """
@@ -87,13 +105,6 @@ def padded_index_df(df: pd.DataFrame, len: int, col_name: str, id_name: str) -> 
 #     return lenadjust_indexes_df
 
 
-
-
-
-
-
-
-
 # def split_df_by_lane(df):
 #
 #     exploded_df = explode_df_by_lane(df)
@@ -120,8 +131,3 @@ def padded_index_df(df: pd.DataFrame, len: int, col_name: str, id_name: str) -> 
 #
 #     return table_widget
 #
-
-
-
-
-

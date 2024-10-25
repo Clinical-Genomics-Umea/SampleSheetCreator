@@ -2,12 +2,13 @@ import json
 from pathlib import Path
 import re
 
+import numpy as np
 import pandas as pd
 import yaml
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItemModel
 
-from models.utils import decode_bytes_json
+from utils.utils import decode_bytes_json
 from views.run import RunInfoWidget
 
 
@@ -192,6 +193,10 @@ class SampleSheetModel(QStandardItemModel):
         # print("to dataframe", df.to_string())
 
         return df
+
+    def to_dataframe_cleaned(self):
+        df = self.to_dataframe()
+        return df.replace(r"^\s*$", np.nan, regex=True)
 
     @staticmethod
     def reverse_complement(sequence):
