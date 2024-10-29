@@ -272,7 +272,7 @@
      </widget>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_12">
+     <layout class="QVBoxLayout" name="main_verticalLayout">
       <item>
        <widget class="QStackedWidget" name="main_stackedWidget">
         <property name="sizePolicy">

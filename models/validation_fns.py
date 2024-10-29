@@ -1,18 +1,9 @@
 import json
-import re
 
 import numpy as np
 import pandas as pd
-from PySide6.QtWidgets import QVBoxLayout, QTableWidget, QTableWidgetItem
-from PySide6.QtCore import Qt
 
 pd.set_option("future.no_silent_downcasting", True)
-
-
-# def explode_df_by_lane(df):
-#     exploded_df = df.assign(Lane=df['Lane'].str.split(',')).explode('Lane')
-#     exploded_df['Lane'] = exploded_df['Lane'].astype(int)
-#     return exploded_df
 
 
 class NpEncoder(json.JSONEncoder):

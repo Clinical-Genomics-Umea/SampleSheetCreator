@@ -16,7 +16,6 @@ from PySide6.QtWidgets import (
 )
 
 from PySide6.QtCore import Signal, Qt, QObject
-from views.samples_view import SampleTableView
 from utils.utils import read_yaml_file
 
 

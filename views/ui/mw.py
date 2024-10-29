@@ -171,8 +171,8 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2.addWidget(self.leftmenu_stackedWidget)
 
-        self.verticalLayout_12 = QVBoxLayout()
-        self.verticalLayout_12.setObjectName(u"verticalLayout_12")
+        self.main_verticalLayout = QVBoxLayout()
+        self.main_verticalLayout.setObjectName(u"main_verticalLayout")
         self.main_stackedWidget = QStackedWidget(self.centralwidget)
         self.main_stackedWidget.setObjectName(u"main_stackedWidget")
         sizePolicy2.setHeightForWidth(self.main_stackedWidget.sizePolicy().hasHeightForWidth())
@@ -205,10 +205,10 @@ class Ui_MainWindow(object):
         self.verticalLayout_13.setObjectName(u"verticalLayout_13")
         self.main_stackedWidget.addWidget(self.main_make)
 
-        self.verticalLayout_12.addWidget(self.main_stackedWidget)
+        self.main_verticalLayout.addWidget(self.main_stackedWidget)
 
 
-        self.horizontalLayout_2.addLayout(self.verticalLayout_12)
+        self.horizontalLayout_2.addLayout(self.main_verticalLayout)
 
         self.rightmenu_stackedWidget = QStackedWidget(self.centralwidget)
         self.rightmenu_stackedWidget.setObjectName(u"rightmenu_stackedWidget")

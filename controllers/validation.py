@@ -8,7 +8,7 @@ from PySide6.QtCore import QObject, Signal
 from models.validation_fns import padded_index_df
 from models.validation_schema import prevalidation_schema
 from models.samplesheet_model import SampleSheetModel
-from views.run_view import RunInfoWidget
+from views.run_view import RunInfoViewWidget
 import yaml
 
 
@@ -62,7 +62,7 @@ class PreValidatorWorker(QObject):
         self,
         validation_settings: dict,
         model: SampleSheetModel,
-        run_info: RunInfoWidget,
+        run_info: RunInfoViewWidget,
     ):
         super().__init__()
 

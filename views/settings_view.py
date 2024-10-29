@@ -8,7 +8,6 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QSpacerItem,
     QSizePolicy,
-    QGroupBox,
     QLabel,
 )
 from PySide6.QtCore import Slot

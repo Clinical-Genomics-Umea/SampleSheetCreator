@@ -27,7 +27,9 @@ class MainController(QObject):
         # Connect signals from the view to controller slots
 
         self.main_validator = MainValidator(
-            self.samples_model, self.main_window.run_info_widget, validation_settings
+            self.samples_model,
+            self.main_window.run_infoview_widget,
+            validation_settings,
         )
         self.setup_validation_conns()
 

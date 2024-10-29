@@ -1,6 +1,3 @@
-from dataclasses import dataclass
-
-import pandas as pd
 from PySide6.QtWidgets import (
     QPushButton,
     QVBoxLayout,
@@ -8,16 +5,10 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QSizePolicy,
     QSpacerItem,
-    QLabel,
-    QFormLayout,
-    QFrame,
     QTextEdit,
     QFileDialog,
     QMessageBox,
 )
-
-from views.run_view import RunInfoWidget
-from views.samples_view import SampleTableView
 
 
 class SampleSheetEdit(QWidget):

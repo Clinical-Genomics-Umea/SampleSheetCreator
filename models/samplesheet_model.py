@@ -1,44 +1,11 @@
-import json
-from pathlib import Path
 import re
 
 import numpy as np
 import pandas as pd
-import yaml
 from PySide6.QtCore import Qt, QSortFilterProxyModel
 from PySide6.QtGui import QStandardItemModel
 
 from utils.utils import decode_bytes_json
-from views.run_view import RunInfoWidget
-
-
-# def read_yaml_file(filename):
-#     """
-#     Read a YAML file and return its data.
-#
-#     Parameters:
-#         filename (str): The name of the YAML file to read.
-#
-#     Returns:
-#         dict: The data loaded from the YAML file, or None if the file is not found or an error occurred.
-#     """
-#     # Get the path to the directory of the current module
-#     module_dir = Path(__file__).resolve().parent
-#
-#     # Combine the directory path with the provided filename to get the full path
-#     file_path = module_dir / filename
-#
-#     try:
-#         with open(file_path, 'r') as file:
-#             # Load YAML data from the file
-#             data = yaml.safe_load(file)
-#         return data
-#     except FileNotFoundError:
-#         print(f"File '{filename}' not found in the module directory.")
-#         return None
-#     except Exception as e:
-#         print(f"An error occurred while reading '{filename}': {e}")
-#         return None
 
 
 def get_column_headers(fields):

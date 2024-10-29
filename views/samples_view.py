@@ -5,7 +5,6 @@ from PySide6.QtCore import (
     QPoint,
     Slot,
     QItemSelectionModel,
-    QSortFilterProxyModel,
     QAbstractItemModel,
 )
 from PySide6.QtWidgets import (
@@ -26,7 +25,7 @@ from PySide6.QtWidgets import (
 import json
 
 from models.samplesheet_model import CustomProxyModel
-from views.run_view import RunInfoWidget
+from views.run_view import RunInfoViewWidget
 
 
 def list2d_to_tabbed_str(data):

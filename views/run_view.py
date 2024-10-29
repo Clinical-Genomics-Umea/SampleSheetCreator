@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from PySide6.QtGui import QFont, Qt
 from PySide6.QtWidgets import (
     QVBoxLayout,
@@ -67,7 +65,7 @@ def load_from_yaml(config_file):
         return yaml.safe_load(file)
 
 
-class RunSetup(QWidget):
+class RunSetupWidget(QWidget):
     def __init__(self, run_config):
         super().__init__()
 
@@ -118,7 +116,7 @@ class RunSetup(QWidget):
         }
 
 
-class RunInfoWidget(QWidget):
+class RunInfoViewWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setContentsMargins(0, 0, 0, 0)

@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -11,7 +10,7 @@ from controllers.validation import (
     DataValidationWorker,
 )
 from models.samplesheet_model import SampleSheetModel
-from views.run_view import RunInfoWidget
+from views.run_view import RunInfoViewWidget
 
 
 class MainValidator(QObject):
@@ -50,7 +49,7 @@ class PreValidator(QObject):
     def __init__(
         self,
         samplesheet_model: SampleSheetModel,
-        run_info: RunInfoWidget,
+        run_info: RunInfoViewWidget,
         validation_settings: dict,
     ):
         super().__init__()
@@ -87,6 +86,7 @@ class PreValidator(QObject):
 
     @Slot(dict)
     def _receiver(self, results):
+        print("prevalidator results")
 
         self.thread.quit()
         self.worker.deleteLater()
@@ -97,12 +97,12 @@ class PreValidator(QObject):
 
 class ColorBalanceValidator(QObject):
 
-    data_ready = Signal(dict)
+    data_ready = Signal(object)
 
     def __init__(
         self,
         model: SampleSheetModel,
-        run_info: RunInfoWidget,
+        run_info: RunInfoViewWidget,
         validation_settings: dict,
     ):
         super().__init__()
@@ -142,6 +142,8 @@ class ColorBalanceValidator(QObject):
 
             result[lane] = merged_indexes
 
+        print(result)
+
         self.data_ready.emit(result)
 
     def _index_df_padded(
@@ -177,7 +179,7 @@ class IndexDistanceValidator(QObject):
     def __init__(
         self,
         model: SampleSheetModel,
-        run_info: RunInfoWidget,
+        run_info: RunInfoViewWidget,
         validation_settings: dict,
     ):
         super().__init__()

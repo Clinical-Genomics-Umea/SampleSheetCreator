@@ -1,14 +1,11 @@
 #! python
 # -*- coding: utf-8 -*-
-import os
 import sys
 
-import yaml
 from pathlib import Path
 
 from PySide6.QtWidgets import (
     QMainWindow,
-    QApplication,
     QSizePolicy,
     QFileDialog,
     QWidget,
@@ -16,11 +13,10 @@ from PySide6.QtWidgets import (
     QGraphicsScene,
     QGraphicsView,
     QFrame,
-    QTabWidget,
 )
 
 from PySide6.QtGui import QAction, QActionGroup, QPainter, QIcon
-from PySide6.QtCore import QPropertyAnimation, Qt, QSize, Signal
+from PySide6.QtCore import Qt, QSize, Signal
 
 from views.settings_view import SettingsWidget
 from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
@@ -28,12 +24,9 @@ from views.visibility_view import ColumnsTreeWidget
 from views.index_view import IndexKitToolbox
 from views.make_view import SampleSheetEdit
 from views.profile_view import ApplicationProfiles
-from views.run_view import RunSetup, RunInfoWidget
+from views.run_view import RunSetupWidget, RunInfoViewWidget
 from models.samplesheet import SampleSheetV2
 from views.validation_view import (
-    IndexDistanceValidationWidget,
-    PreValidationWidget,
-    ColorBalanceValidationWidget,
     ValidationWidget,
 )
 
@@ -124,8 +117,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.rightmenu_stackedWidget.setFixedWidth(250)
         self.rightmenu_stackedWidget.hide()
 
-        self.run_setup_widget = RunSetup(Path("config/run/run_settings.yaml"))
-        self.run_info_widget = RunInfoWidget()
+        self.run_setup_widget = RunSetupWidget(Path("config/run/run_settings.yaml"))
+        self.run_infoview_widget = RunInfoViewWidget()
         self.run_info_setup()
 
         self.validation_widget = ValidationWidget()
@@ -149,36 +142,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def settings_setup(self):
         layout = self.main_settings.layout()
         layout.addWidget(self.settings)
-
-    # def validate_setup(self):
-    #     layout = self.main_validation.layout()
-    #     layout.addWidget(self.validation_tabwidget)
-    #
-    #     self.validation_tabwidget.addTab(self.prevalidate_widget, "pre-validation")
-    #     self.prevalidate_widget.setSizePolicy(
-    #         QSizePolicy.Expanding, QSizePolicy.Expanding
-    #     )
-    #     self.validation_tabwidget.addTab(
-    #         self.indexdistancevalidation_widget, "index distance validation"
-    #     )
-    #     self.indexdistancevalidation_widget.setSizePolicy(
-    #         QSizePolicy.Expanding, QSizePolicy.Expanding
-    #     )
-    #     self.validation_tabwidget.addTab(
-    #         self.colorbalancevalidation_widget, "color balance validation"
-    #     )
-    #     self.colorbalancevalidation_widget.setSizePolicy(
-    #         QSizePolicy.Expanding, QSizePolicy.Expanding
-    #     )
-
-    # self.runvalidate_pushButton.clicked.connect(self.run_validation)
-
-    # def run_validation(self):
-    #     self.spinner.start()
-    #     self.prevalidate_widget.run_validate()
-    #     self.indexdistancevalidation_widget.run_validate()
-    #     self.colorbalancevalidation_widget.run_validate()
-    #     self.spinner.stop()
 
     def samplesheetedit_setup(self):
         layout = self.main_make.layout()
@@ -229,15 +192,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def run_info_setup(self):
         self.leftmenu_runsetup.layout().addWidget(self.run_setup_widget)
-        self.verticalLayout.insertWidget(0, self.run_info_widget)
-        self.run_info_widget.setup(self.run_setup_widget.get_data())
+        self.main_verticalLayout.insertWidget(0, self.run_infoview_widget)
+        self.run_infoview_widget.setup(self.run_setup_widget.get_data())
         self.run_setup_widget.set_button.clicked.connect(
             self.handle_run_set_button_click
         )
 
     def handle_run_set_button_click(self):
         run_info = self.run_setup_widget.get_data()
-        self.run_info_widget.set_data(run_info)
+        self.run_infoview_widget.set_data(run_info)
 
     def indexes_setup(self):
         layout = self.leftmenu_indexes.layout()
@@ -434,127 +397,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.rightmenu_stackedWidget.hide()
 
         self.rightmenu_stackedWidget.setCurrentWidget(self.right_action_tab_map[obj_id])
-
-    # def click_action_leftmenu(self):
-    #     button = self.sender()
-    #     button_text = button.text()
-    #     is_checked = button.isChecked()
-    #
-    #     if is_checked:
-    #         self.main_stackedWidget.setCurrentWidget(self.main_data)
-    #         for action in self.actiongroup_mainview.actions():
-    #             action.setChecked(False)
-    #
-    #     if is_checked and not self.leftmenu_visible():
-    #         self.leftmenu_stackedWidget.show()
-    #         self.left_tab_anim["open"].start()
-    #         self.leftmenu_stackedWidget.setCurrentWidget(
-    #             self.left_tool_action_map[button_text]
-    #         )
-    #     elif not is_checked and self.leftmenu_visible():
-    #         self.left_tab_anim["close"].start()
-    #         self.leftmenu_stackedWidget.hide()
-    #     else:
-    #         self.leftmenu_stackedWidget.setCurrentWidget(
-    #             self.left_tool_action_map[button_text]
-    #         )
-
-    # def click_action_mainview(self):
-    #     button = self.sender()
-    #     button_text = button.text()
-    #
-    #     is_checked = button.isChecked()
-    #
-    #     if self.leftmenu_visible():
-    #         self.left_tab_anim["close"].start()
-    #         self.leftmenu_stackedWidget.hide()
-    #
-    #         for action in self.left_tool_action_group.actions():
-    #             action.setChecked(False)
-    #
-    #     self.main_stackedWidget.setCurrentWidget(self.main_data)
-    #
-    #     if is_checked:
-    #         if button_text == "validate":
-    #             self.main_stackedWidget.setCurrentWidget(self.main_validation)
-    #
-    #         elif button_text == "make":
-    #             self.main_stackedWidget.setCurrentWidget(self.main_make)
-    #             sample_df = self.samples_model.to_dataframe()
-    #             run_info = self.run_info_widget.get_data()
-    #
-    #             samplesheetv2 = SampleSheetV2(
-    #                 header=run_info["Header"],
-    #                 run_cycles=run_info["Reads"]["ReadProfile"],
-    #                 # sequencing_data=run_info['Sequencing'],
-    #                 sample_df=sample_df,
-    #             )
-    #
-    #             self.samplesheetedit.set_samplesheetdata(samplesheetv2.datalist())
-    #
-    #         elif button_text == "settings":
-    #             self.main_stackedWidget.setCurrentWidget(self.main_settings)
-    #
-    #     else:
-    #         self.main_stackedWidget.setCurrentWidget(self.main_data)
-
-    # if button_text == "make":
-    #     pass
-    #
-    # if button_text == "edit":
-    #     pass
-    #
-    # if button_text == "config":
-    #     pass
-    #
-    #
-
-    # if is_checked and not menu_shown:
-    #     self.leftmenu_stackedWidget.show()
-    #     self.left_tab_anim["open"].start()
-    #     self.leftmenu_stackedWidget.setCurrentWidget(self.left_action_tab_map[button_text])
-    # elif not is_checked and menu_shown:
-    #     self.left_tab_anim["close"].start()
-    #     self.leftmenu_stackedWidget.hide()
-    # else:
-    #     self.leftmenu_stackedWidget.setCurrentWidget(self.left_action_tab_map[button_text])
-
-    # def on_config_click(self):
-    #     if self.config_action.isChecked():
-    #         self.main_stackedWidget.setCurrentWidget(self.main_validation)
-    #     else:
-    #         self.main_stackedWidget.setCurrentWidget(self.main_data)
-
-    # def on_validate_click(self):
-    #
-    #     button = self.sender()
-    #
-    #     if button.isChecked():
-    #         self.spinner_thread = SpinnerThread(self.spinner_overlay)
-    #         self.spinner_thread.start()
-    #
-    #         self.main_stackedWidget.setCurrentWidget(self.main_validation)
-    #         is_valid = self.prevalidate_widget.validate()
-    #         if not is_valid:
-    #             self.spinner_thread.stop()
-    #             return
-    #
-    #         self.datavalidate_widget.validate()
-    #         self.spinner_thread.stop()
-    #     else:
-    #         self.main_stackedWidget.setCurrentWidget(self.main_data)
-
-    # def on_make_click(self):
-    #
-    #     button = self.sender()
-    #
-    #     if button.isChecked():
-    #         self.main_stackedWidget.setCurrentWidget(self.main_make)
-    #         samplesheetv2 = SampleSheetV2(self.run_info_widget.get_data(), self.samples_model.to_dataframe())
-    #         self.samplesheetedit.set_samplesheetdata(samplesheetv2.get_data())
-    #
-    #     else:
-    #         self.main_stackedWidget.setCurrentWidget(self.main_data)
 
     def load_worklist(self):
         options = get_dialog_options()

@@ -2,11 +2,8 @@ import json
 
 import numpy as np
 import pandas as pd
-import re
-from pathlib import Path
 from PySide6.QtCore import Qt, QSize, QEvent, QThread, Slot
 from PySide6.QtGui import (
-    QStandardItemModel,
     QColor,
     QPen,
     QStandardItem,
@@ -37,19 +34,8 @@ from PySide6.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QItemDelegate,
-    QLayout,
 )
 
-# from modules.WaitingSpinner.spinner import WaitingSpinner
-from models.samplesheet_model import SampleSheetModel
-from views.run_view import RunInfoWidget
-from controllers.validation import (
-    PreValidatorWorker,
-    load_from_yaml,
-    DataValidationWorker,
-)
-
-from models.validation_fns import padded_index_df, NpEncoder
 from models.validation_models import IndexColorBalanceModel
 
 
@@ -114,29 +100,6 @@ class PreValidationWidget(QTableWidget):
         self.setItem(last_row, 1, status_item)
         self.setItem(last_row, 2, message_item)
 
-    # def run_validate(self):
-    #
-    #     df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True)
-    #     print(df)
-    #     if df.empty:
-    #         return
-    #
-    #     self.run_worker_thread()
-    #
-    # def run_worker_thread(self):
-    #
-    #     self.thread = QThread()
-    #     self.worker = PreValidatorWorker(
-    #         self.validation_settings_path, self.model, self.run_info
-    #     )
-    #     self.worker.moveToThread(self.thread)
-    #     self.thread.started.connect(self.worker.run)
-    #     self.worker.data_ready.connect(self.populate)
-    #     self.worker.data_ready.connect(self.thread.quit)
-    #     self.worker.data_ready.connect(self.worker.deleteLater)
-    #     self.thread.finished.connect(self.thread.deleteLater)
-    #
-    #     self.thread.start()
 
     @Slot(dict)
     def populate(self, validation_results):
@@ -148,25 +111,11 @@ class PreValidationWidget(QTableWidget):
 
 
 class IndexDistanceValidationWidget(QTabWidget):
-    def __init__(
-        self,
-        # validation_settings_path: Path,
-        # model: SampleSheetModel,
-        # run_info: RunInfoWidget,
-    ):
+    def __init__(self):
         super().__init__()
 
         self.worker = None
         self.thread = None
-
-        # self.spinner = WaitingSpinner(self)
-
-        # self.model = model
-        # self.run_info_data = run_info.get_data()
-        #
-        # instrument = self.run_info_data["Header"]["Instrument"]
-        # settings = load_from_yaml(validation_settings_path)
-        # self.i5_rc = settings["flowcells"][instrument]["i5_rc"]
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -180,7 +129,6 @@ class IndexDistanceValidationWidget(QTabWidget):
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        # self.layout.addWidget(self.datavalidate_tabwidget)
 
     def _get_heatmap_hlayout(self, table_widget):
         h_heatmap_layout = QHBoxLayout()
@@ -283,26 +231,6 @@ class IndexDistanceValidationWidget(QTabWidget):
         heatmap_tablewidget.setItemDelegate(NonEditableDelegate())
 
         return heatmap_tablewidget
-
-    # def run_validate(self):
-    #     self.delete_tabs()
-    #     df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True).dropna()
-    #     print(df)
-    #     if df.empty:
-    #         return
-    #
-    #     self.run_worker_thread()
-    #
-    # def run_worker_thread(self):
-    #     self.thread = QThread()
-    #     self.worker = DataValidationWorker(self.model, self.i5_rc)
-    #     self.worker.moveToThread(self.thread)
-    #     self.thread.started.connect(self.worker.run)
-    #     self.worker.results_ready.connect(self._populate)
-    #
-    #     # self.spinner.start()
-    #     self.thread.start()
-    #     print("data validation thread started")
 
     @Slot(object)
     def populate(self, results):
@@ -415,33 +343,17 @@ class ColorBalanceValidationWidget(QTabWidget):
         self.populate()
 
     @Slot(object)
-    def populate(self):
+    def populate(self, results):
+
+        print(results)
 
         self._delete_tabs()
 
-        df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True).dropna()
-
-        if df.empty:
-            return
-
-        unique_lanes = df["Lane"].unique()
-
-        for lane in unique_lanes:
-            lane_df = df[df["Lane"] == lane]
-
-            i7_padded_indexes = padded_index_df(lane_df, 10, "IndexI7", "Sample_ID")
-            i5_padded_indexes = padded_index_df(
-                lane_df, 10, "IndexI5RC" if self.i5_rc else "IndexI5", "Sample_ID"
-            )
-
-            merged_indexes = pd.merge(
-                i7_padded_indexes, i5_padded_indexes, on="Sample_ID"
-            )
-
+        for lane in results:
             tab_scroll_area = QScrollArea()
             tab_scroll_area.setFrameShape(QFrame.NoFrame)
 
-            color_balance_table = ColorBalanceWidget(merged_indexes)
+            color_balance_table = ColorBalanceWidget(results[lane])
 
             self.addTab(color_balance_table, f"Lane {lane}")
 
