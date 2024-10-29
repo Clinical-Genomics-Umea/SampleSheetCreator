@@ -1,12 +1,7 @@
-from PySide6.QtCore import Slot, QObject
-from PySide6.QtGui import QAction
+from PySide6.QtCore import QObject
 
-from models.samplesheet_model import SampleSheetModel
-from models.validation_models import (
-    PreValidator,
-    IndexDistanceValidator,
-    ColorBalanceValidator,
-)
+from models.samplesheet_model import SampleSheetModel, CustomProxyModel
+from models.validation_models import MainValidator
 from views.main_window import MainWindow
 from utils.utils import read_yaml_file
 
@@ -15,26 +10,31 @@ class MainController(QObject):
     def __init__(self):
         super().__init__()
 
-        sample_settings_path = read_yaml_file("config/sample_settings.yaml")
-        self.main_window = MainWindow(sample_settings_path)
-        self.samples_model = SampleSheetModel(sample_settings_path)
+        sample_settings = read_yaml_file("config/sample_settings.yaml")
+        validation_settings = read_yaml_file(
+            "config/validation/validation_settings.yaml"
+        )
 
-        self.main_window.sample_widget.set_model(self.samples_model)
+        self.main_window = MainWindow(sample_settings)
+
+        self.samples_model = SampleSheetModel(sample_settings)
+        self.samples_proxy_model = CustomProxyModel()
+        self.samples_proxy_model.setSourceModel(self.samples_model)
+
+        self.main_window.sample_widget.set_model(self.samples_proxy_model)
         self.main_window.sample_widget_setup()
 
         # Connect signals from the view to controller slots
+
+        self.main_validator = MainValidator(
+            self.samples_model, self.main_window.run_info_widget, validation_settings
+        )
+        self.setup_validation_conns()
+
         self.setup_left_tool_action_conns()
 
-        self.pre_validator = PreValidator(
-            self.samples_model, self.main_window.run_info_widget, sample_settings_path
-        )
-
-        self.index_distance_validator = IndexDistanceValidator(
-            sample_settings_path, self.samples_model, self.main_window.run_info_widget
-        )
-
-        self.color_balance_validator = ColorBalanceValidator(
-            sample_settings_path, self.samples_model, self.main_window.run_info_widget
+        self.main_window.application_profiles_widget.profile_mgr.profile_data.connect(
+            self.main_window.sample_widget.sample_view.set_profile_data
         )
 
     def setup_left_tool_action_conns(self):
@@ -51,21 +51,22 @@ class MainController(QObject):
         self.main_window.validate_action.triggered.connect(handler)
         self.main_window.make_action.triggered.connect(handler)
 
-        self.main_window.run_validate.connect(self.validate)
-        self.pre_validator.data_ready.connect(
-            self.main_window.validation_widget.pre_validation_widget.set_data
-        )
-        self.index_distance_validator.data_ready.connect(
-            self.main_window.validation_widget.index_distance_validation_widget.set_data
-        )
-        self.color_balance_validator.data_ready.connect(
-            self.main_window.validation_widget.color_balance_validation_widget.set_data
-        )
+        # self.main_window.run_validate.connect(self.validate)
 
-    def validate(self):
-        self.pre_validator.validate()
-        self.index_distance_validator.validate()
-        self.color_balance_validator.validate()
+    def setup_validation_conns(self):
+
+        self.main_validator.pre_validator.data_ready.connect(
+            self.main_window.validation_widget.pre_validation_widget.populate
+        )
+        self.main_validator.index_distance_validator.data_ready.connect(
+            self.main_window.validation_widget.index_validation_widget.populate
+        )
+        self.main_validator.color_balance_validator.data_ready.connect(
+            self.main_window.validation_widget.color_balance_validation_widget.populate
+        )
+        self.main_window.validation_widget.validate_button.clicked.connect(
+            self.main_validator.validate
+        )
 
 
 # controllers/settings_controller.py

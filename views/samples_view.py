@@ -25,7 +25,8 @@ from PySide6.QtWidgets import (
 
 import json
 
-from views.run import RunInfoWidget
+from models.samplesheet_model import CustomProxyModel
+from views.run_view import RunInfoWidget
 
 
 def list2d_to_tabbed_str(data):
@@ -142,11 +143,9 @@ class SampleWidget(QWidget):
         horizontal_header.setSectionsClickable(False)
         self.set_selection_mode()
 
-    def set_model(self, samples_model: QStandardItemModel):
-        filter_proxy_model = CustomProxyModel()
-        filter_proxy_model.setSourceModel(samples_model)
-        self.sample_view.setModel(samples_model)
-        self.filter_edit.textChanged.connect(filter_proxy_model.set_filter_text)
+    def set_model(self, samples_proxy_model: CustomProxyModel):
+        self.sample_view.setModel(samples_proxy_model)
+        self.filter_edit.textChanged.connect(samples_proxy_model.set_filter_text)
 
         self.sample_view.selectionModel().selectionChanged.connect(
             self.on_sampleview_selection_changed
@@ -199,26 +198,6 @@ class SampleWidget(QWidget):
             self.cell_value.setText("")
 
 
-class CustomProxyModel(QSortFilterProxyModel):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.filter_text = ""
-
-    def filterAcceptsRow(self, source_row, source_parent):
-        if not self.filter_text:
-            return True
-        for column in range(self.sourceModel().columnCount()):
-            index = self.sourceModel().index(source_row, column, source_parent)
-            data = self.sourceModel().data(index, Qt.DisplayRole)
-            if self.filter_text.lower() in str(data).lower():
-                return True
-        return False
-
-    def set_filter_text(self, text):
-        self.filter_text = text
-        self.invalidateFilter()
-
-
 class SampleTableView(QTableView):
 
     field_visibility_state_changed = Signal(str, bool)
@@ -259,6 +238,7 @@ class SampleTableView(QTableView):
 
     @Slot(dict)
     def set_profile_data(self, profiles_data):
+        print(profiles_data)
         proxy_model = self.model()
         source_model = proxy_model.sourceModel()
         selection_model = self.selectionModel()

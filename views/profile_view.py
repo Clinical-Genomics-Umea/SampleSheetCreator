@@ -15,8 +15,8 @@ from PySide6.QtWidgets import (
     QTextEdit,
 )
 
-from PySide6.QtCore import Signal, Qt
-from views.sampleview import SampleTableView
+from PySide6.QtCore import Signal, Qt, QObject
+from views.samples_view import SampleTableView
 from utils.utils import read_yaml_file
 
 
@@ -48,13 +48,9 @@ class ClickableLabel(QLabel):
 
 
 class ApplicationProfiles(QWidget):
-    def __init__(
-        self, application_profile_basepath: Path, sample_tableview: SampleTableView
-    ):
+    def __init__(self, application_profile_basepath: Path):
         super().__init__()
-        self.profile_mgr = ApplicationProfileMGR(
-            Path(application_profile_basepath), sample_tableview
-        )
+        self.profile_mgr = ApplicationProfileMGR(application_profile_basepath)
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
 
@@ -97,44 +93,41 @@ class ApplicationProfiles(QWidget):
 
 
 class ApplicationProfileWidget(QWidget):
-    profile_data_signal = Signal(dict)
 
     def __init__(self, data: dict):
         super().__init__()
 
-        self.data = data
-        profile_button = QPushButton("apply")
-        profile_button.setMaximumWidth(50)
-        label = ClickableLabel(self.data["ApplicationProfile"], self.data)
+        self.profile_button = QPushButton("apply")
+        self.profile_button.setProperty("data", data)
+
+        self.profile_button.setMaximumWidth(50)
+        self.label = ClickableLabel(data["ApplicationProfile"], data)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-        layout.addWidget(label)
+        layout.addWidget(self.label)
         layout.addSpacerItem(
             QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         )
-        layout.addWidget(profile_button)
+        layout.addWidget(self.profile_button)
         layout.addSpacerItem(QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Fixed))
-
-        profile_button.clicked.connect(self.send_profile_data)
 
         self.setLayout(layout)
 
-    def send_profile_data(self):
-        self.profile_data_signal.emit(self.data)
-
-    def profile_name(self):
-        return self.profile_name["ProfileName"]
+    # def profile_name(self):
+    #     return self.profile_name["ProfileName"]
 
 
-class ApplicationProfileMGR:
-    def __init__(
-        self, applicationprofiles_dirpath: Path, sample_tableview: SampleTableView
-    ) -> None:
+class ApplicationProfileMGR(QObject):
+
+    profile_data = Signal(dict)
+
+    def __init__(self, application_profiles_basepath: Path) -> None:
         # setup profile files
 
-        application_files = [f for f in applicationprofiles_dirpath.glob("**/*.yaml")]
+        super().__init__()
+        application_files = [f for f in application_profiles_basepath.glob("**/*.yaml")]
         self.profile_widgets = {}
 
         for file in application_files:
@@ -142,8 +135,16 @@ class ApplicationProfileMGR:
                 continue
 
             profile_data = read_yaml_file(file)
+            if not profile_data:
+                continue
+
             group = file.parent.name
+            if not group:
+                continue
+
             profile_name = profile_data["ApplicationProfile"]
+            if not profile_name:
+                continue
 
             pw = ApplicationProfileWidget(profile_data)
 
@@ -151,7 +152,14 @@ class ApplicationProfileMGR:
                 self.profile_widgets[group] = {}
 
             self.profile_widgets[group][profile_name] = pw
-            pw.profile_data_signal.connect(sample_tableview.set_profile_data)
+            if pw.profile_button:
+                pw.profile_button.clicked.connect(self.send_data)
+
+    def send_data(self):
+        button = self.sender()
+        data = button.property("data")
+        print(data)
+        self.profile_data.emit(data)
 
     def get_profile_widgets(self):
         return self.profile_widgets

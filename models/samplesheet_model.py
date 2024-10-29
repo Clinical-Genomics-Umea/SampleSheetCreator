@@ -5,11 +5,11 @@ import re
 import numpy as np
 import pandas as pd
 import yaml
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSortFilterProxyModel
 from PySide6.QtGui import QStandardItemModel
 
 from utils.utils import decode_bytes_json
-from views.run import RunInfoWidget
+from views.run_view import RunInfoWidget
 
 
 # def read_yaml_file(filename):
@@ -212,3 +212,23 @@ class SampleSheetModel(QStandardItemModel):
         df = df.explode("Lane")
         df["Lane"] = df["Lane"].astype(int)
         return df
+
+
+class CustomProxyModel(QSortFilterProxyModel):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.filter_text = ""
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        if not self.filter_text:
+            return True
+        for column in range(self.sourceModel().columnCount()):
+            index = self.sourceModel().index(source_row, column, source_parent)
+            data = self.sourceModel().data(index, Qt.DisplayRole)
+            if self.filter_text.lower() in str(data).lower():
+                return True
+        return False
+
+    def set_filter_text(self, text):
+        self.filter_text = text
+        self.invalidateFilter()

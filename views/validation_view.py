@@ -42,7 +42,7 @@ from PySide6.QtWidgets import (
 
 # from modules.WaitingSpinner.spinner import WaitingSpinner
 from models.samplesheet_model import SampleSheetModel
-from views.run import RunInfoWidget
+from views.run_view import RunInfoWidget
 from controllers.validation import (
     PreValidatorWorker,
     load_from_yaml,
@@ -53,31 +53,39 @@ from models.validation_fns import padded_index_df, NpEncoder
 from models.validation_models import IndexColorBalanceModel
 
 
-class ValidationWidget(QTabWidget):
+class ValidationWidget(QWidget):
     def __init__(self):
         super().__init__()
+
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setContentsMargins(0, 0, 0, 0)
+
+        self.tab_widget = QTabWidget()
 
         self.pre_validation_widget = PreValidationWidget()
         self.index_validation_widget = IndexDistanceValidationWidget()
         self.color_balance_validation_widget = ColorBalanceValidationWidget()
-        self.addTab(self.pre_validation_widget, "pre-validation")
-        self.addTab(self.index_validation_widget, "index validation")
-        self.addTab(self.color_balance_validation_widget, "color balance validation")
+        self.tab_widget.addTab(self.pre_validation_widget, "pre-validation")
+        self.tab_widget.addTab(self.index_validation_widget, "index validation")
+        self.tab_widget.addTab(
+            self.color_balance_validation_widget, "color balance validation"
+        )
+
+        hbox = QHBoxLayout()
+        hbox.setContentsMargins(0, 0, 0, 0)
+        self.validate_button = QPushButton("Validate")
+        hbox.addWidget(self.validate_button)
+        hbox.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding))
+
+        self.layout.addLayout(hbox)
+        self.layout.addWidget(self.tab_widget)
 
 
 class PreValidationWidget(QTableWidget):
-    def __init__(
-        self,
-        validation_settings_path: Path,
-        model: SampleSheetModel,
-        run_info: RunInfoWidget,
-    ):
+    def __init__(self):
         super().__init__()
-
-        self.thread = None
-        self.worker = None
-
-        # self.spinner = WaitingSpinner(self)
 
         self.setColumnCount(3)
         self.setHorizontalHeaderLabels(["Validator", "Status", "Message"])
@@ -86,19 +94,11 @@ class PreValidationWidget(QTableWidget):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)
 
-        self.model = model
-        self.run_info = run_info
-        self.validation_settings_path = validation_settings_path
-        self.settings = load_from_yaml(validation_settings_path)
-
-        self.flowcell = None
-        self.instrument = None
-
         self.setColumnWidth(0, 200)
         self.setColumnWidth(1, 200)
         self.horizontalHeader().setStretchLastSection(True)
 
-    def add_row(self, validator_text, is_valid, message):
+    def _add_row(self, validator_text, is_valid, message):
         self.insertRow(self.rowCount())
         last_row = self.rowCount() - 1
 
@@ -114,46 +114,45 @@ class PreValidationWidget(QTableWidget):
         self.setItem(last_row, 1, status_item)
         self.setItem(last_row, 2, message_item)
 
-    def run_validate(self):
-
-        df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True)
-        print(df)
-        if df.empty:
-            return
-
-        self.run_worker_thread()
-
-    def run_worker_thread(self):
-
-        self.thread = QThread()
-        self.worker = PreValidatorWorker(
-            self.validation_settings_path, self.model, self.run_info
-        )
-        self.worker.moveToThread(self.thread)
-        self.thread.started.connect(self.worker.run)
-        self.worker.data_ready.connect(self.populate)
-        self.worker.data_ready.connect(self.thread.quit)
-        self.worker.data_ready.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
-
-        self.thread.start()
+    # def run_validate(self):
+    #
+    #     df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True)
+    #     print(df)
+    #     if df.empty:
+    #         return
+    #
+    #     self.run_worker_thread()
+    #
+    # def run_worker_thread(self):
+    #
+    #     self.thread = QThread()
+    #     self.worker = PreValidatorWorker(
+    #         self.validation_settings_path, self.model, self.run_info
+    #     )
+    #     self.worker.moveToThread(self.thread)
+    #     self.thread.started.connect(self.worker.run)
+    #     self.worker.data_ready.connect(self.populate)
+    #     self.worker.data_ready.connect(self.thread.quit)
+    #     self.worker.data_ready.connect(self.worker.deleteLater)
+    #     self.thread.finished.connect(self.thread.deleteLater)
+    #
+    #     self.thread.start()
 
     @Slot(dict)
     def populate(self, validation_results):
-        print("poplate prevalidation widget")
-        # self.spinner.stop()
+
         self.setRowCount(0)
 
         for validation_name, (is_valid, message) in validation_results.items():
-            self.add_row(validation_name, is_valid, message)
+            self._add_row(validation_name, is_valid, message)
 
 
 class IndexDistanceValidationWidget(QTabWidget):
     def __init__(
         self,
-        validation_settings_path: Path,
-        model: SampleSheetModel,
-        run_info: RunInfoWidget,
+        # validation_settings_path: Path,
+        # model: SampleSheetModel,
+        # run_info: RunInfoWidget,
     ):
         super().__init__()
 
@@ -162,12 +161,12 @@ class IndexDistanceValidationWidget(QTabWidget):
 
         # self.spinner = WaitingSpinner(self)
 
-        self.model = model
-        self.run_info_data = run_info.get_data()
-
-        instrument = self.run_info_data["Header"]["Instrument"]
-        settings = load_from_yaml(validation_settings_path)
-        self.i5_rc = settings["flowcells"][instrument]["i5_rc"]
+        # self.model = model
+        # self.run_info_data = run_info.get_data()
+        #
+        # instrument = self.run_info_data["Header"]["Instrument"]
+        # settings = load_from_yaml(validation_settings_path)
+        # self.i5_rc = settings["flowcells"][instrument]["i5_rc"]
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -183,13 +182,13 @@ class IndexDistanceValidationWidget(QTabWidget):
 
         # self.layout.addWidget(self.datavalidate_tabwidget)
 
-    def get_heatmap_hlayout(self, table_widget):
+    def _get_heatmap_hlayout(self, table_widget):
         h_heatmap_layout = QHBoxLayout()
         h_heatmap_layout.addWidget(table_widget)
         h_heatmap_layout.addSpacerItem(self.hspacer)
         return h_heatmap_layout
 
-    def get_tab(self, substitutions):
+    def _get_tab(self, substitutions):
 
         tab_scroll_area = QScrollArea()
         tab_scroll_area.setFrameShape(QFrame.NoFrame)
@@ -204,9 +203,9 @@ class IndexDistanceValidationWidget(QTabWidget):
         i7_heatmap_table = self.heatmap_tablewidget(substitutions["i7_substitutions"])
         i5_heatmap_table = self.heatmap_tablewidget(substitutions["i5_substitutions"])
 
-        h_i7_i5_heatmap_layout = self.get_heatmap_hlayout(i7_i5_heatmap_table)
-        h_i7_heatmap_layout = self.get_heatmap_hlayout(i7_heatmap_table)
-        h_i5_heatmap_layout = self.get_heatmap_hlayout(i5_heatmap_table)
+        h_i7_i5_heatmap_layout = self._get_heatmap_hlayout(i7_i5_heatmap_table)
+        h_i7_heatmap_layout = self._get_heatmap_hlayout(i7_heatmap_table)
+        h_i5_heatmap_layout = self._get_heatmap_hlayout(i5_heatmap_table)
 
         v_heatmap_layout = QVBoxLayout()
 
@@ -285,47 +284,49 @@ class IndexDistanceValidationWidget(QTabWidget):
 
         return heatmap_tablewidget
 
-    def run_validate(self):
-        self.delete_tabs()
-        df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True).dropna()
-        print(df)
-        if df.empty:
-            return
-
-        self.run_worker_thread()
-
-    def run_worker_thread(self):
-        self.thread = QThread()
-        self.worker = DataValidationWorker(self.model, self.i5_rc)
-        self.worker.moveToThread(self.thread)
-        self.thread.started.connect(self.worker.run)
-        self.worker.results_ready.connect(self._populate)
-
-        # self.spinner.start()
-        self.thread.start()
-        print("data validation thread started")
+    # def run_validate(self):
+    #     self.delete_tabs()
+    #     df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True).dropna()
+    #     print(df)
+    #     if df.empty:
+    #         return
+    #
+    #     self.run_worker_thread()
+    #
+    # def run_worker_thread(self):
+    #     self.thread = QThread()
+    #     self.worker = DataValidationWorker(self.model, self.i5_rc)
+    #     self.worker.moveToThread(self.thread)
+    #     self.thread.started.connect(self.worker.run)
+    #     self.worker.results_ready.connect(self._populate)
+    #
+    #     # self.spinner.start()
+    #     self.thread.start()
+    #     print("data validation thread started")
 
     @Slot(object)
-    def _populate(self, results):
-        print("poplate index distance validation widget")
+    def populate(self, results):
 
-        # self.spinner.stop()
-        self.thread.quit()
-        self.worker.deleteLater()
-        self.thread.deleteLater()
+        # print("poplate index distance validation widget")
+        #
+        # # self.spinner.stop()
+        # self.thread.quit()
+        # self.worker.deleteLater()
+        # self.thread.deleteLater()
+        self._delete_tabs()
 
         for lane in results:
-            tab = self.get_tab(results[lane])
+            tab = self._get_tab(results[lane])
             self.addTab(tab, f"Lane {lane}")
 
-    def delete_tabs(self):
+    def _delete_tabs(self):
         # Remove and delete each tab widget
         while self.count() > 0:
             widget = self.widget(0)  # Get the first widget in the tab widget
             self.removeTab(0)  # Remove the tab
-            self.clear_widget(widget)
+            self._clear_widget(widget)
 
-    def clear_widget(self, widget: QWidget):
+    def _clear_widget(self, widget: QWidget):
         # Step 1: Clear the layout if it exists
         layout = widget.layout()
         if layout:
@@ -337,7 +338,7 @@ class IndexDistanceValidationWidget(QTabWidget):
                     child_widget.deleteLater()
                 sub_layout = item.layout()
                 if sub_layout:
-                    self.clear_widget(sub_layout.widget())
+                    self._clear_widget(sub_layout.widget())
                 item.deleteLater()
 
             # Optionally, delete the layout itself
@@ -351,18 +352,18 @@ class ColorBalanceValidationWidget(QTabWidget):
 
     def __init__(
         self,
-        validation_settings_path: Path,
-        model: SampleSheetModel,
-        run_info: RunInfoWidget,
+        # validation_settings_path: Path,
+        # model: SampleSheetModel,
+        # run_info: RunInfoWidget,
     ):
         super().__init__()
 
-        self.model = model
-        self.run_info_data = run_info.get_data()
-
-        instrument = self.run_info_data["Header"]["Instrument"]
-        settings = load_from_yaml(validation_settings_path)
-        self.i5_rc = settings["flowcells"][instrument]["i5_rc"]
+        # self.model = model
+        # self.run_info_data = run_info.get_data()
+        #
+        # instrument = self.run_info_data["Header"]["Instrument"]
+        # settings = load_from_yaml(validation_settings_path)
+        # self.i5_rc = settings["flowcells"][instrument]["i5_rc"]
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -374,7 +375,7 @@ class ColorBalanceValidationWidget(QTabWidget):
 
         # self.vspacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-    def clear_widget(self, widget: QWidget):
+    def _clear_widget(self, widget: QWidget):
         # Step 1: Clear the layout if it exists
         layout = widget.layout()
         if layout:
@@ -386,7 +387,7 @@ class ColorBalanceValidationWidget(QTabWidget):
                     child_widget.deleteLater()
                 sub_layout = item.layout()
                 if sub_layout:
-                    self.clear_widget(sub_layout.widget())
+                    self._clear_widget(sub_layout.widget())
                 item.deleteLater()
 
             # Optionally, delete the layout itself
@@ -395,12 +396,12 @@ class ColorBalanceValidationWidget(QTabWidget):
         for child in widget.findChildren(QWidget):
             child.deleteLater()
 
-    def delete_tabs(self):
+    def _delete_tabs(self):
         # Remove and delete each tab widget
         while self.count() > 0:
             widget = self.widget(0)  # Get the first widget in the tab widget
             self.removeTab(0)  # Remove the tab
-            self.clear_widget(widget)
+            self._clear_widget(widget)
 
     def run_validate(self):
 
@@ -410,10 +411,13 @@ class ColorBalanceValidationWidget(QTabWidget):
         if df.empty:
             return
 
-        self.delete_tabs()
+        self._delete_tabs()
         self.populate()
 
+    @Slot(object)
     def populate(self):
+
+        self._delete_tabs()
 
         df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True).dropna()
 

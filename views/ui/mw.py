@@ -190,15 +190,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_10.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.runvalidate_pushButton = QPushButton(self.main_validation)
-        self.runvalidate_pushButton.setObjectName(u"runvalidate_pushButton")
-
-        self.horizontalLayout.addWidget(self.runvalidate_pushButton)
-
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer)
-
 
         self.verticalLayout_10.addLayout(self.horizontalLayout)
 
@@ -276,7 +267,6 @@ class Ui_MainWindow(object):
         self.open_samplesheet_pushButton.setText(QCoreApplication.translate("MainWindow", u"Open Samplesheet", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Load Worklist", None))
         self.load_worklist_toolButton.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.runvalidate_pushButton.setText(QCoreApplication.translate("MainWindow", u"Validate", None))
         self.left_toolBar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))
     # retranslateUi
 

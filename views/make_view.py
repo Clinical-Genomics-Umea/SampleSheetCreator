@@ -16,8 +16,8 @@ from PySide6.QtWidgets import (
     QMessageBox,
 )
 
-from views.run import RunInfoWidget
-from views.sampleview import SampleTableView
+from views.run_view import RunInfoWidget
+from views.samples_view import SampleTableView
 
 
 class SampleSheetEdit(QWidget):

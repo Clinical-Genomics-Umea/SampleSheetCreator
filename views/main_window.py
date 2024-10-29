@@ -22,21 +22,22 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QAction, QActionGroup, QPainter, QIcon
 from PySide6.QtCore import QPropertyAnimation, Qt, QSize, Signal
 
-from views.settings import SettingsWidget
+from views.settings_view import SettingsWidget
 from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
-from views.visibility import ColumnsTreeWidget
-from views.index import IndexKitToolbox
-from views.make import SampleSheetEdit
-from views.profile import ApplicationProfiles
-from views.run import RunSetup, RunInfoWidget
+from views.visibility_view import ColumnsTreeWidget
+from views.index_view import IndexKitToolbox
+from views.make_view import SampleSheetEdit
+from views.profile_view import ApplicationProfiles
+from views.run_view import RunSetup, RunInfoWidget
 from models.samplesheet import SampleSheetV2
-from views.validation import (
+from views.validation_view import (
     IndexDistanceValidationWidget,
     PreValidationWidget,
     ColorBalanceValidationWidget,
+    ValidationWidget,
 )
 
-from views.sampleview import SampleWidget
+from views.samples_view import SampleWidget
 from views.ui.mw import Ui_MainWindow
 import qtawesome as qta
 
@@ -80,6 +81,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setWindowIcon(
             QIcon(qta.icon("ri.settings-line", options=[{"draw": "image"}]))
         )
+
+        self.application_profiles_basepath = Path("config/applications")
+
         self.setMinimumWidth(1000)
         self.left_toolBar.setMovable(False)
         self.left_toolBar.setIconSize(QSize(40, 40))
@@ -111,100 +115,70 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.sample_widget = SampleWidget()
 
-        #
         # columns settings widget
         self.columns_treeview = ColumnsTreeWidget(sample_settings_path)
         self.columns_listview_setup()
-        #
-        # self.left_tab_anim = {}
-        # self.right_tab_anim = {}
-        #
-        # self.menu_animations_setup()
-        #
+
         self.leftmenu_stackedWidget.setFixedWidth(300)
         self.leftmenu_stackedWidget.hide()
         self.rightmenu_stackedWidget.setFixedWidth(250)
         self.rightmenu_stackedWidget.hide()
-        #
-        # self.file_tab_setup()
 
         self.run_setup_widget = RunSetup(Path("config/run/run_settings.yaml"))
         self.run_info_widget = RunInfoWidget()
         self.run_info_setup()
+
+        self.validation_widget = ValidationWidget()
+        self.validation_widget_setup()
+
+        self.indexes_widget = IndexKitToolbox(Path("config/indexes/indexes_json"))
+        self.indexes_setup()
         #
-        # self.prevalidate_widget = PreValidationWidget(
-        #     Path("config/validation/validation_settings.yaml"),
-        #     self.samples_model,
-        #     self.run_info_widget,
-        # )
-        # self.indexdistancevalidation_widget = IndexDistanceValidationWidget(
-        #     Path("config/validation/validation_settings.yaml"),
-        #     self.samples_model,
-        #     self.run_info_widget,
-        # )
-        #
-        # self.colorbalancevalidation_widget = ColorBalanceValidationWidget(
-        #     Path("config/validation/validation_settings.yaml"),
-        #     self.samples_model,
-        #     self.run_info_widget,
-        # )
-        #
-        # self.validation_tabwidget = QTabWidget()
-        #
-        # self.validate_setup()
-        #
-        # self.samplesheetedit = SampleSheetEdit()
-        # self.samplesheetedit_setup()
-        #
-        # self.indexes_widget = IndexKitToolbox(Path("config/indexes/indexes_json"))
-        # self.indexes_setup()
-        #
-        # self.application_profiles_widget = ApplicationProfiles(
-        #     Path("config/applications"), self.sample_tableview
-        # )
-        # self.profile_setup()
-        #
-        # self.menu_animations_setup()
-        #
-        # self.leftmenu_stackedWidget.setMaximumWidth(0)
-        # self.rightmenu_stackedWidget.setMaximumWidth(0)
-        #
-        # self.settings = SettingsWidget()
-        # self.settings_setup()
+        self.application_profiles_widget = ApplicationProfiles(
+            self.application_profiles_basepath
+        )
+        self.profile_setup()
+
+        self.settings = SettingsWidget()
+        self.settings_setup()
+
+    def validation_widget_setup(self):
+        layout = self.main_validation.layout()
+        layout.addWidget(self.validation_widget)
 
     def settings_setup(self):
         layout = self.main_settings.layout()
         layout.addWidget(self.settings)
 
-    def validate_setup(self):
-        layout = self.main_validation.layout()
-        layout.addWidget(self.validation_tabwidget)
+    # def validate_setup(self):
+    #     layout = self.main_validation.layout()
+    #     layout.addWidget(self.validation_tabwidget)
+    #
+    #     self.validation_tabwidget.addTab(self.prevalidate_widget, "pre-validation")
+    #     self.prevalidate_widget.setSizePolicy(
+    #         QSizePolicy.Expanding, QSizePolicy.Expanding
+    #     )
+    #     self.validation_tabwidget.addTab(
+    #         self.indexdistancevalidation_widget, "index distance validation"
+    #     )
+    #     self.indexdistancevalidation_widget.setSizePolicy(
+    #         QSizePolicy.Expanding, QSizePolicy.Expanding
+    #     )
+    #     self.validation_tabwidget.addTab(
+    #         self.colorbalancevalidation_widget, "color balance validation"
+    #     )
+    #     self.colorbalancevalidation_widget.setSizePolicy(
+    #         QSizePolicy.Expanding, QSizePolicy.Expanding
+    #     )
 
-        self.validation_tabwidget.addTab(self.prevalidate_widget, "pre-validation")
-        self.prevalidate_widget.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Expanding
-        )
-        self.validation_tabwidget.addTab(
-            self.indexdistancevalidation_widget, "index distance validation"
-        )
-        self.indexdistancevalidation_widget.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Expanding
-        )
-        self.validation_tabwidget.addTab(
-            self.colorbalancevalidation_widget, "color balance validation"
-        )
-        self.colorbalancevalidation_widget.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Expanding
-        )
+    # self.runvalidate_pushButton.clicked.connect(self.run_validation)
 
-        self.runvalidate_pushButton.clicked.connect(self.run_validation)
-
-    def run_validation(self):
-        self.spinner.start()
-        self.prevalidate_widget.run_validate()
-        self.indexdistancevalidation_widget.run_validate()
-        self.colorbalancevalidation_widget.run_validate()
-        self.spinner.stop()
+    # def run_validation(self):
+    #     self.spinner.start()
+    #     self.prevalidate_widget.run_validate()
+    #     self.indexdistancevalidation_widget.run_validate()
+    #     self.colorbalancevalidation_widget.run_validate()
+    #     self.spinner.stop()
 
     def samplesheetedit_setup(self):
         layout = self.main_make.layout()
@@ -220,30 +194,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sample_widget.sample_view.field_visibility_state_changed.connect(
             self.columns_treeview.set_column_visibility_state
         )
-
-    # def menu_animations_setup(self):
-    #     self.left_tab_anim["open"] = self.make_animation(
-    #         self.leftmenu_stackedWidget, 0, 300
-    #     )
-    #     self.left_tab_anim["close"] = self.make_animation(
-    #         self.leftmenu_stackedWidget, 300, 0
-    #     )
-    #
-    #     self.right_tab_anim["open"] = self.make_animation(
-    #         self.rightmenu_stackedWidget, 0, 250
-    #     )
-    #     self.right_tab_anim["close"] = self.make_animation(
-    #         self.rightmenu_stackedWidget, 250, 0
-    #     )
-
-    # @staticmethod
-    # def make_animation(menu_widget, start_width, end_width):
-    #     animation = QPropertyAnimation(menu_widget, b"maximumWidth")
-    #     animation.setStartValue(start_width)
-    #     animation.setEndValue(end_width)
-    #     animation.setDuration(5)
-    #
-    #     return animation
 
     def get_vertical_button_view(self, button: QPushButton):
         button.setFixedSize(100, 20)
@@ -440,14 +390,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.left_toolBar.addAction(self.run_action)
         self.left_toolBar.addAction(self.indexes_action)
         self.left_toolBar.addAction(self.profiles_action)
-
-        # self.actiongroup_mainview.setExclusionPolicy(
-        #     QActionGroup.ExclusionPolicy.ExclusiveOptional
-        # )
-        # self.actiongroup_mainview.addAction(self.validate_action)
-        # self.actiongroup_mainview.addAction(self.make_action)
-        # self.actiongroup_mainview.addAction(self.settings_action)
-
         self.left_toolBar.addAction(self.validate_action)
         self.left_toolBar.addAction(self.make_action)
         self.left_toolBar.addWidget(spacer)
@@ -493,102 +435,95 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.rightmenu_stackedWidget.setCurrentWidget(self.right_action_tab_map[obj_id])
 
-    def on_edit_click(self):
-        pass
+    # def click_action_leftmenu(self):
+    #     button = self.sender()
+    #     button_text = button.text()
+    #     is_checked = button.isChecked()
+    #
+    #     if is_checked:
+    #         self.main_stackedWidget.setCurrentWidget(self.main_data)
+    #         for action in self.actiongroup_mainview.actions():
+    #             action.setChecked(False)
+    #
+    #     if is_checked and not self.leftmenu_visible():
+    #         self.leftmenu_stackedWidget.show()
+    #         self.left_tab_anim["open"].start()
+    #         self.leftmenu_stackedWidget.setCurrentWidget(
+    #             self.left_tool_action_map[button_text]
+    #         )
+    #     elif not is_checked and self.leftmenu_visible():
+    #         self.left_tab_anim["close"].start()
+    #         self.leftmenu_stackedWidget.hide()
+    #     else:
+    #         self.leftmenu_stackedWidget.setCurrentWidget(
+    #             self.left_tool_action_map[button_text]
+    #         )
 
-    def leftmenu_visible(self):
-        menu_width = self.leftmenu_stackedWidget.width()
-        return menu_width > 0
+    # def click_action_mainview(self):
+    #     button = self.sender()
+    #     button_text = button.text()
+    #
+    #     is_checked = button.isChecked()
+    #
+    #     if self.leftmenu_visible():
+    #         self.left_tab_anim["close"].start()
+    #         self.leftmenu_stackedWidget.hide()
+    #
+    #         for action in self.left_tool_action_group.actions():
+    #             action.setChecked(False)
+    #
+    #     self.main_stackedWidget.setCurrentWidget(self.main_data)
+    #
+    #     if is_checked:
+    #         if button_text == "validate":
+    #             self.main_stackedWidget.setCurrentWidget(self.main_validation)
+    #
+    #         elif button_text == "make":
+    #             self.main_stackedWidget.setCurrentWidget(self.main_make)
+    #             sample_df = self.samples_model.to_dataframe()
+    #             run_info = self.run_info_widget.get_data()
+    #
+    #             samplesheetv2 = SampleSheetV2(
+    #                 header=run_info["Header"],
+    #                 run_cycles=run_info["Reads"]["ReadProfile"],
+    #                 # sequencing_data=run_info['Sequencing'],
+    #                 sample_df=sample_df,
+    #             )
+    #
+    #             self.samplesheetedit.set_samplesheetdata(samplesheetv2.datalist())
+    #
+    #         elif button_text == "settings":
+    #             self.main_stackedWidget.setCurrentWidget(self.main_settings)
+    #
+    #     else:
+    #         self.main_stackedWidget.setCurrentWidget(self.main_data)
 
-    def click_action_leftmenu(self):
-        button = self.sender()
-        button_text = button.text()
-        is_checked = button.isChecked()
+    # if button_text == "make":
+    #     pass
+    #
+    # if button_text == "edit":
+    #     pass
+    #
+    # if button_text == "config":
+    #     pass
+    #
+    #
 
-        if is_checked:
-            self.main_stackedWidget.setCurrentWidget(self.main_data)
-            for action in self.actiongroup_mainview.actions():
-                action.setChecked(False)
+    # if is_checked and not menu_shown:
+    #     self.leftmenu_stackedWidget.show()
+    #     self.left_tab_anim["open"].start()
+    #     self.leftmenu_stackedWidget.setCurrentWidget(self.left_action_tab_map[button_text])
+    # elif not is_checked and menu_shown:
+    #     self.left_tab_anim["close"].start()
+    #     self.leftmenu_stackedWidget.hide()
+    # else:
+    #     self.leftmenu_stackedWidget.setCurrentWidget(self.left_action_tab_map[button_text])
 
-        if is_checked and not self.leftmenu_visible():
-            self.leftmenu_stackedWidget.show()
-            self.left_tab_anim["open"].start()
-            self.leftmenu_stackedWidget.setCurrentWidget(
-                self.left_tool_action_map[button_text]
-            )
-        elif not is_checked and self.leftmenu_visible():
-            self.left_tab_anim["close"].start()
-            self.leftmenu_stackedWidget.hide()
-        else:
-            self.leftmenu_stackedWidget.setCurrentWidget(
-                self.left_tool_action_map[button_text]
-            )
-
-    def click_action_mainview(self):
-        button = self.sender()
-        button_text = button.text()
-
-        is_checked = button.isChecked()
-
-        if self.leftmenu_visible():
-            self.left_tab_anim["close"].start()
-            self.leftmenu_stackedWidget.hide()
-
-            for action in self.left_tool_action_group.actions():
-                action.setChecked(False)
-
-        self.main_stackedWidget.setCurrentWidget(self.main_data)
-
-        if is_checked:
-            if button_text == "validate":
-                self.main_stackedWidget.setCurrentWidget(self.main_validation)
-
-            elif button_text == "make":
-                self.main_stackedWidget.setCurrentWidget(self.main_make)
-                sample_df = self.samples_model.to_dataframe()
-                run_info = self.run_info_widget.get_data()
-
-                samplesheetv2 = SampleSheetV2(
-                    header=run_info["Header"],
-                    run_cycles=run_info["Reads"]["ReadProfile"],
-                    # sequencing_data=run_info['Sequencing'],
-                    sample_df=sample_df,
-                )
-
-                self.samplesheetedit.set_samplesheetdata(samplesheetv2.datalist())
-
-            elif button_text == "settings":
-                self.main_stackedWidget.setCurrentWidget(self.main_settings)
-
-        else:
-            self.main_stackedWidget.setCurrentWidget(self.main_data)
-
-        # if button_text == "make":
-        #     pass
-        #
-        # if button_text == "edit":
-        #     pass
-        #
-        # if button_text == "config":
-        #     pass
-        #
-        #
-
-        # if is_checked and not menu_shown:
-        #     self.leftmenu_stackedWidget.show()
-        #     self.left_tab_anim["open"].start()
-        #     self.leftmenu_stackedWidget.setCurrentWidget(self.left_action_tab_map[button_text])
-        # elif not is_checked and menu_shown:
-        #     self.left_tab_anim["close"].start()
-        #     self.leftmenu_stackedWidget.hide()
-        # else:
-        #     self.leftmenu_stackedWidget.setCurrentWidget(self.left_action_tab_map[button_text])
-
-    def on_config_click(self):
-        if self.config_action.isChecked():
-            self.main_stackedWidget.setCurrentWidget(self.main_validation)
-        else:
-            self.main_stackedWidget.setCurrentWidget(self.main_data)
+    # def on_config_click(self):
+    #     if self.config_action.isChecked():
+    #         self.main_stackedWidget.setCurrentWidget(self.main_validation)
+    #     else:
+    #         self.main_stackedWidget.setCurrentWidget(self.main_data)
 
     # def on_validate_click(self):
     #

@@ -8,11 +8,91 @@ from PySide6.QtGui import QStandardItemModel
 
 from controllers.validation import (
     PreValidatorWorker,
-    load_from_yaml,
     DataValidationWorker,
 )
 from models.samplesheet_model import SampleSheetModel
-from views.run import RunInfoWidget
+from views.run_view import RunInfoWidget
+
+
+class MainValidator(QObject):
+
+    def __init__(self, samples_model, run_info_widget, validation_settings):
+        super().__init__()
+
+        self.pre_validator = PreValidator(
+            samples_model, run_info_widget, validation_settings
+        )
+
+        self.index_distance_validator = IndexDistanceValidator(
+            samples_model,
+            run_info_widget,
+            validation_settings,
+        )
+
+        self.color_balance_validator = ColorBalanceValidator(
+            samples_model,
+            run_info_widget,
+            validation_settings,
+        )
+
+    def validate(self):
+
+        print("validate button pressed!")
+
+        self.pre_validator.validate()
+        self.index_distance_validator.validate()
+        self.color_balance_validator.validate()
+
+
+class PreValidator(QObject):
+    data_ready = Signal(dict)
+
+    def __init__(
+        self,
+        samplesheet_model: SampleSheetModel,
+        run_info: RunInfoWidget,
+        validation_settings: dict,
+    ):
+        super().__init__()
+
+        self.samplesheet_model = samplesheet_model
+        self.run_info = run_info
+        self.validation_settings = validation_settings
+
+        self.flowcell = None
+        self.instrument = None
+
+        self.thread = None
+        self.worker = None
+
+    def validate(self):
+        df = self.samplesheet_model.to_dataframe().replace(r"^\s*$", np.nan, regex=True)
+
+        if df.empty:
+            return
+
+        self._run_worker()
+
+    def _run_worker(self):
+
+        self.thread = QThread()
+        self.worker = PreValidatorWorker(
+            self.validation_settings, self.samplesheet_model, self.run_info
+        )
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.run)
+        self.worker.data_ready.connect(self._receiver)
+
+        self.thread.start()
+
+    @Slot(dict)
+    def _receiver(self, results):
+
+        self.thread.quit()
+        self.worker.deleteLater()
+        self.thread.deleteLater()
+
+        self.data_ready.emit(results)
 
 
 class ColorBalanceValidator(QObject):
@@ -21,20 +101,20 @@ class ColorBalanceValidator(QObject):
 
     def __init__(
         self,
-        validation_settings_path: Path,
         model: SampleSheetModel,
         run_info: RunInfoWidget,
+        validation_settings: dict,
     ):
         super().__init__()
 
         self.model = model
-        self.settings = load_from_yaml(validation_settings_path)
+        self.validation_settings = validation_settings
         self.run_info_data = run_info.get_data()
 
         instrument = self.run_info_data["Header"]["Instrument"]
-        self.i5_rc = self.settings["flowcells"][instrument]["i5_rc"]
+        self.i5_rc = self.validation_settings["flowcells"][instrument]["i5_rc"]
 
-    def run_validate(self):
+    def validate(self):
 
         df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True).dropna()
 
@@ -49,10 +129,10 @@ class ColorBalanceValidator(QObject):
         for lane in unique_lanes:
             lane_df = df[df["Lane"] == lane]
 
-            i7_padded_indexes = self.index_df_padded(
+            i7_padded_indexes = self._index_df_padded(
                 lane_df, 10, "IndexI7", "Sample_ID"
             )
-            i5_padded_indexes = self.index_df_padded(
+            i5_padded_indexes = self._index_df_padded(
                 lane_df, 10, i5_col_name, "Sample_ID"
             )
 
@@ -64,9 +144,8 @@ class ColorBalanceValidator(QObject):
 
         self.data_ready.emit(result)
 
-    @staticmethod
-    def index_df_padded(
-        df: pd.DataFrame, tot_len: int, col_name: str, id_name: str
+    def _index_df_padded(
+        self, df: pd.DataFrame, tot_len: int, col_name: str, id_name: str
     ) -> pd.DataFrame:
 
         index_type = col_name.replace("Index_", "")
@@ -75,7 +154,7 @@ class ColorBalanceValidator(QObject):
         # Extract i7 indexes
         i7_df = (
             df[col_name]
-            .apply(lambda x: pd.Series(self.get_base(x, i) for i in range(tot_len)))
+            .apply(lambda x: pd.Series(self._get_base(x, i) for i in range(tot_len)))
             .fillna(np.nan)
         )
         i7_df.columns = pos_names
@@ -84,7 +163,7 @@ class ColorBalanceValidator(QObject):
         return pd.concat([df[id_name], i7_df], axis=1)
 
     @staticmethod
-    def get_base(index_seq, base_pos):
+    def _get_base(index_seq, base_pos):
 
         if base_pos >= len(index_seq):
             return np.nan
@@ -97,18 +176,18 @@ class IndexDistanceValidator(QObject):
 
     def __init__(
         self,
-        validation_settings_path: Path,
         model: SampleSheetModel,
         run_info: RunInfoWidget,
+        validation_settings: dict,
     ):
         super().__init__()
 
         self.model = model
-        self.settings = load_from_yaml(validation_settings_path)
+        self.validation_settings = validation_settings
         self.run_info_data = run_info.get_data()
 
         instrument = self.run_info_data["Header"]["Instrument"]
-        self.i5_rc = self.settings["flowcells"][instrument]["i5_rc"]
+        self.i5_rc = self.validation_settings["flowcells"][instrument]["i5_rc"]
 
     def validate(self):
         df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True).dropna()
@@ -137,51 +216,6 @@ class IndexDistanceValidator(QObject):
         self.data_ready.emit(results)
 
 
-class PreValidator(QObject):
-    data_ready = Signal(dict)
-
-    def __init__(
-        self,
-        samplesheet_model: SampleSheetModel,
-        run_info: RunInfoWidget,
-        validation_settings_path: Path,
-    ):
-        super().__init__()
-
-        self.samplesheet_model = samplesheet_model
-        self.run_info = run_info
-        self.validation_settings_path = validation_settings_path
-
-    def validate(self):
-        df = self.samplesheet_model.to_dataframe().replace(r"^\s*$", np.nan, regex=True)
-
-        if df.empty:
-            return
-
-        self._run_worker()
-
-    def _run_worker(self):
-
-        self.thread = QThread()
-        self.worker = PreValidatorWorker(
-            self.validation_settings_path, self.samplesheet_model, self.run_info
-        )
-        self.worker.moveToThread(self.thread)
-        self.thread.started.connect(self.worker.run)
-        self.worker.data_ready.connect(self._receiver)
-
-        self.thread.start()
-
-    @Slot(dict)
-    def _receiver(self, results):
-
-        self.thread.quit()
-        self.worker.deleteLater()
-        self.thread.deleteLater()
-
-        self.data_ready.emit(results)
-
-
 class IndexColorBalanceModel(QStandardItemModel):
 
     def __init__(self, parent):
@@ -199,9 +233,9 @@ class IndexColorBalanceModel(QStandardItemModel):
                 base = self.item(row, col).text()
                 bases_count[base] += proportion
 
-            color_counts = self.base_to_color_count(bases_count)
-            normalized_color_counts = self.normalize(color_counts)
-            normalized_base_counts = self.normalize(bases_count)
+            color_counts = self._base_to_color_count(bases_count)
+            normalized_color_counts = self._normalize(color_counts)
+            normalized_base_counts = self._normalize(bases_count)
 
             merged["colors"] = normalized_color_counts
             merged["bases"] = normalized_base_counts
@@ -216,7 +250,7 @@ class IndexColorBalanceModel(QStandardItemModel):
         return res
 
     @staticmethod
-    def normalize(input_dict):
+    def _normalize(input_dict):
         # Calculate the sum of values in the input dictionary
         total = sum(input_dict.values())
 
@@ -231,7 +265,7 @@ class IndexColorBalanceModel(QStandardItemModel):
         return normalized_dict
 
     @staticmethod
-    def base_to_color_count(dict1):
+    def _base_to_color_count(dict1):
         color_count = {
             "B": 0,
             "G": 0,

@@ -8,11 +8,12 @@ from PySide6.QtCore import QObject, Signal
 from models.validation_fns import padded_index_df
 from models.validation_schema import prevalidation_schema
 from models.samplesheet_model import SampleSheetModel
-from views.run import RunInfoWidget
+from views.run_view import RunInfoWidget
 import yaml
 
 
 def load_from_yaml(config_file):
+    print(config_file)
     with open(config_file, "r") as file:
         return yaml.safe_load(file)
 
@@ -59,7 +60,7 @@ class PreValidatorWorker(QObject):
 
     def __init__(
         self,
-        validation_settings_path: Path,
+        validation_settings: dict,
         model: SampleSheetModel,
         run_info: RunInfoWidget,
     ):
@@ -67,7 +68,7 @@ class PreValidatorWorker(QObject):
 
         self.model = model
         self.run_info = run_info
-        self.settings = load_from_yaml(validation_settings_path)
+        self.validation_settings = validation_settings
 
     def run(self):
         """Execute validation tasks and emit results."""
@@ -79,10 +80,10 @@ class PreValidatorWorker(QObject):
         instrument = rundata["Header"]["Instrument"]
 
         results["flowcell"] = flowcell_validation(
-            flowcell_type, instrument, self.settings
+            flowcell_type, instrument, self.validation_settings
         )
         results["lane"] = lane_validation(
-            dataframe, flowcell_type, instrument, self.settings
+            dataframe, flowcell_type, instrument, self.validation_settings
         )
         results["sample_count"] = sample_count_validation(dataframe)
 
