@@ -4,18 +4,20 @@ from PySide6.QtCore import Qt, Signal, Slot
 
 
 def toggle_checked(item):
-    item.setCheckState(0, Qt.Checked if item.checkState(0) == Qt.Unchecked else Qt.Unchecked)
+    item.setCheckState(
+        0, Qt.Checked if item.checkState(0) == Qt.Unchecked else Qt.Unchecked
+    )
 
 
 def has_checked_item(lst):
     return Qt.Checked in lst
 
 
-class ColumnsTreeWidget(QTreeWidget):
+class ColumnVisibilityControl(QTreeWidget):
     field_visibility_state_changed = Signal(str, bool)
 
-    def __init__(self, sample_settings, parent=None):
-        super(ColumnsTreeWidget, self).__init__(parent)
+    def __init__(self, samples_settings_dict, parent=None):
+        super(ColumnVisibilityControl, self).__init__(parent)
         self.setAcceptDrops(False)
         self.setDragEnabled(False)
         self.setSelectionMode(QTreeWidget.ExtendedSelection)
@@ -23,7 +25,8 @@ class ColumnsTreeWidget(QTreeWidget):
 
         self.field_item_map = {}
 
-        self.create_tree(sample_settings['fields'])
+        # self.create_tree(sample_settings['fields'])
+        self.create_tree(samples_settings_dict["fields"])
         self.setHeaderHidden(True)
         self.expandAll()
 
@@ -62,7 +65,9 @@ class ColumnsTreeWidget(QTreeWidget):
                     child.setCheckState(0, state)
 
                     self.blockSignals(False)
-                    self.field_visibility_state_changed.emit(child.text(0), state == Qt.Checked)
+                    self.field_visibility_state_changed.emit(
+                        child.text(0), state == Qt.Checked
+                    )
                     self.blockSignals(True)
 
         else:
@@ -84,7 +89,6 @@ class ColumnsTreeWidget(QTreeWidget):
     # def emit_field_checked_state(self, item):
     #     self.field_visibility_state_changed.emit(item.text(), item.checkState() == Qt.CheckState.Checked)
 
-
     @Slot(str, bool)
     def set_column_visibility_state(self, field_name, state):
         item = self.field_item_map[field_name]
@@ -103,5 +107,3 @@ class ColumnsTreeWidget(QTreeWidget):
                     toggle_checked(item)
 
                 item.setSelected(False)
-
-

@@ -124,7 +124,7 @@ class IndexTableModel(QAbstractTableModel):
 
     def mimeData(self, indexes):
         """
-        Generates a QMimeData object containing the data to be transferred to external applications.
+        Generates a QMimeData object containing the data to be transferred to external application_profiles.
 
         Parameters:
             indexes (List[QModelIndex]): A list of QModelIndex objects representing the selected indexes.

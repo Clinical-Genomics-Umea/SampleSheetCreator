@@ -100,7 +100,6 @@ class PreValidationWidget(QTableWidget):
         self.setItem(last_row, 1, status_item)
         self.setItem(last_row, 2, message_item)
 
-
     @Slot(dict)
     def populate(self, validation_results):
 
@@ -128,7 +127,6 @@ class IndexDistanceValidationWidget(QTabWidget):
         self.vspacer_fixed = QSpacerItem(1, 20, QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
 
     def _get_heatmap_hlayout(self, table_widget):
         h_heatmap_layout = QHBoxLayout()

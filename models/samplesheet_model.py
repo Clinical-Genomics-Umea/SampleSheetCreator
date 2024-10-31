@@ -3,7 +3,7 @@ import re
 import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, QSortFilterProxyModel
-from PySide6.QtGui import QStandardItemModel
+from PySide6.QtGui import QStandardItemModel, QStandardItem
 
 from utils.utils import decode_bytes_json
 
@@ -32,6 +32,8 @@ class SampleSheetModel(QStandardItemModel):
         self.set_empty_strings()
 
         self.select_samples = False
+
+        self.refresh_view()
 
     def refresh_view(self):
         # Emit dataChanged signal to notify the view to update

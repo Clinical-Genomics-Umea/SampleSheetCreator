@@ -97,7 +97,7 @@ def regular_paste(selected_indexes, source_model, target_proxy_model):
     return True
 
 
-class SampleWidget(QWidget):
+class SamplesWidget(QWidget):
     def __init__(self):
         super().__init__()
 
