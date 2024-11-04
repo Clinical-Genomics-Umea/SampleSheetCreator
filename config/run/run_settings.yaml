@@ -20,7 +20,7 @@ Reads:
     control: combobox
     data: ['151-10-10-151']
 
-Run_Extra:
+RunExtra:
   FlowCellType:
     control: combobox
     data: ['1.5B', '10B', '25B']

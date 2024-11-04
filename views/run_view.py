@@ -66,8 +66,10 @@ def load_from_yaml(config_file):
 
 
 class RunSetupWidget(QWidget):
-    def __init__(self, run_config):
+    def __init__(self, cfg_mgr):
         super().__init__()
+
+        self.cfg_mgr = cfg_mgr
 
         layout = QVBoxLayout()
         layout.setSpacing(5)
@@ -86,7 +88,7 @@ class RunSetupWidget(QWidget):
         self.setLayout(layout)
         layout.addLayout(form)
 
-        self.run_config = load_from_yaml(run_config)
+        self.run_config = load_from_yaml(self.cfg_mgr.run_config)
 
         self.input_widgets = {}
 
