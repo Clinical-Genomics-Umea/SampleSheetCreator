@@ -113,11 +113,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_7.addWidget(self.new_samplesheet_pushButton)
 
-        self.open_samplesheet_pushButton = QPushButton(self.leftmenu_file)
-        self.open_samplesheet_pushButton.setObjectName(u"open_samplesheet_pushButton")
-
-        self.verticalLayout_7.addWidget(self.open_samplesheet_pushButton)
-
         self.formLayout_6 = QFormLayout()
         self.formLayout_6.setObjectName(u"formLayout_6")
         self.label_8 = QLabel(self.leftmenu_file)
@@ -127,10 +122,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.lineEdit_7 = QLineEdit(self.leftmenu_file)
-        self.lineEdit_7.setObjectName(u"lineEdit_7")
+        self.load_worklist_lineEdit = QLineEdit(self.leftmenu_file)
+        self.load_worklist_lineEdit.setObjectName(u"load_worklist_lineEdit")
 
-        self.horizontalLayout_3.addWidget(self.lineEdit_7)
+        self.horizontalLayout_3.addWidget(self.load_worklist_lineEdit)
 
         self.load_worklist_toolButton = QToolButton(self.leftmenu_file)
         self.load_worklist_toolButton.setObjectName(u"load_worklist_toolButton")
@@ -251,7 +246,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.leftmenu_stackedWidget.setCurrentIndex(0)
+        self.leftmenu_stackedWidget.setCurrentIndex(1)
         self.main_stackedWidget.setCurrentIndex(1)
 
 
@@ -264,7 +259,6 @@ class Ui_MainWindow(object):
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Index file", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Analysis file", None))
         self.new_samplesheet_pushButton.setText(QCoreApplication.translate("MainWindow", u"New Samplesheet", None))
-        self.open_samplesheet_pushButton.setText(QCoreApplication.translate("MainWindow", u"Open Samplesheet", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Load Worklist", None))
         self.load_worklist_toolButton.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.left_toolBar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))

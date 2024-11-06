@@ -16,19 +16,13 @@ class MainController(QObject):
         self.main_window = MainWindow(self.cfg_mgr)
 
         # Set up sample model and proxy model
-        self.sample_model = SampleSheetModel(self.cfg_mgr.samples_settings_dict)
-        self.sample_proxy_model = CustomProxyModel()
-        self.sample_proxy_model.setSourceModel(self.sample_model)
+        self.sample_model = None
+        self.sample_proxy_model = None
 
-        # Configure sample widget
-        self.main_window.samples_widget.set_model(self.sample_proxy_model)
+        self.setup_samplesheet_model()
 
         # Initialize main validator with necessary components
-        self.main_validator = MainValidator(
-            self.sample_model,
-            self.main_window.run_infoview_widget,
-            self.cfg_mgr.validation_settings_dict,
-        )
+        self.main_validator = MainValidator(self.sample_model, self.cfg_mgr)
 
         # Set up connections
         self.setup_validation_connections()
@@ -38,6 +32,17 @@ class MainController(QObject):
         self.main_window.application_profiles_widget.profile_mgr.profile_data.connect(
             self.main_window.samples_widget.sample_view.set_profile_data
         )
+        self.setup_run_connections()
+        self.setup_file_connections()
+
+    def setup_samplesheet_model(self):
+        # Set up sample model and proxy model
+        self.sample_model = SampleSheetModel(self.cfg_mgr.samples_settings_dict)
+        self.sample_proxy_model = CustomProxyModel()
+        self.sample_proxy_model.setSourceModel(self.sample_model)
+
+        # Configure sample widget
+        self.main_window.samples_widget.set_model(self.sample_proxy_model)
 
     def setup_left_tool_action_connections(self):
         """Connect UI signals to controller slots"""
@@ -72,6 +77,22 @@ class MainController(QObject):
         )
         self.main_window.validation_widget.validate_button.clicked.connect(
             self.main_validator.validate
+        )
+
+    def setup_run_connections(self):
+        self.main_window.run_setup_widget.setup_commited.connect(
+            self.cfg_mgr.set_run_setup_data
+        )
+        self.cfg_mgr.run_setup_changed.connect(
+            self.main_window.run_view_widget.set_data
+        )
+        self.cfg_mgr.users_changed.connect(
+            self.main_window.run_setup_widget.populate_investigators
+        )
+
+    def setup_file_connections(self):
+        self.main_window.new_samplesheet_pushButton.clicked.connect(
+            self.setup_samplesheet_model
         )
 
 

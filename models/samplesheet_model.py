@@ -3,7 +3,7 @@ import re
 import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, QSortFilterProxyModel
-from PySide6.QtGui import QStandardItemModel, QStandardItem
+from PySide6.QtGui import QStandardItemModel
 
 from utils.utils import decode_bytes_json
 

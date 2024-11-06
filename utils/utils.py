@@ -4,6 +4,11 @@ import pandas as pd
 import numpy as np
 import yaml
 import json
+import uuid6
+
+
+def uuid():
+    return str(uuid6.uuid7())
 
 
 def dataframe_to_qstandarditemmodel(dataframe):
@@ -26,7 +31,7 @@ def dataframe_to_qstandarditemmodel(dataframe):
 
 
 def reverse_complement(seq):
-    complement = str.maketrans('ATCG', 'TAGC')
+    complement = str.maketrans("ATCG", "TAGC")
     return seq.translate(complement)[::-1]
 
 
@@ -34,15 +39,20 @@ def model_to_dataframe(model):
     if not isinstance(model, QStandardItemModel):
         raise ValueError("Input must be a QStandardItemModel")
 
-    column_names = [model.horizontalHeaderItem(i).text() for i in range(model.columnCount())]
+    column_names = [
+        model.horizontalHeaderItem(i).text() for i in range(model.columnCount())
+    ]
     df = pd.DataFrame(columns=column_names)
 
     for row_index in range(model.rowCount()):
-        row_data = [model.item(row_index, col_index).text() for col_index in range(model.columnCount())]
+        row_data = [
+            model.item(row_index, col_index).text()
+            for col_index in range(model.columnCount())
+        ]
         df.loc[row_index] = row_data
 
-    df = df.replace('', np.nan).dropna(how='all').reset_index(drop=True)
-    df['Index_I5_RC'] = df['Index_I5'].apply(reverse_complement)
+    df = df.replace("", np.nan).dropna(how="all").reset_index(drop=True)
+    df["Index_I5_RC"] = df["Index_I5"].apply(reverse_complement)
 
     return df
 
@@ -51,7 +61,7 @@ def read_yaml_file(file):
     # Get the path to the directory of the current module
 
     try:
-        with open(file, 'r') as file:
+        with open(file, "r") as file:
             # Load YAML data from the file
             data = yaml.safe_load(file)
         return data

@@ -9,29 +9,25 @@ from controllers.validation import (
     PreValidatorWorker,
     DataValidationWorker,
 )
+from models.configuration import ConfigurationManager
 from models.samplesheet_model import SampleSheetModel
-from views.run_view import RunInfoViewWidget
 
 
 class MainValidator(QObject):
 
-    def __init__(self, samples_model, run_info_widget, validation_settings):
+    def __init__(self, samples_model, cfg_mgr):
         super().__init__()
 
-        self.pre_validator = PreValidator(
-            samples_model, run_info_widget, validation_settings
-        )
+        self.pre_validator = PreValidator(samples_model, cfg_mgr)
 
         self.index_distance_validator = IndexDistanceValidator(
             samples_model,
-            run_info_widget,
-            validation_settings,
+            cfg_mgr,
         )
 
         self.color_balance_validator = ColorBalanceValidator(
             samples_model,
-            run_info_widget,
-            validation_settings,
+            cfg_mgr,
         )
 
     def validate(self):
@@ -49,14 +45,12 @@ class PreValidator(QObject):
     def __init__(
         self,
         samplesheet_model: SampleSheetModel,
-        run_info: RunInfoViewWidget,
-        validation_settings: dict,
+        cfg_mgr: ConfigurationManager,
     ):
         super().__init__()
 
         self.samplesheet_model = samplesheet_model
-        self.run_info = run_info
-        self.validation_settings = validation_settings
+        self.cfg_mgr = cfg_mgr
 
         self.flowcell = None
         self.instrument = None
@@ -75,9 +69,7 @@ class PreValidator(QObject):
     def _run_worker(self):
 
         self.thread = QThread()
-        self.worker = PreValidatorWorker(
-            self.validation_settings, self.samplesheet_model, self.run_info
-        )
+        self.worker = PreValidatorWorker(self.samplesheet_model, self.cfg_mgr)
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
         self.worker.data_ready.connect(self._receiver)
@@ -86,7 +78,6 @@ class PreValidator(QObject):
 
     @Slot(dict)
     def _receiver(self, results):
-        print("prevalidator results")
 
         self.thread.quit()
         self.worker.deleteLater()
@@ -102,17 +93,20 @@ class ColorBalanceValidator(QObject):
     def __init__(
         self,
         model: SampleSheetModel,
-        run_info: RunInfoViewWidget,
-        validation_settings: dict,
+        cfg_mgr: ConfigurationManager,
     ):
         super().__init__()
 
         self.model = model
-        self.validation_settings = validation_settings
-        self.run_info_data = run_info.get_data()
+        self.cfg_mgr = cfg_mgr
 
-        instrument = self.run_info_data["Header"]["Instrument"]
-        self.i5_rc = self.validation_settings["flowcells"][instrument]["i5_rc"]
+        try:
+            i5_orientation = cfg_mgr.run_setup_data.get("I5IndexOrientation")
+            if i5_orientation is None:
+                raise KeyError("I5IndexOrientation key not found in run_setup_data")
+            self.i5_rc = i5_orientation == "rc"
+        except KeyError as e:
+            raise KeyError(f"Configuration error: {e}")
 
     def validate(self):
 
@@ -179,17 +173,25 @@ class IndexDistanceValidator(QObject):
     def __init__(
         self,
         model: SampleSheetModel,
-        run_info: RunInfoViewWidget,
-        validation_settings: dict,
+        cfg_mgr: ConfigurationManager,
     ):
         super().__init__()
 
-        self.model = model
-        self.validation_settings = validation_settings
-        self.run_info_data = run_info.get_data()
+        if model is None:
+            raise ValueError("model cannot be None")
+        if cfg_mgr is None:
+            raise ValueError("cfg_mgr cannot be None")
 
-        instrument = self.run_info_data["Header"]["Instrument"]
-        self.i5_rc = self.validation_settings["flowcells"][instrument]["i5_rc"]
+        self.model = model
+        self.cfg_mgr = cfg_mgr
+
+        try:
+            i5_orientation = cfg_mgr.run_setup_data.get("I5IndexOrientation")
+            if i5_orientation is None:
+                raise KeyError("I5IndexOrientation key not found in run_setup_data")
+            self.i5_rc = i5_orientation == "rc"
+        except KeyError as e:
+            raise KeyError(f"Configuration error: {e}")
 
     def validate(self):
         df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True).dropna()

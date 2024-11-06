@@ -25,8 +25,8 @@ from views.column_visibility_view import ColumnVisibilityControl
 from views.index_view import IndexKitToolbox
 from views.make_view import SampleSheetEdit
 from views.profile_view import ApplicationProfiles
-from views.run_view import RunSetupWidget, RunInfoViewWidget
-from models.samplesheet import SampleSheetV2
+from views.run_setup_views import RunSetupWidget, RunView
+from models.samplesheet_definitions import SampleSheetV2
 from views.validation_view import (
     ValidationWidget,
 )
@@ -116,9 +116,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         self.setup_columns_treeview()
 
-        self.run_setup_widget = RunSetupWidget(self.cfg_mgr.run_settings_path)
-        self.run_infoview_widget = RunInfoViewWidget()
-        self.setup_run_info()
+        self.run_setup_widget = RunSetupWidget(self.cfg_mgr)
+        self.run_view_widget = RunView()
+        self.setup_run_view()
 
         self.validation_widget = ValidationWidget()
         self.setup_validation_widget()
@@ -190,19 +190,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout.addWidget(self.samples_widget)
         self.main_stackedWidget.setCurrentWidget(self.main_data)
 
-    def setup_run_info(self):
+    def setup_run_view(self):
         self.leftmenu_runsetup.layout().addWidget(self.run_setup_widget)
         main_data_layout = self.main_data.layout()
-        main_data_layout.insertWidget(0, self.run_infoview_widget)
-
-        self.run_infoview_widget.setup(self.run_setup_widget.get_data())
-        self.run_setup_widget.set_button.clicked.connect(
-            self.handle_run_set_button_click
-        )
+        main_data_layout.insertWidget(0, self.run_view_widget)
 
     def handle_run_set_button_click(self):
         run_info = self.run_setup_widget.get_data()
-        self.run_infoview_widget.set_data(run_info)
+        self.run_view_widget.set_data(run_info)
 
     def setup_indexes(self):
         layout = self.leftmenu_indexes.layout()

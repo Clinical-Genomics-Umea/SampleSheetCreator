@@ -1,6 +1,6 @@
 import json
 
-from PySide6.QtCore import QSettings, QObject, Signal
+from PySide6.QtCore import QSettings, QObject, Signal, Slot
 from pathlib import Path
 
 from utils.utils import read_yaml_file
@@ -9,7 +9,8 @@ from utils.utils import read_yaml_file
 class ConfigurationManager(QObject):
     """Configuration Manager"""
 
-    run_settings_changed = Signal(object)
+    run_setup_changed = Signal(object)
+    users_changed = Signal()
 
     def __init__(self):
         super().__init__()
@@ -36,26 +37,28 @@ class ConfigurationManager(QObject):
         }
 
         self._run_setup_data = {}
+        self._run_widget_data_hierarchy = {}
         self._init_run_setup_data()
 
     def _init_run_setup_data(self):
         data = read_yaml_file(self._run_settings_path)
+        print(data["DataHierarchy"])
 
-        self._run_setup_data = data
+        self._run_setup_data = data["Defaults"]
+        self._run_widget_data_hierarchy = data["DataHierarchy"]
 
-        for header_key in data:
-            for key, value in data[header_key].items():
-                self._run_setup_data[header_key][key] = value
+    @property
+    def run_widget_data_hierarchy(self):
+        return self._run_widget_data_hierarchy
 
     @property
     def run_setup_data(self):
         return self._run_setup_data
 
-    @run_setup_data.setter
-    def run_setup_data(self, values: dict):
-        if self._validate_run_setup(values):
-            self._run_setup_data = values
-            self.run_settings_changed.emit(values)
+    @Slot(dict)
+    def set_run_setup_data(self, data: dict):
+        self._run_setup_data = data
+        self.run_setup_changed.emit(data)
 
     @property
     def all_config_paths(self):
@@ -114,6 +117,7 @@ class ConfigurationManager(QObject):
     def _save_users(self, users: list):
         json_string = json.dumps(users)  # Convert list to JSON string
         self.qt_settings.setValue("users", json_string)
+        self.users_changed.emit()
 
     # Retrieve a list from QSettings
     def _load_users(self):
@@ -123,41 +127,3 @@ class ConfigurationManager(QObject):
             return json.loads(json_string)  # Convert back to list
         else:
             return []
-
-    @staticmethod
-    def _validate_run_setup(data: dict) -> bool:
-        """Validate the run setup data."""
-
-        required_keys = ["Header", "Reads", "RunExtra"]
-        required_header_keys = [
-            "FileFormatVersion",
-            "run_name",
-            "run_description",
-            "instrument",
-        ]
-        required_reads_keys = ["ReadProfile"]
-        required_run_extra_keys = ["FlowCellType", "Investigator"]
-
-        # Check if all required keys are present
-        if not all(key in data for key in required_keys):
-            return False
-
-        # Check if all required header keys are present
-        if not all(key in data["Header"] for key in required_header_keys):
-            return False
-
-        # Check if all required reads keys are present
-        if not all(key in data["Reads"] for key in required_reads_keys):
-            return False
-
-        # Check if all required run_extra keys are present
-        if not all(key in data["RunExtra"] for key in required_run_extra_keys):
-            return False
-
-        for key, subdict in data.items():
-            for subkey, value in subdict.items():
-                if not isinstance(value, str):
-                    return False
-                if value == "None":
-                    return False
-        return True

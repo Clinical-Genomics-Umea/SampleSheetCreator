@@ -5,10 +5,11 @@ import pandas as pd
 import pandera as pa
 from PySide6.QtCore import QObject, Signal
 
+from models.configuration import ConfigurationManager
 from models.validation_fns import padded_index_df
 from models.validation_schema import prevalidation_schema
 from models.samplesheet_model import SampleSheetModel
-from views.run_view import RunInfoViewWidget
+from views.run_setup_views import RunView
 import yaml
 
 
@@ -18,20 +19,25 @@ def load_from_yaml(config_file):
         return yaml.safe_load(file)
 
 
-def flowcell_validation(flowcell, instrument, settings):
-    if instrument not in settings["flowcells"]:
-        return (
-            False,
-            f"Instrument '{instrument}' not present in validation_settings.yaml .",
-        )
-    if flowcell not in settings["flowcells"][instrument]["type"]:
-        return False, f"flowcell '{flowcell}' not present in validation_settings.yaml ."
+# def flowcell_validation(flowcell, instrument, settings):
+#     if instrument not in settings["flowcells"]:
+#         return (
+#             False,
+#             f"Instrument '{instrument}' not present in validation_settings.yaml .",
+#         )
+#     if flowcell not in settings["flowcells"][instrument]["type"]:
+#         return False, f"flowcell '{flowcell}' not present in validation_settings.yaml ."
+#
+#     return True, ""
 
-    return True, ""
+
+def create_integer_list(max_value_str):
+    max_value = int(max_value_str)
+    return list(range(1, max_value + 1))
 
 
-def lane_validation(df, flowcell, instrument, settings):
-    allowed_lanes = set(map(int, settings["flowcells"][instrument]["type"][flowcell]))
+def lane_validation(df, lanes):
+    allowed_lanes = create_integer_list(lanes)
     used_lanes = set(df["Lane"])
 
     disallowed_lanes = used_lanes.difference(allowed_lanes)
@@ -39,7 +45,7 @@ def lane_validation(df, flowcell, instrument, settings):
     if disallowed_lanes:
         return (
             False,
-            f"Lane(s) {disallowed_lanes} incompatible with selected flowcell {flowcell}.",
+            f"Lane(s) {disallowed_lanes} are not allowed.",
         )
 
     return True, ""
@@ -60,31 +66,24 @@ class PreValidatorWorker(QObject):
 
     def __init__(
         self,
-        validation_settings: dict,
         model: SampleSheetModel,
-        run_info: RunInfoViewWidget,
+        cfg_mgr: ConfigurationManager,
     ):
         super().__init__()
 
         self.model = model
-        self.run_info = run_info
-        self.validation_settings = validation_settings
+        self.cfg_mgr = cfg_mgr
 
     def run(self):
         """Execute validation tasks and emit results."""
         results = {}
-        rundata = self.run_info.get_data()
+        run_setup_data = self.cfg_mgr.run_setup_data
         dataframe = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True)
 
-        flowcell_type = rundata["Run_Extra"]["FlowCellType"]
-        instrument = rundata["Header"]["Instrument"]
-
-        results["flowcell"] = flowcell_validation(
-            flowcell_type, instrument, self.validation_settings
-        )
-        results["lane"] = lane_validation(
-            dataframe, flowcell_type, instrument, self.validation_settings
-        )
+        # results["flowcell"] = flowcell_validation(
+        #     flowcell_type, instrument, self.validation_settings
+        # )
+        results["lane"] = lane_validation(dataframe, run_setup_data["Lanes"])
         results["sample_count"] = sample_count_validation(dataframe)
 
         try:
