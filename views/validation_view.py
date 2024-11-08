@@ -326,6 +326,122 @@ class MainColorBalanceWidget(QTabWidget):
             self.addTab(color_balance_table, f"Lane {lane}")
 
 
+class ColorBalanceWidget(QTableView):
+    def __init__(self, merged_df, parent=None):
+        super(ColorBalanceWidget, self).__init__(parent)
+        df = merged_df.copy()
+
+        df["Proportion"] = "1"
+
+        cols = ["Sample_ID", "Proportion"] + [
+            col for col in df.columns if col not in ["Sample_ID", "Proportion"]
+        ]
+        df = df[cols]
+
+        last_row_index = df.index[-1]
+        df.loc[last_row_index + 1] = pd.Series()
+        df.iloc[-1, 0] = "Summary"
+        df.iloc[-1, 1] = ""
+
+        self.cb_model = self.make_color_balance_model(df)
+        self.setModel(self.cb_model)
+        self.cb_model.update_summation()
+        self.verticalHeader().setVisible(False)
+        self.setup()
+
+    def setup(self):
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        last_row = self.cb_model.rowCount() - 1
+        self.setRowHeight(last_row, 140)
+        self.setItemDelegate(ColorBalanceRowDelegate())
+
+        self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.setFixedWidth(1500)
+
+    def make_color_balance_model(self, df):
+        """
+        Convert a Pandas DataFrame to a QStandardItemModel.
+
+        :param df: Pandas DataFrame to convert.
+        :return: QStandardItemModel representing the DataFrame.
+        """
+        model = IndexColorBalanceModel(parent=self)
+
+        column_names = [col_name.replace("Index", "") for col_name in df.columns]
+
+        # Set the column headers as the model's horizontal headers
+        model.setHorizontalHeaderLabels(column_names)
+
+        for row_index, row_data in df.iterrows():
+            row_items = [QStandardItem(str(item)) for item in row_data]
+            model.appendRow(row_items)
+
+        return model
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QPainter(self.viewport())
+
+        model = self.model()
+        column_count = model.columnCount()
+        row_count = model.rowCount()
+
+        last_row_index = model.rowCount() - 1
+
+        thick_pen = QPen(QColor("dark gray"), 2, Qt.SolidLine)
+        painter.setPen(thick_pen)
+
+        for col in range(column_count):
+            last_row_rect = self.visualRect(model.index(last_row_index, col))
+            painter.drawLine(last_row_rect.topLeft(), last_row_rect.topRight())
+
+        for row in range(row_count):
+            i5_i7_index_boundry_rect = self.visualRect(model.index(row, 11))
+            painter.drawLine(
+                i5_i7_index_boundry_rect.topRight(),
+                i5_i7_index_boundry_rect.bottomRight(),
+            )
+
+        for row in range(row_count):
+            i5_i7_index_boundry_rect = self.visualRect(model.index(row, 0))
+            painter.drawLine(
+                i5_i7_index_boundry_rect.topRight(),
+                i5_i7_index_boundry_rect.bottomRight(),
+            )
+
+        for row in range(row_count):
+            i5_i7_index_boundry_rect = self.visualRect(model.index(row, 1))
+            painter.drawLine(
+                i5_i7_index_boundry_rect.topRight(),
+                i5_i7_index_boundry_rect.bottomRight(),
+            )
+
+    @staticmethod
+    def split_string_column(input_df, column_name1, column_name2):
+        """
+        Split a column of strings into multiple columns with one character per column.
+
+        :param dataframe: Pandas DataFrame containing the string column.
+        :param column_name: Name of the column containing the strings.
+        :return: DataFrame with one column per character in the strings.
+        """
+        # Use apply and pd.Series to split the string column into multiple columns
+        df1 = input_df[column_name1].apply(lambda x: pd.Series(list(x)))
+        # df1 = input_df[column_name1].apply(string_to_ndarray)
+        df1.columns = [f"{column_name1}_{i + 1}" for i in range(10)]
+
+        df2 = input_df[column_name2].apply(lambda x: pd.Series(list(x)))
+        # df2 = input_df[column_name2].apply(string_to_ndarray)
+        df2.columns = [f"{column_name2}_{i + 1}" for i in range(10)]
+
+        return pd.concat([df1, df2], axis=1)
+
+
 class ColorBalanceRowDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
 
@@ -466,122 +582,6 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
         editor = QLineEdit(parent)
         editor.setValidator(QIntValidator())  # Set an integer validator
         return editor
-
-
-class ColorBalanceWidget(QTableView):
-    def __init__(self, merged_df, parent=None):
-        super(ColorBalanceWidget, self).__init__(parent)
-        df = merged_df.copy()
-
-        df["Proportion"] = "1"
-
-        cols = ["Sample_ID", "Proportion"] + [
-            col for col in df.columns if col not in ["Sample_ID", "Proportion"]
-        ]
-        df = df[cols]
-
-        last_row_index = df.index[-1]
-        df.loc[last_row_index + 1] = pd.Series()
-        df.iloc[-1, 0] = "Summary"
-        df.iloc[-1, 1] = ""
-
-        self.cb_model = self.make_color_balance_model(df)
-        self.setModel(self.cb_model)
-        self.cb_model.update_summation()
-        self.verticalHeader().setVisible(False)
-        self.setup()
-
-    def setup(self):
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        self.setContentsMargins(0, 0, 0, 0)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-        last_row = self.cb_model.rowCount() - 1
-        self.setRowHeight(last_row, 140)
-        self.setItemDelegate(ColorBalanceRowDelegate())
-
-        self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
-        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.setFixedWidth(1500)
-
-    def make_color_balance_model(self, df):
-        """
-        Convert a Pandas DataFrame to a QStandardItemModel.
-
-        :param df: Pandas DataFrame to convert.
-        :return: QStandardItemModel representing the DataFrame.
-        """
-        model = IndexColorBalanceModel(parent=self)
-
-        column_names = [col_name.replace("Index", "") for col_name in df.columns]
-
-        # Set the column headers as the model's horizontal headers
-        model.setHorizontalHeaderLabels(column_names)
-
-        for row_index, row_data in df.iterrows():
-            row_items = [QStandardItem(str(item)) for item in row_data]
-            model.appendRow(row_items)
-
-        return model
-
-    def paintEvent(self, event):
-        super().paintEvent(event)
-        painter = QPainter(self.viewport())
-
-        model = self.model()
-        column_count = model.columnCount()
-        row_count = model.rowCount()
-
-        last_row_index = model.rowCount() - 1
-
-        thick_pen = QPen(QColor("dark gray"), 2, Qt.SolidLine)
-        painter.setPen(thick_pen)
-
-        for col in range(column_count):
-            last_row_rect = self.visualRect(model.index(last_row_index, col))
-            painter.drawLine(last_row_rect.topLeft(), last_row_rect.topRight())
-
-        for row in range(row_count):
-            i5_i7_index_boundry_rect = self.visualRect(model.index(row, 11))
-            painter.drawLine(
-                i5_i7_index_boundry_rect.topRight(),
-                i5_i7_index_boundry_rect.bottomRight(),
-            )
-
-        for row in range(row_count):
-            i5_i7_index_boundry_rect = self.visualRect(model.index(row, 0))
-            painter.drawLine(
-                i5_i7_index_boundry_rect.topRight(),
-                i5_i7_index_boundry_rect.bottomRight(),
-            )
-
-        for row in range(row_count):
-            i5_i7_index_boundry_rect = self.visualRect(model.index(row, 1))
-            painter.drawLine(
-                i5_i7_index_boundry_rect.topRight(),
-                i5_i7_index_boundry_rect.bottomRight(),
-            )
-
-    @staticmethod
-    def split_string_column(input_df, column_name1, column_name2):
-        """
-        Split a column of strings into multiple columns with one character per column.
-
-        :param dataframe: Pandas DataFrame containing the string column.
-        :param column_name: Name of the column containing the strings.
-        :return: DataFrame with one column per character in the strings.
-        """
-        # Use apply and pd.Series to split the string column into multiple columns
-        df1 = input_df[column_name1].apply(lambda x: pd.Series(list(x)))
-        # df1 = input_df[column_name1].apply(string_to_ndarray)
-        df1.columns = [f"{column_name1}_{i + 1}" for i in range(10)]
-
-        df2 = input_df[column_name2].apply(lambda x: pd.Series(list(x)))
-        # df2 = input_df[column_name2].apply(string_to_ndarray)
-        df2.columns = [f"{column_name2}_{i + 1}" for i in range(10)]
-
-        return pd.concat([df1, df2], axis=1)
 
 
 # Heatmap

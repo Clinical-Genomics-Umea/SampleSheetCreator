@@ -101,7 +101,7 @@ class PreValidator(QObject):
         results = []
 
         try:
-            prevalidation_schema.populate(df, lazy=True)
+            prevalidation_schema.validate(df, lazy=True)
         except pa.errors.SchemaErrors as e:
             for index, row in e.failure_cases.iterrows():
                 results.append(("schema validation", False, row["check"]))
