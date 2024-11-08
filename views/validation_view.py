@@ -36,7 +36,7 @@ from PySide6.QtWidgets import (
     QItemDelegate,
 )
 
-from models.validation_models import IndexColorBalanceModel
+from models.validation import IndexColorBalanceModel
 
 
 class ValidationWidget(QWidget):
@@ -52,7 +52,7 @@ class ValidationWidget(QWidget):
 
         self.pre_validation_widget = PreValidationWidget()
         self.index_validation_widget = IndexDistanceValidationWidget()
-        self.color_balance_validation_widget = ColorBalanceValidationWidget()
+        self.color_balance_validation_widget = MainColorBalanceWidget()
         self.tab_widget.addTab(self.pre_validation_widget, "pre-validation")
         self.tab_widget.addTab(self.index_validation_widget, "index validation")
         self.tab_widget.addTab(
@@ -101,11 +101,12 @@ class PreValidationWidget(QTableWidget):
         self.setItem(last_row, 2, message_item)
 
     @Slot(dict)
-    def populate(self, validation_results):
+    def populate(self, results):
+        print("view", results)
 
         self.setRowCount(0)
 
-        for validation_name, (is_valid, message) in validation_results.items():
+        for validation_name, is_valid, message in results:
             self._add_row(validation_name, is_valid, message)
 
 
@@ -233,13 +234,13 @@ class IndexDistanceValidationWidget(QTabWidget):
     @Slot(object)
     def populate(self, results):
 
-        # print("poplate index distance validation widget")
-        #
-        # # self.spinner.stop()
-        # self.thread.quit()
-        # self.worker.deleteLater()
-        # self.thread.deleteLater()
+        print(results)
+
         self._delete_tabs()
+
+        if isinstance(results, str):
+            self.addTab(QLabel(results), "Error")
+            return
 
         for lane in results:
             tab = self._get_tab(results[lane])
@@ -274,22 +275,10 @@ class IndexDistanceValidationWidget(QTabWidget):
             child.deleteLater()
 
 
-class ColorBalanceValidationWidget(QTabWidget):
+class MainColorBalanceWidget(QTabWidget):
 
-    def __init__(
-        self,
-        # validation_settings_path: Path,
-        # model: SampleSheetModel,
-        # run_info: RunInfoWidget,
-    ):
+    def __init__(self):
         super().__init__()
-
-        # self.model = model
-        # self.run_info_data = run_info.get_data()
-        #
-        # instrument = self.run_info_data["Header"]["Instrument"]
-        # settings = load_from_yaml(validation_settings_path)
-        # self.i5_rc = settings["flowcells"][instrument]["i5_rc"]
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -299,13 +288,9 @@ class ColorBalanceValidationWidget(QTabWidget):
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        # self.vspacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
     def _clear_widget(self, widget: QWidget):
-        # Step 1: Clear the layout if it exists
         layout = widget.layout()
         if layout:
-            # Clear the layout and delete its contents
             while layout.count() > 0:
                 item = layout.takeAt(0)
                 child_widget = item.widget()
@@ -316,7 +301,6 @@ class ColorBalanceValidationWidget(QTabWidget):
                     self._clear_widget(sub_layout.widget())
                 item.deleteLater()
 
-            # Optionally, delete the layout itself
             widget.setLayout(None)
 
         for child in widget.findChildren(QWidget):
@@ -329,22 +313,8 @@ class ColorBalanceValidationWidget(QTabWidget):
             self.removeTab(0)  # Remove the tab
             self._clear_widget(widget)
 
-    def run_validate(self):
-
-        df = self.model.to_dataframe().replace(r"^\s*$", np.nan, regex=True).dropna()
-        print(df)
-
-        if df.empty:
-            return
-
-        self._delete_tabs()
-        self.populate()
-
     @Slot(object)
     def populate(self, results):
-
-        print(results)
-
         self._delete_tabs()
 
         for lane in results:
@@ -515,9 +485,9 @@ class ColorBalanceWidget(QTableView):
         df.iloc[-1, 0] = "Summary"
         df.iloc[-1, 1] = ""
 
-        self.standard_model = self.dataframe_to_colorbalance_model(df)
-        self.setModel(self.standard_model)
-        self.standard_model.update_summation()
+        self.cb_model = self.make_color_balance_model(df)
+        self.setModel(self.cb_model)
+        self.cb_model.update_summation()
         self.verticalHeader().setVisible(False)
         self.setup()
 
@@ -527,7 +497,7 @@ class ColorBalanceWidget(QTableView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        last_row = self.standard_model.rowCount() - 1
+        last_row = self.cb_model.rowCount() - 1
         self.setRowHeight(last_row, 140)
         self.setItemDelegate(ColorBalanceRowDelegate())
 
@@ -535,21 +505,21 @@ class ColorBalanceWidget(QTableView):
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.setFixedWidth(1500)
 
-    def dataframe_to_colorbalance_model(self, dataframe):
+    def make_color_balance_model(self, df):
         """
         Convert a Pandas DataFrame to a QStandardItemModel.
 
-        :param dataframe: Pandas DataFrame to convert.
+        :param df: Pandas DataFrame to convert.
         :return: QStandardItemModel representing the DataFrame.
         """
         model = IndexColorBalanceModel(parent=self)
 
-        column_names = [col_name.replace("Index", "") for col_name in dataframe.columns]
+        column_names = [col_name.replace("Index", "") for col_name in df.columns]
 
         # Set the column headers as the model's horizontal headers
         model.setHorizontalHeaderLabels(column_names)
 
-        for row_index, row_data in dataframe.iterrows():
+        for row_index, row_data in df.iterrows():
             row_items = [QStandardItem(str(item)) for item in row_data]
             model.appendRow(row_items)
 

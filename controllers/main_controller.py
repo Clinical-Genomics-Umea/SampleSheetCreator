@@ -2,7 +2,7 @@ from PySide6.QtCore import QObject
 
 from models.configuration import ConfigurationManager
 from models.samplesheet_model import SampleSheetModel, CustomProxyModel
-from models.validation_models import MainValidator
+from models.validation import MainValidator
 from views.main_window import MainWindow
 
 
@@ -72,9 +72,9 @@ class MainController(QObject):
         self.main_validator.index_distance_validator.data_ready.connect(
             self.main_window.validation_widget.index_validation_widget.populate
         )
-        self.main_validator.color_balance_validator.data_ready.connect(
-            self.main_window.validation_widget.color_balance_validation_widget.populate
-        )
+        # self.main_validator.color_balance_validator.data_ready.connect(
+        #     self.main_window.validation_widget.color_balance_validation_widget.populate
+        # )
         self.main_window.validation_widget.validate_button.clicked.connect(
             self.main_validator.validate
         )

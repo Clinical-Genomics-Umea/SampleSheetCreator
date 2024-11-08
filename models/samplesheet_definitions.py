@@ -1,40 +1,48 @@
 from dataclasses import dataclass
 import pandas as pd
-import pandera as pa
+import models.pa_schema as pa
 import json
 import re
 from string import Template
 from functools import partial
 
+
 class SampleSheetV2:
-    def __init__(self, header: dict = None, run_cycles: dict = None,
-                 sequencing_data: dict = None, sample_df: pd.DataFrame = None):
+    def __init__(
+        self,
+        header: dict = None,
+        run_cycles: dict = None,
+        sequencing_data: dict = None,
+        sample_df: pd.DataFrame = None,
+    ):
 
         self.standalone = dict()
         self.application = dict()
 
-        self.standalone['Header'] = Header(header)
-        self.standalone['Reads'] = Reads(run_cycles)
+        self.standalone["Header"] = Header(header)
+        self.standalone["Reads"] = Reads(run_cycles)
 
-        reads_data = self.standalone['Reads'].data
+        reads_data = self.standalone["Reads"].data
 
         if sequencing_data is not None:
-            self.standalone['Sequencing'] = Sequencing(sequencing_data)
+            self.standalone["Sequencing"] = Sequencing(sequencing_data)
 
         if sample_df is None:
             sample_df = pd.DataFrame()
 
         override_adder = partial(self.override_cycles, run_cycles=run_cycles)
-        sample_df['OverrideCycles'] = sample_df.apply(lambda row: override_adder(row['IndexI7'],
-                                                                                 row['IndexI5'],
-                                                                                 row['OverrideCyclesPattern']),
-                                                      axis=1)
+        sample_df["OverrideCycles"] = sample_df.apply(
+            lambda row: override_adder(
+                row["IndexI7"], row["IndexI5"], row["OverrideCyclesPattern"]
+            ),
+            axis=1,
+        )
 
-        self.application['BCLConvert'] = BCLConvert(sample_df)
+        self.application["BCLConvert"] = BCLConvert(sample_df)
 
-        used_applications = sample_df['Application'].unique()
+        used_applications = sample_df["Application"].unique()
         for app in used_applications:
-            df_subset = sample_df[sample_df['Application'] == app]
+            df_subset = sample_df[sample_df["Application"] == app]
             self.application[app] = Application(df_subset)
 
     def datalist(self):
@@ -51,7 +59,7 @@ class SampleSheetV2:
 
     def _fill_i1_pat(self, i1_pat, i1_len, runcycles):
         placeholder = "ix1"
-        pattern = r'([A-Z])(\d+)'
+        pattern = r"([A-Z])(\d+)"
         matches = re.findall(pattern, i1_pat)
         known_sum = 0
 
@@ -73,7 +81,7 @@ class SampleSheetV2:
     def override_cycles(self, index, index2, override_cycles_pattern, run_cycles):
         print(override_cycles_pattern)
 
-        r1, i1, i2, r2 = run_cycles.split('-')
+        r1, i1, i2, r2 = run_cycles.split("-")
         r1_runc, i1_runc, i2_runc, r2_runc = int(r1), int(i1), int(i2), int(r2)
 
         # r1_runc, i1_runc, i2_runc, r2_runc = 171, 8, 8, 171
@@ -81,19 +89,18 @@ class SampleSheetV2:
         i1_len = len(index)
         i2_len = len(index2)
 
-        r1_pat, i1_pat, i2_pat, r2_pat = override_cycles_pattern.split('-')
+        r1_pat, i1_pat, i2_pat, r2_pat = override_cycles_pattern.split("-")
 
-        r1_str = self._fill_oc_read('$r1', r1_pat, r1_runc)
-        i1_str = self._n_pad_right('$i1', i1_pat, i1_len, i1_runc)
-        i2_str = self._n_pad_left('$i2', i2_pat, i2_len, i2_runc)
-        r2_str = self._fill_oc_read('$r2', r2_pat, r2_runc)
+        r1_str = self._fill_oc_read("$r1", r1_pat, r1_runc)
+        i1_str = self._n_pad_right("$i1", i1_pat, i1_len, i1_runc)
+        i2_str = self._n_pad_left("$i2", i2_pat, i2_len, i2_runc)
+        r2_str = self._fill_oc_read("$r2", r2_pat, r2_runc)
 
         return f"{r1_str};{i1_str};{i2_str};{r2_str}"
 
-
     @staticmethod
     def _validate(s):
-        pattern_r = r'([A-Z]\d+)+'
+        pattern_r = r"([A-Z]\d+)+"
         return bool(re.fullmatch(pattern_r, s))
 
     @staticmethod
@@ -108,7 +115,7 @@ class SampleSheetV2:
 
         oc_pattern_replaced = oc_pattern.replace(placeholder, str(0))
 
-        pattern = r'([A-Z])(\d+)'
+        pattern = r"([A-Z])(\d+)"
 
         if not self._validate(oc_pattern_replaced):
             return "invalid oc pattern"
@@ -128,7 +135,9 @@ class SampleSheetV2:
                 if match[0] == "Y":
                     match[1] = str(int(match[1]) + unaccounted_cycles)
 
-            oc_pattern_replaced_updated = "".join([match[0] + match[1] for match in matches])
+            oc_pattern_replaced_updated = "".join(
+                [match[0] + match[1] for match in matches]
+            )
 
             return oc_pattern_replaced_updated
 
@@ -136,7 +145,7 @@ class SampleSheetV2:
 
         oc_pattern_replaced = oc_pattern.replace(placeholder, str(index_len))
 
-        pattern = r'([A-Z])(\d+)'
+        pattern = r"([A-Z])(\d+)"
 
         if index_len > runcycles:
             return "index_len > runcycles"
@@ -160,14 +169,16 @@ class SampleSheetV2:
                 updated_accounted_n_left = accounted_n_left + unaccounted_cycles
                 matches[0] = [matches[0][0], str(updated_accounted_n_left)]
 
-            oc_pattern_replaced_updated = "".join([match[0] + match[1] for match in matches])
+            oc_pattern_replaced_updated = "".join(
+                [match[0] + match[1] for match in matches]
+            )
 
             return oc_pattern_replaced_updated
 
     def _n_pad_right(self, placeholder, oc_pattern, index_len, runcycles):
         oc_pattern_replaced = oc_pattern.replace(placeholder, str(index_len))
 
-        pattern = r'([A-Z])(\d+)'
+        pattern = r"([A-Z])(\d+)"
 
         if index_len > runcycles:
             return "index_len > runcycles"
@@ -190,7 +201,9 @@ class SampleSheetV2:
                 updated_accounted_n_right = accounted_n_right + unaccounted_cycles
                 matches[-1] = [matches[-1][0], str(updated_accounted_n_right)]
 
-            oc_pattern_replaced_updated = "".join([match[0] + match[1] for match in matches])
+            oc_pattern_replaced_updated = "".join(
+                [match[0] + match[1] for match in matches]
+            )
 
             return oc_pattern_replaced_updated
 
@@ -249,12 +262,12 @@ class Reads:
     def extract_reads_data(run_cycles: str) -> dict:
         reads_data = dict()
 
-        read1_len, index1_len, index2_len, read2_len = run_cycles.strip().split('-')
+        read1_len, index1_len, index2_len, read2_len = run_cycles.strip().split("-")
 
-        reads_data['Read1Cycles'] = int(read1_len)
-        reads_data['Read2Cycles'] = int(index2_len)
-        reads_data['Index1Cycles'] = int(index2_len)
-        reads_data['Index2Cycles'] = int(read2_len)
+        reads_data["Read1Cycles"] = int(read1_len)
+        reads_data["Read2Cycles"] = int(index2_len)
+        reads_data["Index1Cycles"] = int(index2_len)
+        reads_data["Index2Cycles"] = int(read2_len)
 
         return reads_data
 
@@ -265,22 +278,23 @@ class BCLConvert:
         self.app_data_header = "[BCLConvert_Data]"
 
         self.app_settings = {
-            "SoftwareVersion": df.loc[0, 'SoftwareVersion'],
-            "FastqCompressionFormat": df.loc[0, 'FastqCompressionFormat']
+            "SoftwareVersion": df.loc[0, "SoftwareVersion"],
+            "FastqCompressionFormat": df.loc[0, "FastqCompressionFormat"],
         }
 
-        data_fields = ["Sample_ID",
-                       "Lane",
-                       "Index",
-                       "Index2",
-                       "AdapterRead1",
-                       "AdapterRead2",
-                       "BarcodeMismatchesIndex1",
-                       "BarcodeMismatchesIndex2",
-                       "OverrideCycles"
-                       ]
+        data_fields = [
+            "Sample_ID",
+            "Lane",
+            "Index",
+            "Index2",
+            "AdapterRead1",
+            "AdapterRead2",
+            "BarcodeMismatchesIndex1",
+            "BarcodeMismatchesIndex2",
+            "OverrideCycles",
+        ]
 
-        df.rename(columns={'IndexI7': 'Index', 'IndexI5': 'Index2'}, inplace=True)
+        df.rename(columns={"IndexI7": "Index", "IndexI5": "Index2"}, inplace=True)
         self.data = df[data_fields]
 
     def datalist(self):
@@ -293,7 +307,7 @@ class BCLConvert:
 
         output.append("")
         output.append(self.app_data_header)
-        output.extend(self.data.to_csv(sep=',', index=False).split("\n"))
+        output.extend(self.data.to_csv(sep=",", index=False).split("\n"))
 
         return output
 
@@ -301,8 +315,8 @@ class BCLConvert:
 
         lane8_check = pa.Check.isin([1, 2, 3, 4, 5, 6, 7, 8])
         lane2_check = pa.Check.isin([1, 2])
-        dna_check = pa.Check.str_matches(r'^[ACGT]$')
-        override_check = pa.Check.str_matches(r'^Y[1-8];I\d+N\d+;N\d+I\d+;Y\d+$')
+        dna_check = pa.Check.str_matches(r"^[ACGT]$")
+        override_check = pa.Check.str_matches(r"^Y[1-8];I\d+N\d+;N\d+I\d+;Y\d+$")
 
         data_field_dtypes = pa.DataFrameSchema(
             {
@@ -314,7 +328,7 @@ class BCLConvert:
                 "AdapterRead2": pa.Column(str),
                 "BarcodeMismatchesIndex1": pa.Column(int),
                 "BarcodeMismatchesIndex2": pa.Column(int),
-                "OverrideCycles": pa.Column(str)
+                "OverrideCycles": pa.Column(str),
             },
             index=pa.Index(int),
         )
@@ -323,10 +337,10 @@ class BCLConvert:
 class Application:
     def __init__(self, df):
 
-        app = df.loc[0, 'Application']
-        self.app_settings = json.loads(df.loc[0, 'ApplicationSettings'])
-        app_data = json.loads(df.loc[0, 'ApplicationData'])
-        data_fields = json.loads(df.loc[0, 'ApplicationDataFields'])
+        app = df.loc[0, "Application"]
+        self.app_settings = json.loads(df.loc[0, "ApplicationSettings"])
+        app_data = json.loads(df.loc[0, "ApplicationData"])
+        data_fields = json.loads(df.loc[0, "ApplicationDataFields"])
 
         self.app_settings_header = f"[{app}_Settings]"
         self.app_data_header = f"[{app}_Data]"
@@ -385,6 +399,6 @@ class Application:
 
         output.append("")
         output.append(self.app_data_header)
-        output.extend(self.data.to_csv(sep=',', index=False).split("\n"))
+        output.extend(self.data.to_csv(sep=",", index=False).split("\n"))
 
         return output

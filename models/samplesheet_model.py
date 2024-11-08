@@ -156,31 +156,14 @@ class SampleSheetModel(QStandardItemModel):
         df["IndexI5RC"] = df["IndexI5"].apply(self.reverse_complement)
 
         df.replace("", pd.NA, inplace=True)
+        df.replace(r"^\s*$", pd.NA, regex=True)
         df.dropna(how="all", inplace=True)
-        df = self.explode_lane_df(df)
-
-        # print("to dataframe", df.to_string())
-
         return df
-
-    def to_dataframe_cleaned(self):
-        df = self.to_dataframe()
-        return df.replace(r"^\s*$", np.nan, regex=True)
 
     @staticmethod
     def reverse_complement(sequence):
         complement = {"A": "T", "T": "A", "C": "G", "G": "C"}
         return "".join(complement[base] for base in reversed(sequence))
-
-    @staticmethod
-    def split_lanes(lane_string: str):
-        return re.split(r"\D+", lane_string.strip())
-
-    def explode_lane_df(self, df: pd.DataFrame):
-        df["Lane"] = df["Lane"].apply(self.split_lanes)
-        df = df.explode("Lane")
-        df["Lane"] = df["Lane"].astype(int)
-        return df
 
 
 class CustomProxyModel(QSortFilterProxyModel):

@@ -5,10 +5,28 @@ import numpy as np
 import yaml
 import json
 import uuid6
+import re
 
 
 def uuid():
     return str(uuid6.uuid7())
+
+
+def int_str_to_list(int_str):
+    return re.findall(r"\d+", int_str)
+
+
+def explode_lane_column(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Explode a list-like column into separate rows.
+
+    :param dataframe: DataFrame containing the list-like column
+    :return: Exploded DataFrame
+    """
+    dataframe["Lane"] = dataframe["Lane"].apply(int_str_to_list)
+    exploded_dataframe = dataframe.explode("Lane")
+    exploded_dataframe["Lane"] = exploded_dataframe["Lane"].astype(int)
+    return exploded_dataframe
 
 
 def dataframe_to_qstandarditemmodel(dataframe):
