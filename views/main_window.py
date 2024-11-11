@@ -28,7 +28,7 @@ from views.profile_view import ApplicationProfiles
 from views.run_setup_views import RunSetupWidget, RunView
 from models.samplesheet_definitions import SampleSheetV2
 from views.validation_view import (
-    ValidationWidget,
+    MainValidationWidget,
 )
 
 from views.samples_view import SamplesWidget
@@ -120,7 +120,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.run_view_widget = RunView()
         self.setup_run_view()
 
-        self.validation_widget = ValidationWidget()
+        self.validation_widget = MainValidationWidget()
         self.setup_validation_widget()
 
         self.indexes_widget = IndexKitToolbox(Path("config/indexes/indexes_json"))

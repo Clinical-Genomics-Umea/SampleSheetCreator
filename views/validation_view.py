@@ -13,6 +13,7 @@ from PySide6.QtGui import (
     QTextDocument,
     QTextBlockFormat,
     QBrush,
+    QPalette,
 )
 from PySide6.QtWidgets import (
     QWidget,
@@ -39,7 +40,7 @@ from PySide6.QtWidgets import (
 from models.validation import IndexColorBalanceModel
 
 
-class ValidationWidget(QWidget):
+class MainValidationWidget(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -51,12 +52,12 @@ class ValidationWidget(QWidget):
         self.tab_widget = QTabWidget()
 
         self.pre_validation_widget = PreValidationWidget()
-        self.index_validation_widget = IndexDistanceValidationWidget()
-        self.color_balance_validation_widget = MainColorBalanceWidget()
+        self.main_index_validation_widget = MainIndexDistanceValidationWidget()
+        self.main_color_balance_validation_widget = MainColorBalanceWidget()
         self.tab_widget.addTab(self.pre_validation_widget, "pre-validation")
-        self.tab_widget.addTab(self.index_validation_widget, "index validation")
+        self.tab_widget.addTab(self.main_index_validation_widget, "index validation")
         self.tab_widget.addTab(
-            self.color_balance_validation_widget, "color balance validation"
+            self.main_color_balance_validation_widget, "color balance validation"
         )
 
         hbox = QHBoxLayout()
@@ -110,12 +111,9 @@ class PreValidationWidget(QTableWidget):
             self._add_row(validation_name, is_valid, message)
 
 
-class IndexDistanceValidationWidget(QTabWidget):
+class MainIndexDistanceValidationWidget(QTabWidget):
     def __init__(self):
         super().__init__()
-
-        self.worker = None
-        self.thread = None
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -129,113 +127,8 @@ class IndexDistanceValidationWidget(QTabWidget):
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-    def _get_heatmap_hlayout(self, table_widget):
-        h_heatmap_layout = QHBoxLayout()
-        h_heatmap_layout.addWidget(table_widget)
-        h_heatmap_layout.addSpacerItem(self.hspacer)
-        return h_heatmap_layout
-
-    def _get_tab(self, substitutions):
-
-        tab_scroll_area = QScrollArea()
-        tab_scroll_area.setFrameShape(QFrame.NoFrame)
-
-        tab_content = QWidget()
-        tab_content_layout = QVBoxLayout()
-        tab_content.setLayout(tab_content_layout)
-
-        i7_i5_heatmap_table = self.heatmap_tablewidget(
-            substitutions["i7_i5_substitutions"]
-        )
-        i7_heatmap_table = self.heatmap_tablewidget(substitutions["i7_substitutions"])
-        i5_heatmap_table = self.heatmap_tablewidget(substitutions["i5_substitutions"])
-
-        h_i7_i5_heatmap_layout = self._get_heatmap_hlayout(i7_i5_heatmap_table)
-        h_i7_heatmap_layout = self._get_heatmap_hlayout(i7_heatmap_table)
-        h_i5_heatmap_layout = self._get_heatmap_hlayout(i5_heatmap_table)
-
-        v_heatmap_layout = QVBoxLayout()
-
-        v_heatmap_layout.addWidget(QLabel(f"index I7 + I5 mismatch heatmap "))
-        v_heatmap_layout.addLayout(h_i7_i5_heatmap_layout)
-        v_heatmap_layout.addSpacerItem(self.vspacer)
-
-        v_heatmap_layout.addWidget(QLabel(f"index I7 mismatch heatmap "))
-        v_heatmap_layout.addLayout(h_i7_heatmap_layout)
-        v_heatmap_layout.addSpacerItem(self.vspacer)
-
-        v_heatmap_layout.addWidget(QLabel(f"index I5 mismatch heatmap "))
-        v_heatmap_layout.addLayout(h_i5_heatmap_layout)
-        v_heatmap_layout.addSpacerItem(self.vspacer)
-
-        tab_content_layout.addLayout(v_heatmap_layout)
-        tab_content_layout.addSpacerItem(self.vspacer_fixed)
-
-        tab_scroll_area.setWidget(tab_content)
-
-        return tab_scroll_area
-
-    @staticmethod
-    def heatmap_tablewidget(data: pd.DataFrame) -> QTableWidget:
-        heatmap_tablewidget = QTableWidget(data.shape[0], data.shape[1])
-        heatmap_tablewidget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        heatmap_tablewidget.setHorizontalHeaderLabels(data.columns)
-        heatmap_tablewidget.setVerticalHeaderLabels(data.index)
-
-        for row in range(data.shape[0]):
-            for col in range(data.shape[1]):
-                cell_value = int(data.iat[row, col])
-
-                if row == col:
-                    continue
-
-                if cell_value < 5:
-                    red_intensity = int(192 + (255 - 192) * (cell_value / 4))
-                    color = QColor(red_intensity, 0, 0)
-                else:
-                    green_intensity = int(
-                        192
-                        + (255 - 192)
-                        * (1 - ((cell_value - 4) / (data.max().max() - 4)))
-                    )
-                    color = QColor(0, green_intensity, 0)
-
-                widget = QWidget()
-                widget.setAutoFillBackground(True)
-                widget.setStyleSheet(f"background-color: {color.name()};")
-
-                layout = QVBoxLayout()
-                label = QLabel(str(cell_value))
-                label.setAlignment(Qt.AlignCenter)
-                layout.addWidget(label)
-                widget.setLayout(layout)
-
-                heatmap_tablewidget.setCellWidget(row, col, widget)
-
-        heatmap_tablewidget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        heatmap_tablewidget.setContentsMargins(0, 0, 0, 0)
-        heatmap_tablewidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        heatmap_tablewidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-        h_header_height = heatmap_tablewidget.horizontalHeader().height()
-        row_height = heatmap_tablewidget.rowHeight(0)
-        no_items = heatmap_tablewidget.columnCount()
-        heatmap_tablewidget.setMaximumHeight(
-            h_header_height + row_height * no_items + 5
-        )
-
-        heatmap_tablewidget.setSizeAdjustPolicy(
-            QAbstractScrollArea.AdjustToContentsOnFirstShow
-        )
-        heatmap_tablewidget.setItemDelegate(NonEditableDelegate())
-
-        return heatmap_tablewidget
-
     @Slot(object)
     def populate(self, results):
-
-        print(results)
-
         self._delete_tabs()
 
         if isinstance(results, str):
@@ -243,7 +136,7 @@ class IndexDistanceValidationWidget(QTabWidget):
             return
 
         for lane in results:
-            tab = self._get_tab(results[lane])
+            tab = LaneIndexDistanceWidget(results[lane])
             self.addTab(tab, f"Lane {lane}")
 
     def _delete_tabs(self):
@@ -253,26 +146,97 @@ class IndexDistanceValidationWidget(QTabWidget):
             self.removeTab(0)  # Remove the tab
             self._clear_widget(widget)
 
-    def _clear_widget(self, widget: QWidget):
-        # Step 1: Clear the layout if it exists
-        layout = widget.layout()
-        if layout:
-            # Clear the layout and delete its contents
-            while layout.count() > 0:
-                item = layout.takeAt(0)
-                child_widget = item.widget()
-                if child_widget:
-                    child_widget.deleteLater()
-                sub_layout = item.layout()
-                if sub_layout:
-                    self._clear_widget(sub_layout.widget())
-                item.deleteLater()
+    def _clear_widget(self, widget):
+        if isinstance(widget, QScrollArea):
+            content_widget = widget.widget()
 
-            # Optionally, delete the layout itself
-            widget.setLayout(None)
+            if content_widget is not None:
+                # Delete the content widget
+                content_widget.deleteLater()
+        else:
+            layout = widget.layout()
+            if layout:
+                # Clear the layout and delete its contents
+                while layout.count() > 0:
+                    item = layout.takeAt(0)
+                    child_widget = item.widget()
+                    if child_widget:
+                        child_widget.deleteLater()
+                    sub_layout = item.layout()
+                    if sub_layout:
+                        self._clear_widget(sub_layout.widget())
+                    item.deleteLater()
 
-        for child in widget.findChildren(QWidget):
-            child.deleteLater()
+                # Optionally, delete the layout itself
+                widget.setLayout(None)
+
+            for child in widget.findChildren(QWidget):
+                child.deleteLater()
+
+
+class LaneIndexDistanceWidget(QScrollArea):
+
+    def __init__(self, lane_substitutions):
+        super().__init__()
+        self.content_widget = QWidget()
+        self.setFrameShape(QFrame.NoFrame)
+        self.layout = QVBoxLayout(self.content_widget)
+
+        for heatmap_type, heatmap_name in (
+            ("i7_i5_substitutions", "index I7 + I5 mismatch"),
+            ("i7_substitutions", "index I7 mismatch"),
+            ("i5_substitutions", "index I5 mismatch"),
+        ):
+            self.layout.addWidget(QLabel(f"{heatmap_name} heatmap "))
+
+            heatmap_table = IndexDistanceHeatMap(lane_substitutions[heatmap_type])
+            self.layout.addWidget(heatmap_table)
+
+        self.setWidget(self.content_widget)
+        self.setWidgetResizable(True)
+
+
+class IndexDistanceHeatMap(QTableWidget):
+    def __init__(self, substitutions):
+        super().__init__()
+
+        h_labels = list(substitutions.columns)
+        v_labels = list(substitutions.index)
+
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.setContentsMargins(0, 0, 0, 0)
+        # self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        self._setup(substitutions)
+
+        # self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.setHorizontalHeaderLabels(h_labels)
+        self.setVerticalHeaderLabels(v_labels)
+
+        self.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.setItemDelegate(IndexDistanceColorDelegate())
+
+    def _setup(self, substitutions):
+        self.setRowCount(substitutions.shape[0])
+        self.setColumnCount(substitutions.shape[1])
+
+        for row in range(substitutions.shape[0]):
+            for col in range(substitutions.shape[1]):
+                cell_value = int(substitutions.iat[row, col])
+                print(row, col, cell_value)
+
+                if row == col:
+                    continue
+
+                self.setItem(row, col, QTableWidgetItem(str(cell_value)))
+
+        h_header_height = self.horizontalHeader().height()
+        row_height = self.rowHeight(0)
+        no_items = self.columnCount()
+        self.setFixedHeight(h_header_height + row_height * no_items + 5)
+
+        self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
 
 
 class MainColorBalanceWidget(QTabWidget):
@@ -288,7 +252,7 @@ class MainColorBalanceWidget(QTabWidget):
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-    def _clear_widget(self, widget: QWidget):
+    def _clear_subwidgets(self, widget: QWidget):
         layout = widget.layout()
         if layout:
             while layout.count() > 0:
@@ -298,7 +262,7 @@ class MainColorBalanceWidget(QTabWidget):
                     child_widget.deleteLater()
                 sub_layout = item.layout()
                 if sub_layout:
-                    self._clear_widget(sub_layout.widget())
+                    self._clear_subwidgets(sub_layout.widget())
                 item.deleteLater()
 
             widget.setLayout(None)
@@ -306,16 +270,16 @@ class MainColorBalanceWidget(QTabWidget):
         for child in widget.findChildren(QWidget):
             child.deleteLater()
 
-    def _delete_tabs(self):
+    def clear_widget(self):
         # Remove and delete each tab widget
         while self.count() > 0:
             widget = self.widget(0)  # Get the first widget in the tab widget
             self.removeTab(0)  # Remove the tab
-            self._clear_widget(widget)
+            self._clear_subwidgets(widget)
 
     @Slot(object)
     def populate(self, results):
-        self._delete_tabs()
+        self.clear_widget()
 
         for lane in results:
             tab_scroll_area = QScrollArea()
@@ -584,28 +548,28 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
         return editor
 
 
-# Heatmap
-
-# def set_heatmap_table_properties(table):
-#
-#     table.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-#     table.setContentsMargins(0, 0, 0, 0)
-#     table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-#     table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-#
-#     h_header_height = table.horizontalHeader().height()
-#     row_height = table.rowHeight(0)
-#     no_items = table.columnCount()
-#     table.setMaximumHeight(h_header_height + row_height * no_items + 5)
-#
-#     table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
-#
-#     table.setItemDelegate(NonEditableDelegate())
-#
-#     return table
-
-
 class NonEditableDelegate(QItemDelegate):
     def createEditor(self, parent, option, index):
         # Return None to make the item non-editable
         return None
+
+
+class IndexDistanceColorDelegate(QStyledItemDelegate):
+
+    def initStyleOption(self, option, index):
+        super().initStyleOption(option, index)
+
+        # Get the cell value and check if it's numeric
+        try:
+            value = int(index.data())
+        except (TypeError, ValueError):
+            value = None
+
+        # Set background color based on the value
+        if value is not None:
+            if value < 5:
+                color = QColor(139, 0, 1)
+            else:
+                color = QColor(0, 100, 1)
+
+            option.backgroundBrush = color

@@ -70,11 +70,11 @@ class MainController(QObject):
             self.main_window.validation_widget.pre_validation_widget.populate
         )
         self.main_validator.index_distance_validator.data_ready.connect(
-            self.main_window.validation_widget.index_validation_widget.populate
+            self.main_window.validation_widget.main_index_validation_widget.populate
         )
-        # self.main_validator.color_balance_validator.data_ready.connect(
-        #     self.main_window.validation_widget.color_balance_validation_widget.populate
-        # )
+        self.main_validator.color_balance_validator.data_ready.connect(
+            self.main_window.validation_widget.main_color_balance_validation_widget.populate
+        )
         self.main_window.validation_widget.validate_button.clicked.connect(
             self.main_validator.validate
         )

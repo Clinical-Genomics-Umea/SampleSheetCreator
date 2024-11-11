@@ -386,13 +386,11 @@ class ColorBalanceValidator(QObject):
                 lane_df, 10, i5_col_name, "Sample_ID"
             )
 
-            merged_indexes = pd.merge(
+            concat_indexes = pd.merge(
                 i7_padded_indexes, i5_padded_indexes, on="Sample_ID"
             )
 
-            result[lane] = merged_indexes
-
-        print(result)
+            result[lane] = concat_indexes
 
         self.data_ready.emit(result)
 
