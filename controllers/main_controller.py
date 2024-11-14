@@ -37,7 +37,7 @@ class MainController(QObject):
 
     def setup_samplesheet_model(self):
         # Set up sample model and proxy model
-        self.sample_model = SampleSheetModel(self.cfg_mgr.samples_settings_dict)
+        self.sample_model = SampleSheetModel(self.cfg_mgr.samples_settings)
         self.sample_proxy_model = CustomProxyModel()
         self.sample_proxy_model.setSourceModel(self.sample_model)
 
@@ -81,7 +81,7 @@ class MainController(QObject):
 
     def setup_run_connections(self):
         self.main_window.run_setup_widget.setup_commited.connect(
-            self.cfg_mgr.set_run_setup_data
+            self.cfg_mgr.set_run_data
         )
         self.cfg_mgr.run_setup_changed.connect(
             self.main_window.run_view_widget.set_data

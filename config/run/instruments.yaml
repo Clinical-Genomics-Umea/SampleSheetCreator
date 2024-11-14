@@ -1,0 +1,132 @@
+---
+NovaSeq6000:
+	Chemistry: 2-channel_sbs
+	I5SamplesheetOrientation:
+		bcl2fastq: rc
+		bclconvert: rc
+	FastqExtractionTool: bclconvert
+	SampleSheetVersion: 2
+	I5SeqOrientation: rc
+	AssessBalance: true
+	Fluorophores:
+		A: ["green", "red"]
+		T: ["green"]
+		G: ["dark"]
+		C: ["red"]
+	Flowcells: None
+NovaSeqX:
+	Chemistry: xleap
+	I5SamplesheetOrientation:
+		bcl2fastq: fwd
+		bclconvert: fwd
+	FastqExtractionTool: bclconvert
+	SampleSheetVersion: 2
+	I5SeqOrientation: rc
+	AssessBalance: true
+	Fluorophores:
+		A: ["blue"]
+		T: ["green"]
+		G: ["dark"]
+		C: ["green", "blue"]
+	Flowcells: ["1.5B", "10B", "25B"]
+NextSeq500:
+	Chemistry: 2-channel_sbs
+	I5SamplesheetOrientation:
+		bcl2fastq: rc
+		bclconvert: rc
+	FastqExtractionTool: bcl2fastq
+	SampleSheetVersion: 1
+	I5SeqOrientation: rc
+	AssessBalance: false
+	Fluorophores:
+		A: ["red", "green"]
+		T: ["green"]
+		G: ["dark"]
+		C: ["red"]
+	Flowcells: ["1.5B", "10B", "25B"]
+NextSeq1000Std:
+	Chemistry: 2-channel_sbs
+	I5SamplesheetOrientation:
+		bcl2fastq: rc
+		bclconvert: fwd
+	FastqExtractionTool: bclconvert
+	SampleSheetVersion: 1
+	I5SeqOrientation: rc
+	AssessBalance: false
+	Fluorophores:
+		A: ["blue", "green"]
+		T: ["green"]
+		G: ["dark"]
+		C: ["blue"]
+	Flowcells: None
+NextSeq1000Xleap:
+	Chemistry: xleap
+	I5SamplesheetOrientation:
+		bcl2fastq: rc
+		bclconvert: fwd
+	FastqExtractionTool: bclconvert
+	SampleSheetVersion: 2
+	I5SeqOrientation: rc
+	AssessBalance: false
+	Fluorophores:
+		A: ["blue"]
+		T: ["green"]
+		G: ["dark"]
+		C: ["blue", "green"]
+	Flowcells: None
+MiSeq:
+	Chemistry: 4-channel_sbs
+	I5SamplesheetOrientation:
+		bcl2fastq: fwd
+		bclconvert: fwd
+	FastqExtractionTool: bcl2fastq
+	SampleSheetVersion: 1
+	I5SeqOrientation: fwd
+	AssessBalance: false
+	Fluorophores:
+		A: ["red"]
+		T: ["green"]
+		G: ["blue"]
+		C: ["yellow"]
+	Flowcells: ["NanoKitV2", "MicroKitV2", "KitV2", "KitV3"]
+MiniSeqStd:
+	Chemistry: 2-channel_sbs
+	I5SamplesheetOrientation:
+		bcl2fastq: rc
+		bclconvert: rc
+	FastqExtractionTool: bcl2fastq
+	SampleSheetVersion: 1
+	I5SeqOrientation: rc
+	AssessBalance: false
+	Fluorophores:
+		A: ["red", "green"]
+		T: ["green"]
+		G: ["dark"]
+		C: ["red"]
+	Flowcells: none
+MiniSeqRapid:
+	Chemistry: 2-channel_sbs_rapid
+	I5SamplesheetOrientation:
+		bcl2fastq: fwd
+		bclconvert: fwd
+	FastqExtractionTool: bcl2fastq
+	SampleSheetVersion: 1
+	I5SeqOrientation: fwd
+	AssessBalance: false
+	Fluorophores:
+		A: ["red", "green"]
+		T: ["green"]
+		G: ["dark"]
+		C: ["red"]
+	Flowcells: none
+ISeq100:
+	Chemistry: 1-channel_sbs
+	I5SamplesheetOrientation:
+		bcl2fastq: rc
+		bclconvert: rc
+	FastqExtractionTool: bcl2fastq
+	SampleSheetVersion: 1
+	I5SeqOrientation: rc
+	AssessBalance: false
+	Fluorophores: none
+	Flowcells: now

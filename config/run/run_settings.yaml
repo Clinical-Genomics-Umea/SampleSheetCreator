@@ -1,49 +1,59 @@
 ---
 # run.yaml
 
-Defaults:
-    Instrument: "NA"
-    SampleSheetVersion: "NA"
-    RunName: "NA"
-    RunDescription: "NA"
-    ReadCycles: "NA"
-    I5IndexOrientation: "NA"
-    Lanes: "NA"
-    Investigator: "NA"
+RunDataDefaults:
+  Investigator: "NA"
+  Instrument: "NA"
+  Flowcell: "NA"
+  SampleSheetVersion: "NA"
+  RunName: "NA"
+  RunDescription: "NA"
+  ReadCycles: "NA"
+  I5SampleSheetOrientation: "NA"
+  I5SeqOrientation: "NA"
+  Lanes: "NA"
+  Chemistry: "NA"
+  FastqExtractTool: "NA"
+  AssessBalance: "NA"
+  A: "NA"
+  T: "NA"
+  G: "NA"
+  C: "NA"
 
-
-SetupUI:
-  Header:
-    Instrument: combobox
+RunViewWidgets:
+  General:
+    Investigator: lineedit
+    Instrument: lineedit
+    Flowcell: lineedit
     SampleSheetVersion: lineedit
     RunName: lineedit
     RunDescription: lineedit
+  Sequencing:
+    ReadCycles: lineedit
+    I5SampleSheetOrientation: lineedit
+    I5SeqOrientation: lineedit
+    Lanes: lineedit
+    Chemistry: lineedit
+    FastqExtractTool: lineedit
+  Validation:
+    AssessBalance: lineedit
+  Fluorophores:
+    A: lineedit
+    T: lineedit
+    G: lineedit
+    C: lineedit
 
-  Reads:
+RunSetupWidgets:
+  General:
+    Investigator: combobox
+    RunName: lineedit
+    RunDescription: lineedit
+    Instrument: combobox
+    Flowcell: combobox
+    SampleSheetVersion: lineedit
+  SampleSheet and Validation:
     ReadCycles: combobox
-    I5IndexOrientation: lineedit
-
-  Extra:
-    Lanes: combobox
-    Investigator: lineedit
-
-DataHierarchy:
-  NovaSeqX:
-    SampleSheetVersion: "2"
-    Lanes: ["2", "8"]
-    ReadCycles: ["151-8-8-151", "151-10-10-151"]
-    I5IndexOrientation: "fwd"
-  NextSeq500:
-    SampleSheetVersion: "1"
-    Lanes: ["1"]
-    ReadCycles: [ "NA" ]
-    I5IndexOrientation: "rc"
-  MiSeq:
-    SampleSheetVersion: "1"
-    Lanes: [ "1" ]
-    ReadCycles: [ "NA" ]
-    I5IndexOrientation: "fwd"
-
+    CustomReadCycles: lineedit
 
 ReadCycles:
   151-8-8-151:
@@ -57,3 +67,6 @@ ReadCycles:
     Index1Cycles: 10
     Index2Cycles: 10
 
+FastqExtractTool:
+  - bcl2fastq
+  - bclconvert

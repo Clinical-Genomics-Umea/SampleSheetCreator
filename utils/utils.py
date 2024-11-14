@@ -75,13 +75,13 @@ def model_to_dataframe(model):
     return df
 
 
-def read_yaml_file(file):
+def read_yaml_file(yaml_path_obj):
     # Get the path to the directory of the current module
 
     try:
-        with open(file, "r") as file:
+        with yaml_path_obj.open("r") as fp:
             # Load YAML data from the file
-            data = yaml.safe_load(file)
+            data = yaml.safe_load(fp)
         return data
     except FileNotFoundError:
         return None

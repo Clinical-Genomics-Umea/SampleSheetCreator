@@ -1,5 +1,5 @@
-from PySide6.QtCore import Signal, Slot
-from PySide6.QtGui import QFont
+from PySide6.QtCore import Signal, Slot, QSize, QRect, QPoint
+from PySide6.QtGui import QFont, Qt
 from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QSpacerItem,
     QSizePolicy,
+    QLayout,
 )
 import yaml
 from utils.utils import uuid
@@ -50,24 +51,46 @@ class RunSetupWidget(QWidget):
         layout.addLayout(self.form)
 
         self.input_widgets = {}
+        self._create_run_widgets()
 
-        self._setup_header_ui()
-        self._setup_reads_ui()
-        self._setup_extra()
-        self._setup_widget_default_data()
         self.populate_investigators()
+        self._populate_instruments()
 
-        self.input_widgets["Instrument"].currentTextChanged.connect(
-            self._repopulate_widget_data
-        )
+        # self.input_widgets["Instrument"].currentTextChanged.connect(
+        #     self._repopulate_widget_data
+        # )
 
         layout.addStretch()
 
         self.set_button.clicked.connect(self._commit)
 
+    def _populate_instruments(self):
+        instruments = self.cfg_mgr.instruments
+        self.input_widgets["Instrument"].clear()
+        self.input_widgets["Instrument"].addItems(instruments)
+
+    def _create_run_widgets(self):
+        for (
+            section_name,
+            section_config,
+        ) in self.cfg_mgr.run_setup_widgets_config.items():
+            self.form.addRow(QLabel(section_name))
+            for widget_name, widget_type in section_config.items():
+                if widget_type == "lineedit":
+                    widget_class = QLineEdit
+                elif widget_type == "combobox":
+                    widget_class = QComboBox
+                else:
+                    raise ValueError(f"Unknown widget type: {widget_type}")
+
+                widget = widget_class()
+                self.input_widgets[widget_name] = widget
+                self.form.addRow(QLabel(widget_name), widget)
+
+            self.form.addRow(QLabel(""))
+
     @Slot()
     def populate_investigators(self):
-        print("populating investigators")
         users = self.cfg_mgr.users
         self.input_widgets["Investigator"].clear()
         self.input_widgets["Investigator"].addItems(users)
@@ -101,15 +124,21 @@ class RunSetupWidget(QWidget):
         self.input_widgets["ReadCycles"] = QComboBox()
         self.form.addRow(QLabel("ReadCycles"), self.input_widgets["ReadCycles"])
 
-        self.input_widgets["I5IndexOrientation"] = QLineEdit()
-        self.input_widgets["I5IndexOrientation"].setReadOnly(True)
+        self.input_widgets["I5SeqOrientation"] = QLineEdit()
+        self.input_widgets["I5SeqOrientation"].setReadOnly(True)
         self.form.addRow(
-            QLabel("I5IndexOrientation"), self.input_widgets["I5IndexOrientation"]
+            QLabel("I5SeqOrientation"), self.input_widgets["I5SeqOrientation"]
+        )
+        self.input_widgets["I5SampleSheetOrientation"] = QLineEdit()
+        self.input_widgets["I5SampleSheetOrientation"].setReadOnly(True)
+        self.form.addRow(
+            QLabel("I5SampleSheetOrientation"),
+            self.input_widgets["I5SampleSheetOrientation"],
         )
 
         self.form.addRow(QLabel(""))
 
-    def _setup_extra(self):
+    def _setup_extra_ui(self):
         # Run Extra
         self.form.addRow(QLabel("Run Extra"))
 
@@ -122,11 +151,11 @@ class RunSetupWidget(QWidget):
         self.form.addRow(QLabel(""))
 
     def _setup_widget_default_data(self):
-        instruments = list(self.cfg_mgr.run_widget_data_hierarchy.keys())
+        instruments = list(self.cfg_mgr.run_setup_widgets_config.keys())
         self.input_widgets["Instrument"].addItems(instruments)
         current_instrument = self.input_widgets["Instrument"].currentText()
 
-        for widget_name, data in self.cfg_mgr.run_widget_data_hierarchy[
+        for widget_name, data in self.cfg_mgr.run_setup_widgets_config[
             current_instrument
         ].items():
             if isinstance(self.input_widgets[widget_name], QComboBox):
@@ -139,7 +168,7 @@ class RunSetupWidget(QWidget):
         instrument_cb = self.sender()
         instrument = instrument_cb.currentText()
 
-        for widget_name, data in self.cfg_mgr.run_widget_data_hierarchy[
+        for widget_name, data in self.cfg_mgr.run_setup_widgets_config[
             instrument
         ].items():
             if isinstance(self.input_widgets[widget_name], QComboBox):
@@ -170,7 +199,8 @@ class RunView(QWidget):
         super().__init__()
         self.setContentsMargins(0, 0, 0, 0)
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self._layout = QHBoxLayout()
+        self._layout = FlowLayout()
+        # self._layout = QHBoxLayout()
         self._layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self._layout)
         self._view_widgets = {}
@@ -186,11 +216,16 @@ class RunView(QWidget):
             },
             "Reads": {
                 "ReadCycles": "NA",
-                "I5IndexOrientation": "NA",
+                "I5SampleSheetOrientation": "NA",
+                "I5SeqOrientation": "NA",
+                "FastqExtractTool": "NA",
             },
+            "Fluorophores": {"A": "NA", "T": "NA", "G": "NA", "C": "NA"},
             "Extra": {
                 "Lanes": "NA",
                 "Investigator": "NA",
+                "Chemistry": "NA",
+                "AssessBalance": "NA",
             },
         }
 
@@ -295,3 +330,78 @@ class RunViewSection(QGroupBox):
         line.setFrameShadow(QFrame.Sunken)
 
         return line
+
+
+class FlowLayout(QLayout):
+    def __init__(self, parent=None, spacing=10):
+        super().__init__(parent)
+        self.setSpacing(spacing)
+        self.itemList = []
+
+    def addItem(self, item):
+        self.itemList.append(item)
+
+    def addSpacerItem(self, spacerItem):
+        # Simply append spacer item to the item list; it won't affect layout behavior
+        self.itemList.append(spacerItem)
+
+    def count(self):
+        return len(self.itemList)
+
+    def itemAt(self, index):
+        if index < 0 or index >= len(self.itemList):
+            return None
+        return self.itemList[index]
+
+    def takeAt(self, index):
+        if index < 0 or index >= len(self.itemList):
+            return None
+        return self.itemList.pop(index)
+
+    def expandingDirections(self):
+        return Qt.Orientations(Qt.Orientation(0))
+
+    def hasHeightForWidth(self):
+        return True
+
+    def heightForWidth(self, width):
+        return self.doLayout(QRect(0, 0, width, 0), True)
+
+    def setGeometry(self, rect):
+        super().setGeometry(rect)
+        self.doLayout(rect, False)
+
+    def sizeHint(self):
+        return self.minimumSize()
+
+    def minimumSize(self):
+        size = QSize()
+        for item in self.itemList:
+            size = size.expandedTo(item.minimumSize())
+        size += QSize(2 * self.spacing(), 2 * self.spacing())
+        return size
+
+    def doLayout(self, rect, testOnly):
+        x, y, lineHeight = rect.x(), rect.y(), 0
+        for item in self.itemList:
+            if isinstance(item, QSpacerItem):
+                # Skip spacer items in the layout process
+                continue
+
+            widget = item.widget()
+            spaceX = self.spacing()
+            spaceY = self.spacing()
+            nextX = x + item.sizeHint().width() + spaceX
+            if nextX - spaceX > rect.right() and lineHeight > 0:
+                x = rect.x()
+                y += lineHeight + spaceY
+                nextX = x + item.sizeHint().width() + spaceX
+                lineHeight = 0
+
+            if not testOnly:
+                item.setGeometry(QRect(QPoint(x, y), item.sizeHint()))
+
+            x = nextX
+            lineHeight = max(lineHeight, item.sizeHint().height())
+
+        return y + lineHeight - rect.y()

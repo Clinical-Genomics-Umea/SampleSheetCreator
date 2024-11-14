@@ -13,89 +13,94 @@ class ConfigurationManager(QObject):
     users_changed = Signal()
 
     def __init__(self):
+        """Initialize the configuration manager."""
+
         super().__init__()
 
         self.qt_settings = QSettings("Region Västerbotten", "samplecheater")
 
         # paths
-        self._indexes_settings_basepath = Path("config/indexes/indexes_json")
-        self._application_profile_settings_basepath = Path(
-            "config/application_profiles"
-        )
-        self._run_settings_path = Path("config/run/run_settings.yaml")
-        self._samples_settings_path = Path("config/sample_settings.yaml")
-        self._validation_settings_path = Path(
-            "config/validation/validation_settings.yaml"
-        )
-
-        self._all_config_paths = {
-            "indexes_settings_basepath": self._indexes_settings_basepath,
-            "application_profile_settings_basepath": self._application_profile_settings_basepath,
-            "run_settings_path": self._run_settings_path,
-            "samples_settings_path": self._samples_settings_path,
-            "validation_settings_path": self._validation_settings_path,
+        self._config_paths = {
+            "indexes_settings_basepath": Path("config/indexes/indexes_json"),
+            "application_profile_settings_basepath": Path(
+                "config/application_profiles"
+            ),
+            "run_settings_path": Path("config/run/run_settings.yaml"),
+            "instruments_path": Path("config/run/instruments.yaml"),
+            "flowcells_path": Path("config/run/flowcells.yaml"),
+            "samples_settings_path": Path("config/sample_settings.yaml"),
+            "validation_settings_path": Path(
+                "config/validation/validation_settings.yaml"
+            ),
         }
 
-        self._run_setup_data = {}
-        self._run_widget_data_hierarchy = {}
-        self._init_run_setup_data()
+        self.run_settings = read_yaml_file(self._config_paths["run_settings_path"])
 
-    def _init_run_setup_data(self):
-        data = read_yaml_file(self._run_settings_path)
-        print(data["DataHierarchy"])
+        self._run_view_widgets_config = self.run_settings["RunViewWidgets"]
+        self._run_setup_widgets_config = self.run_settings["RunSetupWidgets"]
+        self._run_data = self.run_settings["RunDataDefaults"]
 
-        self._run_setup_data = data["Defaults"]
-        self._run_widget_data_hierarchy = data["DataHierarchy"]
+        self._instruments_obj = read_yaml_file(self._config_paths["instruments_path"])
+        print(self._instruments_obj)
+        self._flowcells_obj = read_yaml_file(self._config_paths["flowcells_path"])
+        self._samples_settings = read_yaml_file(
+            self._config_paths["samples_settings_path"]
+        )
+
+        # self._setup_run()
 
     @property
-    def run_widget_data_hierarchy(self):
-        return self._run_widget_data_hierarchy
+    def instruments(self):
+        print(self._instruments_obj)
+
+        return self._instruments_obj.keys()
 
     @property
-    def run_setup_data(self):
-        return self._run_setup_data
+    def run_setup_widgets_config(self):
+        return self._run_setup_widgets_config
+
+    @property
+    def run_view_widgets_config(self):
+        return self._run_view_widgets_config
+
+    @property
+    def run_data(self):
+        return self._run_data
 
     @Slot(dict)
-    def set_run_setup_data(self, data: dict):
-        self._run_setup_data = data
+    def set_run_data(self, data: dict):
+        self._run_data = data
+        # add more code here ...
+
         self.run_setup_changed.emit(data)
 
     @property
     def all_config_paths(self):
-        return {k: v.absolute() for k, v in self._all_config_paths.items()}
+        return {k: v.absolute() for k, v in self._config_paths.items()}
 
-    @property
-    def indexes_settings_basepath(self) -> Path:
-        return self._indexes_settings_basepath
+    # @property
+    # def indexes_settings_basepath(self) -> Path:
+    #     return self._indexes_settings_basepath
 
     @property
     def application_profile_settings_basepath(self) -> Path:
-        return self._application_profile_settings_basepath
+        return self._config_paths["application_profile_settings_basepath"]
+
+    # @property
+    # def run_settings_dict(self) -> dict:
+    #     return read_yaml_file(self._run_settings_path)
 
     @property
-    def run_settings_path(self) -> Path:
-        return self._run_settings_path
+    def samples_settings(self) -> dict:
+        return self._samples_settings
 
-    @property
-    def run_settings_dict(self) -> dict:
-        return read_yaml_file(self._run_settings_path)
+    # @property
+    # def validation_settings_path(self) -> Path:
+    #     return self._validation_settings_path
 
-    @property
-    def samples_settings_path(self) -> Path:
-        return self._samples_settings_path
-
-    @property
-    def samples_settings_dict(self) -> dict:
-        print(read_yaml_file(self._samples_settings_path))
-        return read_yaml_file(self._samples_settings_path)
-
-    @property
-    def validation_settings_path(self) -> Path:
-        return self._validation_settings_path
-
-    @property
-    def validation_settings_dict(self) -> dict:
-        return read_yaml_file(self._validation_settings_path)
+    # @property
+    # def validation_settings_dict(self) -> dict:
+    #     return read_yaml_file(self._validation_settings_path)
 
     @property
     def users(self):

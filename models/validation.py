@@ -65,7 +65,7 @@ class PreValidator(QObject):
         """Run a series of validations on the SampleSheetModel and RunSetup config"""
         results = []
         dataframe = self.samplesheet_model.to_dataframe()
-        run_setup = self.cfg_mgr.run_setup_data
+        run_setup = self.cfg_mgr.run_data
 
         results.append(self.run_lanes_int_validation(run_setup["Lanes"]))
         if not results[-1][1]:
@@ -230,7 +230,7 @@ class IndexDistanceValidator(QObject):
         self.cfg_mgr = cfg_mgr
 
         try:
-            i5_orientation = cfg_mgr.run_setup_data.get("I5IndexOrientation")
+            i5_orientation = cfg_mgr.run_data.get("I5SeqOrientation")
             if i5_orientation is None:
                 raise KeyError("I5IndexOrientation key not found in run_setup_data")
 
@@ -357,9 +357,9 @@ class ColorBalanceValidator(QObject):
         self.cfg_mgr = cfg_mgr
 
         try:
-            i5_orientation = cfg_mgr.run_setup_data.get("I5IndexOrientation")
+            i5_orientation = cfg_mgr.run_data.get("I5SeqOrientation")
             if i5_orientation is None:
-                raise KeyError("I5IndexOrientation key not found in run_setup_data")
+                raise KeyError("I5SeqOrientation key not found in run_setup_data")
             self.i5_rc = i5_orientation == "rc"
         except KeyError as e:
             raise KeyError(f"Configuration error: {e}")

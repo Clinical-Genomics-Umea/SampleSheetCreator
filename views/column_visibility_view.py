@@ -16,7 +16,7 @@ def has_checked_item(lst):
 class ColumnVisibilityControl(QTreeWidget):
     field_visibility_state_changed = Signal(str, bool)
 
-    def __init__(self, samples_settings_dict, parent=None):
+    def __init__(self, samples_settings: dict, parent=None):
         super(ColumnVisibilityControl, self).__init__(parent)
         self.setAcceptDrops(False)
         self.setDragEnabled(False)
@@ -25,8 +25,7 @@ class ColumnVisibilityControl(QTreeWidget):
 
         self.field_item_map = {}
 
-        # self.create_tree(sample_settings['fields'])
-        self.create_tree(samples_settings_dict["fields"])
+        self.create_tree(samples_settings["fields"])
         self.setHeaderHidden(True)
         self.expandAll()
 

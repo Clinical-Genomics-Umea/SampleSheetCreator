@@ -111,9 +111,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setup_samples_widget()
 
         # columns settings widget
-        self.columns_treeview = ColumnVisibilityControl(
-            self.cfg_mgr.samples_settings_dict
-        )
+        self.columns_treeview = ColumnVisibilityControl(self.cfg_mgr.samples_settings)
         self.setup_columns_treeview()
 
         self.run_setup_widget = RunSetupWidget(self.cfg_mgr)
