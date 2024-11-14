@@ -34,15 +34,14 @@ class ConfigurationManager(QObject):
             ),
         }
 
-        self.run_settings = read_yaml_file(self._config_paths["run_settings_path"])
-
-        self._run_view_widgets_config = self.run_settings["RunViewWidgets"]
-        self._run_setup_widgets_config = self.run_settings["RunSetupWidgets"]
-        self._run_data = self.run_settings["RunDataDefaults"]
-
         self._instruments_obj = read_yaml_file(self._config_paths["instruments_path"])
-        print(self._instruments_obj)
         self._flowcells_obj = read_yaml_file(self._config_paths["flowcells_path"])
+
+        self._run_settings = read_yaml_file(self._config_paths["run_settings_path"])
+        self._run_view_widgets_config = self._run_settings["RunViewWidgets"]
+        self._run_setup_widgets_config = self._run_settings["RunSetupWidgets"]
+        self._run_data = self._run_settings["RunDataDefaults"]
+
         self._samples_settings = read_yaml_file(
             self._config_paths["samples_settings_path"]
         )

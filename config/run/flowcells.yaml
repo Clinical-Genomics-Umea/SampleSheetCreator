@@ -1,4 +1,5 @@
 ---
+
 NovaSeqX:
   1.5B:
     Lanes: ["1", "2"]

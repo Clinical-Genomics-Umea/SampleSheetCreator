@@ -79,9 +79,11 @@ def read_yaml_file(yaml_path_obj):
     # Get the path to the directory of the current module
 
     try:
-        with yaml_path_obj.open("r") as fp:
+        with yaml_path_obj.open() as fp:
             # Load YAML data from the file
             data = yaml.safe_load(fp)
+            print(yaml_path_obj)
+            print(data)
         return data
     except FileNotFoundError:
         return None
