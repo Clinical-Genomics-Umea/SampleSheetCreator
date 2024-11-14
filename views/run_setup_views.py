@@ -55,19 +55,58 @@ class RunSetupWidget(QWidget):
 
         self.populate_investigators()
         self._populate_instruments()
+        self._populate_flowcells()
+        self._populate_samplesheet_version()
+        self._populate_reagent_kits()
+        self._populate_readcycles()
 
-        # self.input_widgets["Instrument"].currentTextChanged.connect(
-        #     self._repopulate_widget_data
-        # )
+        self.input_widgets["Instrument"].currentTextChanged.connect(
+            self._populate_flowcells
+        )
+        self.input_widgets["Instrument"].currentTextChanged.connect(
+            self._populate_samplesheet_version
+        )
 
         layout.addStretch()
 
         self.set_button.clicked.connect(self._commit)
 
     def _populate_instruments(self):
-        instruments = self.cfg_mgr.instruments
+        instruments = self.cfg_mgr.used_instruments
         self.input_widgets["Instrument"].clear()
         self.input_widgets["Instrument"].addItems(instruments)
+
+    def _populate_flowcells(self):
+        current_instrument = self.input_widgets["Instrument"].currentText()
+        instrument_flowcells = self.cfg_mgr.used_instrument_flowcells
+        self.input_widgets["Flowcell"].clear()
+        self.input_widgets["Flowcell"].addItems(
+            instrument_flowcells[current_instrument]
+        )
+
+    def _populate_samplesheet_version(self):
+        current_instrument = self.input_widgets["Instrument"].currentText()
+        samplesheet_version = self.cfg_mgr.instruments[current_instrument][
+            "SampleSheetVersion"
+        ]
+        self.input_widgets["SampleSheetVersion"].clear()
+        self.input_widgets["SampleSheetVersion"].setText(samplesheet_version)
+
+    def _populate_reagent_kits(self):
+        current_instrument = self.input_widgets["Instrument"].currentText()
+        current_flowcell = self.input_widgets["Flowcell"].currentText()
+        reagent_kits = self.cfg_mgr.instruments[current_instrument][current_flowcell][
+            "ReagentKits"
+        ]
+        self.input_widgets["ReagentKits"].clear()
+        self.input_widgets["ReagentKits"].addItems(reagent_kits)
+
+    def _populate_readcycles(self):
+        current_instrument = self.input_widgets["Instrument"].currentText()
+        current_reagent_kit = self.input_widgets["ReagentKit"].currentText()
+        read_cycles = self.cfg_mgr.instruments[current_instrument]["ReadCycles"]
+        self.input_widgets["ReadCycles"].clear()
+        self.input_widgets["ReadCycles"].addItems(read_cycles)
 
     def _create_run_widgets(self):
         for (

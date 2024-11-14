@@ -27,7 +27,7 @@ class ConfigurationManager(QObject):
             ),
             "run_settings_path": Path("config/run/run_settings.yaml"),
             "instruments_path": Path("config/run/instruments.yaml"),
-            "flowcells_path": Path("config/run/flowcells.yaml"),
+            "instrument_flowcells_path": Path("config/run/instrument_flowcells.yaml"),
             "samples_settings_path": Path("config/sample_settings.yaml"),
             "validation_settings_path": Path(
                 "config/validation/validation_settings.yaml"
@@ -35,7 +35,9 @@ class ConfigurationManager(QObject):
         }
 
         self._instruments_obj = read_yaml_file(self._config_paths["instruments_path"])
-        self._flowcells_obj = read_yaml_file(self._config_paths["flowcells_path"])
+        self._instruments_flowcell_obj = read_yaml_file(
+            self._config_paths["instrument_flowcells_path"]
+        )
 
         self._run_settings = read_yaml_file(self._config_paths["run_settings_path"])
         self._run_view_widgets_config = self._run_settings["RunViewWidgets"]
@@ -49,10 +51,16 @@ class ConfigurationManager(QObject):
         # self._setup_run()
 
     @property
-    def instruments(self):
-        print(self._instruments_obj)
-
+    def all_instruments(self):
         return self._instruments_obj.keys()
+
+    @property
+    def used_instruments(self):
+        return self._instruments_flowcell_obj.keys()
+
+    @property
+    def used_instrument_flowcells(self):
+        return self._instruments_flowcell_obj
 
     @property
     def run_setup_widgets_config(self):

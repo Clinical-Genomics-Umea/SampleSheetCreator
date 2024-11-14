@@ -9,6 +9,7 @@ RunDataDefaults:
   RunName: "NA"
   RunDescription: "NA"
   ReadCycles: "NA"
+  ReagentKit: "NA"
   I5SampleSheetOrientation: "NA"
   I5SeqOrientation: "NA"
   Lanes: "NA"
@@ -29,6 +30,7 @@ RunViewWidgets:
     RunName: lineedit
     RunDescription: lineedit
   Sequencing:
+    ReagentKit: lineedit
     ReadCycles: lineedit
     I5SampleSheetOrientation: lineedit
     I5SeqOrientation: lineedit
@@ -52,6 +54,7 @@ RunSetupWidgets:
     Flowcell: combobox
     SampleSheetVersion: lineedit
   SampleSheet and Validation:
+    ReagentKit: lineedit
     ReadCycles: combobox
     CustomReadCycles: lineedit
 
