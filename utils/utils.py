@@ -12,8 +12,17 @@ def uuid():
     return str(uuid6.uuid7())
 
 
-def int_str_to_list(int_str):
-    return re.findall(r"\d+", int_str)
+def int_str_to_int_list(int_str):
+    int_str_list = list(re.findall(r"\d+", int_str))
+    int_list = map(int, int_str_list)
+    return list(int_list)
+
+
+def int_list_to_int_str(int_list):
+    int_str = ", ".join(map(str, int_list))
+    print(int_str)
+
+    return f"[{int_str}]"
 
 
 def explode_lane_column(dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -23,9 +32,9 @@ def explode_lane_column(dataframe: pd.DataFrame) -> pd.DataFrame:
     :param dataframe: DataFrame containing the list-like column
     :return: Exploded DataFrame
     """
-    dataframe["Lane"] = dataframe["Lane"].apply(int_str_to_list)
+    dataframe["Lane"] = dataframe["Lane"].apply(int_str_to_int_list)
     exploded_dataframe = dataframe.explode("Lane")
-    exploded_dataframe["Lane"] = exploded_dataframe["Lane"].astype(int)
+    # exploded_dataframe["Lane"] = exploded_dataframe["Lane"].astype(int)
     return exploded_dataframe
 
 

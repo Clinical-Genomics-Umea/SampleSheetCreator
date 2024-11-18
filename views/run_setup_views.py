@@ -22,7 +22,7 @@ from PySide6.QtWidgets import (
     QLayout,
 )
 import yaml
-from utils.utils import uuid
+from utils.utils import uuid, int_list_to_int_str
 import re
 
 
@@ -323,6 +323,15 @@ class RunView(QWidget):
     def set_data(self, data):
         for key, value in data.items():
             if key in self._view_widgets:
+
+                print(key, value)
+
+                if isinstance(value, list):
+                    value = int_list_to_int_str(value)
+
+                if isinstance(value, int):
+                    value = str(value)
+
                 self._view_widgets[key].setText(value)
 
 

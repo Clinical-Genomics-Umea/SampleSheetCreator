@@ -3,7 +3,7 @@ import json
 from PySide6.QtCore import QSettings, QObject, Signal, Slot
 from pathlib import Path
 
-from utils.utils import read_yaml_file
+from utils.utils import read_yaml_file, int_str_to_int_list
 
 
 class ConfigurationManager(QObject):
@@ -99,41 +99,45 @@ class ConfigurationManager(QObject):
         return True
 
     @Slot(dict)
-    def set_run_data(self, data: dict):
+    def set_run_data(self, run_data: dict):
+        """
+        Set the run data configuration and validate it.
 
-        self._run_data = data
+        If the data is invalid, do not update the configuration and
+        instead emit the run_data_error signal.
 
-        if not self.validate_run_data(data):
+        Otherwise, update the configuration and emit the
+        run_setup_changed signal.
+        """
+
+        # Validate the run data
+        if not self.validate_run_data(run_data):
             return
 
-        instrument = data["Instrument"]
-        flowcell = data["Flowcell"]
+        # Update the configuration
+        self._run_data = run_data
 
-        for key, value in self._instruments_flowcell_obj[instrument].items():
-            if isinstance(value, str):
-                self._run_data[key] = value
+        # Update the instrument specific settings
+        instrument = run_data["Instrument"]
+        flowcell = run_data["Flowcell"]
 
-            elif isinstance(value, bool):
-                self._run_data[key] = str(value)
+        instrument_settings = self._instruments_flowcell_obj[instrument]
+        for key, value in instrument_settings.items():
+            if not isinstance(value, dict):
+                run_data[key] = value
 
-            if key == "Fluorophores":
-                for base, color in self._instruments_flowcell_obj[instrument][
-                    "Fluorophores"
-                ].items():
-                    self._run_data[base] = str(color)
+        fluorophores = self._instruments_flowcell_obj[instrument]["Fluorophores"]
+        for key, value in fluorophores.items():
+            if not isinstance(value, dict):
+                run_data[key] = value
 
-        for key, value in self._instruments_flowcell_obj[instrument]["Flowcell"][
-            flowcell
-        ].items():
-            if isinstance(value, list):
-                list_str = ", ".join(value)
-                self._run_data[key] = f"[{list_str}]"
+        # Update the flowcell specific settings
+        flowcell_settings = instrument_settings["Flowcell"][flowcell]
+        for key, value in flowcell_settings.items():
+            if not isinstance(value, dict):
+                run_data[key] = value
 
-            elif not isinstance(value, dict):
-                self._run_data[key] = value
-
-        print(self._run_data)
-
+        # Emit the changed signal
         self.run_setup_changed.emit(self._run_data)
 
     @property

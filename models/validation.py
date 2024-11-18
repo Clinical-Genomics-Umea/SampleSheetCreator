@@ -8,7 +8,7 @@ import pandera as pa
 
 from models.configuration import ConfigurationManager
 from models.samplesheet_model import SampleSheetModel
-from utils.utils import int_str_to_list, explode_lane_column
+from utils.utils import explode_lane_column
 from models.pa_schema import prevalidation_schema
 from models.validation_fns import get_base, padded_index_df
 
@@ -17,6 +17,8 @@ class MainValidator(QObject):
 
     def __init__(self, samples_model, cfg_mgr):
         super().__init__()
+
+        self.cfg_mgr = cfg_mgr
 
         self.pre_validator = PreValidator(samples_model, cfg_mgr)
 
@@ -32,7 +34,7 @@ class MainValidator(QObject):
 
     def validate(self):
 
-        print("validate button pressed!")
+        assess_color_balance = bool(self.cfg_mgr.run_data.get("AssessColorBalance"))
 
         status = self.pre_validator.validate()
 
@@ -40,7 +42,9 @@ class MainValidator(QObject):
             return
 
         self.index_distance_validator.validate()
-        self.color_balance_validator.validate()
+
+        if assess_color_balance:
+            self.color_balance_validator.validate()
 
 
 class PreValidator(QObject):
@@ -65,9 +69,9 @@ class PreValidator(QObject):
         """Run a series of validations on the SampleSheetModel and RunSetup config"""
         results = []
         dataframe = self.samplesheet_model.to_dataframe()
-        run_setup = self.cfg_mgr.run_data
+        run_data = self.cfg_mgr.run_data
 
-        results.append(self.run_lanes_int_validation(run_setup["Lanes"]))
+        results.append(self.run_lanes_int_validation(run_data["Lanes"]))
         if not results[-1][1]:
             self.data_ready.emit(results)
             return
@@ -128,10 +132,12 @@ class PreValidator(QObject):
     @staticmethod
     def run_lanes_int_validation(lanes):
         name = "set number of lanes validation"
-        try:
-            lanes = int(lanes)
-        except ValueError:
-            return name, False, "Number of flowcell lanes must be an integer."
+
+        if not isinstance(lanes, list):
+            return name, False, "Lanes must a list of integers."
+
+        if not all(isinstance(item, int) for item in lanes):
+            return name, False, "Lanes must be an list of integers."
 
         return name, True, ""
 
