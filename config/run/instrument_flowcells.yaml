@@ -1,56 +1,101 @@
 ---
 
 NovaSeqX:
-  "1.5B":
-    Lanes: ["1", "2"]
-    ReagentKits:
-      "2x50": ["51-8-8-51", "51-10-10-51"]
-      "2x100": ["101-8-8-101", "101-10-10-101"]
-      "2x150": ["151-8-8-151", "151-10-10-151"]
-  "10B":
-    Lanes: ["1", "2", "3", "4", "5", "6", "7", "8"]
-    ReagentKits:
-      "2x50": ["51-8-8-51", "51-10-10-51"]
-      "2x100": ["101-8-8-101", "101-10-10-101"]
-      "2x150": ["151-8-8-151", "151-10-10-151"]
-  25B:
-    Lanes: ["1", "2", "3", "4", "5", "6", "7", "8"]
-    ReagentKits:
-      "2x50": [ "51-8-8-51", "51-10-10-51" ]
-      "2x100": [ "101-8-8-101", "101-10-10-101" ]
-      "2x150": [ "151-8-8-151", "151-10-10-151" ]
+  Flowcell:
+    "1.5B":
+      Lanes: ["1", "2"]
+      ReagentKit:
+        "2x50": ["51-8-8-51", "51-10-10-51"]
+        "2x100": ["101-8-8-101", "101-10-10-101"]
+        "2x150": ["151-8-8-151", "151-10-10-151"]
+    "10B":
+      Lanes: ["1", "2", "3", "4", "5", "6", "7", "8"]
+      ReagentKit:
+        "2x50": ["51-8-8-51", "51-10-10-51"]
+        "2x100": ["101-8-8-101", "101-10-10-101"]
+        "2x150": ["151-8-8-151", "151-10-10-151"]
+    25B:
+      Lanes: ["1", "2", "3", "4", "5", "6", "7", "8"]
+      ReagentKit:
+        "2x50": [ "51-8-8-51", "51-10-10-51" ]
+        "2x100": [ "101-8-8-101", "101-10-10-101" ]
+        "2x150": [ "151-8-8-151", "151-10-10-151" ]
+  Chemistry: xleap
+  FastqExtractToolI5SampleSheetOrientation:
+    bcl2fastq: fwd
+    bclconvert: fwd
+  I5SampleSheetOrientation: fwd
+  FastqExtractTool: bclconvert
+  SampleSheetVersion: 2
+  I5SeqOrientation: rc
+  AssessBalance: true
+  Fluorophores:
+    A: [ "blue" ]
+    T: [ "green" ]
+    G: [ "dark" ]
+    C: [ "green", "blue" ]
 NextSeq500:
-  MidOutput:
-    Lanes: ["1"]
-    ReagentKits:
-      "1x75": [ "76-8", "76-10" ]
-      "2x100": [ "101-8-8-101", "101-10-10-101" ]
-      "2x150": [ "151-8-8-151", "151-10-10-151" ]
-  HighOutput:
-    Lanes: ["1"]
-    ReagentKits:
-      "1x75": [ "76-8", "76-10" ]
-      "2x100": [ "101-8-8-101", "101-10-10-101" ]
-      "2x150": [ "151-8-8-151", "151-10-10-151" ]
+  Flowcell:
+    MidOutput:
+      Lanes: ["1"]
+      ReagentKit:
+        "1x75": [ "76-8", "76-10" ]
+        "2x100": [ "101-8-8-101", "101-10-10-101" ]
+        "2x150": [ "151-8-8-151", "151-10-10-151" ]
+    HighOutput:
+      Lanes: ["1"]
+      ReagentKit:
+        "1x75": [ "76-8", "76-10" ]
+        "2x100": [ "101-8-8-101", "101-10-10-101" ]
+        "2x150": [ "151-8-8-151", "151-10-10-151" ]
+  Chemistry: 2-channel_sbs
+  FastqExtractToolI5SampleSheetOrientation:
+    bcl2fastq: rc
+    bclconvert: rc
+  I5SampleSheetOrientation: rc
+  FastqExtractTool: bcl2fastq
+  SampleSheetVersion: 1
+  I5SeqOrientation: rc
+  AssessBalance: false
+  Fluorophores:
+    A: [ "red", "green" ]
+    T: [ "green" ]
+    G: [ "dark" ]
+    C: [ "red" ]
 MiSeq:
-  NanoKitV2:
-    Lanes: ["1"]
-    ReagentKits:
-      "2x150": ["151-8-8-151", "151-10-10-151"]
-      "2x250": ["251-8-8-251", "251-10-10-251"]
-  MicroKitV2:
-    Lanes: ["1"]
-    ReagentKits:
-      "2x250": ["251-8-8-251", "251-10-10-251"]
-  KitV2:
-    Lanes: ["1"]
-    ReagentKits:
-      "1x36": [ "37-8", "37-10" ]
-      "2x25": [ "26-8-8-26", "26-10-10-26" ]
-      "2x150": [ "151-8-8-151", "151-10-10-151" ]
-      "2x250": [ "251-8-8-251", "251-10-10-251" ]
-  KitV3:
-    Lanes: ["1"]
-    ReagentKits:
-      "2x75": [ "76-8-8-76", "76-10-10-76" ]
-      "2x300": [ "301-8-8-301", "301-10-10-301" ]
+  Flowcell:
+    NanoKitV2:
+      Lanes: ["1"]
+      ReagentKit:
+        "2x150": ["151-8-8-151", "151-10-10-151"]
+        "2x250": ["251-8-8-251", "251-10-10-251"]
+    MicroKitV2:
+      Lanes: ["1"]
+      ReagentKit:
+        "2x250": ["251-8-8-251", "251-10-10-251"]
+    KitV2:
+      Lanes: ["1"]
+      ReagentKit:
+        "1x36": [ "37-8", "37-10" ]
+        "2x25": [ "26-8-8-26", "26-10-10-26" ]
+        "2x150": [ "151-8-8-151", "151-10-10-151" ]
+        "2x250": [ "251-8-8-251", "251-10-10-251" ]
+    KitV3:
+      Lanes: ["1"]
+      ReagentKit:
+        "2x75": [ "76-8-8-76", "76-10-10-76" ]
+        "2x300": [ "301-8-8-301", "301-10-10-301" ]
+  Chemistry: 4-channel_sbs
+  FastqExtractToolI5SampleSheetOrientation:
+    bcl2fastq: fwd
+    bclconvert: fwd
+  I5SampleSheetOrientation: fwd
+  FastqExtractTool: bcl2fastq
+  SampleSheetVersion: 1
+  I5SeqOrientation: fwd
+  AssessBalance: false
+  Fluorophores:
+    A: [ "red" ]
+    T: [ "green" ]
+    G: [ "blue" ]
+    C: [ "yellow" ]

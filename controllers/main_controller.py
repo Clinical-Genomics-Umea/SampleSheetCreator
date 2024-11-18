@@ -89,6 +89,9 @@ class MainController(QObject):
         self.cfg_mgr.users_changed.connect(
             self.main_window.run_setup_widget.populate_investigators
         )
+        self.cfg_mgr.run_data_error.connect(
+            self.main_window.run_setup_widget.show_error
+        )
 
     def setup_file_connections(self):
         self.main_window.new_samplesheet_pushButton.clicked.connect(

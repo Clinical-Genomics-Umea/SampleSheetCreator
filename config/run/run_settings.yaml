@@ -52,11 +52,11 @@ RunSetupWidgets:
     RunDescription: lineedit
     Instrument: combobox
     Flowcell: combobox
-    SampleSheetVersion: lineedit
   SampleSheet and Validation:
-    ReagentKit: lineedit
+    ReagentKit: combobox
     ReadCycles: combobox
     CustomReadCycles: lineedit
+    SampleSheetVersion: lineedit
 
 ReadCycles:
   151-8-8-151:

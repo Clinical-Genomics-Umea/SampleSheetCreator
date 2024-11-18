@@ -11,6 +11,7 @@ class ConfigurationManager(QObject):
 
     run_setup_changed = Signal(object)
     users_changed = Signal()
+    run_data_error = Signal(list)
 
     def __init__(self):
         """Initialize the configuration manager."""
@@ -26,7 +27,6 @@ class ConfigurationManager(QObject):
                 "config/application_profiles"
             ),
             "run_settings_path": Path("config/run/run_settings.yaml"),
-            "instruments_path": Path("config/run/instruments.yaml"),
             "instrument_flowcells_path": Path("config/run/instrument_flowcells.yaml"),
             "samples_settings_path": Path("config/sample_settings.yaml"),
             "validation_settings_path": Path(
@@ -34,11 +34,9 @@ class ConfigurationManager(QObject):
             ),
         }
 
-        self._instruments_obj = read_yaml_file(self._config_paths["instruments_path"])
         self._instruments_flowcell_obj = read_yaml_file(
             self._config_paths["instrument_flowcells_path"]
         )
-
         self._run_settings = read_yaml_file(self._config_paths["run_settings_path"])
         self._run_view_widgets_config = self._run_settings["RunViewWidgets"]
         self._run_setup_widgets_config = self._run_settings["RunSetupWidgets"]
@@ -51,15 +49,11 @@ class ConfigurationManager(QObject):
         # self._setup_run()
 
     @property
-    def all_instruments(self):
-        return self._instruments_obj.keys()
-
-    @property
-    def used_instruments(self):
+    def instruments(self):
         return self._instruments_flowcell_obj.keys()
 
     @property
-    def used_instrument_flowcells(self):
+    def instrument_flowcells(self):
         return self._instruments_flowcell_obj
 
     @property
@@ -74,40 +68,85 @@ class ConfigurationManager(QObject):
     def run_data(self):
         return self._run_data
 
+    def validate_run_data(self, data):
+        run_data_error_fields = []
+
+        custom_read_cycles = data["CustomReadCycles"].strip()
+        if custom_read_cycles:
+            read_cycles = data["ReadCycles"].strip()
+
+            rc_parts = read_cycles.split("-")
+            crc_parts = custom_read_cycles.split("_")
+
+            if len(rc_parts) != len(crc_parts):
+                run_data_error_fields.append("CustomReadCycles")
+
+            else:
+                for i in range(len(rc_parts)):
+                    if int(rc_parts[i]) < int(crc_parts[i]):
+                        run_data_error_fields.append("CustomReadCycles")
+
+        if not data["RunName"].strip():
+            run_data_error_fields.append("RunName")
+
+        if not data["RunDescription"]:
+            run_data_error_fields.append("RunDescription")
+
+        if run_data_error_fields:
+            self.run_data_error.emit(run_data_error_fields)
+            return False
+
+        return True
+
     @Slot(dict)
     def set_run_data(self, data: dict):
-        self._run_data = data
-        # add more code here ...
 
-        self.run_setup_changed.emit(data)
+        self._run_data = data
+
+        if not self.validate_run_data(data):
+            return
+
+        instrument = data["Instrument"]
+        flowcell = data["Flowcell"]
+
+        for key, value in self._instruments_flowcell_obj[instrument].items():
+            if isinstance(value, str):
+                self._run_data[key] = value
+
+            elif isinstance(value, bool):
+                self._run_data[key] = str(value)
+
+            if key == "Fluorophores":
+                for base, color in self._instruments_flowcell_obj[instrument][
+                    "Fluorophores"
+                ].items():
+                    self._run_data[base] = str(color)
+
+        for key, value in self._instruments_flowcell_obj[instrument]["Flowcell"][
+            flowcell
+        ].items():
+            if isinstance(value, list):
+                list_str = ", ".join(value)
+                self._run_data[key] = f"[{list_str}]"
+
+            elif not isinstance(value, dict):
+                self._run_data[key] = value
+
+        print(self._run_data)
+
+        self.run_setup_changed.emit(self._run_data)
 
     @property
     def all_config_paths(self):
         return {k: v.absolute() for k, v in self._config_paths.items()}
 
-    # @property
-    # def indexes_settings_basepath(self) -> Path:
-    #     return self._indexes_settings_basepath
-
     @property
     def application_profile_settings_basepath(self) -> Path:
         return self._config_paths["application_profile_settings_basepath"]
 
-    # @property
-    # def run_settings_dict(self) -> dict:
-    #     return read_yaml_file(self._run_settings_path)
-
     @property
     def samples_settings(self) -> dict:
         return self._samples_settings
-
-    # @property
-    # def validation_settings_path(self) -> Path:
-    #     return self._validation_settings_path
-
-    # @property
-    # def validation_settings_dict(self) -> dict:
-    #     return read_yaml_file(self._validation_settings_path)
 
     @property
     def users(self):

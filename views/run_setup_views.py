@@ -1,5 +1,11 @@
-from PySide6.QtCore import Signal, Slot, QSize, QRect, QPoint
-from PySide6.QtGui import QFont, Qt
+from PySide6.QtCore import Signal, Slot, QSize, QRect, QPoint, QTimer
+from PySide6.QtGui import (
+    QFont,
+    Qt,
+    QRegularExpressionValidator,
+    QValidator,
+    QIntValidator,
+)
 from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
@@ -17,6 +23,7 @@ from PySide6.QtWidgets import (
 )
 import yaml
 from utils.utils import uuid
+import re
 
 
 def load_from_yaml(config_file):
@@ -58,7 +65,7 @@ class RunSetupWidget(QWidget):
         self._populate_flowcells()
         self._populate_samplesheet_version()
         self._populate_reagent_kits()
-        self._populate_readcycles()
+        self._populate_read_cycles()
 
         self.input_widgets["Instrument"].currentTextChanged.connect(
             self._populate_flowcells
@@ -67,46 +74,102 @@ class RunSetupWidget(QWidget):
             self._populate_samplesheet_version
         )
 
+        self.input_widgets["Flowcell"].currentTextChanged.connect(
+            self._populate_reagent_kits
+        )
+
+        self.input_widgets["Flowcell"].currentTextChanged.connect(
+            self._populate_read_cycles
+        )
+
+        self.input_widgets["ReagentKit"].currentTextChanged.connect(
+            self._populate_read_cycles
+        )
+
+        self.input_widgets["ReadCycles"].currentTextChanged.connect(
+            self._set_custom_read_cycle_validator
+        )
+
         layout.addStretch()
 
         self.set_button.clicked.connect(self._commit)
 
+    @Slot(list)
+    def show_error(self, fields):
+        for field in fields:
+            self._flash_widget(self.input_widgets[field])
+
+    def _flash_widget(self, widget):
+        original_style = widget.styleSheet()
+        widget.setStyleSheet("border: 1px solid red;")
+        QTimer.singleShot(500, lambda: widget.setStyleSheet(original_style))
+
     def _populate_instruments(self):
-        instruments = self.cfg_mgr.used_instruments
+        instruments = self.cfg_mgr.instruments
         self.input_widgets["Instrument"].clear()
         self.input_widgets["Instrument"].addItems(instruments)
 
     def _populate_flowcells(self):
         current_instrument = self.input_widgets["Instrument"].currentText()
-        instrument_flowcells = self.cfg_mgr.used_instrument_flowcells
+        flowcells = self.cfg_mgr.instrument_flowcells[current_instrument][
+            "Flowcell"
+        ].keys()
         self.input_widgets["Flowcell"].clear()
-        self.input_widgets["Flowcell"].addItems(
-            instrument_flowcells[current_instrument]
-        )
+        self.input_widgets["Flowcell"].addItems(flowcells)
 
     def _populate_samplesheet_version(self):
         current_instrument = self.input_widgets["Instrument"].currentText()
-        samplesheet_version = self.cfg_mgr.instruments[current_instrument][
+        samplesheet_version = self.cfg_mgr.instrument_flowcells[current_instrument][
             "SampleSheetVersion"
         ]
         self.input_widgets["SampleSheetVersion"].clear()
-        self.input_widgets["SampleSheetVersion"].setText(samplesheet_version)
+        self.input_widgets["SampleSheetVersion"].setText(str(samplesheet_version))
 
     def _populate_reagent_kits(self):
         current_instrument = self.input_widgets["Instrument"].currentText()
-        current_flowcell = self.input_widgets["Flowcell"].currentText()
-        reagent_kits = self.cfg_mgr.instruments[current_instrument][current_flowcell][
-            "ReagentKits"
-        ]
-        self.input_widgets["ReagentKits"].clear()
-        self.input_widgets["ReagentKits"].addItems(reagent_kits)
 
-    def _populate_readcycles(self):
+        if not len(current_instrument) > 0:
+            return
+
+        current_flowcell = self.input_widgets["Flowcell"].currentText()
+
+        if not len(current_flowcell) > 0:
+            return
+
+        reagent_kits = list(
+            self.cfg_mgr.instrument_flowcells[current_instrument]["Flowcell"][
+                current_flowcell
+            ]["ReagentKit"].keys()
+        )
+
+        self.input_widgets["ReagentKit"].clear()
+        self.input_widgets["ReagentKit"].addItems(reagent_kits)
+
+    def _populate_read_cycles(self):
         current_instrument = self.input_widgets["Instrument"].currentText()
+
+        if not len(current_instrument) > 0:
+            return
+
+        current_flowcell = self.input_widgets["Flowcell"].currentText()
+
+        if not len(current_flowcell) > 0:
+            return
+
         current_reagent_kit = self.input_widgets["ReagentKit"].currentText()
-        read_cycles = self.cfg_mgr.instruments[current_instrument]["ReadCycles"]
+
+        if not len(current_reagent_kit) > 0:
+            return
+
+        read_cycles = self.cfg_mgr.instrument_flowcells[current_instrument]["Flowcell"][
+            current_flowcell
+        ]["ReagentKit"][current_reagent_kit]
         self.input_widgets["ReadCycles"].clear()
         self.input_widgets["ReadCycles"].addItems(read_cycles)
+
+        self.input_widgets["CustomReadCycles"].clear()
+        template = self.input_widgets["ReadCycles"].currentText()
+        self.input_widgets["CustomReadCycles"].setValidator(PatternValidator(template))
 
     def _create_run_widgets(self):
         for (
@@ -134,87 +197,10 @@ class RunSetupWidget(QWidget):
         self.input_widgets["Investigator"].clear()
         self.input_widgets["Investigator"].addItems(users)
 
-    def _setup_header_ui(self):
-        # header
-        self.form.addRow(QLabel("Header"))
-
-        self.input_widgets["Instrument"] = QComboBox()
-        self.form.addRow(QLabel("Instrument"), self.input_widgets["Instrument"])
-
-        self.input_widgets["SampleSheetVersion"] = QLineEdit()
-        self.input_widgets["SampleSheetVersion"].setReadOnly(True)
-        self.form.addRow(
-            QLabel("SampleSheetVersion"),
-            self.input_widgets["SampleSheetVersion"],
-        )
-
-        self.input_widgets["RunName"] = QLineEdit()
-        self.form.addRow(QLabel("RunName"), self.input_widgets["RunName"])
-
-        self.input_widgets["RunDescription"] = QLineEdit()
-        self.form.addRow(QLabel("RunDescription"), self.input_widgets["RunDescription"])
-
-        self.form.addRow(QLabel(""))
-
-    def _setup_reads_ui(self):
-        # Reads
-        self.form.addRow(QLabel("Reads"))
-
-        self.input_widgets["ReadCycles"] = QComboBox()
-        self.form.addRow(QLabel("ReadCycles"), self.input_widgets["ReadCycles"])
-
-        self.input_widgets["I5SeqOrientation"] = QLineEdit()
-        self.input_widgets["I5SeqOrientation"].setReadOnly(True)
-        self.form.addRow(
-            QLabel("I5SeqOrientation"), self.input_widgets["I5SeqOrientation"]
-        )
-        self.input_widgets["I5SampleSheetOrientation"] = QLineEdit()
-        self.input_widgets["I5SampleSheetOrientation"].setReadOnly(True)
-        self.form.addRow(
-            QLabel("I5SampleSheetOrientation"),
-            self.input_widgets["I5SampleSheetOrientation"],
-        )
-
-        self.form.addRow(QLabel(""))
-
-    def _setup_extra_ui(self):
-        # Run Extra
-        self.form.addRow(QLabel("Run Extra"))
-
-        self.input_widgets["Lanes"] = QComboBox()
-        self.form.addRow(QLabel("Lanes"), self.input_widgets["Lanes"])
-
-        self.input_widgets["Investigator"] = QComboBox()
-        self.form.addRow(QLabel("Investigator"), self.input_widgets["Investigator"])
-
-        self.form.addRow(QLabel(""))
-
-    def _setup_widget_default_data(self):
-        instruments = list(self.cfg_mgr.run_setup_widgets_config.keys())
-        self.input_widgets["Instrument"].addItems(instruments)
-        current_instrument = self.input_widgets["Instrument"].currentText()
-
-        for widget_name, data in self.cfg_mgr.run_setup_widgets_config[
-            current_instrument
-        ].items():
-            if isinstance(self.input_widgets[widget_name], QComboBox):
-                self.input_widgets[widget_name].addItems(data)
-            elif isinstance(self.input_widgets[widget_name], QLineEdit):
-                self.input_widgets[widget_name].setText(data)
-
-    @Slot()
-    def _repopulate_widget_data(self):
-        instrument_cb = self.sender()
-        instrument = instrument_cb.currentText()
-
-        for widget_name, data in self.cfg_mgr.run_setup_widgets_config[
-            instrument
-        ].items():
-            if isinstance(self.input_widgets[widget_name], QComboBox):
-                self.input_widgets[widget_name].clear()
-                self.input_widgets[widget_name].addItems(data)
-            elif isinstance(self.input_widgets[widget_name], QLineEdit):
-                self.input_widgets[widget_name].setText(data)
+    def _set_custom_read_cycle_validator(self):
+        self.input_widgets["CustomReadCycles"].clear()
+        template = self.input_widgets["ReadCycles"].currentText()
+        self.input_widgets["CustomReadCycles"].setValidator(PatternValidator(template))
 
     def _commit(self):
         data = {}
@@ -231,6 +217,58 @@ class RunSetupWidget(QWidget):
             return widget.text()
 
         return None
+
+
+class PatternValidator(QValidator):
+    def __init__(self, pattern, parent=None):
+        super().__init__(parent)
+        self.pattern = pattern
+        if pattern == "":
+            self.pattern_parts = []
+        else:
+            self.pattern_parts = [int(part) for part in pattern.split("-")]
+
+    def validate(self, input_text, pos):
+        # Allow empty input as an intermediate state
+        if input_text == "":
+            return QValidator.Intermediate, input_text, pos
+
+        # Check for multiple consecutive dashes
+        if "--" in input_text:
+            return QValidator.Invalid, input_text, pos
+
+        # Split the input text into parts
+        input_parts = input_text.split("-")
+
+        # Check if the number of parts exceeds the pattern
+        if len(input_parts) > len(self.pattern_parts):
+            return QValidator.Invalid, input_text, pos
+
+        for i, part in enumerate(input_parts):
+            # Allow incomplete trailing dashes (e.g., "51-")
+            if part == "":
+                # Invalid if it's not the last part and it's empty
+                if i < len(input_parts) - 1:
+                    return QValidator.Invalid, input_text, pos
+                continue
+
+            # Ensure each part is numeric
+            if not part.isdigit():
+                return QValidator.Invalid, input_text, pos
+
+            # Check if the part exceeds the corresponding pattern value
+            if i < len(self.pattern_parts) and int(part) > self.pattern_parts[i]:
+                return QValidator.Invalid, input_text, pos
+
+        # Allow trailing dashes as valid intermediate states
+        if input_text[-1] == "-" and len(input_parts) <= len(self.pattern_parts):
+            return QValidator.Intermediate, input_text, pos
+
+        return QValidator.Acceptable, input_text, pos
+
+    def fixup(self, input_text):
+        # If invalid, return an empty string
+        return ""
 
 
 class RunView(QWidget):
@@ -283,9 +321,6 @@ class RunView(QWidget):
         self._layout.addSpacerItem(spacer)
 
     def set_data(self, data):
-
-        print(data)
-
         for key, value in data.items():
             if key in self._view_widgets:
                 self._view_widgets[key].setText(value)
