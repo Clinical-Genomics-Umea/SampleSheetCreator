@@ -23,27 +23,27 @@ RunDataDefaults:
 
 RunViewWidgets:
   General:
-    Investigator: lineedit
-    Instrument: lineedit
-    Flowcell: lineedit
-    SampleSheetVersion: lineedit
-    RunName: lineedit
-    RunDescription: lineedit
+    Investigator: label
+    Instrument: label
+    Flowcell: label
+    SampleSheetVersion: label
+    RunName: label
+    RunDescription: label
   Sequencing:
-    ReagentKit: lineedit
-    ReadCycles: lineedit
-    I5SampleSheetOrientation: lineedit
-    I5SeqOrientation: lineedit
-    Lanes: lineedit
-    Chemistry: lineedit
-    FastqExtractTool: lineedit
+    I5SampleSheetOrientation: label
+    Lanes: label
+    ReagentKit: label
+    ReadCycles: label
+    Chemistry: label
+    FastqExtractTool: label
   Validation:
-    AssessBalance: lineedit
+    I5SeqOrientation: label
+    AssessBalance: label
   Fluorophores:
-    A: lineedit
-    T: lineedit
-    G: lineedit
-    C: lineedit
+    A: label
+    T: label
+    G: label
+    C: label
 
 RunSetupWidgets:
   General:

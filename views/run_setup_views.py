@@ -272,8 +272,10 @@ class PatternValidator(QValidator):
 
 
 class RunView(QWidget):
-    def __init__(self):
+    def __init__(self, cfg_mgr):
         super().__init__()
+        self._defaults = cfg_mgr.run_view_widgets_config
+
         self.setContentsMargins(0, 0, 0, 0)
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self._layout = FlowLayout()
@@ -283,28 +285,6 @@ class RunView(QWidget):
         self._view_widgets = {}
 
         # sections, defaults a
-
-        self._defaults = {
-            "Header": {
-                "Instrument": "NA",
-                "SampleSheetVersion": "NA",
-                "RunName": "NA",
-                "RunDescription": "NA",
-            },
-            "Reads": {
-                "ReadCycles": "NA",
-                "I5SampleSheetOrientation": "NA",
-                "I5SeqOrientation": "NA",
-                "FastqExtractTool": "NA",
-            },
-            "Fluorophores": {"A": "NA", "T": "NA", "G": "NA", "C": "NA"},
-            "Extra": {
-                "Lanes": "NA",
-                "Investigator": "NA",
-                "Chemistry": "NA",
-                "AssessBalance": "NA",
-            },
-        }
 
         self._setup()
 
@@ -323,8 +303,6 @@ class RunView(QWidget):
     def set_data(self, data):
         for key, value in data.items():
             if key in self._view_widgets:
-
-                print(key, value)
 
                 if isinstance(value, list):
                     value = int_list_to_int_str(value)
@@ -386,19 +364,19 @@ class RunViewSection(QGroupBox):
             h_layout.addLayout(form_layout)
 
             # Add the first row
-            key1, value1 = data_items[i]
-            value_label = QLabel(value1)
-            form_layout.addRow(QLabel(key1), value_label)
-            self._view_widgets[key1] = value_label
+            field, _ = data_items[i]
+            widget = QLabel("NA")
+
+            form_layout.addRow(QLabel(field), widget)
+            self._view_widgets[field] = widget
 
             # Check if there's a second row, if not, fill with empty strings
             if i + 1 < len(data_items):
 
-                key2, value2 = data_items[i + 1]
-
-                value_label = QLabel(value2)
-                form_layout.addRow(QLabel(key2), value_label)
-                self._view_widgets[key2] = value_label
+                field2, _ = data_items[i + 1]
+                widget2 = QLabel("NA")
+                form_layout.addRow(QLabel(field2), widget2)
+                self._view_widgets[field2] = widget2
 
             else:
                 form_layout.addRow(QLabel(""), QLabel(""))  # Add empty row

@@ -115,7 +115,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setup_columns_treeview()
 
         self.run_setup_widget = RunSetupWidget(self.cfg_mgr)
-        self.run_view_widget = RunView()
+        self.run_view_widget = RunView(self.cfg_mgr)
         self.setup_run_view()
 
         self.validation_widget = MainValidationWidget()
