@@ -1,5 +1,5 @@
 from PySide6.QtGui import QKeyEvent
-from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem, QWidget, QVBoxLayout
 from PySide6.QtCore import Qt, Signal, Slot
 
 
@@ -11,6 +11,16 @@ def toggle_checked(item):
 
 def has_checked_item(lst):
     return Qt.Checked in lst
+
+
+class ColumnVisibilityWidget(QWidget):
+    def __init__(self, samples_settings: dict, parent=None):
+        super(ColumnVisibilityWidget, self).__init__(parent)
+        self.column_visibility_control = ColumnVisibilityControl(samples_settings)
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.column_visibility_control)
+        self.setLayout(layout)
+        self.setFixedWidth(250)
 
 
 class ColumnVisibilityControl(QTreeWidget):

@@ -20,7 +20,6 @@ def int_str_to_int_list(int_str):
 
 def int_list_to_int_str(int_list):
     int_str = ", ".join(map(str, int_list))
-    print(int_str)
 
     return f"[{int_str}]"
 
@@ -91,8 +90,6 @@ def read_yaml_file(yaml_path_obj):
         with yaml_path_obj.open() as fp:
             # Load YAML data from the file
             data = yaml.safe_load(fp)
-            print(yaml_path_obj)
-            print(data)
         return data
     except FileNotFoundError:
         return None

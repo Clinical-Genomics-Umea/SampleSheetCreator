@@ -17,8 +17,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFormLayout, QFrame, QHBoxLayout,
     QLabel, QLineEdit, QMainWindow, QPushButton,
-    QSizePolicy, QSpacerItem, QStackedWidget, QToolBar,
-    QToolButton, QVBoxLayout, QWidget)
+    QSizePolicy, QStackedWidget, QToolBar, QToolButton,
+    QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -204,39 +204,6 @@ class Ui_MainWindow(object):
 
 
         self.horizontalLayout_2.addLayout(self.main_verticalLayout)
-
-        self.rightmenu_stackedWidget = QStackedWidget(self.centralwidget)
-        self.rightmenu_stackedWidget.setObjectName(u"rightmenu_stackedWidget")
-        sizePolicy2.setHeightForWidth(self.rightmenu_stackedWidget.sizePolicy().hasHeightForWidth())
-        self.rightmenu_stackedWidget.setSizePolicy(sizePolicy2)
-        self.rightmenu_columnsettings = QWidget()
-        self.rightmenu_columnsettings.setObjectName(u"rightmenu_columnsettings")
-        self.verticalLayout_9 = QVBoxLayout(self.rightmenu_columnsettings)
-        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
-        self.verticalLayout_9.setContentsMargins(0, 0, 0, 0)
-        self.rightmenu_stackedWidget.addWidget(self.rightmenu_columnsettings)
-
-        self.horizontalLayout_2.addWidget(self.rightmenu_stackedWidget)
-
-        self.right_sidebar_widget = QWidget(self.centralwidget)
-        self.right_sidebar_widget.setObjectName(u"right_sidebar_widget")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.right_sidebar_widget.sizePolicy().hasHeightForWidth())
-        self.right_sidebar_widget.setSizePolicy(sizePolicy3)
-        self.right_sidebar_widget.setMinimumSize(QSize(28, 0))
-        self.right_sidebar_widget.setMaximumSize(QSize(28, 16777215))
-        self.verticalLayout_3 = QVBoxLayout(self.right_sidebar_widget)
-        self.verticalLayout_3.setSpacing(6)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.verticalSpacer = QSpacerItem(3, 404, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.verticalLayout_3.addItem(self.verticalSpacer)
-
-
-        self.horizontalLayout_2.addWidget(self.right_sidebar_widget)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.left_toolBar = QToolBar(MainWindow)

@@ -34,7 +34,7 @@ class MainValidator(QObject):
 
     def validate(self):
 
-        assess_color_balance = bool(self.cfg_mgr.run_data.get("AssessColorBalance"))
+        assess_color_balance = bool(self.cfg_mgr.run_data.get("AssessBalance"))
 
         status = self.pre_validator.validate()
 
@@ -44,6 +44,7 @@ class MainValidator(QObject):
         self.index_distance_validator.validate()
 
         if assess_color_balance:
+            print("validating color balance")
             self.color_balance_validator.validate()
 
 
@@ -234,6 +235,7 @@ class IndexDistanceValidator(QObject):
 
         self.model = model
         self.cfg_mgr = cfg_mgr
+        print(cfg_mgr.run_data)
 
         try:
             i5_orientation = cfg_mgr.run_data.get("I5SeqOrientation")
@@ -241,6 +243,7 @@ class IndexDistanceValidator(QObject):
                 raise KeyError("I5IndexOrientation key not found in run_setup_data")
 
             self.i5_rc = i5_orientation == "rc"
+            print("i5_rc bool", self.i5_rc)
 
         except KeyError as e:
             raise KeyError(f"Configuration error: {e}")
@@ -288,8 +291,6 @@ class IndexDistanceValidationWorker(QObject):
             result = {}
             unique_lanes = df_split["Lane"].unique()
 
-            print(unique_lanes)
-
             for lane in unique_lanes:
                 lane_result = {}
                 lane_df = df_split[df_split["Lane"] == lane]
@@ -314,8 +315,6 @@ class IndexDistanceValidationWorker(QObject):
                 )
 
                 result[int(lane)] = lane_result
-
-            print(result)
 
             self.results_ready.emit(result)
 
@@ -361,14 +360,12 @@ class ColorBalanceValidator(QObject):
 
         self.model = model
         self.cfg_mgr = cfg_mgr
+        print(self.cfg_mgr.run_data)
 
-        try:
-            i5_orientation = cfg_mgr.run_data.get("I5SeqOrientation")
-            if i5_orientation is None:
-                raise KeyError("I5SeqOrientation key not found in run_setup_data")
-            self.i5_rc = i5_orientation == "rc"
-        except KeyError as e:
-            raise KeyError(f"Configuration error: {e}")
+        i5_orientation = cfg_mgr.run_data.get("I5SeqOrientation")
+        print("i5 orientation", i5_orientation)
+
+        self.i5_rc = i5_orientation == "rc"
 
     def validate(self):
 
@@ -379,6 +376,7 @@ class ColorBalanceValidator(QObject):
 
         unique_lanes = df["Lane"].unique()
         i5_col_name = "IndexI5RC" if self.i5_rc else "IndexI5"
+        print(i5_col_name)
 
         result = {}
 
@@ -429,9 +427,13 @@ class ColorBalanceValidator(QObject):
 
 class IndexColorBalanceModel(QStandardItemModel):
 
-    def __init__(self, parent):
+    def __init__(self, base_colors, parent):
         super(IndexColorBalanceModel, self).__init__(parent=parent)
         self.dataChanged.connect(self.update_summation)
+        self.transformed_base_colors = {
+            key: [color[0].upper() for color in colors]
+            for key, colors in base_colors.items()
+        }
 
     def update_summation(self):
 
@@ -444,7 +446,7 @@ class IndexColorBalanceModel(QStandardItemModel):
                 base = self.item(row, col).text()
                 bases_count[base] += proportion
 
-            color_counts = self._base_to_color_count(bases_count)
+            color_counts = self._generic_base_to_color_count(bases_count)
             normalized_color_counts = self._normalize(color_counts)
             normalized_base_counts = self._normalize(bases_count)
 
@@ -493,5 +495,22 @@ class IndexColorBalanceModel(QStandardItemModel):
                 color_count["G"] = count
             elif base == "G":
                 color_count["D"] = count
+
+        return color_count
+
+    def _generic_base_to_color_count(self, dict1):
+        color_count = {
+            "B": 0,
+            "G": 0,
+            "D": 0,
+        }
+
+        for base, count in dict1.items():
+
+            base_colors = self.transformed_base_colors[base]
+            no_colors = len(base_colors)
+
+            for color in base_colors:
+                color_count[color] += count / no_colors
 
         return color_count

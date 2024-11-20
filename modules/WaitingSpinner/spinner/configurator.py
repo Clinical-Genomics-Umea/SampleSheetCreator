@@ -200,8 +200,8 @@ class SpinnerConfigurator(QWidget):
         clipboard = QApplication.clipboard()
         clipboard.clear()
         clipboard.setText(text)
-        print(text)
         msg_box.exec_()
+
 
 def set_palette(my_app):
     my_app.setStyle("Fusion")
@@ -219,15 +219,21 @@ def set_palette(my_app):
     dark_palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Text, disabled_color)
     dark_palette.setColor(QtGui.QPalette.Button, dark_color)
     dark_palette.setColor(QtGui.QPalette.ButtonText, white_color)
-    dark_palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.ButtonText, disabled_color)
+    dark_palette.setColor(
+        QtGui.QPalette.Disabled, QtGui.QPalette.ButtonText, disabled_color
+    )
     dark_palette.setColor(QtGui.QPalette.BrightText, QtGui.QColor(187, 134, 252))
     dark_palette.setColor(QtGui.QPalette.Link, QtGui.QColor(187, 134, 252))
     dark_palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(187, 134, 252))
     dark_palette.setColor(QtGui.QPalette.HighlightedText, QtGui.QColor(255, 255, 255))
-    dark_palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.HighlightedText, disabled_color)
+    dark_palette.setColor(
+        QtGui.QPalette.Disabled, QtGui.QPalette.HighlightedText, disabled_color
+    )
     my_app.setPalette(dark_palette)
     my_app.setStyleSheet(
-        "QToolTip { color: #ffffff; background-color: rgb(187, 134, 252); border: 0px solid white; }")
+        "QToolTip { color: #ffffff; background-color: rgb(187, 134, 252); border: 0px solid white; }"
+    )
+
 
 def main():
     app = QApplication(sys.argv)

@@ -205,12 +205,12 @@ class RunSetupWidget(QWidget):
     def _commit(self):
         data = {}
         for field, widget in self.input_widgets.items():
-            data[field] = self.extract(widget)
+            data[field] = self._extract(widget)
 
         self.setup_commited.emit(data)  # set(data)
 
     @staticmethod
-    def extract(widget):
+    def _extract(widget):
         if isinstance(widget, QComboBox):
             return widget.currentText()
         elif isinstance(widget, QLineEdit):

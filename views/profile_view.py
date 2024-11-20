@@ -157,7 +157,6 @@ class ApplicationProfileMGR(QObject):
     def send_data(self):
         button = self.sender()
         data = button.property("data")
-        print(data)
         self.profile_data.emit(data)
 
     def get_profile_widgets(self):

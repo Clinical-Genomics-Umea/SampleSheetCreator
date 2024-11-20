@@ -41,7 +41,7 @@ from models.validation import IndexColorBalanceModel
 
 
 class MainValidationWidget(QWidget):
-    def __init__(self):
+    def __init__(self, cfg_mgr):
         super().__init__()
 
         self.layout = QVBoxLayout()
@@ -53,7 +53,7 @@ class MainValidationWidget(QWidget):
 
         self.pre_validation_widget = PreValidationWidget()
         self.main_index_validation_widget = MainIndexDistanceValidationWidget()
-        self.main_color_balance_validation_widget = MainColorBalanceWidget()
+        self.main_color_balance_validation_widget = MainColorBalanceWidget(cfg_mgr)
         self.tab_widget.addTab(self.pre_validation_widget, "pre-validation")
         self.tab_widget.addTab(self.main_index_validation_widget, "index validation")
         self.tab_widget.addTab(
@@ -103,7 +103,6 @@ class PreValidationWidget(QTableWidget):
 
     @Slot(dict)
     def populate(self, results):
-        print("view", results)
 
         self.setRowCount(0)
 
@@ -224,7 +223,6 @@ class IndexDistanceHeatMap(QTableWidget):
         for row in range(substitutions.shape[0]):
             for col in range(substitutions.shape[1]):
                 cell_value = int(substitutions.iat[row, col])
-                print(row, col, cell_value)
 
                 if row == col:
                     continue
@@ -241,8 +239,10 @@ class IndexDistanceHeatMap(QTableWidget):
 
 class MainColorBalanceWidget(QTabWidget):
 
-    def __init__(self):
+    def __init__(self, cfg_mgr):
         super().__init__()
+
+        self.cfg_mgr = cfg_mgr
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -285,15 +285,16 @@ class MainColorBalanceWidget(QTabWidget):
             tab_scroll_area = QScrollArea()
             tab_scroll_area.setFrameShape(QFrame.NoFrame)
 
-            color_balance_table = ColorBalanceWidget(results[lane])
+            color_balance_table = ColorBalanceWidget(results[lane], self.cfg_mgr)
 
             self.addTab(color_balance_table, f"Lane {lane}")
 
 
 class ColorBalanceWidget(QTableView):
-    def __init__(self, merged_df, parent=None):
+    def __init__(self, merged_df, cfg_mgr, parent=None):
         super(ColorBalanceWidget, self).__init__(parent)
         df = merged_df.copy()
+        self.cfg_mgr = cfg_mgr
 
         df["Proportion"] = "1"
 
@@ -311,9 +312,9 @@ class ColorBalanceWidget(QTableView):
         self.setModel(self.cb_model)
         self.cb_model.update_summation()
         self.verticalHeader().setVisible(False)
-        self.setup()
+        self.setup(self.cfg_mgr.base_colors)
 
-    def setup(self):
+    def setup(self, base_colors):
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.setContentsMargins(0, 0, 0, 0)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -334,7 +335,7 @@ class ColorBalanceWidget(QTableView):
         :param df: Pandas DataFrame to convert.
         :return: QStandardItemModel representing the DataFrame.
         """
-        model = IndexColorBalanceModel(parent=self)
+        model = IndexColorBalanceModel(self.cfg_mgr.base_colors, parent=self)
 
         column_names = [col_name.replace("Index", "") for col_name in df.columns]
 
@@ -407,6 +408,7 @@ class ColorBalanceWidget(QTableView):
 
 
 class ColorBalanceRowDelegate(QStyledItemDelegate):
+
     def paint(self, painter, option, index):
 
         last_row = index.model().rowCount() - 1

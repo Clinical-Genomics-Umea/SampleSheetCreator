@@ -20,11 +20,13 @@ from PySide6.QtWidgets import (
     QPushButton,
     QCheckBox,
     QHBoxLayout,
+    QSizePolicy,
 )
 
 import json
 
 from models.samplesheet_model import CustomProxyModel
+from views.column_visibility_view import ColumnVisibilityWidget
 from views.run_setup_views import RunView
 
 
@@ -98,7 +100,7 @@ def regular_paste(selected_indexes, source_model, target_proxy_model):
 
 
 class SamplesWidget(QWidget):
-    def __init__(self):
+    def __init__(self, samples_settings):
         super().__init__()
 
         vbox = QVBoxLayout()
@@ -114,6 +116,8 @@ class SamplesWidget(QWidget):
         self.extended_selection_pushbutton = QPushButton("extended selection")
         self.extended_selection_pushbutton.setCheckable(True)
         self.clear_selection_btn = QPushButton("clear selection")
+        self.column_visibility_btn = QPushButton("column visibility")
+        self.column_visibility_ctrl = ColumnVisibilityWidget(samples_settings)
 
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
@@ -126,9 +130,16 @@ class SamplesWidget(QWidget):
         hbox.addWidget(self.extended_selection_pushbutton)
         hbox.addWidget(self.clear_selection_btn)
         hbox.addLayout(hbox_filter)
+        hbox.addWidget(self.column_visibility_btn)
 
         vbox.addLayout(hbox)
-        vbox.addWidget(self.sample_view)
+
+        hbox2 = QHBoxLayout()
+        hbox2.setContentsMargins(0, 0, 0, 0)
+        hbox2.addWidget(self.sample_view)
+        hbox2.addWidget(self.column_visibility_ctrl)
+        vbox.addLayout(hbox2)
+
         vbox.addWidget(self.cell_value)
         self.setLayout(vbox)
 
@@ -141,6 +152,24 @@ class SamplesWidget(QWidget):
         horizontal_header = self.sample_view.horizontalHeader()
         horizontal_header.setSectionsClickable(False)
         self.set_selection_mode()
+
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        self.column_visibility_ctrl.hide()
+
+        self.column_visibility_ctrl.column_visibility_control.field_visibility_state_changed.connect(
+            self.sample_view.set_column_visibility_state
+        )
+        self.sample_view.field_visibility_state_changed.connect(
+            self.column_visibility_ctrl.column_visibility_control.set_column_visibility_state
+        )
+        self.column_visibility_btn.clicked.connect(self.toggle_column_visibility_ctrl)
+
+    def toggle_column_visibility_ctrl(self):
+        if self.column_visibility_ctrl.isVisible():
+            self.column_visibility_ctrl.hide()
+        else:
+            self.column_visibility_ctrl.show()
 
     def set_model(self, samples_proxy_model: CustomProxyModel):
         self.sample_view.setModel(samples_proxy_model)
@@ -225,6 +254,7 @@ class SampleTableView(QTableView):
 
         self.original_top_left_selection = None
         self.resizeColumnsToContents()
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
     @staticmethod
     def get_header_key_dict(model: QAbstractItemModel) -> dict:
@@ -237,7 +267,6 @@ class SampleTableView(QTableView):
 
     @Slot(dict)
     def set_profile_data(self, profiles_data):
-        print(profiles_data)
         proxy_model = self.model()
         source_model = proxy_model.sourceModel()
         selection_model = self.selectionModel()

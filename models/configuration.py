@@ -49,6 +49,15 @@ class ConfigurationManager(QObject):
         # self._setup_run()
 
     @property
+    def base_colors(self):
+        return {
+            "A": self._run_data["A"],
+            "T": self._run_data["T"],
+            "G": self._run_data["G"],
+            "C": self._run_data["C"],
+        }
+
+    @property
     def instruments(self):
         return self._instruments_flowcell_obj.keys()
 
@@ -76,14 +85,14 @@ class ConfigurationManager(QObject):
             read_cycles = data["ReadCycles"].strip()
 
             rc_parts = read_cycles.split("-")
-            crc_parts = custom_read_cycles.split("_")
+            crc_parts = custom_read_cycles.split("-")
 
             if len(rc_parts) != len(crc_parts):
                 run_data_error_fields.append("CustomReadCycles")
 
             else:
                 for i in range(len(rc_parts)):
-                    if int(rc_parts[i]) < int(crc_parts[i]):
+                    if not int(rc_parts[i]) >= int(crc_parts[i]):
                         run_data_error_fields.append("CustomReadCycles")
 
         if not data["RunName"].strip():
@@ -114,6 +123,7 @@ class ConfigurationManager(QObject):
         if not self.validate_run_data(run_data):
             return
 
+        print("Run data is valid")
         # Update the configuration
         self._run_data = run_data
 
@@ -136,6 +146,11 @@ class ConfigurationManager(QObject):
         for key, value in flowcell_settings.items():
             if not isinstance(value, dict):
                 run_data[key] = value
+
+        if run_data["CustomReadCycles"]:
+            run_data["ReadCycles"] = run_data["CustomReadCycles"]
+
+        print(self._run_data)
 
         # Emit the changed signal
         self.run_setup_changed.emit(self._run_data)

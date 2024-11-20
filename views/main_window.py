@@ -105,20 +105,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setup_left_toolbar_actions()
 
         # self.right_action_tab_map = {}
-        self.setup_right_menu_actions()
+        # self.setup_right_menu_actions()
 
-        self.samples_widget = SamplesWidget()
+        self.samples_widget = SamplesWidget(self.cfg_mgr.samples_settings)
         self.setup_samples_widget()
 
         # columns settings widget
-        self.columns_treeview = ColumnVisibilityControl(self.cfg_mgr.samples_settings)
-        self.setup_columns_treeview()
+        # self.columns_treeview = ColumnVisibilityControl(self.cfg_mgr.samples_settings)
+        # self.setup_columns_treeview()
 
         self.run_setup_widget = RunSetupWidget(self.cfg_mgr)
         self.run_view_widget = RunView(self.cfg_mgr)
         self.setup_run_view()
 
-        self.validation_widget = MainValidationWidget()
+        self.validation_widget = MainValidationWidget(self.cfg_mgr)
         self.setup_validation_widget()
 
         self.indexes_widget = IndexKitToolbox(Path("config/indexes/indexes_json"))
@@ -134,8 +134,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.leftmenu_stackedWidget.setFixedWidth(300)
         self.leftmenu_stackedWidget.hide()
-        self.rightmenu_stackedWidget.setFixedWidth(250)
-        self.rightmenu_stackedWidget.hide()
+        # self.rightmenu_stackedWidget.setFixedWidth(250)
+        # self.rightmenu_stackedWidget.hide()
 
     def setup_validation_widget(self):
         layout = self.main_validation.layout()
@@ -149,39 +149,39 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout = self.main_make.layout()
         layout.addWidget(self.samplesheetedit)
 
-    def setup_columns_treeview(self):
-        layout = self.rightmenu_columnsettings.layout()
-        layout.addWidget(self.columns_treeview)
+    # def setup_columns_treeview(self):
+    #     layout = self.rightmenu_columnsettings.layout()
+    #     layout.addWidget(self.columns_treeview)
+    #
+    #     self.columns_treeview.field_visibility_state_changed.connect(
+    #         self.samples_widget.sample_view.set_column_visibility_state
+    #     )
+    #     self.samples_widget.sample_view.field_visibility_state_changed.connect(
+    #         self.columns_treeview.set_column_visibility_state
+    #     )
 
-        self.columns_treeview.field_visibility_state_changed.connect(
-            self.samples_widget.sample_view.set_column_visibility_state
-        )
-        self.samples_widget.sample_view.field_visibility_state_changed.connect(
-            self.columns_treeview.set_column_visibility_state
-        )
-
-    def _vertical_button_view(self, button: QPushButton):
-        button.setFixedSize(100, 20)
-        button.setContentsMargins(0, 0, 0, 0)
-        button.setStyleSheet("QPushButton {border: none;}")
-        button.setIcon(qta.icon("ph.rows-light"))
-
-        scene = QGraphicsScene(self)
-        button_proxy = scene.addWidget(button)
-        button_proxy.setRotation(90)
-
-        view = QGraphicsView(self.right_sidebar_widget)
-        view.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
-        view.setFrameStyle(QFrame.NoFrame)
-        view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-        button_size = button.size()
-        view.setFixedSize(button_size.height() + 2, button_size.width() + 2)
-        view.setScene(scene)
-        view.setContentsMargins(0, 0, 0, 0)
-
-        return view
+    # def _vertical_button_view(self, button: QPushButton):
+    #     button.setFixedSize(100, 20)
+    #     button.setContentsMargins(0, 0, 0, 0)
+    #     button.setStyleSheet("QPushButton {border: none;}")
+    #     button.setIcon(qta.icon("ph.rows-light"))
+    #
+    #     scene = QGraphicsScene(self)
+    #     button_proxy = scene.addWidget(button)
+    #     button_proxy.setRotation(90)
+    #
+    #     view = QGraphicsView(self.right_sidebar_widget)
+    #     view.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+    #     view.setFrameStyle(QFrame.NoFrame)
+    #     view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    #     view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    #
+    #     button_size = button.size()
+    #     view.setFixedSize(button_size.height() + 2, button_size.width() + 2)
+    #     view.setScene(scene)
+    #     view.setContentsMargins(0, 0, 0, 0)
+    #
+    #     return view
 
     def setup_samples_widget(self):
         layout = self.main_data.layout()
@@ -298,39 +298,39 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.left_toolBar.addWidget(spacer)
         self.left_toolBar.addAction(action_group.actions()[6])
 
-    def setup_right_menu_actions(self):
-        """
-        Set up the tool actions for the application.
-
-        This function initializes the action-to-tab mapping for the different tool actions
-        available in the application. It also sets up the icons, checkable states, and
-        connections for each tool action.
-        """
-        self.right_action_tab_map = {"columns_settings": self.rightmenu_columnsettings}
-
-        view = self._vertical_button_view(self.columns_settings_button)
-        layout = self.right_sidebar_widget.layout()
-        layout.insertWidget(0, view)
-        layout.setContentsMargins(0, 0, 0, 0)
-
-        self.columns_settings_button.setCheckable(True)
-        self.columns_settings_button.setChecked(False)
-
-        self.columns_settings_button.clicked.connect(self.on_right_menu_click)
-
-    def on_right_menu_click(self):
-        button = self.sender()
-        button_id = button.objectName()
-
-        is_button_checked = button.isChecked()
-
-        if is_button_checked:
-            self.rightmenu_stackedWidget.show()
-            self.rightmenu_stackedWidget.setCurrentWidget(
-                self.right_action_tab_map[button_id]
-            )
-        else:
-            self.rightmenu_stackedWidget.hide()
+    # def setup_right_menu_actions(self):
+    #     """
+    #     Set up the tool actions for the application.
+    #
+    #     This function initializes the action-to-tab mapping for the different tool actions
+    #     available in the application. It also sets up the icons, checkable states, and
+    #     connections for each tool action.
+    #     """
+    #     self.right_action_tab_map = {"columns_settings": self.rightmenu_columnsettings}
+    #
+    #     view = self._vertical_button_view(self.columns_settings_button)
+    #     layout = self.right_sidebar_widget.layout()
+    #     layout.insertWidget(0, view)
+    #     layout.setContentsMargins(0, 0, 0, 0)
+    #
+    #     self.columns_settings_button.setCheckable(True)
+    #     self.columns_settings_button.setChecked(False)
+    #
+    #     self.columns_settings_button.clicked.connect(self.on_right_menu_click)
+    #
+    # def on_right_menu_click(self):
+    #     button = self.sender()
+    #     button_id = button.objectName()
+    #
+    #     is_button_checked = button.isChecked()
+    #
+    #     if is_button_checked:
+    #         self.rightmenu_stackedWidget.show()
+    #         self.rightmenu_stackedWidget.setCurrentWidget(
+    #             self.right_action_tab_map[button_id]
+    #         )
+    #     else:
+    #         self.rightmenu_stackedWidget.hide()
 
     # def load_worklist(self):
     #     options = get_dialog_options()

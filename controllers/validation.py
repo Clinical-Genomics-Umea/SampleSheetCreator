@@ -14,7 +14,7 @@ import yaml
 
 
 def load_from_yaml(config_file):
-    print(config_file)
+
     with open(config_file, "r") as file:
         return yaml.safe_load(file)
 
