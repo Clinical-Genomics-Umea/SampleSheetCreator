@@ -235,25 +235,17 @@ class IndexDistanceValidator(QObject):
 
         self.model = model
         self.cfg_mgr = cfg_mgr
-        print(cfg_mgr.run_data)
-
-        try:
-            i5_orientation = cfg_mgr.run_data.get("I5SeqOrientation")
-            if i5_orientation is None:
-                raise KeyError("I5IndexOrientation key not found in run_setup_data")
-
-            self.i5_rc = i5_orientation == "rc"
-            print("i5_rc bool", self.i5_rc)
-
-        except KeyError as e:
-            raise KeyError(f"Configuration error: {e}")
 
         self.thread = None
         self.worker = None
 
     def validate(self):
+
+        i5_orientation = self.cfg_mgr.run_data.get("I5SeqOrientation")
+        i5_rc = i5_orientation == "rc"
+
         self.thread = QThread()
-        self.worker = IndexDistanceValidationWorker(self.model, self.i5_rc)
+        self.worker = IndexDistanceValidationWorker(self.model, i5_rc)
 
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
@@ -360,7 +352,6 @@ class ColorBalanceValidator(QObject):
 
         self.model = model
         self.cfg_mgr = cfg_mgr
-        print(self.cfg_mgr.run_data)
 
         i5_orientation = cfg_mgr.run_data.get("I5SeqOrientation")
         print("i5 orientation", i5_orientation)
@@ -368,6 +359,8 @@ class ColorBalanceValidator(QObject):
         self.i5_rc = i5_orientation == "rc"
 
     def validate(self):
+        i5_orientation = self.cfg_mgr.run_data.get("I5SeqOrientation")
+        i5_rc = i5_orientation == "rc"
 
         df = explode_lane_column(self.model.to_dataframe())
 
@@ -375,7 +368,7 @@ class ColorBalanceValidator(QObject):
             return
 
         unique_lanes = df["Lane"].unique()
-        i5_col_name = "IndexI5RC" if self.i5_rc else "IndexI5"
+        i5_col_name = "IndexI5RC" if i5_rc else "IndexI5"
         print(i5_col_name)
 
         result = {}
@@ -435,6 +428,15 @@ class IndexColorBalanceModel(QStandardItemModel):
             for key, colors in base_colors.items()
         }
 
+    def data(self, index, role=Qt.DisplayRole):
+        # Only modify data for display purposes
+        if role == Qt.DisplayRole:
+            original_value = super().data(index, role)
+            # Replace "na" with "-"
+            if original_value == "nan":
+                return "-"
+        return super().data(index, role)
+
     def update_summation(self):
 
         for col in range(2, self.columnCount()):
@@ -444,7 +446,9 @@ class IndexColorBalanceModel(QStandardItemModel):
             for row in range(self.rowCount() - 1):
                 proportion = int(self.item(row, 1).text())
                 base = self.item(row, col).text()
-                bases_count[base] += proportion
+
+                if base in ["A", "C", "G", "T"]:
+                    bases_count[base] += proportion
 
             color_counts = self._generic_base_to_color_count(bases_count)
             normalized_color_counts = self._normalize(color_counts)
@@ -477,26 +481,26 @@ class IndexColorBalanceModel(QStandardItemModel):
 
         return normalized_dict
 
-    @staticmethod
-    def _base_to_color_count(dict1):
-        color_count = {
-            "B": 0,
-            "G": 0,
-            "D": 0,
-        }
-
-        for base, count in dict1.items():
-            if base == "A":
-                color_count["B"] = count
-            elif base == "C":
-                color_count["B"] = count * 0.5
-                color_count["G"] = count * 0.5
-            elif base == "T":
-                color_count["G"] = count
-            elif base == "G":
-                color_count["D"] = count
-
-        return color_count
+    # @staticmethod
+    # def _base_to_color_count(dict1):
+    #     color_count = {
+    #         "B": 0,
+    #         "G": 0,
+    #         "D": 0,
+    #     }
+    #
+    #     for base, count in dict1.items():
+    #         if base == "A":
+    #             color_count["B"] = count
+    #         elif base == "C":
+    #             color_count["B"] = count * 0.5
+    #             color_count["G"] = count * 0.5
+    #         elif base == "T":
+    #             color_count["G"] = count
+    #         elif base == "G":
+    #             color_count["D"] = count
+    #
+    #     return color_count
 
     def _generic_base_to_color_count(self, dict1):
         color_count = {
