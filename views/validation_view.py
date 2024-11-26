@@ -102,11 +102,11 @@ class PreValidationWidget(QTableWidget):
         self.setItem(last_row, 2, message_item)
 
     @Slot(dict)
-    def populate(self, results):
+    def populate(self, validation_results):
 
         self.setRowCount(0)
 
-        for validation_name, is_valid, message in results:
+        for validation_name, is_valid, message in validation_results:
             self._add_row(validation_name, is_valid, message)
 
 
@@ -143,34 +143,7 @@ class MainIndexDistanceValidationWidget(QTabWidget):
         while self.count() > 0:
             widget = self.widget(0)  # Get the first widget in the tab widget
             self.removeTab(0)  # Remove the tab
-            self._clear_widget(widget)
-
-    def _clear_widget(self, widget):
-        if isinstance(widget, QScrollArea):
-            content_widget = widget.widget()
-
-            if content_widget is not None:
-                # Delete the content widget
-                content_widget.deleteLater()
-        else:
-            layout = widget.layout()
-            if layout:
-                # Clear the layout and delete its contents
-                while layout.count() > 0:
-                    item = layout.takeAt(0)
-                    child_widget = item.widget()
-                    if child_widget:
-                        child_widget.deleteLater()
-                    sub_layout = item.layout()
-                    if sub_layout:
-                        self._clear_widget(sub_layout.widget())
-                    item.deleteLater()
-
-                # Optionally, delete the layout itself
-                widget.setLayout(None)
-
-            for child in widget.findChildren(QWidget):
-                child.deleteLater()
+            widget.deleteLater()
 
 
 class LaneIndexDistanceWidget(QScrollArea):
@@ -252,30 +225,12 @@ class MainColorBalanceWidget(QTabWidget):
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-    def _clear_subwidgets(self, widget: QWidget):
-        layout = widget.layout()
-        if layout:
-            while layout.count() > 0:
-                item = layout.takeAt(0)
-                child_widget = item.widget()
-                if child_widget:
-                    child_widget.deleteLater()
-                sub_layout = item.layout()
-                if sub_layout:
-                    self._clear_subwidgets(sub_layout.widget())
-                item.deleteLater()
-
-            widget.setLayout(None)
-
-        for child in widget.findChildren(QWidget):
-            child.deleteLater()
-
     def clear_widget(self):
         # Remove and delete each tab widget
         while self.count() > 0:
             widget = self.widget(0)  # Get the first widget in the tab widget
             self.removeTab(0)  # Remove the tab
-            self._clear_subwidgets(widget)
+            widget.deleteLater()
 
     @Slot(object)
     def populate(self, results):

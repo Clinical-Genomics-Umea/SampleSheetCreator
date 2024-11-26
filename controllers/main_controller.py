@@ -1,6 +1,7 @@
 from PySide6.QtCore import QObject
 
 from models.configuration import ConfigurationManager
+from models.make_export import MakeJson
 from models.samplesheet_model import SampleSheetModel, CustomProxyModel
 from models.validation import MainValidator
 from views.main_window import MainWindow
@@ -16,13 +17,14 @@ class MainController(QObject):
         self.main_window = MainWindow(self.cfg_mgr)
 
         # Set up sample model and proxy model
-        self.sample_model = None
+        self.sample_model = SampleSheetModel(self.cfg_mgr.samples_settings)
         self.sample_proxy_model = None
-
         self.setup_samplesheet_model()
 
         # Initialize main validator with necessary components
         self.main_validator = MainValidator(self.sample_model, self.cfg_mgr)
+
+        self.make_json = MakeJson(self.sample_model, self.cfg_mgr)
 
         # Set up connections
         self.setup_validation_connections()
@@ -35,9 +37,14 @@ class MainController(QObject):
         self.setup_run_connections()
         self.setup_file_connections()
 
+        self.setup_make_connections()
+
+    def setup_make_connections(self):
+        self.make_json.data_ready.connect(self.main_window.make_widget.populate)
+        self.main_window.make_widget.mk_export.clicked.connect(self.make_json.mk_json)
+
     def setup_samplesheet_model(self):
         # Set up sample model and proxy model
-        self.sample_model = SampleSheetModel(self.cfg_mgr.samples_settings)
         self.sample_proxy_model = CustomProxyModel()
         self.sample_proxy_model.setSourceModel(self.sample_model)
 
@@ -55,6 +62,7 @@ class MainController(QObject):
             self.main_window.run_action,
             self.main_window.profiles_action,
             self.main_window.indexes_action,
+            self.main_window.override_action,
             self.main_window.settings_action,
             self.main_window.validate_action,
             self.main_window.make_action,

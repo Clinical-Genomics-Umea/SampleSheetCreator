@@ -1,13 +1,13 @@
 {
     "index_kit": {
         "checksum": "ncbSlPYlpSRtJgsy7yfnQg==",
-        "name": "Ilmn DNA-RNA UD Indexes SetD Tagm PCR-Free",
+        "name": "Ilmn DNA-RNA UD Indexes SetD Tagm PCR-Free UMI",
         "display_name": "Ilmn DNA-RNA UD Indexes SetD Tagmentation - ILMN PCR-Free",
         "file_format_version": "1",
         "version": "1",
         "description": "Ilmn DNA-RNA UD Indexes SetD Tagmentation - ILMN PCR-Free Index Kit",
         "index_strategy": "DualOnly",
-        "override_cycles_pattern": "Y{r1}-I{i1}-I{i2}-Y{r2}"
+        "override_cycles_pattern": "U3N2Y{r1}-I{i1}-I{i2}-U3N2Y{r2}"
     },
     "resources": {
         "adapter": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",

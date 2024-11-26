@@ -7,7 +7,7 @@
         "version": "1",
         "description": "Illumina DNA-RNA UD Indexes Set A (96 Indexes) Tagmentation",
         "index_strategy": "DualOnly",
-        "override_cycles_pattern": "Y$r1-I$i1-I$i2-Y$r2"
+        "override_cycles_pattern": "Y{r1}-I{i1}-I{i2}-Y{r2}"
     },
     "resources": {
         "adapter": "CTGTCTCTTATACACATCT",

@@ -69,7 +69,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="leftmenu_config">
        <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -261,6 +261,9 @@
          <number>0</number>
         </property>
        </layout>
+      </widget>
+      <widget class="QWidget" name="leftmenu_override">
+       <layout class="QVBoxLayout" name="verticalLayout_3"/>
       </widget>
      </widget>
     </item>

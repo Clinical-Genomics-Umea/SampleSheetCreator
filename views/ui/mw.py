@@ -163,6 +163,11 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.leftmenu_stackedWidget.addWidget(self.leftmenu_runsetup)
+        self.leftmenu_override = QWidget()
+        self.leftmenu_override.setObjectName(u"leftmenu_override")
+        self.verticalLayout_3 = QVBoxLayout(self.leftmenu_override)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.leftmenu_stackedWidget.addWidget(self.leftmenu_override)
 
         self.horizontalLayout_2.addWidget(self.leftmenu_stackedWidget)
 
@@ -213,7 +218,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.leftmenu_stackedWidget.setCurrentIndex(1)
+        self.leftmenu_stackedWidget.setCurrentIndex(5)
         self.main_stackedWidget.setCurrentIndex(1)
 
 
