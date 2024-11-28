@@ -35,9 +35,12 @@ class MainController(QObject):
             self.main_window.samples_widget.sample_view.set_profile_data
         )
         self.setup_run_connections()
+
         self.setup_file_connections()
 
         self.setup_make_connections()
+
+        self.setup_override_pattern_connections()
 
     def setup_make_connections(self):
         self.make_json.data_ready.connect(self.main_window.make_widget.populate)
@@ -85,6 +88,17 @@ class MainController(QObject):
         )
         self.main_window.validation_widget.validate_button.clicked.connect(
             self.main_validator.validate
+        )
+
+    def setup_override_pattern_connections(self):
+        self.main_window.samples_widget.sample_view.override_patterns_ready.connect(
+            self.main_window.override_widget.set_override_pattern
+        )
+        self.main_window.override_widget.get_selected_overrides_btn.clicked.connect(
+            self.main_window.samples_widget.sample_view.get_selected_override_patterns
+        )
+        self.main_window.override_widget.custom_override_pattern_ready.connect(
+            self.main_window.samples_widget.sample_view.set_override_pattern
         )
 
     def setup_run_connections(self):

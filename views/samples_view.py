@@ -230,6 +230,7 @@ class SampleTableView(QTableView):
 
     field_visibility_state_changed = Signal(str, bool)
     cell_selected = Signal(str)
+    override_patterns_ready = Signal(list)
 
     def __init__(self):
         super().__init__()
@@ -587,3 +588,72 @@ class SampleTableView(QTableView):
                 return True
 
         return False
+
+    @Slot(str)
+    def set_override_pattern(self, pattern: str):
+        print("set override pattern")
+        selection_model = self.selectionModel()
+        if not selection_model:
+            return
+
+        selected_indexes = selection_model.selectedRows()
+        if not selected_indexes:
+            return
+
+        selected_rows = [index.row() for index in selected_indexes]
+
+        model = self.model()
+        if not model:
+            return
+
+        header_labels = [
+            model.headerData(col, Qt.Horizontal, Qt.DisplayRole)
+            for col in range(model.columnCount())
+        ]
+
+        override_col = header_labels.index("OverrideCyclesPattern")
+
+        for row in selected_rows:
+            print(pattern)
+
+            if row < 0 or row >= model.rowCount():
+                continue
+
+            index = model.index(row, override_col)
+            if not index.isValid():
+                continue
+
+            model.setData(index, pattern, Qt.EditRole)
+
+    def get_selected_override_patterns(self):
+        model = self.model()
+        if not model:
+            return
+
+        selected_indexes = self.selectedIndexes()
+        if not selected_indexes:
+            return
+
+        header_labels = [
+            model.headerData(col, Qt.Horizontal, Qt.DisplayRole)
+            for col in range(model.columnCount())
+        ]
+
+        override_col = header_labels.index("OverrideCyclesPattern")
+
+        data = []
+        for index in selected_indexes:
+            if not index.isValid():
+                continue
+
+            row = index.row()
+            if row < 0 or row >= model.rowCount():
+                continue
+
+            index = model.index(row, override_col)
+            if not index.isValid():
+                continue
+
+            data.append(model.data(index, Qt.DisplayRole))
+
+        self.override_patterns_ready.emit(data)
