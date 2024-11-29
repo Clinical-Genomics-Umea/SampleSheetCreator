@@ -1,6 +1,7 @@
 ---
+OnBoardDragen: true
 ApplicationProfileVersion: 1.0
-ApplicationProfile: DragenEnrichment_IDT_Germline
+ApplicationProfileName: DragenEnrichment_IDT_Germline
 Application: DragenEnrichment
 
 ApplicationSettings:

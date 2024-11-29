@@ -1,5 +1,6 @@
 from PySide6.QtCore import QObject
 
+from models.application_profile import ApplicationProfileManager
 from models.configuration import ConfigurationManager
 from models.make_export import MakeJson
 from models.samplesheet_model import SampleSheetModel, CustomProxyModel
@@ -12,9 +13,10 @@ class MainController(QObject):
         super().__init__()
 
         self.cfg_mgr = ConfigurationManager()
+        self.app_profile_mgr = ApplicationProfileManager(self.cfg_mgr)
 
         # Initialize main window with sample settings
-        self.main_window = MainWindow(self.cfg_mgr)
+        self.main_window = MainWindow(self.cfg_mgr, self.app_profile_mgr)
 
         # Set up sample model and proxy model
         self.sample_model = SampleSheetModel(self.cfg_mgr.samples_settings)
@@ -31,9 +33,10 @@ class MainController(QObject):
         self.setup_left_tool_action_connections()
 
         # Connect profile data signal
-        self.main_window.application_profiles_widget.profile_mgr.profile_data.connect(
+        self.main_window.application_profiles_widget.profile_data_ready.connect(
             self.main_window.samples_widget.sample_view.set_profile_data
         )
+
         self.setup_run_connections()
 
         self.setup_file_connections()

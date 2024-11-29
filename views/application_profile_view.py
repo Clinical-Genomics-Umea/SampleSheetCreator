@@ -15,7 +15,9 @@ from PySide6.QtWidgets import (
     QTextEdit,
 )
 
-from PySide6.QtCore import Signal, Qt, QObject
+from PySide6.QtCore import Signal, Qt, QObject, Slot
+
+from models.application_profile import ApplicationProfileManager
 from utils.utils import read_yaml_file
 
 
@@ -23,7 +25,7 @@ class ClickableLabel(QLabel):
     def __init__(self, text, data, parent=None):
         super().__init__(text, parent)
         self.data = data
-        self.name = data["ApplicationProfile"]
+        self.name = data["ApplicationProfileName"]
         self.setCursor(Qt.PointingHandCursor)  # Change the cursor to a hand pointer
 
     def mousePressEvent(self, event):
@@ -47,9 +49,12 @@ class ClickableLabel(QLabel):
 
 
 class ApplicationProfiles(QWidget):
-    def __init__(self, application_profile_basepath: Path):
+
+    profile_data_ready = Signal(dict)
+
+    def __init__(self, app_profile_mgr):
         super().__init__()
-        self.profile_mgr = ApplicationProfileMGR(application_profile_basepath)
+        self.profile_mgr = app_profile_mgr
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
 
@@ -60,6 +65,8 @@ class ApplicationProfiles(QWidget):
         self.vertical_layout = QVBoxLayout()
         self.main_layout.addLayout(self.vertical_layout)
 
+        self.profile_widgets = []
+
         self.setup()
 
     def setup(self):
@@ -69,19 +76,30 @@ class ApplicationProfiles(QWidget):
         self.vertical_layout.setSpacing(5)
         self.vertical_layout.setContentsMargins(0, 0, 0, 0)
 
-        profile_widgets = self.profile_mgr.get_profile_widgets()
-        for group in profile_widgets:
+        profiles = self.profile_mgr.get_application_profiles()
+        for group in profiles:
             group_label = QLabel(group)
             group_label.setStyleSheet("font-style: italic")
             self.vertical_layout.addWidget(self.get_line())
             self.vertical_layout.addWidget(group_label)
-            for name in profile_widgets[group]:
-                pw = profile_widgets[group][name]
-                self.vertical_layout.addWidget(pw)
+            for name in profiles[group]:
+
+                profile_widget = ApplicationProfileWidget(profiles[group][name])
+                self.profile_widgets.append(profile_widget)
+                self.vertical_layout.addWidget(profile_widget)
+
+                profile_widget.profile_data_ready.connect(
+                    self._handle_profile_button_click
+                )
 
         self.main_layout.addSpacerItem(
             QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         )
+
+    @Slot(object)
+    def _handle_profile_button_click(self, data):
+        print("handle ..", data)
+        self.profile_data_ready.emit(data)
 
     @staticmethod
     def get_line():
@@ -93,14 +111,16 @@ class ApplicationProfiles(QWidget):
 
 class ApplicationProfileWidget(QWidget):
 
+    profile_data_ready = Signal(object)
+
     def __init__(self, data: dict):
         super().__init__()
 
+        self.profile_data = data
         self.profile_button = QPushButton("apply")
-        self.profile_button.setProperty("data", data)
 
         self.profile_button.setMaximumWidth(50)
-        self.label = ClickableLabel(data["ApplicationProfile"], data)
+        self.label = ClickableLabel(data["ApplicationProfileName"], data)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -114,50 +134,10 @@ class ApplicationProfileWidget(QWidget):
 
         self.setLayout(layout)
 
-    # def profile_name(self):
-    #     return self.profile_name["ProfileName"]
+        self.profile_button.clicked.connect(self.apply_clicked)
 
+    def apply_clicked(self):
 
-class ApplicationProfileMGR(QObject):
+        print("apply", self.profile_data)
 
-    profile_data = Signal(dict)
-
-    def __init__(self, application_profiles_basepath: Path) -> None:
-        # setup profile files
-
-        super().__init__()
-        application_files = [f for f in application_profiles_basepath.glob("**/*.yaml")]
-        self.profile_widgets = {}
-
-        for file in application_files:
-            if not file.is_file():
-                continue
-
-            profile_data = read_yaml_file(file)
-            if not profile_data:
-                continue
-
-            group = file.parent.name
-            if not group:
-                continue
-
-            profile_name = profile_data["ApplicationProfile"]
-            if not profile_name:
-                continue
-
-            pw = ApplicationProfileWidget(profile_data)
-
-            if group not in self.profile_widgets:
-                self.profile_widgets[group] = {}
-
-            self.profile_widgets[group][profile_name] = pw
-            if pw.profile_button:
-                pw.profile_button.clicked.connect(self.send_data)
-
-    def send_data(self):
-        button = self.sender()
-        data = button.property("data")
-        self.profile_data.emit(data)
-
-    def get_profile_widgets(self):
-        return self.profile_widgets
+        self.profile_data_ready.emit(self.profile_data)

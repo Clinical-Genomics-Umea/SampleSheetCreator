@@ -1,4 +1,11 @@
-from PySide6.QtGui import QKeyEvent, QClipboard, QCursor, QStandardItemModel, QFont
+from PySide6.QtGui import (
+    QKeyEvent,
+    QClipboard,
+    QCursor,
+    QStandardItemModel,
+    QFont,
+    QStandardItem,
+)
 from PySide6.QtCore import (
     Qt,
     Signal,
@@ -6,6 +13,8 @@ from PySide6.QtCore import (
     Slot,
     QItemSelectionModel,
     QAbstractItemModel,
+    QRect,
+    QEvent,
 )
 from PySide6.QtWidgets import (
     QTableView,
@@ -21,11 +30,17 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QHBoxLayout,
     QSizePolicy,
+    QDialog,
+    QTreeView,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionButton,
 )
 
 import json
 
 from models.samplesheet_model import CustomProxyModel
+from utils.utils import header_to_index_map
 from views.column_visibility_view import ColumnVisibilityWidget
 from views.run_setup_views import RunView
 
@@ -145,7 +160,7 @@ class SamplesWidget(QWidget):
 
         self.sample_view.setContextMenuPolicy(Qt.CustomContextMenu)
         header = self.sample_view.horizontalHeader()
-        header.setSectionResizeMode(QHeaderView.ResizeToContents)
+        # header.setSectionResizeMode(QHeaderView.ResizeToContents)
         header.setMinimumSectionSize(100)
 
         self.extended_selection_pushbutton.clicked.connect(self.set_selection_mode)
@@ -178,14 +193,22 @@ class SamplesWidget(QWidget):
         self.sample_view.selectionModel().selectionChanged.connect(
             self.on_sampleview_selection_changed
         )
+        header_index_map = header_to_index_map(samples_proxy_model)
+        self.sample_view.setItemDelegateForColumn(
+            header_index_map["ApplicationProfile"], JsonButtonDelegate()
+        )
+
+        header = self.sample_view.horizontalHeader()
+        for col in range(samples_proxy_model.columnCount() - 1):
+            header.setSectionResizeMode(col, QHeaderView.ResizeToContents)
+
+        # self.sample_view.setColumnWidth(header_index_map["ApplicationProfile"], 30)
 
     def set_selection_mode(self):
         if self.extended_selection_pushbutton.isChecked():
-            # self.sampleview.clearSelection()
             self.sample_view.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         else:
-            # self.sampleview.clearSelection()
             self.sample_view.setSelectionMode(QAbstractItemView.ContiguousSelection)
 
     @staticmethod
@@ -226,6 +249,81 @@ class SamplesWidget(QWidget):
             self.cell_value.setText("")
 
 
+class JsonButtonDelegate(QStyledItemDelegate):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def paint(self, painter, option, index):
+        # Draw a button in the cell
+        style = option.widget.style()
+        button_rect = style.subElementRect(QStyle.SE_PushButtonContents, option)
+        button_rect = QRect(
+            option.rect.x() + 5,
+            option.rect.y() + 5,
+            option.rect.width() - 10,
+            option.rect.height() - 10,
+        )
+
+        # Use QStyleOptionButton instead of QStyle.OptionButton
+        button_options = QStyleOptionButton()
+        button_options.rect = button_rect
+        button_options.text = "View JSON"
+        button_options.state = QStyle.State_Enabled
+        style.drawControl(QStyle.CE_PushButton, button_options, painter)
+
+    def editorEvent(self, event, model, option, index):
+        # Handle button clicks
+        if event.type() == QEvent.MouseButtonPress:
+            if option.rect.contains(event.pos()):
+                # Get the JSON data from the model
+                json_data = index.data()
+                self.open_json_tree_view(json_data)
+        return super().editorEvent(event, model, option, index)
+
+    def open_json_tree_view(self, json_data):
+        # Parse JSON and show in a QTreeView
+        try:
+            parsed_data = json.loads(json_data)
+        except json.JSONDecodeError:
+            parsed_data = {"error": "Invalid JSON"}
+
+        # Create a dialog to display the tree view
+        dialog = QDialog()
+        dialog.setWindowTitle("JSON Viewer")
+        layout = QVBoxLayout(dialog)
+
+        tree_view = QTreeView()
+        tree_model = QStandardItemModel()
+        tree_model.setHorizontalHeaderLabels(["Key", "Value"])
+
+        # Recursively populate the tree model with JSON data
+        def populate_tree(parent, data):
+            if isinstance(data, dict):
+                for key, value in data.items():
+                    key_item = QStandardItem(key)
+                    value_item = QStandardItem(
+                        str(value) if not isinstance(value, (dict, list)) else ""
+                    )
+                    parent.appendRow([key_item, value_item])
+                    if isinstance(value, (dict, list)):
+                        populate_tree(key_item, value)
+            elif isinstance(data, list):
+                for i, value in enumerate(data):
+                    key_item = QStandardItem(f"[{i}]")
+                    value_item = QStandardItem(
+                        str(value) if not isinstance(value, (dict, list)) else ""
+                    )
+                    parent.appendRow([key_item, value_item])
+                    if isinstance(value, (dict, list)):
+                        populate_tree(key_item, value)
+
+        populate_tree(tree_model.invisibleRootItem(), parsed_data)
+        tree_view.setModel(tree_model)
+        layout.addWidget(tree_view)
+
+        dialog.exec()
+
+
 class SampleTableView(QTableView):
 
     field_visibility_state_changed = Signal(str, bool)
@@ -257,17 +355,9 @@ class SampleTableView(QTableView):
         self.resizeColumnsToContents()
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-    @staticmethod
-    def get_header_key_dict(model: QAbstractItemModel) -> dict:
-        header_key_dict = {}
-        for column in range(model.columnCount()):
-            header_item = model.horizontalHeaderItem(column)
-            if header_item is not None:
-                header_key_dict[header_item.text()] = column
-        return header_key_dict
-
     @Slot(dict)
-    def set_profile_data(self, profiles_data):
+    def set_profile_data(self, profile_data):
+
         proxy_model = self.model()
         source_model = proxy_model.sourceModel()
         selection_model = self.selectionModel()
@@ -276,24 +366,24 @@ class SampleTableView(QTableView):
         if not selected_rows:
             return
 
-        header_key_dict = self.get_header_key_dict(source_model)
+        header_index_map = header_to_index_map(proxy_model)
+        application_profile_name_col = header_index_map["ApplicationProfileName"]
+        application_profile_name = profile_data["ApplicationProfileName"]
+        application_profile_col = header_index_map["ApplicationProfile"]
         source_model.blockSignals(True)
 
         for row in selected_rows:
-            if profiles_data["Application"] == "BCLConvert":
-                self._set_data(
-                    proxy_model,
-                    header_key_dict,
-                    row,
-                    "ApplicationSettings",
-                    profiles_data,
-                )
-                self._set_data(
-                    proxy_model, header_key_dict, row, "ApplicationData", profiles_data
-                )
-            else:
-                self._set_application_data(
-                    proxy_model, header_key_dict, row, profiles_data
+            self._set_application_profile_name(
+                proxy_model, row, application_profile_name_col, application_profile_name
+            )
+
+            self._set_application_profile(
+                proxy_model, row, application_profile_col, profile_data
+            )
+
+            if profile_data["Application"] == "BCLConvert":
+                self._set_bclconvert_columns(
+                    proxy_model, row, header_index_map, profile_data
                 )
 
         source_model.blockSignals(False)
@@ -305,47 +395,48 @@ class SampleTableView(QTableView):
             Qt.DisplayRole,
         )
 
-    @staticmethod
-    def _set_data(proxy_model, header_key_dict, row, data_type, profiles_data):
-        if data_type in profiles_data:
-            for key, value in profiles_data[data_type].items():
-                if key in header_key_dict:
-                    column = header_key_dict[key]
-                    proxy_model.setData(proxy_model.index(row, column), value)
+    def _set_bclconvert_columns(self, proxy_model, row, header_key_dict, profile_data):
+        assert proxy_model is not None
+        assert header_key_dict is not None
+        assert row >= 0
+        assert profile_data is not None
+
+        for key, item in profile_data.items():
+            if key in header_key_dict:
+                column = header_key_dict[key]
+                assert column >= 0
+
+                if key != "ApplicationProfileName" and key != "ApplicationProfile":
+                    proxy_model.setData(proxy_model.index(row, column), item)
+
+            else:
+                if isinstance(item, dict):
+                    self._set_bclconvert_columns(
+                        proxy_model, row, header_key_dict, item
+                    )
 
     @staticmethod
-    def _set_application_data(proxy_model, header_key_dict, row, profiles_data):
+    def _set_application_profile_name(model, row, col, application_profile_name):
+        data_json = model.data(model.index(row, col), Qt.DisplayRole)
+        if not data_json:
+            data_json = "[]"
 
-        common_keys = set(header_key_dict.keys()).intersection(
-            set(profiles_data.keys())
-        )
+        data = json.loads(data_json)
+        data.append(application_profile_name)
+        data_json = json.dumps(data)
+        model.setData(model.index(row, col), data_json)
 
-        if "ApplicationProfile" in common_keys:
-            column = header_key_dict["ApplicationProfile"]
-            proxy_model.setData(
-                proxy_model.index(row, column), profiles_data["ApplicationProfile"]
-            )
+    @staticmethod
+    def _set_application_profile(model, row, col, profile):
 
-        if "ApplicationData" in common_keys:
-            column = header_key_dict["ApplicationData"]
-            json_data = json.dumps(profiles_data["ApplicationData"])
-            proxy_model.setData(proxy_model.index(row, column), json_data)
+        data_json = model.data(model.index(row, col), Qt.DisplayRole)
+        if not data_json:
+            data_json = "[]"
 
-        if "ApplicationSettings" in common_keys:
-            column = header_key_dict["ApplicationSettings"]
-            json_settings = json.dumps(profiles_data["ApplicationSettings"])
-            proxy_model.setData(proxy_model.index(row, column), json_settings)
-
-        if "ApplicationDataFields" in common_keys:
-            column = header_key_dict["ApplicationDataFields"]
-            json_fields = json.dumps(profiles_data["ApplicationDataFields"])
-            proxy_model.setData(proxy_model.index(row, column), json_fields)
-
-        if "Application" in common_keys:
-            column = header_key_dict["Application"]
-            proxy_model.setData(
-                proxy_model.index(row, column), profiles_data["Application"]
-            )
+        data = json.loads(data_json)
+        data.append(profile)
+        data_json = json.dumps(data)
+        model.setData(model.index(row, col), data_json)
 
     def table_popup(self):
         self.table_context_menu.exec(QCursor.pos())

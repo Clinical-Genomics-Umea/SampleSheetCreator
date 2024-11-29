@@ -15,14 +15,8 @@ fields:
   BCLConvert:
     - BarcodeMismatchesIndex1
     - BarcodeMismatchesIndex2
-    - AdapterRead1
-    - AdapterRead2
-    - FastqCompressionFormat
-    - SoftwareVersion
   ApplicationProfile:
-    - Application
+    - ApplicationProfileName
     - ApplicationProfile
-    - ApplicationSettings
-    - ApplicationData
-    - ApplicationDataFields
+
 

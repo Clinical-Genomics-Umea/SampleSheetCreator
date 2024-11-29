@@ -1,6 +1,7 @@
 ---
+OnBoardDragen: true
 ApplicationProfileVersion: 1.0
-ApplicationProfile: DragenRna_IDT
+ApplicationProfileName: DragenRna_IDT
 Application: DragenRna
 
 ApplicationSettings:

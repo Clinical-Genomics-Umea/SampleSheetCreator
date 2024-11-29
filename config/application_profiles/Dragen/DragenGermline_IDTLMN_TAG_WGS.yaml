@@ -1,6 +1,7 @@
 ---
+OnBoardDragen: true
 ApplicationProfileVersion: 1.0
-ApplicationProfile: DragenGermline_IDTLMN_TAG_WGS
+ApplicationProfileName: DragenGermline_IDTLMN_TAG_WGS
 Application: DragenGermline
 
 ApplicationSettings:

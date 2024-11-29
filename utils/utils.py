@@ -1,3 +1,4 @@
+from PySide6.QtCore import QAbstractItemModel, Qt, QSortFilterProxyModel
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 
 import pandas as pd
@@ -22,6 +23,16 @@ def int_list_to_int_str(int_list):
     int_str = ", ".join(map(str, int_list))
 
     return f"[{int_str}]"
+
+
+def header_to_index_map(model: QSortFilterProxyModel) -> dict:
+    header_index_map = {}
+    for column in range(model.columnCount()):
+        header_item = model.headerData(column, Qt.Horizontal)
+        if header_item is not None:
+            header_index_map[header_item] = column
+
+    return header_index_map
 
 
 def explode_lane_column(dataframe: pd.DataFrame) -> pd.DataFrame:
