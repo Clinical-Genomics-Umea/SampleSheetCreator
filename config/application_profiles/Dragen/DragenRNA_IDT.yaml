@@ -1,19 +1,18 @@
 ---
-OnBoardDragen: true
-ApplicationProfileVersion: 1.0
+Version: 1.0
 ApplicationProfileName: DragenRna_IDT
 Application: DragenRna
 
-ApplicationSettings:
+Settings:
   SoftwareVersion: 4.1.23
   MapAlignOutFormat: bam
   KeepFastq: true
 
-ApplicationData:
+Data:
   DifferentialExpressionEnable: False
   ReferenceGenomeDir: hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2
-  RnaGeneAnnotationFile: na #If DifferentialExpressionEnable is True, the GTF file must be provided by the user or included with the reference genome.
-  RnaPipelineMode: MapAlign    # MapAlign or FullPipeline
+  RnaGeneAnnotationFile: na
+  RnaPipelineMode: MapAlign
   DownSampleNumReads: False
   VariantCallingMode: AllVariantCallers
   Comparison1: na
@@ -22,7 +21,7 @@ ApplicationData:
   Comparison4: na
   Comparison5: na
 
-ApplicationDataFields:
+DataFields:
   - DifferentialExpressionEnable
   - ReferenceGenomeDir
   - RnaGeneAnnotationFile
@@ -35,5 +34,3 @@ ApplicationDataFields:
   - Comparison4
   - Comparison5
   - Sample_ID
-
-

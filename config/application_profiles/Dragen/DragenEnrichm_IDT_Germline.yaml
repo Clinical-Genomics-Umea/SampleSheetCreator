@@ -1,15 +1,14 @@
 ---
-OnBoardDragen: true
-ApplicationProfileVersion: 1.0
+Version: 1.0
 ApplicationProfileName: DragenEnrichment_IDT_Germline
 Application: DragenEnrichment
 
-ApplicationSettings:
+Settings:
   SoftwareVersion: 4.1.23
   MapAlignOutFormat: bam
   KeepFastq: true
 
-ApplicationData:
+Data:
   BedFile: na
   ReferenceGenomeDir: hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2
   VariantCallingMode: AllVariantCallers
@@ -17,7 +16,7 @@ ApplicationData:
   AuxNoiseBaselineFile: na
   AuxCnvPanelOfNormalsFile: na
 
-ApplicationDataFields:
+DataFields:
   - ReferenceGenomeDir
   - BedFile
   - GermlineOrSomatic

@@ -34,7 +34,7 @@ from PySide6.QtWidgets import (
     QMenu,
     QTableWidget,
     QTableWidgetItem,
-    QItemDelegate,
+    QItemDelegate, QFormLayout,
 )
 
 from models.validation import IndexColorBalanceModel
@@ -108,6 +108,47 @@ class PreValidationWidget(QTableWidget):
 
         for validation_name, is_valid, message in validation_results:
             self._add_row(validation_name, is_valid, message)
+
+
+class DataSetValidationWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.layout = QHBoxLayout()
+        self.setLayout(self.layout)
+
+    def populate(self, data_obj):
+        for name in data_obj:
+            self.layout.addWidget(QLabel(name))
+            self.layout.addWidget(QLabel("Settings"))
+
+            form = QFormLayout()
+            for key, value in data_obj[name]["Settings"].items():
+                form.addRow(QLabel(key), QLabel(str(value)))
+            form.addWidget(QLabel(""))
+            self.layout.addLayout(form)
+
+            table_widget = QTableWidget()
+            self.populate_table(table_widget, data_obj[name]["Data"])
+            self.layout.addWidget(table_widget)
+
+    @staticmethod
+    def populate_table(table_widget, dataframe):
+
+        table_widget.clearContents()
+
+        # Set row and column count
+        table_widget.setRowCount(dataframe.shape[0])
+        table_widget.setColumnCount(dataframe.shape[1])
+
+        # Set column headers
+        table_widget.setHorizontalHeaderLabels(dataframe.columns)
+
+        # Populate the table with DataFrame data
+        for row_idx in range(dataframe.shape[0]):
+            for col_idx in range(dataframe.shape[1]):
+                cell_value = str(dataframe.iloc[row_idx, col_idx])
+                table_widget.setItem(row_idx, col_idx, QTableWidgetItem(cell_value))
 
 
 class MainIndexDistanceValidationWidget(QTabWidget):

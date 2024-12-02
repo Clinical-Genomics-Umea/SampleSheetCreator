@@ -1,20 +1,20 @@
 ---
-OnBoardDragen: true
 ApplicationProfileVersion: 1.0
 ApplicationProfileName: DragenSomatic_IDT
 Application: DragenSomatic
 
-ApplicationSettings:
+Settings:
   SoftwareVersion: 4.1.23
   MapAlignOutFormat: bam
   KeepFastq: true
 
-ApplicationData:
+Data:
   ReferenceGenomeDir: hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2
   VariantCallingMode: AllVariantCallers
   AuxCnvPanelOfNormalsFile: na
 
-ApplicationDataFields:
+DataFields:
+  - Sample_ID
   - ReferenceGenomeDir
   - VariantCallingMode
   - AuxNoiseBaselineFile
@@ -22,4 +22,3 @@ ApplicationDataFields:
   - AuxCnvPopBAlleleVcfFile
   - AuxGermlineTaggingFile
   - AuxCnvPanelOfNormalsFile
-  - Sample_ID

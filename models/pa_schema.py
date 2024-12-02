@@ -166,22 +166,10 @@ prevalidation_schema = DataFrameSchema(
         "BarcodeMismatchesIndex2": Column(
             int, checks=Check.in_range(0, 4, include_min=True, include_max=True)
         ),
-        "AdapterRead1": Column(
-            str,
-            coerce=True,
-            nullable=True,
-            checks=pa.Check(lambda s: s.str.len() >= 10, error="Index is too short"),
-        ),
-        "AdapterRead2": Column(str, coerce=True, nullable=True),
-        "FastqCompressionFormat": Column(str, coerce=True, nullable=True),
         "OverrideCyclesPattern": Column(str, coerce=True, nullable=True),
         "IndexKitDefinitionName": Column(str, coerce=True, nullable=True),
-        "Application": Column(str, coerce=True, nullable=True),
-        "ApplicationProfile": Column(str, coerce=True, nullable=True),
-        "ApplicationSettings": Column(str, coerce=True, nullable=True),
-        "ApplicationData": Column(str, coerce=True, nullable=True),
-        "ApplicationDataFields": Column(str, coerce=True, nullable=True),
-        "SoftwareVersion": Column(str, coerce=True, nullable=False),
+        "ApplicationProfileName": Column(str, coerce=True, nullable=True),
+        "ApplicationProfile": Column(str, coerce=True, nullable=False),
     },
     checks=[
         pa.Check(

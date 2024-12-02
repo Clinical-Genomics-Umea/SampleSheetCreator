@@ -7,6 +7,7 @@ from PySide6.QtGui import QStandardItemModel
 import pandera as pa
 
 from models.configuration import ConfigurationManager
+from models.dataset import DataSet
 from models.samplesheet_model import SampleSheetModel
 from utils.utils import explode_lane_column
 from models.pa_schema import prevalidation_schema
@@ -58,6 +59,10 @@ class PreValidator(QObject):
     ):
         super().__init__()
 
+        self.dataset = None
+        self.application_profile_names = None
+        self.used_lanes = None
+
         self.samplesheet_model = samplesheet_model
         self.cfg_mgr = cfg_mgr
 
@@ -70,9 +75,18 @@ class PreValidator(QObject):
         """Run a series of validations on the SampleSheetModel and RunSetup config"""
         results = []
         dataframe = self.samplesheet_model.to_dataframe()
+        dataframe = explode_lane_column(dataframe)
+
+        self.dataset = DataSet(dataframe)
+
+        self.application_profile_names = self.dataset.application_profile_names
+        self.used_lanes = self.dataset.used_lanes
+
         run_data = self.cfg_mgr.run_data
 
-        results.append(self.run_lanes_int_validation(run_data["Lanes"]))
+        results.append(
+            self.run_lanes_int_validation(run_data["Lanes"], self.used_lanes)
+        )
         if not results[-1][1]:
             self.data_ready.emit(results)
             return
@@ -131,14 +145,20 @@ class PreValidator(QObject):
         return name, True, ""
 
     @staticmethod
-    def run_lanes_int_validation(lanes):
+    def run_lanes_int_validation(set_lanes, used_lanes):
         name = "set number of lanes validation"
 
-        if not isinstance(lanes, list):
+        set_lanes_set = set(set_lanes)
+        used_lanes_set = set(used_lanes)
+
+        if not isinstance(set_lanes, list):
             return name, False, "Lanes must a list of integers."
 
-        if not all(isinstance(item, int) for item in lanes):
+        if not all(isinstance(item, int) for item in set_lanes):
             return name, False, "Lanes must be an list of integers."
+
+        if set_lanes_set != used_lanes_set:
+            return name, False, "Set number of lanes does not match used lanes."
 
         return name, True, ""
 
