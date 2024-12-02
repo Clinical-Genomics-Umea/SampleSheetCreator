@@ -10,13 +10,14 @@ fields:
     - IndexI7
     - IndexI5Name
     - IndexI5
-    - OverrideCyclesPattern
     - IndexKitDefinitionName
   BCLConvert:
+    - OverrideCyclesPattern
     - BarcodeMismatchesIndex1
     - BarcodeMismatchesIndex2
   ApplicationProfile:
     - ApplicationProfileName
     - ApplicationProfile
 
-
+hidden_fields:
+  - ApplicationProfile

@@ -35,17 +35,24 @@ class ColumnVisibilityControl(QTreeWidget):
 
         self.field_item_map = {}
 
-        self.create_tree(samples_settings["fields"])
+        self.create_tree(samples_settings)
         self.setHeaderHidden(True)
         self.expandAll()
 
-    def create_tree(self, section_fields: dict):
+    def create_tree(self, samples_settings: dict):
+
+        all_fields = samples_settings["fields"]
+        hidden_fields = samples_settings["hidden_fields"]
+
         top_level_items = []
-        for section, field_list in section_fields.items():
+        for section, field_list in all_fields.items():
             section_item = QTreeWidgetItem(self, [section])
             section_item.setFlags(section_item.flags() | Qt.ItemIsUserCheckable)
             section_item.setCheckState(0, Qt.Checked)
             for field in field_list:
+                if field in hidden_fields:
+                    continue
+
                 field_item = QTreeWidgetItem(section_item, [field])
                 field_item.setFlags(field_item.flags() | Qt.ItemIsUserCheckable)
                 field_item.setCheckState(0, Qt.Checked)

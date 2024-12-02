@@ -121,6 +121,8 @@ class SamplesWidget(QWidget):
         vbox = QVBoxLayout()
         vbox.setContentsMargins(0, 0, 0, 0)
 
+        self.samples_settings = samples_settings
+
         self.filter_edit = QLineEdit()
         self.samples_model = None
 
@@ -160,7 +162,6 @@ class SamplesWidget(QWidget):
 
         self.sample_view.setContextMenuPolicy(Qt.CustomContextMenu)
         header = self.sample_view.horizontalHeader()
-        # header.setSectionResizeMode(QHeaderView.ResizeToContents)
         header.setMinimumSectionSize(100)
 
         self.extended_selection_pushbutton.clicked.connect(self.set_selection_mode)
@@ -179,6 +180,11 @@ class SamplesWidget(QWidget):
             self.column_visibility_ctrl.column_visibility_control.set_column_visibility_state
         )
         self.column_visibility_btn.clicked.connect(self.toggle_column_visibility_ctrl)
+
+    def _set_hidden_fields(self):
+        field_col_map = header_to_index_map(self.sample_view.model())
+        for hidden_field in self.samples_settings["hidden_fields"]:
+            self.sample_view.hideColumn(field_col_map[hidden_field])
 
     def toggle_column_visibility_ctrl(self):
         if self.column_visibility_ctrl.isVisible():
@@ -201,6 +207,8 @@ class SamplesWidget(QWidget):
         header = self.sample_view.horizontalHeader()
         for col in range(samples_proxy_model.columnCount() - 1):
             header.setSectionResizeMode(col, QHeaderView.ResizeToContents)
+
+        self._set_hidden_fields()
 
         # self.sample_view.setColumnWidth(header_index_map["ApplicationProfile"], 30)
 
