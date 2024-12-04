@@ -13,6 +13,10 @@ def uuid():
     return str(uuid6.uuid7())
 
 
+def json_to_obj(json_str):
+    return json.loads(json_str)
+
+
 def int_str_to_int_list(int_str):
     int_str_list = list(re.findall(r"\d+", int_str))
     int_list = map(int, int_str_list)

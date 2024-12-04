@@ -1,5 +1,6 @@
 ---
 Version: 1.0
+ApplicationGroupName: Dragen
 ApplicationProfileName: DragenEnrichment_IDT_Germline
 Application: DragenEnrichment
 
@@ -17,11 +18,11 @@ Data:
   AuxCnvPanelOfNormalsFile: na
 
 DataFields:
+  - Sample_ID
   - ReferenceGenomeDir
   - BedFile
   - GermlineOrSomatic
   - AuxNoiseBaselineFile
   - AuxCnvPanelOfNormalsFile
   - VariantCallingMode
-  - Sample_ID
 

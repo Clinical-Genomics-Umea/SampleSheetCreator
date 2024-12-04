@@ -169,7 +169,6 @@ prevalidation_schema = DataFrameSchema(
         "OverrideCyclesPattern": Column(str, coerce=True, nullable=True),
         "IndexKitDefinitionName": Column(str, coerce=True, nullable=True),
         "ApplicationProfileName": Column(str, coerce=True, nullable=True),
-        "ApplicationProfile": Column(str, coerce=True, nullable=False),
     },
     checks=[
         pa.Check(

@@ -181,11 +181,6 @@ class SamplesWidget(QWidget):
         )
         self.column_visibility_btn.clicked.connect(self.toggle_column_visibility_ctrl)
 
-    def _set_hidden_fields(self):
-        field_col_map = header_to_index_map(self.sample_view.model())
-        for hidden_field in self.samples_settings["hidden_fields"]:
-            self.sample_view.hideColumn(field_col_map[hidden_field])
-
     def toggle_column_visibility_ctrl(self):
         if self.column_visibility_ctrl.isVisible():
             self.column_visibility_ctrl.hide()
@@ -199,18 +194,11 @@ class SamplesWidget(QWidget):
         self.sample_view.selectionModel().selectionChanged.connect(
             self.on_sampleview_selection_changed
         )
-        header_index_map = header_to_index_map(samples_proxy_model)
-        self.sample_view.setItemDelegateForColumn(
-            header_index_map["ApplicationProfile"], JsonButtonDelegate()
-        )
+        # header_index_map = header_to_index_map(samples_proxy_model)
 
         header = self.sample_view.horizontalHeader()
-        for col in range(samples_proxy_model.columnCount() - 1):
+        for col in range(samples_proxy_model.columnCount()):
             header.setSectionResizeMode(col, QHeaderView.ResizeToContents)
-
-        self._set_hidden_fields()
-
-        # self.sample_view.setColumnWidth(header_index_map["ApplicationProfile"], 30)
 
     def set_selection_mode(self):
         if self.extended_selection_pushbutton.isChecked():
@@ -364,7 +352,9 @@ class SampleTableView(QTableView):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
     @Slot(dict)
-    def set_profile_data(self, profile_data):
+    def set_profile(self, app_profile):
+        profile_name = app_profile["ApplicationProfileName"]
+        profile_data = app_profile["Data"]
 
         proxy_model = self.model()
         source_model = proxy_model.sourceModel()
@@ -376,8 +366,7 @@ class SampleTableView(QTableView):
 
         header_index_map = header_to_index_map(proxy_model)
         application_profile_name_col = header_index_map["ApplicationProfileName"]
-        application_profile_name = profile_data["ApplicationProfileName"]
-        application_profile_col = header_index_map["ApplicationProfile"]
+        application_profile_name = app_profile["ApplicationProfileName"]
         source_model.blockSignals(True)
 
         for row in selected_rows:
@@ -385,12 +374,8 @@ class SampleTableView(QTableView):
                 proxy_model, row, application_profile_name_col, application_profile_name
             )
 
-            self._set_application_profile(
-                proxy_model, row, application_profile_col, profile_data
-            )
-
-            if profile_data["Application"] == "BCLConvert":
-                self._set_bclconvert_columns(
+            if app_profile["Application"] == "BCLConvert":
+                self._set_bclconvert_data(
                     proxy_model, row, header_index_map, profile_data
                 )
 
@@ -403,25 +388,17 @@ class SampleTableView(QTableView):
             Qt.DisplayRole,
         )
 
-    def _set_bclconvert_columns(self, proxy_model, row, header_key_dict, profile_data):
+    def _set_bclconvert_data(self, proxy_model, row, header_key_dict, profile_data):
         assert proxy_model is not None
         assert header_key_dict is not None
         assert row >= 0
         assert profile_data is not None
 
-        for key, item in profile_data.items():
+        for key, value in profile_data.items():
             if key in header_key_dict:
                 column = header_key_dict[key]
                 assert column >= 0
-
-                if key != "ApplicationProfileName" and key != "ApplicationProfile":
-                    proxy_model.setData(proxy_model.index(row, column), item)
-
-            else:
-                if isinstance(item, dict):
-                    self._set_bclconvert_columns(
-                        proxy_model, row, header_key_dict, item
-                    )
+                proxy_model.setData(proxy_model.index(row, column), value)
 
     @staticmethod
     def _set_application_profile_name(model, row, col, application_profile_name):
@@ -431,18 +408,6 @@ class SampleTableView(QTableView):
 
         data = json.loads(data_json)
         data.append(application_profile_name)
-        data_json = json.dumps(data)
-        model.setData(model.index(row, col), data_json)
-
-    @staticmethod
-    def _set_application_profile(model, row, col, profile):
-
-        data_json = model.data(model.index(row, col), Qt.DisplayRole)
-        if not data_json:
-            data_json = "[]"
-
-        data = json.loads(data_json)
-        data.append(profile)
         data_json = json.dumps(data)
         model.setData(model.index(row, col), data_json)
 

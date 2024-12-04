@@ -1,5 +1,6 @@
 ---
-ApplicationProfileVersion: 1.0
+Version: 1.0
+ApplicationGroupName: Dragen
 ApplicationProfileName: DragenSomatic_IDT
 Application: DragenSomatic
 

@@ -49,6 +49,10 @@ class ConfigurationManager(QObject):
         # self._setup_run()
 
     @property
+    def i5_samplesheet_orientation(self):
+        return self._run_data["I5SampleSheetOrientation"]
+
+    @property
     def base_colors(self):
         return {
             "A": self._run_data["A"],
@@ -154,6 +158,11 @@ class ConfigurationManager(QObject):
 
         # Emit the changed signal
         self.run_setup_changed.emit(self._run_data)
+
+    @property
+    def read_cycles(self):
+        print(self._run_data["ReadCycles"])
+        return self._run_data["ReadCycles"]
 
     @property
     def all_config_paths(self):

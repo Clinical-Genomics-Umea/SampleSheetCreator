@@ -12,7 +12,9 @@ class ApplicationProfileManager:
         application_files = [
             f for f in cfg_mgr.application_profile_settings_basepath.glob("**/*.yaml")
         ]
-        self.application_profiles = {}
+
+        self._application_group_name_profile = {}
+        self._application_name_profile = {}
 
         for file in application_files:
             if not file.is_file():
@@ -22,25 +24,32 @@ class ApplicationProfileManager:
             if not profile_data:
                 continue
 
-            group = file.parent.name
-            if not group:
-                continue
-
-            print(profile_data)
-
             profile_name = profile_data["ApplicationProfileName"]
+
             if not profile_name:
                 continue
 
-            if group not in self.application_profiles:
-                self.application_profiles[group] = {}
+            group_name = profile_data["ApplicationGroupName"]
 
-            self.application_profiles[group][profile_name] = profile_data
+            if not group_name:
+                continue
 
-    def send_data(self):
-        button = self.sender()
-        data = button.property("data")
-        self.profile_data.emit(data)
+            if profile_name not in self._application_name_profile:
+                self._application_name_profile[profile_name] = profile_data
 
-    def get_application_profiles(self):
-        return self.application_profiles
+            if group_name not in self._application_group_name_profile:
+                self._application_group_name_profile[group_name] = {}
+                self._application_group_name_profile[group_name][
+                    profile_name
+                ] = profile_data
+            else:
+                self._application_group_name_profile[group_name][
+                    profile_name
+                ] = profile_data
+
+    @property
+    def application_group_name_profiles(self):
+        return self._application_group_name_profile
+
+    def application_profile_by_name(self, name):
+        return self._application_name_profile[name]

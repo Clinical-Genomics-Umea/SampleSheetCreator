@@ -34,7 +34,8 @@ from PySide6.QtWidgets import (
     QMenu,
     QTableWidget,
     QTableWidgetItem,
-    QItemDelegate, QFormLayout,
+    QItemDelegate,
+    QFormLayout,
 )
 
 from models.validation import IndexColorBalanceModel
@@ -52,9 +53,12 @@ class MainValidationWidget(QWidget):
         self.tab_widget = QTabWidget()
 
         self.pre_validation_widget = PreValidationWidget()
+        self.dataset_validation_widget = DataSetValidationWidget()
         self.main_index_validation_widget = MainIndexDistanceValidationWidget()
         self.main_color_balance_validation_widget = MainColorBalanceWidget(cfg_mgr)
+
         self.tab_widget.addTab(self.pre_validation_widget, "pre-validation")
+        self.tab_widget.addTab(self.dataset_validation_widget, "dataset validation")
         self.tab_widget.addTab(self.main_index_validation_widget, "index validation")
         self.tab_widget.addTab(
             self.main_color_balance_validation_widget, "color balance validation"
@@ -110,32 +114,59 @@ class PreValidationWidget(QTableWidget):
             self._add_row(validation_name, is_valid, message)
 
 
-class DataSetValidationWidget(QWidget):
+class DataSetValidationWidget(QTabWidget):
     def __init__(self):
         super().__init__()
 
-        self.layout = QHBoxLayout()
+        self.content_widget = QWidget()
+        self.setContentsMargins(0, 0, 0, 0)
+        self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setLayout(self.layout)
 
-    def populate(self, data_obj):
-        for name in data_obj:
+        self.layout = QVBoxLayout()
+
+        self.setContentsMargins(0, 0, 0, 0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        self.setLayout(self.layout)
+
+    def lanes_tab(self, df):
+        all_lanes_df = df.groupby("Sample_ID")["Lane"].apply(list).reset_index()
+        lane_dataframes = {lane: group for lane, group in df.groupby("Lane")}
+
+    def application_tab(self, df):
+        apps_df = {lane: group for lane, group in df.groupby("Application")}
+
+    def populate(self, app_prof_obj):
+
+        print("dataset validation", app_prof_obj)
+
+        # self.layout.deleteLater()
+        #
+        # self.layout = QVBoxLayout()
+        # self.setLayout(self.layout)
+
+        for name in app_prof_obj:
+            print(f"dataset validation: {name}")
             self.layout.addWidget(QLabel(name))
             self.layout.addWidget(QLabel("Settings"))
 
             form = QFormLayout()
-            for key, value in data_obj[name]["Settings"].items():
+            for key, value in app_prof_obj[name]["Settings"].items():
+                print(f"dataset validation: {key} = {value}")
                 form.addRow(QLabel(key), QLabel(str(value)))
             form.addWidget(QLabel(""))
             self.layout.addLayout(form)
 
             table_widget = QTableWidget()
-            self.populate_table(table_widget, data_obj[name]["Data"])
+            self.populate_table(table_widget, app_prof_obj[name]["Data"])
             self.layout.addWidget(table_widget)
 
     @staticmethod
     def populate_table(table_widget, dataframe):
-
-        table_widget.clearContents()
 
         # Set row and column count
         table_widget.setRowCount(dataframe.shape[0])

@@ -76,7 +76,7 @@ class ApplicationProfiles(QWidget):
         self.vertical_layout.setSpacing(5)
         self.vertical_layout.setContentsMargins(0, 0, 0, 0)
 
-        profiles = self.profile_mgr.get_application_profiles()
+        profiles = self.profile_mgr.application_group_name_profiles
         for group in profiles:
             group_label = QLabel(group)
             group_label.setStyleSheet("font-style: italic")

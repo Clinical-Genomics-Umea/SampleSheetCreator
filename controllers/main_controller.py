@@ -2,6 +2,7 @@ from PySide6.QtCore import QObject
 
 from models.application_profile import ApplicationProfileManager
 from models.configuration import ConfigurationManager
+from models.datasetmanager import DataSetManager
 from models.make_export import MakeJson
 from models.samplesheet_model import SampleSheetModel, CustomProxyModel
 from models.validation import MainValidator
@@ -23,8 +24,14 @@ class MainController(QObject):
         self.sample_proxy_model = None
         self.setup_samplesheet_model()
 
+        self.dataset_mgr = DataSetManager(
+            self.sample_model, self.cfg_mgr, self.app_profile_mgr
+        )
+
         # Initialize main validator with necessary components
-        self.main_validator = MainValidator(self.sample_model, self.cfg_mgr)
+        self.main_validator = MainValidator(
+            self.sample_model, self.cfg_mgr, self.dataset_mgr
+        )
 
         self.make_json = MakeJson(self.sample_model, self.cfg_mgr)
 
@@ -34,7 +41,7 @@ class MainController(QObject):
 
         # Connect profile data signal
         self.main_window.application_profiles_widget.profile_data_ready.connect(
-            self.main_window.samples_widget.sample_view.set_profile_data
+            self.main_window.samples_widget.sample_view.set_profile
         )
 
         self.setup_run_connections()
@@ -89,6 +96,10 @@ class MainController(QObject):
         self.main_validator.color_balance_validator.data_ready.connect(
             self.main_window.validation_widget.main_color_balance_validation_widget.populate
         )
+        self.main_validator.dataset_validator.data_ready.connect(
+            self.main_window.validation_widget.dataset_validation_widget.populate
+        )
+
         self.main_window.validation_widget.validate_button.clicked.connect(
             self.main_validator.validate
         )

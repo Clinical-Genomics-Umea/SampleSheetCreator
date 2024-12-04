@@ -7,7 +7,7 @@ from PySide6.QtGui import QStandardItemModel
 import pandera as pa
 
 from models.configuration import ConfigurationManager
-from models.dataset import DataSet
+from models.datasetmanager import DataSetManager
 from models.samplesheet_model import SampleSheetModel
 from utils.utils import explode_lane_column
 from models.pa_schema import prevalidation_schema
@@ -16,12 +16,15 @@ from models.validation_fns import get_base, padded_index_df
 
 class MainValidator(QObject):
 
-    def __init__(self, samples_model, cfg_mgr):
+    def __init__(self, samples_model, cfg_mgr, dataset_mgr):
         super().__init__()
 
         self.cfg_mgr = cfg_mgr
+        self.dataset_mgr = dataset_mgr
 
         self.pre_validator = PreValidator(samples_model, cfg_mgr)
+
+        self.dataset_validator = DataSetValidator(samples_model, cfg_mgr, dataset_mgr)
 
         self.index_distance_validator = IndexDistanceValidator(
             samples_model,
@@ -41,6 +44,8 @@ class MainValidator(QObject):
 
         if not status:
             return
+
+        self.dataset_validator.validate()
 
         self.index_distance_validator.validate()
 
@@ -77,16 +82,14 @@ class PreValidator(QObject):
         dataframe = self.samplesheet_model.to_dataframe()
         dataframe = explode_lane_column(dataframe)
 
-        self.dataset = DataSet(dataframe)
+        # self.dataset = DataSetManager(dataframe)
 
-        self.application_profile_names = self.dataset.application_profile_names
-        self.used_lanes = self.dataset.used_lanes
+        # self.application_profile_names = self.dataset.application_profile_names
+        # self.used_lanes = self.dataset.used_lanes
 
         run_data = self.cfg_mgr.run_data
 
-        results.append(
-            self.run_lanes_int_validation(run_data["Lanes"], self.used_lanes)
-        )
+        results.append(self.run_lanes_int_validation(run_data["Lanes"]))
         if not results[-1][1]:
             self.data_ready.emit(results)
             return
@@ -145,20 +148,16 @@ class PreValidator(QObject):
         return name, True, ""
 
     @staticmethod
-    def run_lanes_int_validation(set_lanes, used_lanes):
+    def run_lanes_int_validation(set_lanes):
         name = "set number of lanes validation"
 
         set_lanes_set = set(set_lanes)
-        used_lanes_set = set(used_lanes)
 
         if not isinstance(set_lanes, list):
             return name, False, "Lanes must a list of integers."
 
         if not all(isinstance(item, int) for item in set_lanes):
             return name, False, "Lanes must be an list of integers."
-
-        if set_lanes_set != used_lanes_set:
-            return name, False, "Set number of lanes does not match used lanes."
 
         return name, True, ""
 
@@ -235,6 +234,37 @@ class PreValidator(QObject):
             return False, "No data to validate (empty dataframe)."
 
         return True, ""
+
+
+class DataSetValidator(QObject):
+    data_ready = Signal(object)
+
+    def __init__(
+        self,
+        model: SampleSheetModel,
+        cfg_mgr: ConfigurationManager,
+        dataset_mgr: DataSetManager,
+    ):
+        super().__init__()
+
+        if model is None:
+            raise ValueError("model cannot be None")
+
+        if cfg_mgr is None:
+            raise ValueError("cfg_mgr cannot be None")
+
+        if dataset_mgr is None:
+            raise ValueError("dataset_mgr cannot be None")
+
+        self.model = model
+        self.cfg_mgr = cfg_mgr
+        self.dataset_mgr = dataset_mgr
+        self.dataset = None
+
+    def validate(self):
+        dataframe = self.dataset_mgr.sample_data_exploded()
+
+        self.data_ready.emit(app_prof_obj)
 
 
 class IndexDistanceValidator(QObject):
@@ -500,27 +530,6 @@ class IndexColorBalanceModel(QStandardItemModel):
         }
 
         return normalized_dict
-
-    # @staticmethod
-    # def _base_to_color_count(dict1):
-    #     color_count = {
-    #         "B": 0,
-    #         "G": 0,
-    #         "D": 0,
-    #     }
-    #
-    #     for base, count in dict1.items():
-    #         if base == "A":
-    #             color_count["B"] = count
-    #         elif base == "C":
-    #             color_count["B"] = count * 0.5
-    #             color_count["G"] = count * 0.5
-    #         elif base == "T":
-    #             color_count["G"] = count
-    #         elif base == "G":
-    #             color_count["D"] = count
-    #
-    #     return color_count
 
     def _generic_base_to_color_count(self, dict1):
         color_count = {

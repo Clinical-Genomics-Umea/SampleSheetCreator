@@ -1,28 +1,32 @@
 ---
 Version: 1.0
+ApplicationGroupName: Dragen
 ApplicationProfileName: BCLConvert
 Application: BCLConvert
 
 Settings:
   SoftwareVersion: 4.1.23
   FastqCompressionFormat: gzip
+  AdapterRead1: CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA
+  AdapterRead2: CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA
 
 Data:
   BarcodeMismatchesIndex1: 1
   BarcodeMismatchesIndex2: 1
-  AdapterRead1: CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA
-  AdapterRead2: CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA
+
 
 DataFields:
   - Sample_ID
   - Lane
-  - Index
-  - Index2
+  - IndexI7
+  - IndexI5
   - OverrideCycles
-  - AdapterRead1
-  - AdapterRead2
   - BarcodeMismatchesIndex1
   - BarcodeMismatchesIndex2
+
+Translate:
+  IndexI7: Index
+  IndexI5: Index2
 
 
 
