@@ -1,7 +1,7 @@
 ---
 Version: 1.0
 ApplicationGroupName: Dragen
-ApplicationProfileName: DragenEnrichment_IDT_Somatic
+ApplicationName: DragenEnrichment_IDT_Germline
 Application: DragenEnrichment
 
 Settings:
@@ -10,18 +10,19 @@ Settings:
   KeepFastq: true
 
 Data:
-  BedFile: test
+  BedFile: na
   ReferenceGenomeDir: hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2
   VariantCallingMode: AllVariantCallers
-  GermlineOrSomatic: somatic
+  GermlineOrSomatic: germline
   AuxNoiseBaselineFile: na
   AuxCnvPanelOfNormalsFile: na
 
 DataFields:
+  - Sample_ID
   - ReferenceGenomeDir
   - BedFile
   - GermlineOrSomatic
   - AuxNoiseBaselineFile
   - AuxCnvPanelOfNormalsFile
   - VariantCallingMode
-  - Sample_ID
+

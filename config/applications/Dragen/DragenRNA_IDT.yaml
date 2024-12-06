@@ -1,7 +1,7 @@
 ---
 Version: 1.0
 ApplicationGroupName: Dragen
-ApplicationProfileName: DragenRna_IDT
+ApplicationName: DragenRna_IDT
 Application: DragenRna
 
 Settings:

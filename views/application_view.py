@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 
 from PySide6.QtCore import Signal, Qt, QObject, Slot
 
-from models.application_profile import ApplicationProfileManager
+from models.application import ApplicationManager
 from utils.utils import read_yaml_file
 
 
@@ -25,7 +25,7 @@ class ClickableLabel(QLabel):
     def __init__(self, text, data, parent=None):
         super().__init__(text, parent)
         self.data = data
-        self.name = data["ApplicationProfileName"]
+        self.name = data["ApplicationName"]
         self.setCursor(Qt.PointingHandCursor)  # Change the cursor to a hand pointer
 
     def mousePressEvent(self, event):
@@ -48,24 +48,24 @@ class ClickableLabel(QLabel):
         dialog.show()
 
 
-class ApplicationProfiles(QWidget):
+class Applications(QWidget):
 
-    profile_data_ready = Signal(dict)
+    application_data_ready = Signal(dict)
 
-    def __init__(self, app_profile_mgr):
+    def __init__(self, app_mgr):
         super().__init__()
-        self.profile_mgr = app_profile_mgr
+        self.app_mgr = app_mgr
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
 
-        profiles_label = QLabel("Application profiles")
-        profiles_label.setStyleSheet("font-weight: bold")
-        self.main_layout.addWidget(profiles_label)
+        apps_label = QLabel("Applications")
+        apps_label.setStyleSheet("font-weight: bold")
+        self.main_layout.addWidget(apps_label)
 
         self.vertical_layout = QVBoxLayout()
         self.main_layout.addLayout(self.vertical_layout)
 
-        self.profile_widgets = []
+        self.app_widgets = []
 
         self.setup()
 
@@ -76,30 +76,28 @@ class ApplicationProfiles(QWidget):
         self.vertical_layout.setSpacing(5)
         self.vertical_layout.setContentsMargins(0, 0, 0, 0)
 
-        profiles = self.profile_mgr.application_group_name_profiles
-        for group in profiles:
+        apps_by_group_by_name = self.app_mgr.application_by_group_by_name
+        for group in apps_by_group_by_name:
             group_label = QLabel(group)
             group_label.setStyleSheet("font-style: italic")
             self.vertical_layout.addWidget(self.get_line())
             self.vertical_layout.addWidget(group_label)
-            for name in profiles[group]:
+            for name in apps_by_group_by_name[group]:
 
-                profile_widget = ApplicationProfileWidget(profiles[group][name])
-                self.profile_widgets.append(profile_widget)
-                self.vertical_layout.addWidget(profile_widget)
+                app_widget = ApplicationWidget(apps_by_group_by_name[group][name])
+                self.app_widgets.append(app_widget)
+                self.vertical_layout.addWidget(app_widget)
 
-                profile_widget.profile_data_ready.connect(
-                    self._handle_profile_button_click
-                )
+                app_widget.application_data_ready.connect(self._handle_app_button_click)
 
         self.main_layout.addSpacerItem(
             QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         )
 
     @Slot(object)
-    def _handle_profile_button_click(self, data):
+    def _handle_app_button_click(self, data):
         print("handle ..", data)
-        self.profile_data_ready.emit(data)
+        self.application_data_ready.emit(data)
 
     @staticmethod
     def get_line():
@@ -109,18 +107,18 @@ class ApplicationProfiles(QWidget):
         return line
 
 
-class ApplicationProfileWidget(QWidget):
+class ApplicationWidget(QWidget):
 
-    profile_data_ready = Signal(object)
+    application_data_ready = Signal(object)
 
     def __init__(self, data: dict):
         super().__init__()
 
-        self.profile_data = data
-        self.profile_button = QPushButton("apply")
+        self.app_data = data
+        self.app_button = QPushButton("apply")
 
-        self.profile_button.setMaximumWidth(50)
-        self.label = ClickableLabel(data["ApplicationProfileName"], data)
+        self.app_button.setMaximumWidth(50)
+        self.label = ClickableLabel(data["ApplicationName"], data)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -129,15 +127,15 @@ class ApplicationProfileWidget(QWidget):
         layout.addSpacerItem(
             QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         )
-        layout.addWidget(self.profile_button)
+        layout.addWidget(self.app_button)
         layout.addSpacerItem(QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Fixed))
 
         self.setLayout(layout)
 
-        self.profile_button.clicked.connect(self.apply_clicked)
+        self.app_button.clicked.connect(self.apply_clicked)
 
     def apply_clicked(self):
 
-        print("apply", self.profile_data)
+        print("apply", self.app_data)
 
-        self.profile_data_ready.emit(self.profile_data)
+        self.application_data_ready.emit(self.app_data)

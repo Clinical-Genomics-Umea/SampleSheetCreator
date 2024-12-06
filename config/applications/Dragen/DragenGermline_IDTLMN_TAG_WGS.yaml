@@ -1,8 +1,8 @@
 ---
 Version: 1.0
 ApplicationGroupName: Dragen
-ApplicationProfileName: DragenSomatic_IDT
-Application: DragenSomatic
+ApplicationName: DragenGermline_IDTLMN_TAG_WGS
+Application: DragenGermline
 
 Settings:
   SoftwareVersion: 4.1.23
@@ -12,14 +12,16 @@ Settings:
 Data:
   ReferenceGenomeDir: hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2
   VariantCallingMode: AllVariantCallers
-  AuxCnvPanelOfNormalsFile: na
+  QcCoverage1BedFile: na
+  QcCoverage2BedFile: na
+  QcCoverage3BedFile: na
+  QcCrossContaminationVcfFile: na
 
 DataFields:
-  - Sample_ID
   - ReferenceGenomeDir
   - VariantCallingMode
-  - AuxNoiseBaselineFile
-  - AuxSvNoiseBaselineFile
-  - AuxCnvPopBAlleleVcfFile
-  - AuxGermlineTaggingFile
-  - AuxCnvPanelOfNormalsFile
+  - QcCoverage1BedFile
+  - QcCoverage2BedFile
+  - QcCoverage3BedFile
+  - QcCrossContaminationVcfFile
+  - Sample_ID

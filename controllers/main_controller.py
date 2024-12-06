@@ -1,6 +1,6 @@
 from PySide6.QtCore import QObject
 
-from models.application_profile import ApplicationProfileManager
+from models.application import ApplicationManager
 from models.configuration import ConfigurationManager
 from models.datasetmanager import DataSetManager
 from models.make_export import MakeJson
@@ -14,10 +14,7 @@ class MainController(QObject):
         super().__init__()
 
         self.cfg_mgr = ConfigurationManager()
-        self.app_profile_mgr = ApplicationProfileManager(self.cfg_mgr)
-
-        # Initialize main window with sample settings
-        self.main_window = MainWindow(self.cfg_mgr, self.app_profile_mgr)
+        self.app_profile_mgr = ApplicationManager(self.cfg_mgr)
 
         # Set up sample model and proxy model
         self.sample_model = SampleSheetModel(self.cfg_mgr.samples_settings)
@@ -27,6 +24,11 @@ class MainController(QObject):
         self.dataset_mgr = DataSetManager(
             self.sample_model, self.cfg_mgr, self.app_profile_mgr
         )
+
+        self.main_window = MainWindow(
+            self.cfg_mgr, self.app_profile_mgr, self.dataset_mgr
+        )
+        self.main_window.samples_widget.set_model(self.sample_proxy_model)
 
         # Initialize main validator with necessary components
         self.main_validator = MainValidator(
@@ -40,21 +42,23 @@ class MainController(QObject):
         self.setup_left_tool_action_connections()
 
         # Connect profile data signal
-        self.main_window.application_profiles_widget.profile_data_ready.connect(
-            self.main_window.samples_widget.sample_view.set_profile
+        self.main_window.application_profiles_widget.application_data_ready.connect(
+            self.main_window.samples_widget.sample_view.set_application
         )
 
         self.setup_run_connections()
 
         self.setup_file_connections()
 
-        self.setup_make_connections()
+        # self.setup_make_connections()
 
         self.setup_override_pattern_connections()
 
-    def setup_make_connections(self):
-        self.make_json.data_ready.connect(self.main_window.make_widget.populate)
-        self.main_window.make_widget.mk_export.clicked.connect(self.make_json.mk_json)
+    # def setup_make_connections(self):
+    #     # self.make_json.data_ready.connect(self.main_window.export_widget.populate)
+    #     self.main_window.export_widget.export_json_button.clicked.connect(
+    #         self.make_json.mk_json
+    #     )
 
     def setup_samplesheet_model(self):
         # Set up sample model and proxy model
@@ -62,7 +66,6 @@ class MainController(QObject):
         self.sample_proxy_model.setSourceModel(self.sample_model)
 
         # Configure sample widget
-        self.main_window.samples_widget.set_model(self.sample_proxy_model)
 
     def setup_left_tool_action_connections(self):
         """Connect UI signals to controller slots"""

@@ -16,5 +16,5 @@ fields:
     - BarcodeMismatchesIndex1
     - BarcodeMismatchesIndex2
   ApplicationProfile:
-    - ApplicationProfileName
+    - ApplicationName
 

@@ -23,9 +23,7 @@ class ConfigurationManager(QObject):
         # paths
         self._config_paths = {
             "indexes_settings_basepath": Path("config/indexes/indexes_json"),
-            "application_profile_settings_basepath": Path(
-                "config/application_profiles"
-            ),
+            "application_settings_basepath": Path("config/applications"),
             "run_settings_path": Path("config/run/run_settings.yaml"),
             "instrument_flowcells_path": Path("config/run/instrument_flowcells.yaml"),
             "samples_settings_path": Path("config/sample_settings.yaml"),
@@ -46,7 +44,36 @@ class ConfigurationManager(QObject):
             self._config_paths["samples_settings_path"]
         )
 
-        # self._setup_run()
+    @property
+    def samplesheet_header_data(self):
+        header = {
+            "FileFormatVersion": self._run_data["FileFormatVersion"],
+            "InstrumentPlatform": self._run_data["Instrument"],
+            "InstrumentType": self._run_data["InstrumentType"],
+            "RunName": self._run_data["RunName"],
+            "RunDescription": self._run_data["RunDescription"],
+            "Custom_Flowcell": self._run_data["Flowcell"],
+        }
+        return header
+
+    def samplesheet_reads_data(self):
+        """Return a dictionary with the Read1Cycles, Index1Cycles, Index2Cycles, Read2Cycles."""
+
+        read_cycle_headers = [
+            "Read1Cycles",
+            "Index1Cycles",
+            "Index2Cycles",
+            "Read2Cycles",
+        ]
+
+        read_cycles = self._run_data["ReadCycles"].strip()
+
+        reads = {}
+
+        for header, rc in zip(read_cycle_headers, read_cycles.split("-")):
+            reads[header] = rc
+
+        return reads
 
     @property
     def i5_samplesheet_orientation(self):
@@ -169,8 +196,8 @@ class ConfigurationManager(QObject):
         return {k: v.absolute() for k, v in self._config_paths.items()}
 
     @property
-    def application_profile_settings_basepath(self) -> Path:
-        return self._config_paths["application_profile_settings_basepath"]
+    def application_settings_basepath(self) -> Path:
+        return self._config_paths["application_settings_basepath"]
 
     @property
     def samples_settings(self) -> dict:

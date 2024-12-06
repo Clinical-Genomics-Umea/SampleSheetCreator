@@ -1,7 +1,7 @@
 ---
 Version: 1.0
 ApplicationGroupName: Dragen
-ApplicationProfileName: BCLConvert
+ApplicationName: BCLConvert
 Application: BCLConvert
 
 Settings:

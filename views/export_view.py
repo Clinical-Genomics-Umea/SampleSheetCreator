@@ -11,9 +11,11 @@ from PySide6.QtWidgets import (
 )
 
 
-class MakeWidget(QWidget):
-    def __init__(self, parent=None):
+class ExportWidget(QWidget):
+    def __init__(self, dataset_mgr, parent=None):
         super().__init__(parent)
+
+        self.dataset_mgr = dataset_mgr
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
@@ -28,26 +30,41 @@ class MakeWidget(QWidget):
 
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
-        self.mk_export = QPushButton("Export data")
-        hbox.addWidget(self.mk_export)
+        self.export_json_button = QPushButton("Export JSON")
+        self.export_samplesheet_button = QPushButton("Export SampleSheet")
+
+        hbox.addWidget(self.export_json_button)
+        hbox.addWidget(self.export_samplesheet_button)
         hbox.addStretch()
 
         self.layout.addLayout(hbox)
         self.layout.addWidget(self.tab_widget)
         # self.layout.addStretch()
 
-    def populate(self, data):
-        self._clear_tabs()
+        self.export_json_button.clicked.connect(self.export_json)
+        self.export_samplesheet_button.clicked.connect(self.export_samplesheet)
+
+    def export_json(self):
+        data = self.dataset_mgr.export_data_obj()
 
         self.json_tree = JsonTreeWidget(data)
         self.tab_widget.addTab(self.json_tree, "JSON Tree")
 
-    def _clear_tabs(self):
-        # Remove and delete each tab widget
-        while self.tab_widget.count() > 0:
-            widget = self.tab_widget.widget(0)  # Get the first widget in the tab widget
-            self.tab_widget.removeTab(0)  # Remove the tab
-            widget.deleteLater()
+    def export_samplesheet(self):
+        pass
+
+    # def populate(self, data):
+    #     self._clear_tabs()
+    #
+    #     self.json_tree = JsonTreeWidget(data)
+    #     self.tab_widget.addTab(self.json_tree, "JSON Tree")
+    #
+    # def _clear_tabs(self):
+    #     # Remove and delete each tab widget
+    #     while self.tab_widget.count() > 0:
+    #         widget = self.tab_widget.widget(0)  # Get the first widget in the tab widget
+    #         self.tab_widget.removeTab(0)  # Remove the tab
+    #         widget.deleteLater()
 
 
 class JsonTreeWidget(QTreeWidget):

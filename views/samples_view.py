@@ -352,9 +352,9 @@ class SampleTableView(QTableView):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
     @Slot(dict)
-    def set_profile(self, app_profile):
-        profile_name = app_profile["ApplicationProfileName"]
-        profile_data = app_profile["Data"]
+    def set_application(self, app_profile):
+        app_name = app_profile["ApplicationName"]
+        app_data = app_profile["Data"]
 
         proxy_model = self.model()
         source_model = proxy_model.sourceModel()
@@ -365,8 +365,8 @@ class SampleTableView(QTableView):
             return
 
         header_index_map = header_to_index_map(proxy_model)
-        application_profile_name_col = header_index_map["ApplicationProfileName"]
-        application_profile_name = app_profile["ApplicationProfileName"]
+        application_profile_name_col = header_index_map["ApplicationName"]
+        application_profile_name = app_profile["ApplicationName"]
         source_model.blockSignals(True)
 
         for row in selected_rows:
@@ -375,9 +375,7 @@ class SampleTableView(QTableView):
             )
 
             if app_profile["Application"] == "BCLConvert":
-                self._set_bclconvert_data(
-                    proxy_model, row, header_index_map, profile_data
-                )
+                self._set_bclconvert_data(proxy_model, row, header_index_map, app_data)
 
         source_model.blockSignals(False)
         source_model.dataChanged.emit(

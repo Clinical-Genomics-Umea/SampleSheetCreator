@@ -25,10 +25,10 @@ from views.column_visibility_view import ColumnVisibilityControl
 from views.index_view import IndexKitToolbox
 from views.make_view import SampleSheetEdit
 from views.override_view import OverrideCyclesWidget
-from views.application_profile_view import ApplicationProfiles
+from views.application_view import Applications
 from views.run_setup_views import RunSetupWidget, RunView
 from models.samplesheet_definitions import SampleSheetV2
-from views.make_export_view import MakeWidget
+from views.export_view import ExportWidget
 from views.validation_view import (
     MainValidationWidget,
 )
@@ -52,7 +52,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     run_validate = Signal()
 
-    def __init__(self, cfg_mgr: ConfigurationManager, application_profiles_mgr):
+    def __init__(self, cfg_mgr: ConfigurationManager, application_mgr, dataset_mgr):
         super(MainWindow, self).__init__()
         self.setupUi(self)
         self.main_version = __version__
@@ -62,7 +62,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
 
         self.cfg_mgr = cfg_mgr
-        self.application_profiles_mgr = application_profiles_mgr
+        self.application_profiles_mgr = application_mgr
+        self.dataset_mgr = dataset_mgr
 
         self.setMinimumWidth(1000)
         self.left_toolBar.setMovable(False)
@@ -105,15 +106,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.indexes_widget = IndexKitToolbox(Path("config/indexes/indexes_json"))
         self.setup_indexes()
         #
-        self.application_profiles_widget = ApplicationProfiles(
-            self.application_profiles_mgr
-        )
+        self.application_profiles_widget = Applications(self.application_profiles_mgr)
         self.setup_profile()
 
         self.cfg_widget = ConfigurationWidget(self.cfg_mgr)
         self.setup_cfg()
 
-        self.make_widget = MakeWidget()
+        self.export_widget = ExportWidget(self.dataset_mgr)
         self.setup_make_widget()
 
         self.leftmenu_stackedWidget.setFixedWidth(300)
@@ -125,7 +124,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def setup_make_widget(self):
         layout = self.main_make.layout()
-        layout.addWidget(self.make_widget)
+        layout.addWidget(self.export_widget)
 
     def setup_validation_widget(self):
         layout = self.main_validation.layout()

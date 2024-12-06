@@ -262,9 +262,9 @@ class DataSetValidator(QObject):
         self.dataset = None
 
     def validate(self):
-        dataframe = self.dataset_mgr.sample_data_exploded()
+        sample_dfs = self.dataset_mgr.validation_view_obj()
 
-        self.data_ready.emit(app_prof_obj)
+        self.data_ready.emit(sample_dfs)
 
 
 class IndexDistanceValidator(QObject):

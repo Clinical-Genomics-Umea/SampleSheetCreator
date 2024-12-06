@@ -133,53 +133,68 @@ class DataSetValidationWidget(QTabWidget):
 
         self.setLayout(self.layout)
 
-    def lanes_tab(self, df):
-        all_lanes_df = df.groupby("Sample_ID")["Lane"].apply(list).reset_index()
-        lane_dataframes = {lane: group for lane, group in df.groupby("Lane")}
+    def clear_widget(self):
+        # Remove and delete each tab widget
+        while self.count() > 0:
+            widget = self.widget(0)  # Get the first widget in the tab widget
+            self.removeTab(0)  # Remove the tab
+            widget.deleteLater()
 
-    def application_tab(self, df):
-        apps_df = {lane: group for lane, group in df.groupby("Application")}
+    def populate(self, samples_dfs):
+        self.clear_widget()
 
-    def populate(self, app_prof_obj):
+        # Add main data tab
+        self.addTab(self.get_widget_table(samples_dfs["no_explode"]), "all data")
 
-        print("dataset validation", app_prof_obj)
+        # Add application profile names tab
+        app_profile_tab = QTabWidget()
+        self.addTab(app_profile_tab, "application profile")
+        unique_app_profile_names = samples_dfs["apn_explode"][
+            "ApplicationName"
+        ].unique()
 
-        # self.layout.deleteLater()
-        #
-        # self.layout = QVBoxLayout()
-        # self.setLayout(self.layout)
+        for app_profile_name in unique_app_profile_names:
+            df_app_profile = samples_dfs["apn_explode"][
+                samples_dfs["apn_explode"]["ApplicationName"] == app_profile_name
+            ]
+            app_profile_widget = self.get_widget_table(df_app_profile)
+            app_profile_tab.addTab(app_profile_widget, app_profile_name)
 
-        for name in app_prof_obj:
-            print(f"dataset validation: {name}")
-            self.layout.addWidget(QLabel(name))
-            self.layout.addWidget(QLabel("Settings"))
+        # Add lanes tab
+        lane_tab = QTabWidget()
+        self.addTab(lane_tab, "lanes")
+        unique_lanes = samples_dfs["lane_explode"]["Lane"].unique()
 
-            form = QFormLayout()
-            for key, value in app_prof_obj[name]["Settings"].items():
-                print(f"dataset validation: {key} = {value}")
-                form.addRow(QLabel(key), QLabel(str(value)))
-            form.addWidget(QLabel(""))
-            self.layout.addLayout(form)
-
-            table_widget = QTableWidget()
-            self.populate_table(table_widget, app_prof_obj[name]["Data"])
-            self.layout.addWidget(table_widget)
+        for lane in unique_lanes:
+            lane_name = f"lane {lane}"
+            df_lane = samples_dfs["lane_explode"][
+                samples_dfs["lane_explode"]["Lane"] == lane
+            ]
+            lane_widget = self.get_widget_table(df_lane)
+            lane_tab.addTab(lane_widget, lane_name)
 
     @staticmethod
-    def populate_table(table_widget, dataframe):
+    def get_widget_table(dataframe):
+        widget = QWidget()
+        table = QTableWidget()
+        layout = QVBoxLayout()
+        widget.setLayout(layout)
+        layout.addWidget(table)
 
         # Set row and column count
-        table_widget.setRowCount(dataframe.shape[0])
-        table_widget.setColumnCount(dataframe.shape[1])
+        table.setRowCount(dataframe.shape[0])
+        table.setColumnCount(dataframe.shape[1])
 
         # Set column headers
-        table_widget.setHorizontalHeaderLabels(dataframe.columns)
+        table.setHorizontalHeaderLabels(dataframe.columns)
 
         # Populate the table with DataFrame data
         for row_idx in range(dataframe.shape[0]):
             for col_idx in range(dataframe.shape[1]):
                 cell_value = str(dataframe.iloc[row_idx, col_idx])
-                table_widget.setItem(row_idx, col_idx, QTableWidgetItem(cell_value))
+                table.setItem(row_idx, col_idx, QTableWidgetItem(cell_value))
+
+        return widget
 
 
 class MainIndexDistanceValidationWidget(QTabWidget):
@@ -208,7 +223,7 @@ class MainIndexDistanceValidationWidget(QTabWidget):
 
         for lane in results:
             tab = LaneIndexDistanceWidget(results[lane])
-            self.addTab(tab, f"Lane {lane}")
+            self.addTab(tab, f"lane {lane}")
 
     def _delete_tabs(self):
         # Remove and delete each tab widget
@@ -314,7 +329,7 @@ class MainColorBalanceWidget(QTabWidget):
 
             color_balance_table = ColorBalanceWidget(results[lane], self.cfg_mgr)
 
-            self.addTab(color_balance_table, f"Lane {lane}")
+            self.addTab(color_balance_table, f"lane {lane}")
 
 
 class ColorBalanceWidget(QTableView):
