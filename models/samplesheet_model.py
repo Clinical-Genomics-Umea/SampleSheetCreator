@@ -88,7 +88,7 @@ class SampleSheetModel(QStandardItemModel):
         json_data_qba = data.data("application/json")
         decoded_data = decode_bytes_json(json_data_qba)
 
-        print(decoded_data)
+        # print(decoded_data)
 
         start_row = parent.row()
 

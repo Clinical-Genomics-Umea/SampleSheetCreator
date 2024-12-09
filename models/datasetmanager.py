@@ -22,8 +22,9 @@ class DataSetManager:
             self.read_cycles.append(int(item.strip()))
 
     def validate(self):
-        print(self.cfg_mgr)
-        print(self.cfg_mgr.read_cycles)
+        pass
+        # print(self.cfg_mgr)
+        # print(self.cfg_mgr.read_cycles)
         # self.set_read_cycles()
         # self.applications()
 
@@ -54,7 +55,7 @@ class DataSetManager:
         output_items = []
 
         for i, item in enumerate(items):
-            print(i, item, self.read_cycles)
+            # print(i, item, self.read_cycles)
             output_items.append(self._fill_placeholder(item, self.read_cycles[i]))
 
         return ";".join(output_items)
@@ -116,18 +117,21 @@ class DataSetManager:
             self._override_cycles
         )
 
-        unique_app_profile_names = data_df["ApplicationName"].unique()
+        unique_app_names = data_df["ApplicationName"].unique()
 
-        for app in unique_app_profile_names:
+        for app in unique_app_names:
             app_df = data_df[data_df["ApplicationName"] == app].copy()
             app_profile = self.app_mgr.application_by_name(app)
+            print(app_profile)
 
             for field, value in app_profile["Data"].items():
                 if field not in app_df.columns:
                     app_df[field] = value
 
-            if "BCLConvert" in app_profile:
+            if app_profile["Application"] == "BCLConvert":
+                print(app_df)
                 app_df = app_df.explode("Lane", ignore_index=True)
+                print(app_df)
 
             app_df = app_df[app_profile["DataFields"]]
 
@@ -139,7 +143,7 @@ class DataSetManager:
 
             app_obj["applications"][app] = {
                 "Settings": app_profile["Settings"],
-                "Data": app_df.to_json(orient="records"),
+                "Data": app_df.to_dict(orient="records"),
             }
 
         return app_obj

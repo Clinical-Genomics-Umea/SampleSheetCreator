@@ -79,7 +79,7 @@ class SampleSheetV2:
         return completed_str
 
     def override_cycles(self, index, index2, override_cycles_pattern, run_cycles):
-        print(override_cycles_pattern)
+        # print(override_cycles_pattern)
 
         r1, i1, i2, r2 = run_cycles.split("-")
         r1_runc, i1_runc, i2_runc, r2_runc = int(r1), int(i1), int(i2), int(r2)

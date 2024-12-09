@@ -676,7 +676,7 @@ class SampleTableView(QTableView):
         override_col = header_labels.index("OverrideCyclesPattern")
 
         for row in selected_rows:
-            print(pattern)
+            # print(pattern)
 
             if row < 0 or row >= model.rowCount():
                 continue

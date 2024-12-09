@@ -184,7 +184,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         action_id = action.data()
         is_checked = action.isChecked()
 
-        print(action_id, is_checked)
+        # print(action_id, is_checked)
 
         if action_id not in known_actions:
             return
@@ -245,7 +245,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         action_group.setExclusionPolicy(QActionGroup.ExclusionPolicy.ExclusiveOptional)
 
         for action, action_icon, action_id in actions:
-            print(action, action_icon, action_id)
+            # print(action, action_icon, action_id)
             action.setCheckable(True)
             action.setChecked(False)
             action.setData(action_id)

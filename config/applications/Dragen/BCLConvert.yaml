@@ -1,19 +1,18 @@
 ---
 Version: 1.0
 ApplicationGroupName: Dragen
-ApplicationName: BCLConvert
+ApplicationName: BCLConvert_Nextera
 Application: BCLConvert
 
 Settings:
   SoftwareVersion: 4.1.23
   FastqCompressionFormat: gzip
-  AdapterRead1: CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA
-  AdapterRead2: CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA
+  AdapterRead1: CTGTCTCTTATACACATCT+AGATGTGTATAAGAGACAG
+  AdapterRead2: CTGTCTCTTATACACATCT+AGATGTGTATAAGAGACAG
 
 Data:
   BarcodeMismatchesIndex1: 1
   BarcodeMismatchesIndex2: 1
-
 
 DataFields:
   - Sample_ID

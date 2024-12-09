@@ -47,15 +47,16 @@ class ConfigurationManager(QObject):
     @property
     def samplesheet_header_data(self):
         header = {
-            "FileFormatVersion": self._run_data["FileFormatVersion"],
+            "FileFormatVersion": self._run_data["SampleSheetVersion"],
             "InstrumentPlatform": self._run_data["Instrument"],
-            "InstrumentType": self._run_data["InstrumentType"],
+            "InstrumentType": self._run_data["Instrument"],
             "RunName": self._run_data["RunName"],
             "RunDescription": self._run_data["RunDescription"],
             "Custom_Flowcell": self._run_data["Flowcell"],
         }
         return header
 
+    @property
     def samplesheet_reads_data(self):
         """Return a dictionary with the Read1Cycles, Index1Cycles, Index2Cycles, Read2Cycles."""
 
@@ -72,6 +73,8 @@ class ConfigurationManager(QObject):
 
         for header, rc in zip(read_cycle_headers, read_cycles.split("-")):
             reads[header] = rc
+
+        print("Reads", reads)
 
         return reads
 
@@ -181,14 +184,14 @@ class ConfigurationManager(QObject):
         if run_data["CustomReadCycles"]:
             run_data["ReadCycles"] = run_data["CustomReadCycles"]
 
-        print(self._run_data)
+        # print(self._run_data)
 
         # Emit the changed signal
         self.run_setup_changed.emit(self._run_data)
 
     @property
     def read_cycles(self):
-        print(self._run_data["ReadCycles"])
+        # print(self._run_data["ReadCycles"])
         return self._run_data["ReadCycles"]
 
     @property

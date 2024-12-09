@@ -404,7 +404,7 @@ class ColorBalanceValidator(QObject):
         self.cfg_mgr = cfg_mgr
 
         i5_orientation = cfg_mgr.run_data.get("I5SeqOrientation")
-        print("i5 orientation", i5_orientation)
+        # print("i5 orientation", i5_orientation)
 
         self.i5_rc = i5_orientation == "rc"
 
@@ -419,7 +419,7 @@ class ColorBalanceValidator(QObject):
 
         unique_lanes = df["Lane"].unique()
         i5_col_name = "IndexI5RC" if i5_rc else "IndexI5"
-        print(i5_col_name)
+        # print(i5_col_name)
 
         result = {}
 
