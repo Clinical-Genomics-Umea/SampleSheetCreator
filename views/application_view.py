@@ -52,9 +52,10 @@ class Applications(QWidget):
 
     application_data_ready = Signal(dict)
 
-    def __init__(self, app_mgr):
+    def __init__(self, app_mgr, dataset_mgr):
         super().__init__()
         self.app_mgr = app_mgr
+        self.dataset_mgr = dataset_mgr
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
 
@@ -97,7 +98,6 @@ class Applications(QWidget):
 
     @Slot(object)
     def _handle_app_button_click(self, data):
-        print("handle ..", data)
         self.application_data_ready.emit(data)
 
     @staticmethod

@@ -9,7 +9,7 @@ import pandera as pa
 from models.application import ApplicationManager
 from models.configuration import ConfigurationManager
 from models.datasetmanager import DataSetManager
-from models.samplesheet_model import SampleSheetModel
+from models.sample_model import SampleModel
 from utils.utils import explode_lane_column
 from models.pa_schema import prevalidation_schema
 from models.validation_fns import get_base, padded_index_df
@@ -60,7 +60,7 @@ class PreValidator(QObject):
 
     def __init__(
         self,
-        samplesheet_model: SampleSheetModel,
+        samplesheet_model: SampleModel,
         cfg_mgr: ConfigurationManager,
         app_mgr: ApplicationManager,
         dataset_mgr: DataSetManager,
@@ -289,7 +289,7 @@ class DataSetValidator(QObject):
 
     def __init__(
         self,
-        model: SampleSheetModel,
+        model: SampleModel,
         cfg_mgr: ConfigurationManager,
         dataset_mgr: DataSetManager,
     ):
@@ -320,7 +320,7 @@ class IndexDistanceValidator(QObject):
 
     def __init__(
         self,
-        model: SampleSheetModel,
+        model: SampleModel,
         cfg_mgr: ConfigurationManager,
     ):
         super().__init__()
@@ -368,7 +368,7 @@ class IndexDistanceValidationWorker(QObject):
     results_ready = Signal(object)
     error = Signal(str)
 
-    def __init__(self, model: SampleSheetModel, i5_rc: bool):
+    def __init__(self, model: SampleModel, i5_rc: bool):
         super().__init__()
 
         self.df = model.to_dataframe()
@@ -443,7 +443,7 @@ class ColorBalanceValidator(QObject):
 
     def __init__(
         self,
-        model: SampleSheetModel,
+        model: SampleModel,
         cfg_mgr: ConfigurationManager,
     ):
         super().__init__()

@@ -4,7 +4,7 @@ from models.application import ApplicationManager
 from models.configuration import ConfigurationManager
 from models.datasetmanager import DataSetManager
 from models.make_export import MakeJson
-from models.samplesheet_model import SampleSheetModel, CustomProxyModel
+from models.sample_model import SampleModel, CustomProxyModel
 from models.validation import MainValidator
 from views.main_window import MainWindow
 
@@ -17,7 +17,7 @@ class MainController(QObject):
         self.app_mgr = ApplicationManager(self.cfg_mgr)
 
         # Set up sample model and proxy model
-        self.sample_model = SampleSheetModel(self.cfg_mgr.samples_settings)
+        self.sample_model = SampleModel(self.cfg_mgr.samples_settings)
         self.sample_proxy_model = None
         self.setup_samplesheet_model()
 
@@ -38,7 +38,7 @@ class MainController(QObject):
         self.setup_left_tool_action_connections()
 
         # Connect profile data signal
-        self.main_window.application_profiles_widget.application_data_ready.connect(
+        self.main_window.applications_widget.application_data_ready.connect(
             self.main_window.samples_widget.sample_view.set_application
         )
 

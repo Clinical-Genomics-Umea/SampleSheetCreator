@@ -1,13 +1,13 @@
 from PySide6.QtCore import QObject, Signal, Slot
 
 from models.configuration import ConfigurationManager
-from models.samplesheet_model import SampleSheetModel
+from models.sample_model import SampleModel
 
 
 class MakeJson(QObject):
     data_ready = Signal(object)
 
-    def __init__(self, model: SampleSheetModel, cfg_mgr: ConfigurationManager):
+    def __init__(self, model: SampleModel, cfg_mgr: ConfigurationManager):
         super().__init__()
 
         if model is None:

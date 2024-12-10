@@ -1,5 +1,6 @@
 import json
 import re
+from pprint import pprint
 
 import pandas as pd
 
@@ -57,10 +58,17 @@ class DataSetManager:
         output_items = []
 
         for i, item in enumerate(items):
-            # print(i, item, self.read_cycles)
             output_items.append(self._fill_placeholder(item, self.read_cycles[i]))
 
         return ";".join(output_items)
+
+    def index_maxlens(self):
+        dataframe = self.sample_model.to_dataframe()
+
+        indexi7_maxlen = int(dataframe["IndexI7"].str.len().max())
+        indexi5_maxlen = int(dataframe["IndexI5"].str.len().max())
+
+        return {"IndexI7_maxlen": indexi7_maxlen, "IndexI5_maxlen": indexi5_maxlen}
 
     def base_sample_dataframe(self):
         self.set_read_cycles()
@@ -80,30 +88,6 @@ class DataSetManager:
         }
 
         return sample_dfs_obj
-
-        # if self.cfg_mgr.i5_samplesheet_orientation == "rc":
-        #     dataframe.drop("IndexI5", axis=1, inplace=True)
-        #     dataframe.rename(columns={"IndexI5RC": "IndexI5"}, inplace=True)
-        #
-        # unique_app_profile_names = dataframe["ApplicationProfileName"].unique()
-        #
-        # for apn in unique_app_profile_names:
-        #     apn_df = dataframe[dataframe["ApplicationProfileName"] == apn].copy()
-        #     app_profile = self.app_profile_mgr.application_profile_by_name(apn)
-        #
-        #     for field, value in app_profile["Data"].items():
-        #         print(field, value)
-        #         if field not in apn_df.columns:
-        #             apn_df[field] = value
-        #
-        #     apn_df = apn_df[app_profile["DataFields"]]
-        #
-        #     if "Translate" in app_profile:
-        #         apn_df = apn_df.rename(columns=app_profile["Translate"])
-        #
-        #     app_obj[apn] = {"Settings": app_profile["Settings"], "Data": apn_df}
-
-        # return app_obj
 
     def app_settings_data(self):
 
@@ -145,7 +129,7 @@ class DataSetManager:
                     }
                 )
 
-            return _app_settings_data
+        return _app_settings_data
 
     def samplesheet_obj(self):
 

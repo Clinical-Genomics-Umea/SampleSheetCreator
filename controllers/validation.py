@@ -8,7 +8,7 @@ from PySide6.QtCore import QObject, Signal
 from models.configuration import ConfigurationManager
 from models.validation_fns import padded_index_df
 from models.pa_schema import prevalidation_schema
-from models.samplesheet_model import SampleSheetModel
+from models.sample_model import SampleModel
 from views.run_setup_views import RunView
 import yaml
 

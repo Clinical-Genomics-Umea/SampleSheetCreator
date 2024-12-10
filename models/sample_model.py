@@ -19,9 +19,9 @@ def field_count(fields):
     return sum(len(fields[section]) for section in fields)
 
 
-class SampleSheetModel(QStandardItemModel):
+class SampleModel(QStandardItemModel):
     def __init__(self, sample_settings):
-        super(SampleSheetModel, self).__init__()
+        super(SampleModel, self).__init__()
 
         self.sections_fields = sample_settings["fields"]
         self.fields = get_column_headers(self.sections_fields)

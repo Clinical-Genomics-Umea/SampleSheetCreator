@@ -3,7 +3,7 @@ import json
 from PySide6.QtCore import QSettings, QObject, Signal, Slot
 from pathlib import Path
 
-from utils.utils import read_yaml_file, int_str_to_int_list
+from utils.utils import read_yaml_file, int_str_to_int_list, uuid
 
 
 class ConfigurationManager(QObject):
@@ -48,11 +48,11 @@ class ConfigurationManager(QObject):
     def samplesheet_header_data(self):
         header = {
             "FileFormatVersion": self._run_data["SampleSheetVersion"],
-            "InstrumentPlatform": self._run_data["Instrument"],
             "InstrumentType": self._run_data["Instrument"],
             "RunName": self._run_data["RunName"],
             "RunDescription": self._run_data["RunDescription"],
             "Custom_Flowcell": self._run_data["Flowcell"],
+            "Custom_UUID7": uuid(),
         }
         return header
 

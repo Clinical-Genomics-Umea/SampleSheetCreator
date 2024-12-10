@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -9,7 +11,10 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QPushButton,
     QHeaderView,
+    QFileDialog,
 )
+from pprint import pprint
+from models.samplesheet import samplesheetv2
 
 
 class ExportWidget(QWidget):
@@ -31,7 +36,7 @@ class ExportWidget(QWidget):
 
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
-        self.show_json_btn = QPushButton("Show Data")
+        self.show_json_btn = QPushButton("View Data")
         self.export_json_btn = QPushButton("Export Json")
         self.export_samplesheet_v2_btn = QPushButton("Export SampleSheet V2")
 
@@ -51,31 +56,31 @@ class ExportWidget(QWidget):
 
         data = self.dataset_mgr.samplesheet_obj()
 
-        print(data)
+        pprint(data)
 
         self.json_tree = JsonTreeWidget(data)
         header = self.json_tree.header()
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
         self.tab_widget.addTab(self.json_tree, "Data Structure")
 
-    def export_json(self):
-        pass
-
     def export_samplesheet_v2(self):
-        pass
+        options = QFileDialog.Options()
+        file_path, _ = QFileDialog.getSaveFileName(
+            None,
+            "Save SampleSheet V2 File (csv)",
+            "",
+            "CSV Files (*.csv);;All Files (*)",
+            options=options,
+        )
 
-    # def populate(self, data):
-    #     self._clear_tabs()
-    #
-    #     self.json_tree = JsonTreeWidget(data)
-    #     self.tab_widget.addTab(self.json_tree, "JSON Tree")
-    #
-    # def _clear_tabs(self):
-    #     # Remove and delete each tab widget
-    #     while self.tab_widget.count() > 0:
-    #         widget = self.tab_widget.widget(0)  # Get the first widget in the tab widget
-    #         self.tab_widget.removeTab(0)  # Remove the tab
-    #         widget.deleteLater()
+        if file_path:
+            f_obj = Path(file_path)
+
+            data = self.dataset_mgr.samplesheet_obj()
+
+            samplesheetv2_txt = samplesheetv2(data)
+
+            f_obj.write_text(samplesheetv2_txt)
 
 
 class JsonTreeWidget(QTreeWidget):

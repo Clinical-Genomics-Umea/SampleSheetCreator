@@ -7,7 +7,6 @@ from utils.utils import read_yaml_file
 class ApplicationManager:
 
     def __init__(self, cfg_mgr: ConfigurationManager) -> None:
-        # setup profile files
 
         app_files = [f for f in cfg_mgr.application_settings_basepath.glob("**/*.yaml")]
 
@@ -68,8 +67,6 @@ class ApplicationManager:
 
     def app_data_populate(self, df, appname):
         appobj = self._appname_to_appobj[appname]
-
-        print(appobj["Data"])
 
         for key, value in appobj["Data"].items():
             df[key] = value

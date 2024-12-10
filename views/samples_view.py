@@ -40,7 +40,7 @@ from PySide6.QtWidgets import (
 
 import json
 
-from models.samplesheet_model import CustomProxyModel
+from models.sample_model import CustomProxyModel
 from utils.utils import header_to_index_map
 from views.column_visibility_view import ColumnVisibilityWidget
 from views.run_setup_views import RunView

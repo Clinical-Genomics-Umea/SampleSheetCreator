@@ -2,7 +2,7 @@
 Version: 1.0
 OnBoard: true
 ApplicationGroupName: Dragen
-ApplicationName: DragenEnrichment_SomaticIDT
+ApplicationName: DragenEnrichment_SomaticIDTGms560
 Application: DragenEnrichment
 
 Settings:
@@ -12,7 +12,7 @@ Settings:
   KeepFastq: true
 
 Data:
-  BedFile: test
+  BedFile: gms560_hg38.BedFile
   ReferenceGenomeDir: hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2
   VariantCallingMode: AllVariantCallers
   GermlineOrSomatic: somatic

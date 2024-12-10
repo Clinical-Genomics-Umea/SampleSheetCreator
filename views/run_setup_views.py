@@ -25,20 +25,21 @@ import yaml
 from utils.utils import uuid, int_list_to_int_str
 import re
 
-
-def load_from_yaml(config_file):
-    with open(config_file, "r") as file:
-        return yaml.safe_load(file)
+#
+# def load_from_yaml(config_file):
+#     with open(config_file, "r") as file:
+#         return yaml.safe_load(file)
 
 
 class RunSetupWidget(QWidget):
 
     setup_commited = Signal(dict)
 
-    def __init__(self, cfg_mgr):
+    def __init__(self, cfg_mgr, dataset_mgr):
         super().__init__()
 
         self.cfg_mgr = cfg_mgr
+        self.dataset_mgr = dataset_mgr
 
         layout = QVBoxLayout()
         layout.setSpacing(5)
@@ -202,10 +203,32 @@ class RunSetupWidget(QWidget):
         template = self.input_widgets["ReadCycles"].currentText()
         self.input_widgets["CustomReadCycles"].setValidator(PatternValidator(template))
 
+    @staticmethod
+    def _validate_readcycles(index_maxlens, data):
+        readcycles = map(int, data["ReadCycles"].split("-"))
+
+        for i, value in enumerate(readcycles):
+            if i == 1:
+                print(value, index_maxlens["IndexI7_maxlen"])
+                if index_maxlens["IndexI7_maxlen"] > value:
+                    return False
+            if i == 2:
+                print(value, index_maxlens["IndexI5_maxlen"])
+                if index_maxlens["IndexI5_maxlen"] > value:
+                    return False
+
+        return True
+
     def _commit(self):
         data = {}
         for field, widget in self.input_widgets.items():
             data[field] = self._extract(widget)
+
+        index_maxlens = self.dataset_mgr.index_maxlens()
+
+        if not self._validate_readcycles(index_maxlens, data):
+            self._flash_widget(self.input_widgets["ReadCycles"])
+            return
 
         self.setup_commited.emit(data)  # set(data)
 

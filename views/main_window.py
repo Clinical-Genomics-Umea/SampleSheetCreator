@@ -27,7 +27,6 @@ from views.make_view import SampleSheetEdit
 from views.override_view import OverrideCyclesWidget
 from views.application_view import Applications
 from views.run_setup_views import RunSetupWidget, RunView
-from models.samplesheet_definitions import SampleSheetV2
 from views.export_view import ExportWidget
 from views.validation_view import (
     MainValidationWidget,
@@ -62,7 +61,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
 
         self.cfg_mgr = cfg_mgr
-        self.application_profiles_mgr = application_mgr
+        self.app_mgr = application_mgr
         self.dataset_mgr = dataset_mgr
 
         self.setMinimumWidth(1000)
@@ -96,7 +95,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.samples_widget = SamplesWidget(self.cfg_mgr.samples_settings)
         self.setup_samples_widget()
 
-        self.run_setup_widget = RunSetupWidget(self.cfg_mgr)
+        self.run_setup_widget = RunSetupWidget(self.cfg_mgr, dataset_mgr)
         self.run_view_widget = RunView(self.cfg_mgr)
         self.setup_run_view()
 
@@ -106,7 +105,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.indexes_widget = IndexKitToolbox(Path("config/indexes/indexes_json"))
         self.setup_indexes()
         #
-        self.application_profiles_widget = Applications(self.application_profiles_mgr)
+        self.applications_widget = Applications(self.app_mgr, self.dataset_mgr)
         self.setup_profile()
 
         self.cfg_widget = ConfigurationWidget(self.cfg_mgr)
@@ -160,7 +159,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def setup_profile(self):
         layout = self.leftmenu_profiles.layout()
-        layout.addWidget(self.application_profiles_widget)
+        layout.addWidget(self.applications_widget)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
