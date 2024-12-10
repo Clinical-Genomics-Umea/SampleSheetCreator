@@ -1,11 +1,13 @@
 ---
 Version: 1.0
+OnBoard: true
 ApplicationGroupName: Dragen
-ApplicationName: DragenEnrichment_IDT_Somatic
+ApplicationName: DragenEnrichment_SomaticIDT
 Application: DragenEnrichment
 
 Settings:
   SoftwareVersion: 4.1.23
+  AppVersion: 1.2.1
   MapAlignOutFormat: bam
   KeepFastq: true
 

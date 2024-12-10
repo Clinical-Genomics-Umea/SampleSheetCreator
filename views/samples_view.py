@@ -35,6 +35,7 @@ from PySide6.QtWidgets import (
     QStyle,
     QStyledItemDelegate,
     QStyleOptionButton,
+    QDialogButtonBox,
 )
 
 import json
@@ -320,6 +321,25 @@ class JsonButtonDelegate(QStyledItemDelegate):
         dialog.exec()
 
 
+class WarningDialog(QDialog):
+    def __init__(self, msg):
+        super().__init__()
+
+        self.setWindowTitle("Warning!")
+
+        QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        layout = QVBoxLayout()
+        message = QLabel(msg)
+        layout.addWidget(message)
+        layout.addWidget(self.buttonBox)
+        self.setLayout(layout)
+
+
 class SampleTableView(QTableView):
 
     field_visibility_state_changed = Signal(str, bool)
@@ -352,9 +372,8 @@ class SampleTableView(QTableView):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
     @Slot(dict)
-    def set_application(self, app_profile):
-        app_name = app_profile["ApplicationName"]
-        app_data = app_profile["Data"]
+    def set_application(self, app_obj):
+        app_data = app_obj["Data"]
 
         proxy_model = self.model()
         source_model = proxy_model.sourceModel()
@@ -365,16 +384,27 @@ class SampleTableView(QTableView):
             return
 
         header_index_map = header_to_index_map(proxy_model)
-        application_profile_name_col = header_index_map["ApplicationName"]
-        application_profile_name = app_profile["ApplicationName"]
+        application_name_col = header_index_map["ApplicationName"]
+        application_name = app_obj["ApplicationName"]
+        app = app_obj["Application"]
+
+        for row in selected_rows:
+            data = self._get_json_data_as_obj(proxy_model, row, application_name_col)
+            row_apps = [app_name.split("_")[0] for app_name in data]
+
+            if app in row_apps:
+                dlg = WarningDialog(f"{app} already set in selection.")
+                dlg.exec()
+                return
+
         source_model.blockSignals(True)
 
         for row in selected_rows:
-            self._set_application_profile_name(
-                proxy_model, row, application_profile_name_col, application_profile_name
+            self._set_json_data(
+                proxy_model, row, application_name_col, application_name
             )
 
-            if app_profile["Application"] == "BCLConvert":
+            if app_obj["Application"] == "BCLConvert":
                 self._set_bclconvert_data(proxy_model, row, header_index_map, app_data)
 
         source_model.blockSignals(False)
@@ -398,14 +428,23 @@ class SampleTableView(QTableView):
                 assert column >= 0
                 proxy_model.setData(proxy_model.index(row, column), value)
 
-    @staticmethod
-    def _set_application_profile_name(model, row, col, application_profile_name):
+    def _get_json_data_as_obj(self, model, row, col):
         data_json = model.data(model.index(row, col), Qt.DisplayRole)
         if not data_json:
             data_json = "[]"
 
         data = json.loads(data_json)
-        data.append(application_profile_name)
+
+        return data
+
+    @staticmethod
+    def _set_json_data(model, row, col, value):
+        data_json = model.data(model.index(row, col), Qt.DisplayRole)
+        if not data_json:
+            data_json = "[]"
+
+        data = json.loads(data_json)
+        data.append(value)
         data_json = json.dumps(data)
         model.setData(model.index(row, col), data_json)
 

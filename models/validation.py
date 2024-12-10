@@ -6,6 +6,7 @@ from PySide6.QtCore import QThread, Slot, Signal, QObject, Qt
 from PySide6.QtGui import QStandardItemModel
 import pandera as pa
 
+from models.application import ApplicationManager
 from models.configuration import ConfigurationManager
 from models.datasetmanager import DataSetManager
 from models.samplesheet_model import SampleSheetModel
@@ -16,13 +17,13 @@ from models.validation_fns import get_base, padded_index_df
 
 class MainValidator(QObject):
 
-    def __init__(self, samples_model, cfg_mgr, dataset_mgr):
+    def __init__(self, samples_model, cfg_mgr, dataset_mgr, app_mgr):
         super().__init__()
-
+        self.app_mgr = app_mgr
         self.cfg_mgr = cfg_mgr
         self.dataset_mgr = dataset_mgr
 
-        self.pre_validator = PreValidator(samples_model, cfg_mgr)
+        self.pre_validator = PreValidator(samples_model, cfg_mgr, app_mgr, dataset_mgr)
 
         self.dataset_validator = DataSetValidator(samples_model, cfg_mgr, dataset_mgr)
 
@@ -61,6 +62,8 @@ class PreValidator(QObject):
         self,
         samplesheet_model: SampleSheetModel,
         cfg_mgr: ConfigurationManager,
+        app_mgr: ApplicationManager,
+        dataset_mgr: DataSetManager,
     ):
         super().__init__()
 
@@ -70,6 +73,8 @@ class PreValidator(QObject):
 
         self.samplesheet_model = samplesheet_model
         self.cfg_mgr = cfg_mgr
+        self.app_mgr = app_mgr
+        self.dataset_mgr = dataset_mgr
 
     @staticmethod
     def create_int_list(max_value_str):
@@ -79,7 +84,7 @@ class PreValidator(QObject):
     def validate(self):
         """Run a series of validations on the SampleSheetModel and RunSetup config"""
         results = []
-        dataframe = self.samplesheet_model.to_dataframe()
+        dataframe = self.dataset_mgr.base_sample_dataframe()
         dataframe = explode_lane_column(dataframe)
 
         # self.dataset = DataSetManager(dataframe)
@@ -104,18 +109,61 @@ class PreValidator(QObject):
             self.data_ready.emit(results)
             return
 
-        results.extend(self.schema_validation(dataframe))
+        results.append(self.application_validation(dataframe))
+        if not results[-1][1]:
+            self.data_ready.emit(results)
+            return
 
-        # results.append(self.allowed_lanes_validation(dataframe, run_setup["Lanes"]))
-        # results.append(self.validate_unique_sample_lane_combinations(dataframe))
-
+        # results.extend(self.schema_validation(dataframe))
+        #
         status = all(item[1] for item in results)
 
-        if status:
-            results.append(("schema validation", True, ""))
+        # if status:
+        #     results.append(("schema validation", True, ""))
 
         self.data_ready.emit(results)
         return status
+
+    def application_validation(self, dataframe):
+
+        name = "application settings validation"
+
+        app_exploded_df = dataframe.explode("ApplicationName", ignore_index=True)
+
+        print(app_exploded_df.to_string())
+
+        unique_app_names = app_exploded_df["ApplicationName"].unique()
+
+        app_settings = {}
+        app_settings_results = {}
+
+        for app_name in unique_app_names:
+            print("name", app_name)
+            app = self.app_mgr.appobj_by_appname(app_name)
+            print("app", app)
+            application = app["Application"]
+
+            if application not in app_settings:
+                app_settings[application] = []
+
+            app_settings[application].append(app["Settings"])
+
+        for application in app_settings:
+            list_of_settings = app_settings[application]
+
+            app_settings_results[application] = all(
+                d == list_of_settings[0] for d in list_of_settings
+            )
+
+        for application in app_settings_results:
+            if not app_settings_results[application]:
+                return (
+                    name,
+                    False,
+                    f"Non-identical settings exist for: {application}",
+                )
+
+        return name, True, ""
 
     @staticmethod
     def schema_validation(df):

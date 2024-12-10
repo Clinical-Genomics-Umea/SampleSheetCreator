@@ -76,15 +76,16 @@ class Applications(QWidget):
         self.vertical_layout.setSpacing(5)
         self.vertical_layout.setContentsMargins(0, 0, 0, 0)
 
-        apps_by_group_by_name = self.app_mgr.application_by_group_by_name
-        for group in apps_by_group_by_name:
+        group_name_obj = self.app_mgr.appgroup_to_appname_to_appobj
+        print(group_name_obj)
+        for group in group_name_obj:
             group_label = QLabel(group)
             group_label.setStyleSheet("font-style: italic")
             self.vertical_layout.addWidget(self.get_line())
             self.vertical_layout.addWidget(group_label)
-            for name in apps_by_group_by_name[group]:
+            for name in group_name_obj[group]:
 
-                app_widget = ApplicationWidget(apps_by_group_by_name[group][name])
+                app_widget = ApplicationWidget(group_name_obj[group][name])
                 self.app_widgets.append(app_widget)
                 self.vertical_layout.addWidget(app_widget)
 

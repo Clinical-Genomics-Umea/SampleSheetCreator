@@ -14,25 +14,21 @@ class MainController(QObject):
         super().__init__()
 
         self.cfg_mgr = ConfigurationManager()
-        self.app_profile_mgr = ApplicationManager(self.cfg_mgr)
+        self.app_mgr = ApplicationManager(self.cfg_mgr)
 
         # Set up sample model and proxy model
         self.sample_model = SampleSheetModel(self.cfg_mgr.samples_settings)
         self.sample_proxy_model = None
         self.setup_samplesheet_model()
 
-        self.dataset_mgr = DataSetManager(
-            self.sample_model, self.cfg_mgr, self.app_profile_mgr
-        )
+        self.dataset_mgr = DataSetManager(self.sample_model, self.cfg_mgr, self.app_mgr)
 
-        self.main_window = MainWindow(
-            self.cfg_mgr, self.app_profile_mgr, self.dataset_mgr
-        )
+        self.main_window = MainWindow(self.cfg_mgr, self.app_mgr, self.dataset_mgr)
         self.main_window.samples_widget.set_model(self.sample_proxy_model)
 
         # Initialize main validator with necessary components
         self.main_validator = MainValidator(
-            self.sample_model, self.cfg_mgr, self.dataset_mgr
+            self.sample_model, self.cfg_mgr, self.dataset_mgr, self.app_mgr
         )
 
         self.make_json = MakeJson(self.sample_model, self.cfg_mgr)

@@ -6,12 +6,17 @@ Application: DragenSomatic
 
 Settings:
   SoftwareVersion: 4.1.23
+  AppVersion: 1.2.1
   MapAlignOutFormat: bam
   KeepFastq: true
 
 Data:
   ReferenceGenomeDir: hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2
   VariantCallingMode: AllVariantCallers
+  AuxNoiseBaselineFile: na
+  AuxSvNoiseBaselineFile: na
+  AuxCnvPopBAlleleVcfFile: na
+  AuxGermlineTaggingFile: na
   AuxCnvPanelOfNormalsFile: na
 
 DataFields:

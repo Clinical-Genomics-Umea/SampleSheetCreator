@@ -9,43 +9,83 @@ class ApplicationManager:
     def __init__(self, cfg_mgr: ConfigurationManager) -> None:
         # setup profile files
 
-        application_files = [
-            f for f in cfg_mgr.application_settings_basepath.glob("**/*.yaml")
-        ]
+        app_files = [f for f in cfg_mgr.application_settings_basepath.glob("**/*.yaml")]
 
-        self._application_group_name = {}
-        self._application_name = {}
+        self._appgroup_to_appnames = {}
+        self._appname_to_appobj = {}
+        self._app_to_appnames = {}
+        self._appname_to_app = {}
 
-        for file in application_files:
+        for file in app_files:
             if not file.is_file():
                 continue
 
-            profile_data = read_yaml_file(file)
-            if not profile_data:
+            appobj = read_yaml_file(file)
+            if not appobj:
                 continue
 
-            profile_name = profile_data["ApplicationName"]
+            appname = appobj.get("ApplicationName")
+            appgroup = appobj.get("ApplicationGroupName")
+            app = appobj.get("Application")
 
-            if not profile_name:
+            if not all([appname, appgroup, app]):
                 continue
 
-            group_name = profile_data["ApplicationGroupName"]
+            if appname not in self._appname_to_appobj:
+                self._appname_to_appobj[appname] = appobj
 
-            if not group_name:
-                continue
+            if appgroup not in self._appgroup_to_appnames:
+                self._appgroup_to_appnames[appgroup] = []
 
-            if profile_name not in self._application_name:
-                self._application_name[profile_name] = profile_data
+            if appname not in self._appgroup_to_appnames[appgroup]:
+                self._appgroup_to_appnames[appgroup].append(appname)
 
-            if group_name not in self._application_group_name:
-                self._application_group_name[group_name] = {}
-                self._application_group_name[group_name][profile_name] = profile_data
-            else:
-                self._application_group_name[group_name][profile_name] = profile_data
+            if appname not in self._appname_to_app:
+                self._appname_to_app[appname] = app
+
+    def appname_to_app(self, appname):
+        return self._appname_to_app[appname]
 
     @property
-    def application_by_group_by_name(self):
-        return self._application_group_name
+    def appgroup_to_appname_to_appobj(self):
+        _appgroup_to_appname_to_appobj = {}
+        for appgroup in self._appgroup_to_appnames:
+            print("appgroup", appgroup)
+            if appgroup not in _appgroup_to_appname_to_appobj:
+                _appgroup_to_appname_to_appobj[appgroup] = {}
 
-    def application_by_name(self, name):
-        return self._application_name[name]
+            for appname in self._appgroup_to_appnames[appgroup]:
+                _appgroup_to_appname_to_appobj[appgroup][appname] = (
+                    self._appname_to_appobj[appname]
+                )
+
+        print(_appgroup_to_appname_to_appobj)
+
+        return _appgroup_to_appname_to_appobj
+
+    def appobj_by_appname(self, name):
+        return self._appname_to_appobj[name]
+
+    def app_data_populate(self, df, appname):
+        appobj = self._appname_to_appobj[appname]
+
+        print(appobj["Data"])
+
+        for key, value in appobj["Data"].items():
+            df[key] = value
+
+        df = self._subset_rename_cols(df, appname)
+
+        if appobj["Application"] == "BCLConvert":
+            df = df.explode("Lane", ignore_index=True)
+
+        return df
+
+    def _subset_rename_cols(self, df, appname):
+        appobj = self.appobj_by_appname(appname)
+
+        df = df[appobj["DataFields"]]
+        if "Translate" in appobj:
+            df = df.rename(columns=appobj["Translate"])
+
+        return df

@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QHBoxLayout,
     QPushButton,
+    QHeaderView,
 )
 
 
@@ -30,27 +31,37 @@ class ExportWidget(QWidget):
 
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
-        self.export_json_button = QPushButton("Export JSON")
-        self.export_samplesheet_button = QPushButton("Export SampleSheet")
+        self.show_json_btn = QPushButton("Show Data")
+        self.export_json_btn = QPushButton("Export Json")
+        self.export_samplesheet_v2_btn = QPushButton("Export SampleSheet V2")
 
-        hbox.addWidget(self.export_json_button)
-        hbox.addWidget(self.export_samplesheet_button)
+        hbox.addWidget(self.show_json_btn)
+        hbox.addWidget(self.export_json_btn)
+        hbox.addWidget(self.export_samplesheet_v2_btn)
         hbox.addStretch()
 
         self.layout.addLayout(hbox)
         self.layout.addWidget(self.tab_widget)
-        # self.layout.addStretch()
+        self.show_json_btn.clicked.connect(self.show_data_tree)
+        self.export_samplesheet_v2_btn.clicked.connect(self.export_samplesheet_v2)
 
-        self.export_json_button.clicked.connect(self.export_json)
-        self.export_samplesheet_button.clicked.connect(self.export_samplesheet)
+    def show_data_tree(self):
+        if self.json_tree:
+            self.json_tree.deleteLater()
 
-    def export_json(self):
-        data = self.dataset_mgr.export_data_obj()
+        data = self.dataset_mgr.samplesheet_obj()
+
+        print(data)
 
         self.json_tree = JsonTreeWidget(data)
-        self.tab_widget.addTab(self.json_tree, "JSON Tree")
+        header = self.json_tree.header()
+        header.setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.tab_widget.addTab(self.json_tree, "Data Structure")
 
-    def export_samplesheet(self):
+    def export_json(self):
+        pass
+
+    def export_samplesheet_v2(self):
         pass
 
     # def populate(self, data):

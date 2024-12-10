@@ -1,11 +1,13 @@
 ---
 Version: 1.0
 ApplicationGroupName: Dragen
-ApplicationName: DragenGermline_IDTLMN_TAG_WGS
+OnBoard: true
+ApplicationName: DragenGermline_WGS
 Application: DragenGermline
 
 Settings:
   SoftwareVersion: 4.1.23
+  AppVersion: 1.2.1
   MapAlignOutFormat: bam
   KeepFastq: true
 

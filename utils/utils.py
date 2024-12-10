@@ -46,7 +46,7 @@ def explode_lane_column(dataframe: pd.DataFrame) -> pd.DataFrame:
     :param dataframe: DataFrame containing the list-like column
     :return: Exploded DataFrame
     """
-    dataframe["Lane"] = dataframe["Lane"].apply(int_str_to_int_list)
+    # dataframe["Lane"] = dataframe["Lane"].apply(int_str_to_int_list)
     exploded_dataframe = dataframe.explode("Lane", ignore_index=True)
     # exploded_dataframe["Lane"] = exploded_dataframe["Lane"].astype(int)
     return exploded_dataframe

@@ -1,6 +1,8 @@
 import json
 import re
 
+import pandas as pd
+
 from utils.utils import int_str_to_int_list, json_to_obj
 
 
@@ -60,7 +62,7 @@ class DataSetManager:
 
         return ";".join(output_items)
 
-    def _base_sample_dataframe(self):
+    def base_sample_dataframe(self):
         self.set_read_cycles()
         dataframe = self.sample_model.to_dataframe()
         dataframe["OverrideCycles"] = dataframe["OverrideCyclesPattern"].apply(
@@ -72,8 +74,8 @@ class DataSetManager:
     def validation_view_obj(self):
 
         sample_dfs_obj = {
-            "no_explode": self._base_sample_dataframe(),
-            "apn_explode": self._application_explode(),
+            "no_explode": self.base_sample_dataframe(),
+            "apn_explode": self._appname_explode(),
             "lane_explode": self._lane_explode(),
         }
 
@@ -103,16 +105,65 @@ class DataSetManager:
 
         # return app_obj
 
-    def export_data_obj(self):
+    def app_settings_data(self):
 
+        _app_settings_data = []
+
+        data_df = self._appname_explode()
+        data_df["OverrideCycles"] = data_df["OverrideCyclesPattern"].apply(
+            self._override_cycles
+        )
+
+        unique_appnames = data_df["ApplicationName"].unique()
+
+        used_app_to_appnames = {}
+        for appname in unique_appnames:
+            app = self.app_mgr.appname_to_app(appname)
+            if app not in used_app_to_appnames:
+                used_app_to_appnames[app] = []
+            used_app_to_appnames[app].append(appname)
+
+        for app in used_app_to_appnames:
+            dfs = []
+            settings = []
+            for appname in used_app_to_appnames[app]:
+                appname_df = data_df[data_df["ApplicationName"] == appname].copy()
+                dfs.append(self.app_mgr.app_data_populate(appname_df, appname))
+
+                appobj = self.app_mgr.appobj_by_appname(appname)
+                settings.append(appobj["Settings"])
+
+            merged_df = pd.concat(dfs)
+            are_identical = all(d == settings[0] for d in settings)
+
+            if are_identical:
+                _app_settings_data.append(
+                    {
+                        "Application": app,
+                        "Data": merged_df.to_dict(orient="records"),
+                        "Settings": settings[0],
+                    }
+                )
+
+            return _app_settings_data
+
+    def samplesheet_obj(self):
+
+        obj = {
+            "Header": self.cfg_mgr.samplesheet_header_data,
+            "Reads": self.cfg_mgr.samplesheet_reads_data,
+            "Applications": self.app_settings_data(),
+        }
+
+        return obj
+
+    def json_data(self):
         app_obj = {
             "Header": self.cfg_mgr.samplesheet_header_data,
             "Reads": self.cfg_mgr.samplesheet_reads_data,
         }
 
-        # app_obj["Sequencing"] = self.cfg_mgr.samplesheet_sequencing_data
-
-        data_df = self._application_explode()
+        data_df = self._appname_explode()
         data_df["OverrideCycles"] = data_df["OverrideCyclesPattern"].apply(
             self._override_cycles
         )
@@ -121,17 +172,14 @@ class DataSetManager:
 
         for app in unique_app_names:
             app_df = data_df[data_df["ApplicationName"] == app].copy()
-            app_profile = self.app_mgr.application_by_name(app)
-            print(app_profile)
+            app_profile = self.app_mgr.appobj_by_appname(app)
 
             for field, value in app_profile["Data"].items():
                 if field not in app_df.columns:
                     app_df[field] = value
 
             if app_profile["Application"] == "BCLConvert":
-                print(app_df)
                 app_df = app_df.explode("Lane", ignore_index=True)
-                print(app_df)
 
             app_df = app_df[app_profile["DataFields"]]
 
@@ -141,35 +189,28 @@ class DataSetManager:
             if "applications" not in app_obj:
                 app_obj["applications"] = {}
 
-            app_obj["applications"][app] = {
+            app_obj["Applications"][app] = {
+                "Application": app_profile["Application"],
                 "Settings": app_profile["Settings"],
                 "Data": app_df.to_dict(orient="records"),
             }
 
         return app_obj
 
-    def json_data(self):
-        pass
-
     def samplesheet_data(self):
         pass
 
     def _lane_explode(self):
-        base_df = self._base_sample_dataframe()
+        base_df = self.base_sample_dataframe()
         return base_df.explode("Lane", ignore_index=True)
 
-    def _application_explode(self):
-        base_df = self._base_sample_dataframe()
+    def _appname_explode(self):
+        base_df = self.base_sample_dataframe()
         return base_df.explode("ApplicationName", ignore_index=True)
 
-    def sample_data_exploded(self):
-        dataframe = self._base_sample_dataframe()
-        return dataframe
-
-    # def application_profiles(self):
-    #     filled_in_df = self._base_sample_dataframe()
-    #
-    #     return self.applications_obj(filled_in_df)
+    # def sample_data_exploded(self):
+    #     dataframe = self.base_sample_dataframe()
+    #     return dataframe
 
     @staticmethod
     def _dataframe_strs_to_obj(dataframe):
