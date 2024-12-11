@@ -58,6 +58,9 @@ class DataSetManager:
         item_list = item.strip().split("-")
         output_items = []
 
+        if not self.read_cycles:
+            return item
+
         for i, item in enumerate(item_list):
             output_items.append(self._fill_placeholder(item, self.read_cycles[i]))
 

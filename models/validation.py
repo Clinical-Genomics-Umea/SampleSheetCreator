@@ -24,14 +24,11 @@ class MainValidator(QObject):
         self.dataset_mgr = dataset_mgr
 
         self.pre_validator = PreValidator(samples_model, cfg_mgr, app_mgr, dataset_mgr)
-
         self.dataset_validator = DataSetValidator(samples_model, cfg_mgr, dataset_mgr)
-
         self.index_distance_validator = IndexDistanceValidator(
             samples_model,
             cfg_mgr,
         )
-
         self.color_balance_validator = ColorBalanceValidator(
             samples_model,
             cfg_mgr,
