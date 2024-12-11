@@ -21,6 +21,7 @@ from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel
 from camel_converter import to_pascal
 
 from models.indexes_model import IndexKitDefinition
+from views.ui_components_view import HorizontalLine
 
 
 def create_chained_sfproxies(model_names: list) -> dict:
@@ -299,6 +300,7 @@ class IndexKitToolbox(QWidget):
         indexes_label.setStyleSheet("font-weight: bold")
 
         self.layout.addWidget(indexes_label)
+        self.layout.addWidget(HorizontalLine())
         self.layout.addWidget(self.toolbox)
 
         for name, ikdw in self.ikd_widgets.items():

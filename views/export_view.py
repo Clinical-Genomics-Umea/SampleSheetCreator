@@ -23,7 +23,9 @@ class ExportWidget(QWidget):
 
         self.dataset_mgr = dataset_mgr
 
+        self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
+        self.layout.setSpacing(5)
         self.setLayout(self.layout)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)

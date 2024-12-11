@@ -15,10 +15,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFormLayout, QFrame, QHBoxLayout,
-    QLabel, QLineEdit, QMainWindow, QPushButton,
-    QSizePolicy, QStackedWidget, QToolBar, QToolButton,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QHBoxLayout, QMainWindow, QSizePolicy,
+    QStackedWidget, QToolBar, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -58,47 +56,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.setSpacing(6)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
-        self.frame_6 = QFrame(self.leftmenu_config)
-        self.frame_6.setObjectName(u"frame_6")
-        self.formLayout_3 = QFormLayout(self.frame_6)
-        self.formLayout_3.setObjectName(u"formLayout_3")
-        self.formLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.label_6 = QLabel(self.frame_6)
-        self.label_6.setObjectName(u"label_6")
-
-        self.formLayout_3.setWidget(0, QFormLayout.LabelRole, self.label_6)
-
-        self.lineEdit_config_file = QLineEdit(self.frame_6)
-        self.lineEdit_config_file.setObjectName(u"lineEdit_config_file")
-        self.lineEdit_config_file.setReadOnly(True)
-
-        self.formLayout_3.setWidget(0, QFormLayout.FieldRole, self.lineEdit_config_file)
-
-        self.label_4 = QLabel(self.frame_6)
-        self.label_4.setObjectName(u"label_4")
-
-        self.formLayout_3.setWidget(1, QFormLayout.LabelRole, self.label_4)
-
-        self.lineEdit_index_file = QLineEdit(self.frame_6)
-        self.lineEdit_index_file.setObjectName(u"lineEdit_index_file")
-        self.lineEdit_index_file.setReadOnly(True)
-
-        self.formLayout_3.setWidget(1, QFormLayout.FieldRole, self.lineEdit_index_file)
-
-        self.label_7 = QLabel(self.frame_6)
-        self.label_7.setObjectName(u"label_7")
-
-        self.formLayout_3.setWidget(2, QFormLayout.LabelRole, self.label_7)
-
-        self.lineEdit_analysis_file = QLineEdit(self.frame_6)
-        self.lineEdit_analysis_file.setObjectName(u"lineEdit_analysis_file")
-        self.lineEdit_analysis_file.setReadOnly(True)
-
-        self.formLayout_3.setWidget(2, QFormLayout.FieldRole, self.lineEdit_analysis_file)
-
-
-        self.verticalLayout_4.addWidget(self.frame_6)
-
         self.leftmenu_stackedWidget.addWidget(self.leftmenu_config)
         self.leftmenu_file = QWidget()
         self.leftmenu_file.setObjectName(u"leftmenu_file")
@@ -106,41 +63,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_8.setSpacing(6)
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
         self.verticalLayout_8.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout_7 = QVBoxLayout()
-        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
-        self.new_samplesheet_pushButton = QPushButton(self.leftmenu_file)
-        self.new_samplesheet_pushButton.setObjectName(u"new_samplesheet_pushButton")
-
-        self.verticalLayout_7.addWidget(self.new_samplesheet_pushButton)
-
-        self.formLayout_6 = QFormLayout()
-        self.formLayout_6.setObjectName(u"formLayout_6")
-        self.label_8 = QLabel(self.leftmenu_file)
-        self.label_8.setObjectName(u"label_8")
-
-        self.formLayout_6.setWidget(0, QFormLayout.LabelRole, self.label_8)
-
-        self.horizontalLayout_3 = QHBoxLayout()
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.load_worklist_lineEdit = QLineEdit(self.leftmenu_file)
-        self.load_worklist_lineEdit.setObjectName(u"load_worklist_lineEdit")
-
-        self.horizontalLayout_3.addWidget(self.load_worklist_lineEdit)
-
-        self.load_worklist_toolButton = QToolButton(self.leftmenu_file)
-        self.load_worklist_toolButton.setObjectName(u"load_worklist_toolButton")
-
-        self.horizontalLayout_3.addWidget(self.load_worklist_toolButton)
-
-
-        self.formLayout_6.setLayout(0, QFormLayout.FieldRole, self.horizontalLayout_3)
-
-
-        self.verticalLayout_7.addLayout(self.formLayout_6)
-
-
-        self.verticalLayout_8.addLayout(self.verticalLayout_7)
-
         self.leftmenu_stackedWidget.addWidget(self.leftmenu_file)
         self.leftmenu_indexes = QWidget()
         self.leftmenu_indexes.setObjectName(u"leftmenu_indexes")
@@ -218,7 +140,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.leftmenu_stackedWidget.setCurrentIndex(5)
+        self.leftmenu_stackedWidget.setCurrentIndex(1)
         self.main_stackedWidget.setCurrentIndex(1)
 
 
@@ -227,12 +149,6 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Config file", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Index file", None))
-        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Analysis file", None))
-        self.new_samplesheet_pushButton.setText(QCoreApplication.translate("MainWindow", u"New Samplesheet", None))
-        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Load Worklist", None))
-        self.load_worklist_toolButton.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.left_toolBar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))
     # retranslateUi
 

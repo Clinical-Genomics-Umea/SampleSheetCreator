@@ -19,6 +19,7 @@ from PySide6.QtCore import Signal, Qt, QObject, Slot
 
 from models.application import ApplicationManager
 from utils.utils import read_yaml_file
+from views.ui_components_view import HorizontalLine
 
 
 class ClickableLabel(QLabel):
@@ -78,11 +79,10 @@ class Applications(QWidget):
         self.vertical_layout.setContentsMargins(0, 0, 0, 0)
 
         group_name_obj = self.app_mgr.appgroup_to_appname_to_appobj
-        print(group_name_obj)
         for group in group_name_obj:
             group_label = QLabel(group)
             group_label.setStyleSheet("font-style: italic")
-            self.vertical_layout.addWidget(self.get_line())
+            self.vertical_layout.addWidget(HorizontalLine())
             self.vertical_layout.addWidget(group_label)
             for name in group_name_obj[group]:
 

@@ -10,6 +10,8 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
 )
 
+from views.ui_components_view import HorizontalLine
+
 
 class OverrideCyclesWidget(QWidget):
 
@@ -17,6 +19,7 @@ class OverrideCyclesWidget(QWidget):
 
     def __init__(self):
         super().__init__()
+        self.setContentsMargins(0, 0, 0, 0)
 
         profiles_label = QLabel("Set Custom OverrideCycles")
         profiles_label.setStyleSheet("font-weight: bold")
@@ -40,6 +43,7 @@ class OverrideCyclesWidget(QWidget):
         oc_header_layout.addWidget(QLabel("R2"))
 
         custom_layout = QHBoxLayout()
+        custom_layout.setContentsMargins(0, 0, 0, 0)
         custom_layout.addWidget(self.oc_custom_r1_lineedit)
         custom_layout.addWidget(self.oc_custom_i1_lineedit)
         custom_layout.addWidget(self.oc_custom_i2_lineedit)
@@ -49,9 +53,10 @@ class OverrideCyclesWidget(QWidget):
         self.apply_button = QPushButton("apply")
 
         layout = QVBoxLayout(self)
+        layout.setSpacing(5)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(profiles_label)
-        layout.addWidget(self.get_line())
+        layout.addWidget(HorizontalLine())
 
         form = QFormLayout()
         form.addRow("", oc_header_layout)
@@ -91,10 +96,3 @@ class OverrideCyclesWidget(QWidget):
         pattern = "-".join(pattern_list)
 
         self.custom_override_pattern_ready.emit(pattern)
-
-    @staticmethod
-    def get_line():
-        line = QFrame()
-        line.setFrameShape(QFrame.HLine)
-        line.setFrameShadow(QFrame.Sunken)
-        return line

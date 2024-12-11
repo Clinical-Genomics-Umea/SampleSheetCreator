@@ -23,12 +23,7 @@ from PySide6.QtWidgets import (
 )
 import yaml
 from utils.utils import uuid, int_list_to_int_str
-import re
-
-#
-# def load_from_yaml(config_file):
-#     with open(config_file, "r") as file:
-#         return yaml.safe_load(file)
+from views.ui_components_view import HorizontalLine
 
 
 class RunSetupWidget(QWidget):
@@ -48,10 +43,11 @@ class RunSetupWidget(QWidget):
         top_label = QLabel("Run Setup")
         top_label.setStyleSheet("font-weight: bold")
 
-        self.set_button = QPushButton("Commit")
+        self.commit_btn = QPushButton("Commit")
 
         layout.addWidget(top_label)
-        layout.addWidget(self.set_button)
+        layout.addWidget(HorizontalLine())
+        layout.addWidget(self.commit_btn)
 
         self.form = QFormLayout()
 
@@ -93,7 +89,7 @@ class RunSetupWidget(QWidget):
 
         layout.addStretch()
 
-        self.set_button.clicked.connect(self._commit)
+        self.commit_btn.clicked.connect(self._commit)
 
     @Slot(list)
     def show_error(self, fields):

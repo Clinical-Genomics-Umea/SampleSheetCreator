@@ -50,11 +50,10 @@ class MainController(QObject):
 
         self.setup_override_pattern_connections()
 
-    # def setup_make_connections(self):
-    #     # self.make_json.data_ready.connect(self.main_window.export_widget.populate)
-    #     self.main_window.export_widget.export_json_button.clicked.connect(
-    #         self.make_json.mk_json
-    #     )
+    def setup_leftmenu_file_connections(self):
+        self.main_window.file_widget.new_samplesheet_btn.clicked.connect(
+            self.sample_model.set_empty_strings
+        )
 
     def setup_samplesheet_model(self):
         # Set up sample model and proxy model
@@ -129,8 +128,8 @@ class MainController(QObject):
         )
 
     def setup_file_connections(self):
-        self.main_window.new_samplesheet_pushButton.clicked.connect(
-            self.setup_samplesheet_model
+        self.main_window.file_widget.new_samplesheet_btn.clicked.connect(
+            self.sample_model.set_empty_strings
         )
 
 

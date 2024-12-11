@@ -22,6 +22,7 @@ from models.configuration import ConfigurationManager
 from views.configuration_view import ConfigurationWidget
 from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
 from views.column_visibility_view import ColumnVisibilityControl
+from views.file_view import FileView
 from views.index_view import IndexKitToolbox
 from views.make_view import SampleSheetEdit
 from views.override_view import OverrideCyclesWidget
@@ -92,6 +93,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setup_left_toolbar_actions()
 
+        self.file_widget = FileView()
+        self.setup_leftmenu_file()
+
         self.samples_widget = SamplesWidget(self.cfg_mgr.samples_settings)
         self.setup_samples_widget()
 
@@ -103,26 +107,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setup_validation_widget()
 
         self.indexes_widget = IndexKitToolbox(Path("config/indexes/indexes_json"))
-        self.setup_indexes()
+        self.setup_leftmenu_indexes()
         #
         self.applications_widget = Applications(self.app_mgr, self.dataset_mgr)
-        self.setup_profile()
+        self.setup_leftmenu_applications()
 
         self.cfg_widget = ConfigurationWidget(self.cfg_mgr)
         self.setup_cfg()
 
         self.export_widget = ExportWidget(self.dataset_mgr)
-        self.setup_make_widget()
+        self.setup_export_widget()
 
         self.leftmenu_stackedWidget.setFixedWidth(300)
         self.leftmenu_stackedWidget.hide()
 
+    def setup_leftmenu_file(self):
+        layout = self.leftmenu_file.layout()
+        layout.addWidget(self.file_widget)
+
     def setup_override(self):
         layout = self.leftmenu_override.layout()
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.override_widget)
 
-    def setup_make_widget(self):
+    def setup_export_widget(self):
         layout = self.main_make.layout()
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.export_widget)
 
     def setup_validation_widget(self):
@@ -132,10 +142,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setup_cfg(self):
         layout = self.main_settings.layout()
         layout.addWidget(self.cfg_widget)
-
-    def setup_samplesheetedit(self):
-        layout = self.main_make.layout()
-        layout.addWidget(self.samplesheetedit)
 
     def setup_samples_widget(self):
         layout = self.main_data.layout()
@@ -151,13 +157,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         run_info = self.run_setup_widget.get_data()
         self.run_view_widget.set_data(run_info)
 
-    def setup_indexes(self):
+    def setup_leftmenu_indexes(self):
         layout = self.leftmenu_indexes.layout()
         layout.addWidget(self.indexes_widget)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
-    def setup_profile(self):
+    def setup_leftmenu_applications(self):
         layout = self.leftmenu_profiles.layout()
         layout.addWidget(self.applications_widget)
         layout.setSpacing(0)
