@@ -14,13 +14,19 @@ def uuid():
 
 
 def json_to_obj(json_str):
-    return json.loads(json_str)
+    try:
+        return json.loads(json_str)
+    except:
+        return []
 
 
 def int_str_to_int_list(int_str):
-    int_str_list = list(re.findall(r"\d+", int_str))
-    int_list = map(int, int_str_list)
-    return list(int_list)
+    try:
+        int_str_list = list(re.findall(r"\d+", int_str))
+        int_list = map(int, int_str_list)
+        return list(int_list)
+    except:
+        return []
 
 
 def int_list_to_int_str(int_list):

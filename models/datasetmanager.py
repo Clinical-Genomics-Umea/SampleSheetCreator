@@ -19,10 +19,11 @@ class DataSetManager:
     def set_read_cycles(self):
         self.read_cycles = []
         _read_cycles = self.cfg_mgr.read_cycles
-        _read_cycles.strip()
 
-        for item in _read_cycles.split("-"):
-            self.read_cycles.append(int(item.strip()))
+        if _read_cycles:
+            _read_cycles.strip()
+            for item in _read_cycles.split("-"):
+                self.read_cycles.append(int(item.strip()))
 
     def validate(self):
         pass
@@ -53,17 +54,20 @@ class DataSetManager:
 
         return input_str.replace(placeholder, str(remaining_value))
 
-    def _override_cycles(self, value):
-        items = value.strip().split("-")
+    def _override_cycles(self, item):
+        item_list = item.strip().split("-")
         output_items = []
 
-        for i, item in enumerate(items):
+        for i, item in enumerate(item_list):
             output_items.append(self._fill_placeholder(item, self.read_cycles[i]))
 
         return ";".join(output_items)
 
     def index_maxlens(self):
         dataframe = self.sample_model.to_dataframe()
+
+        if dataframe.empty:
+            return None
 
         indexi7_maxlen = int(dataframe["IndexI7"].str.len().max())
         indexi5_maxlen = int(dataframe["IndexI5"].str.len().max())
@@ -84,7 +88,7 @@ class DataSetManager:
         sample_dfs_obj = {
             "no_explode": self.base_sample_dataframe(),
             "apn_explode": self._appname_explode(),
-            "lane_explode": self._lane_explode(),
+            "lane_explode": self.base_sample_dataframe_lane_explode(),
         }
 
         return sample_dfs_obj
@@ -135,7 +139,7 @@ class DataSetManager:
 
         obj = {
             "Header": self.cfg_mgr.samplesheet_header_data,
-            "Reads": self.cfg_mgr.samplesheet_reads_data,
+            "Reads": self.cfg_mgr.samplesheet_read_cycles,
             "Applications": self.app_settings_data(),
         }
 
@@ -144,7 +148,7 @@ class DataSetManager:
     def json_data(self):
         app_obj = {
             "Header": self.cfg_mgr.samplesheet_header_data,
-            "Reads": self.cfg_mgr.samplesheet_reads_data,
+            "Reads": self.cfg_mgr.samplesheet_read_cycles,
         }
 
         data_df = self._appname_explode()
@@ -184,7 +188,7 @@ class DataSetManager:
     def samplesheet_data(self):
         pass
 
-    def _lane_explode(self):
+    def base_sample_dataframe_lane_explode(self):
         base_df = self.base_sample_dataframe()
         return base_df.explode("Lane", ignore_index=True)
 

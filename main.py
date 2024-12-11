@@ -129,7 +129,7 @@ def main():
             controller = MainController()
 
             # Show the main window
-            controller.main_window.show()
+            controller._main_window.show()
 
             # Optional: Set up auto-save timer
             # autosave_timer = QTimer()

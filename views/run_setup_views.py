@@ -89,14 +89,15 @@ class RunSetupWidget(QWidget):
 
         layout.addStretch()
 
-        self.commit_btn.clicked.connect(self._commit)
+        self.commit_btn.clicked.connect(self.commit)
 
     @Slot(list)
     def show_error(self, fields):
         for field in fields:
-            self._flash_widget(self.input_widgets[field])
+            self.flash_widget(self.input_widgets[field])
 
-    def _flash_widget(self, widget):
+    @staticmethod
+    def flash_widget(widget):
         original_style = widget.styleSheet()
         widget.setStyleSheet("border: 1px solid red;")
         QTimer.singleShot(500, lambda: widget.setStyleSheet(original_style))
@@ -215,18 +216,39 @@ class RunSetupWidget(QWidget):
 
         return True
 
-    def _commit(self):
+    def commit(self):
+        """Commit the data from the input widgets."""
         data = {}
         for field, widget in self.input_widgets.items():
-            data[field] = self._extract(widget)
+            data[field] = self.extract_data(widget)
 
-        index_maxlens = self.dataset_mgr.index_maxlens()
-
-        if not self._validate_readcycles(index_maxlens, data):
-            self._flash_widget(self.input_widgets["ReadCycles"])
+        if not self.validate_readcycles(data):
+            self.flash_widget(self.input_widgets["ReadCycles"])
             return
 
-        self.setup_commited.emit(data)  # set(data)
+        self.setup_commited.emit(data)
+
+    @staticmethod
+    def extract_data(widget):
+        """Extract data from the given widget."""
+        if isinstance(widget, QComboBox):
+            return widget.currentText()
+        elif isinstance(widget, QLineEdit):
+            return widget.text()
+
+    def validate_readcycles(self, data):
+        """Validate the readcycles field."""
+        readcycles = list(map(int, data["ReadCycles"].split("-")))
+        index_maxlens = self.dataset_mgr.index_maxlens()
+
+        for i, value in enumerate(readcycles):
+            if index_maxlens is not None:
+                if i == 1 and index_maxlens["IndexI7_maxlen"] > value:
+                    return False
+                if i == 2 and index_maxlens["IndexI5_maxlen"] > value:
+                    return False
+
+        return True
 
     @staticmethod
     def _extract(widget):

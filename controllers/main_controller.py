@@ -11,126 +11,131 @@ from views.main_window import MainWindow
 
 class MainController(QObject):
     def __init__(self):
+        """
+        Initialize main controller, setting up models, views, and connections.
+        """
         super().__init__()
 
-        self.cfg_mgr = ConfigurationManager()
-        self.app_mgr = ApplicationManager(self.cfg_mgr)
+        self._config_manager = ConfigurationManager()
+        self._application_manager = ApplicationManager(self._config_manager)
 
-        # Set up sample model and proxy model
-        self.sample_model = SampleModel(self.cfg_mgr.samples_settings)
-        self.sample_proxy_model = None
-        self.setup_samplesheet_model()
+        self._sample_model = SampleModel(self._config_manager.samples_settings)
+        self._sample_proxy_model = CustomProxyModel()
+        self._sample_proxy_model.setSourceModel(self._sample_model)
 
-        self.dataset_mgr = DataSetManager(self.sample_model, self.cfg_mgr, self.app_mgr)
-
-        self.main_window = MainWindow(self.cfg_mgr, self.app_mgr, self.dataset_mgr)
-        self.main_window.samples_widget.set_model(self.sample_proxy_model)
-
-        # Initialize main validator with necessary components
-        self.main_validator = MainValidator(
-            self.sample_model, self.cfg_mgr, self.dataset_mgr, self.app_mgr
+        self._dataset_manager = DataSetManager(
+            self._sample_model, self._config_manager, self._application_manager
         )
 
-        self.make_json = MakeJson(self.sample_model, self.cfg_mgr)
+        self._main_window = MainWindow(
+            self._config_manager, self._application_manager, self._dataset_manager
+        )
+        self._main_window.samples_widget.set_model(self._sample_proxy_model)
 
-        # Set up connections
-        self.setup_validation_connections()
-        self.setup_left_tool_action_connections()
-
-        # Connect profile data signal
-        self.main_window.applications_widget.application_data_ready.connect(
-            self.main_window.samples_widget.sample_view.set_application
+        self._main_validator = MainValidator(
+            self._sample_model,
+            self._config_manager,
+            self._dataset_manager,
+            self._application_manager,
         )
 
-        self.setup_run_connections()
+        # self._make_json = MakeJson(self._sample_model, self._config_manager)
 
-        self.setup_file_connections()
+        self._connect_signals()
 
-        # self.setup_make_connections()
+    def _connect_signals(self):
+        """
+        Connect UI signals to controller slots.
+        """
+        self._connect_validation_signals()
+        self._connect_left_tool_action_signals()
+        self._connect_run_signals()
+        self._connect_file_signals()
+        self._connect_override_pattern_signals()
+        self._connect_application_signal()
 
-        self.setup_override_pattern_connections()
-
-    def setup_leftmenu_file_connections(self):
-        self.main_window.file_widget.new_samplesheet_btn.clicked.connect(
-            self.sample_model.set_empty_strings
+    def _connect_application_signal(self):
+        self._main_window.applications_widget.application_data_ready.connect(
+            self._main_window.samples_widget.sample_view.set_application
         )
 
-    def setup_samplesheet_model(self):
-        # Set up sample model and proxy model
-        self.sample_proxy_model = CustomProxyModel()
-        self.sample_proxy_model.setSourceModel(self.sample_model)
+    def _connect_file_signals(self):
+        self._main_window.file_widget.new_samplesheet_btn.clicked.connect(
+            self._sample_model.set_empty_strings
+        )
 
-        # Configure sample widget
-
-    def setup_left_tool_action_connections(self):
+    def _connect_left_tool_action_signals(self):
         """Connect UI signals to controller slots"""
         # Connect menu actions to handler
 
-        action_handler = self.main_window.handle_left_toolbar_action
+        action_handler = self._main_window.handle_left_toolbar_action
 
         actions = [
-            self.main_window.file_action,
-            self.main_window.run_action,
-            self.main_window.profiles_action,
-            self.main_window.indexes_action,
-            self.main_window.override_action,
-            self.main_window.settings_action,
-            self.main_window.validate_action,
-            self.main_window.make_action,
+            self._main_window.file_action,
+            self._main_window.run_action,
+            self._main_window.profiles_action,
+            self._main_window.indexes_action,
+            self._main_window.override_action,
+            self._main_window.settings_action,
+            self._main_window.validate_action,
+            self._main_window.make_action,
         ]
 
         for action in actions:
             action.triggered.connect(action_handler)
 
-    def setup_validation_connections(self):
+    def _connect_validation_signals(self):
         """Connect UI signals to validation slots"""
 
-        self.main_validator.pre_validator.data_ready.connect(
-            self.main_window.validation_widget.pre_validation_widget.populate
+        self._main_validator.pre_validator.data_ready.connect(
+            self._main_window.validation_widget.pre_validation_widget.populate
         )
-        self.main_validator.index_distance_validator.data_ready.connect(
-            self.main_window.validation_widget.main_index_validation_widget.populate
+        self._main_validator.index_distance_validator.data_ready.connect(
+            self._main_window.validation_widget.main_index_validation_widget.populate
         )
-        self.main_validator.color_balance_validator.data_ready.connect(
-            self.main_window.validation_widget.main_color_balance_validation_widget.populate
+        self._main_validator.color_balance_validator.data_ready.connect(
+            self._main_window.validation_widget.main_color_balance_validation_widget.populate
         )
-        self.main_validator.dataset_validator.data_ready.connect(
-            self.main_window.validation_widget.dataset_validation_widget.populate
-        )
-
-        self.main_window.validation_widget.validate_button.clicked.connect(
-            self.main_validator.validate
+        self._main_validator.dataset_validator.data_ready.connect(
+            self._main_window.validation_widget.dataset_validation_widget.populate
         )
 
-    def setup_override_pattern_connections(self):
-        self.main_window.samples_widget.sample_view.override_patterns_ready.connect(
-            self.main_window.override_widget.set_override_pattern
+        self._main_window.validation_widget.validate_button.clicked.connect(
+            self._main_validator.validate
         )
-        self.main_window.override_widget.get_selected_overrides_btn.clicked.connect(
-            self.main_window.samples_widget.sample_view.get_selected_override_patterns
-        )
-        self.main_window.override_widget.custom_override_pattern_ready.connect(
-            self.main_window.samples_widget.sample_view.set_override_pattern
+        self._main_validator.clear_validator_widgets.connect(
+            self._main_window.validation_widget.clear_validation_widgets
         )
 
-    def setup_run_connections(self):
-        self.main_window.run_setup_widget.setup_commited.connect(
-            self.cfg_mgr.set_run_data
+    def _connect_override_pattern_signals(self):
+        self._main_window.samples_widget.sample_view.override_patterns_ready.connect(
+            self._main_window.override_widget.set_override_pattern
         )
-        self.cfg_mgr.run_setup_changed.connect(
-            self.main_window.run_view_widget.set_data
+        self._main_window.override_widget.get_selected_overrides_btn.clicked.connect(
+            self._main_window.samples_widget.sample_view.get_selected_override_patterns
         )
-        self.cfg_mgr.users_changed.connect(
-            self.main_window.run_setup_widget.populate_investigators
-        )
-        self.cfg_mgr.run_data_error.connect(
-            self.main_window.run_setup_widget.show_error
+        self._main_window.override_widget.custom_override_pattern_ready.connect(
+            self._main_window.samples_widget.sample_view.set_override_pattern
         )
 
-    def setup_file_connections(self):
-        self.main_window.file_widget.new_samplesheet_btn.clicked.connect(
-            self.sample_model.set_empty_strings
+    def _connect_run_signals(self):
+        self._main_window.run_setup_widget.setup_commited.connect(
+            self._config_manager.set_run_data
         )
+        self._config_manager.run_setup_changed.connect(
+            self._main_window.run_view_widget.set_data
+        )
+        self._config_manager.users_changed.connect(
+            self._main_window.run_setup_widget.populate_investigators
+        )
+        self._config_manager.run_data_error.connect(
+            self._main_window.run_setup_widget.show_error
+        )
+
+    # def setup_file_connections(self):
+    #     self._main_window.file_widget.new_samplesheet_btn.clicked.connect(
+    #         self._sample_model.set_empty_strings
+    #     )
 
 
 # controllers/settings_controller.py

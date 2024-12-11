@@ -18,4 +18,10 @@ fields:
   ApplicationProfile:
     - ApplicationName
 
+required_fields:
+  - Lane
+  - Sample_ID
+  - IndexI7
+  - ApplicationName
+
 

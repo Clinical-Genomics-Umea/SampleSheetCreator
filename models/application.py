@@ -49,7 +49,6 @@ class ApplicationManager:
     def appgroup_to_appname_to_appobj(self):
         _appgroup_to_appname_to_appobj = {}
         for appgroup in self._appgroup_to_appnames:
-            print("appgroup", appgroup)
             if appgroup not in _appgroup_to_appname_to_appobj:
                 _appgroup_to_appname_to_appobj[appgroup] = {}
 

@@ -1,4 +1,5 @@
 import json
+import re
 
 from PySide6.QtCore import QSettings, QObject, Signal, Slot
 from pathlib import Path
@@ -19,6 +20,8 @@ class ConfigurationManager(QObject):
         super().__init__()
 
         self.qt_settings = QSettings("Region Västerbotten", "samplecheater")
+
+        self.read_cycle_pattern = re.compile(r"^\d+(-\d+)*$")
 
         # paths
         self._config_paths = {
@@ -45,6 +48,15 @@ class ConfigurationManager(QObject):
         )
 
     @property
+    def required_sample_fields(self):
+        return self._samples_settings["required_fields"]
+
+    @property
+    def run_lanes(self):
+        print(self._run_settings)
+        return self._run_settings["Lanes"]
+
+    @property
     def samplesheet_header_data(self):
         header = {
             "FileFormatVersion": self._run_data["SampleSheetVersion"],
@@ -57,7 +69,7 @@ class ConfigurationManager(QObject):
         return header
 
     @property
-    def samplesheet_reads_data(self):
+    def samplesheet_read_cycles(self):
         """Return a dictionary with the Read1Cycles, Index1Cycles, Index2Cycles, Read2Cycles."""
 
         read_cycle_headers = [
@@ -191,8 +203,11 @@ class ConfigurationManager(QObject):
 
     @property
     def read_cycles(self):
-        # print(self._run_data["ReadCycles"])
-        return self._run_data["ReadCycles"]
+
+        if self.read_cycle_pattern.match(self._run_data["ReadCycles"]):
+            return self._run_data["ReadCycles"]
+
+        return None
 
     @property
     def all_config_paths(self):

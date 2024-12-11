@@ -73,6 +73,12 @@ class MainValidationWidget(QWidget):
         self.layout.addLayout(hbox)
         self.layout.addWidget(self.tab_widget)
 
+    def clear_validation_widgets(self):
+        self.pre_validation_widget.clear()
+        self.dataset_validation_widget.clear()
+        self.main_index_validation_widget.clear()
+        self.main_color_balance_validation_widget.clear()
+
 
 class PreValidationWidget(QTableWidget):
     def __init__(self):
@@ -105,6 +111,9 @@ class PreValidationWidget(QTableWidget):
         self.setItem(last_row, 1, status_item)
         self.setItem(last_row, 2, message_item)
 
+    def clear(self):
+        self.setRowCount(0)
+
     @Slot(dict)
     def populate(self, validation_results):
 
@@ -133,7 +142,7 @@ class DataSetValidationWidget(QTabWidget):
 
         self.setLayout(self.layout)
 
-    def clear_widget(self):
+    def clear(self):
         # Remove and delete each tab widget
         while self.count() > 0:
             widget = self.widget(0)  # Get the first widget in the tab widget
@@ -141,7 +150,6 @@ class DataSetValidationWidget(QTabWidget):
             widget.deleteLater()
 
     def populate(self, samples_dfs):
-        self.clear_widget()
 
         # Add main data tab
         self.addTab(self.get_widget_table(samples_dfs["no_explode"]), "all data")
@@ -215,7 +223,6 @@ class MainIndexDistanceValidationWidget(QTabWidget):
 
     @Slot(object)
     def populate(self, results):
-        self._delete_tabs()
 
         if isinstance(results, str):
             self.addTab(QLabel(results), "Error")
@@ -225,7 +232,8 @@ class MainIndexDistanceValidationWidget(QTabWidget):
             tab = LaneIndexDistanceWidget(results[lane])
             self.addTab(tab, f"lane {lane}")
 
-    def _delete_tabs(self):
+    def clear(self):
+        print("clearing main index distance validation widget")
         # Remove and delete each tab widget
         while self.count() > 0:
             widget = self.widget(0)  # Get the first widget in the tab widget
@@ -264,12 +272,9 @@ class IndexDistanceHeatMap(QTableWidget):
 
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.setContentsMargins(0, 0, 0, 0)
-        # self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self._setup(substitutions)
 
-        # self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.setHorizontalHeaderLabels(h_labels)
         self.setVerticalHeaderLabels(v_labels)
 
@@ -312,7 +317,8 @@ class MainColorBalanceWidget(QTabWidget):
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-    def clear_widget(self):
+    def clear(self):
+        print("clearing color balance widget")
         # Remove and delete each tab widget
         while self.count() > 0:
             widget = self.widget(0)  # Get the first widget in the tab widget
@@ -321,7 +327,6 @@ class MainColorBalanceWidget(QTabWidget):
 
     @Slot(object)
     def populate(self, results):
-        self.clear_widget()
 
         for lane in results:
             tab_scroll_area = QScrollArea()

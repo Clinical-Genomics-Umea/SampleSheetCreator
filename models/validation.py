@@ -4,18 +4,18 @@ import numpy as np
 import pandas as pd
 from PySide6.QtCore import QThread, Slot, Signal, QObject, Qt
 from PySide6.QtGui import QStandardItemModel
-import pandera as pa
 
 from models.application import ApplicationManager
 from models.configuration import ConfigurationManager
 from models.datasetmanager import DataSetManager
 from models.sample_model import SampleModel
 from utils.utils import explode_lane_column
-from models.pa_schema import prevalidation_schema
 from models.validation_fns import get_base, padded_index_df
 
 
 class MainValidator(QObject):
+
+    clear_validator_widgets = Signal()
 
     def __init__(self, samples_model, cfg_mgr, dataset_mgr, app_mgr):
         super().__init__()
@@ -39,19 +39,18 @@ class MainValidator(QObject):
 
     def validate(self):
 
-        assess_color_balance = bool(self.cfg_mgr.run_data.get("AssessBalance"))
+        self.clear_validator_widgets.emit()
 
+        assess_color_balance = bool(self.cfg_mgr.run_data.get("AssessBalance"))
         status = self.pre_validator.validate()
 
         if not status:
             return
 
         self.dataset_validator.validate()
-
         self.index_distance_validator.validate()
 
         if assess_color_balance:
-            print("validating color balance")
             self.color_balance_validator.validate()
 
 
@@ -60,7 +59,7 @@ class PreValidator(QObject):
 
     def __init__(
         self,
-        samplesheet_model: SampleModel,
+        sample_model: SampleModel,
         cfg_mgr: ConfigurationManager,
         app_mgr: ApplicationManager,
         dataset_mgr: DataSetManager,
@@ -68,79 +67,66 @@ class PreValidator(QObject):
         super().__init__()
 
         self.dataset = None
-        self.application_profile_names = None
+        self.application_names = None
         self.used_lanes = None
+        self.dataframe = None
+        self.run_data = None
 
-        self.samplesheet_model = samplesheet_model
+        self.samplesheet_model = sample_model
         self.cfg_mgr = cfg_mgr
         self.app_mgr = app_mgr
         self.dataset_mgr = dataset_mgr
 
-    @staticmethod
-    def create_int_list(max_value_str):
-        max_value = int(max_value_str)
-        return list(range(1, max_value + 1))
-
     def validate(self):
         """Run a series of validations on the SampleSheetModel and RunSetup config"""
         results = []
-        dataframe = self.dataset_mgr.base_sample_dataframe()
-        dataframe = explode_lane_column(dataframe)
+        self.dataframe = self.dataset_mgr.base_sample_dataframe_lane_explode()
+        self.run_data = self.cfg_mgr.run_data
 
-        # self.dataset = DataSetManager(dataframe)
+        results.append(self.required_cols_populated())
+        results.append(self.run_lanes_int_validation())
+        results.append(self.empty_sample_id_validation())
+        results.append(self.dataframe_type_validation())
+        results.append(self.application_validation())
+        results.append(self.allowed_lanes_validation())
 
-        # self.application_profile_names = self.dataset.application_profile_names
-        # self.used_lanes = self.dataset.used_lanes
-
-        run_data = self.cfg_mgr.run_data
-
-        results.append(self.run_lanes_int_validation(run_data["Lanes"]))
-        if not results[-1][1]:
-            self.data_ready.emit(results)
-            return
-
-        results.append(self.empty_sample_id_validation(dataframe))
-        if not results[-1][1]:
-            self.data_ready.emit(results)
-            return
-
-        results.append(self.dataframe_type_validation(dataframe))
-        if not results[-1][1]:
-            self.data_ready.emit(results)
-            return
-
-        results.append(self.application_validation(dataframe))
-        if not results[-1][1]:
-            self.data_ready.emit(results)
-            return
-
-        # results.extend(self.schema_validation(dataframe))
-        #
-        status = all(item[1] for item in results)
-
-        # if status:
-        #     results.append(("schema validation", True, ""))
-
+        status = all([item[1] for item in results])
         self.data_ready.emit(results)
         return status
 
-    def application_validation(self, dataframe):
+    def required_cols_populated(self):
+        validation_name = "required fields populated"
+        required_columns = self.cfg_mgr.required_sample_fields
+        dataframe = self.dataset_mgr.base_sample_dataframe_lane_explode()
+
+        all_columns_populated = []
+        for column in required_columns:
+            all_columns_populated.append(dataframe[column].notnull().all())
+
+        if not all(all_columns_populated):
+            missing_columns = [
+                column
+                for column, is_populated in zip(required_columns, all_columns_populated)
+                if not is_populated
+            ]
+            missing_columns_str = ", ".join(missing_columns)
+            message = f"Required fields are not populated: {missing_columns_str}"
+            return validation_name, False, message
+
+        return validation_name, True, ""
+
+    def application_validation(self):
 
         name = "application settings validation"
 
-        app_exploded_df = dataframe.explode("ApplicationName", ignore_index=True)
-
-        print(app_exploded_df.to_string())
-
+        app_exploded_df = self.dataframe.explode("ApplicationName", ignore_index=True)
         unique_app_names = app_exploded_df["ApplicationName"].unique()
 
         app_settings = {}
         app_settings_results = {}
 
         for app_name in unique_app_names:
-            print("name", app_name)
             app = self.app_mgr.appobj_by_appname(app_name)
-            print("app", app)
             application = app["Application"]
 
             if application not in app_settings:
@@ -165,26 +151,13 @@ class PreValidator(QObject):
 
         return name, True, ""
 
-    @staticmethod
-    def schema_validation(df):
-
-        results = []
-
-        try:
-            prevalidation_schema.validate(df, lazy=True)
-        except pa.errors.SchemaErrors as e:
-            for index, row in e.failure_cases.iterrows():
-                results.append(("schema validation", False, row["check"]))
-        return results
-
-    @staticmethod
-    def empty_sample_id_validation(df):
+    def empty_sample_id_validation(self):
         name = "empty sample id validation"
 
-        empty_items = df["Sample_ID"].isna()
+        empty_items = self.dataframe["Sample_ID"].isna()
 
         if empty_items.any():
-            empty_row_indices_list = (df.index[empty_items] + 1).tolist()
+            empty_row_indices_list = (self.dataframe.index[empty_items] + 1).tolist()
             empty_row_indices_list_str = map(str, empty_row_indices_list)
             emtpy_row_indices_str = ",".join(empty_row_indices_list_str)
             return (
@@ -195,34 +168,31 @@ class PreValidator(QObject):
 
         return name, True, ""
 
-    @staticmethod
-    def run_lanes_int_validation(set_lanes):
+    def run_lanes_int_validation(self):
         name = "set number of lanes validation"
 
-        set_lanes_set = set(set_lanes)
+        run_lanes = self.run_data["Lanes"]
 
-        if not isinstance(set_lanes, list):
+        if not isinstance(run_lanes, list):
             return name, False, "Lanes must a list of integers."
 
-        if not all(isinstance(item, int) for item in set_lanes):
+        if not all(isinstance(item, int) for item in run_lanes):
             return name, False, "Lanes must be an list of integers."
 
         return name, True, ""
 
-    @staticmethod
-    def dataframe_type_validation(df):
+    def dataframe_type_validation(self):
         name = "dataframe basic validation"
 
-        if not isinstance(df, pd.DataFrame):
+        if not isinstance(self.dataframe, pd.DataFrame):
             return name, False, "Data is not in a pandas dataframe format."
 
-        if df.empty:
+        if self.dataframe.empty:
             return name, False, "No data to validate (empty dataframe)."
 
         return name, True, ""
 
-    @staticmethod
-    def validate_unique_sample_lane_combinations(df):
+    def validate_unique_sample_lane_combinations(self):
         """
         Validate that the combination of sample_id and individual lane values in a DataFrame is unique.
 
@@ -237,7 +207,7 @@ class PreValidator(QObject):
 
         # Create a new DataFrame with exploded lane values
 
-        df_tmp = df.copy(deep=True)
+        df_tmp = self.dataframe.copy(deep=True)
         df_tmp["sample_lane"] = df_tmp["Sample_ID"] + "_" + df_tmp["Lane"].astype(str)
 
         # Check if the 'sample_lane' column has any duplicates
@@ -256,18 +226,19 @@ class PreValidator(QObject):
         # If no duplicates are found
         return name, True, None
 
-    def allowed_lanes_validation(self, df, lanes):
+    def allowed_lanes_validation(self):
         name = "allowed lanes validation"
 
-        allowed_lanes = self.create_int_list(lanes)
-        used_lanes = set(df["Lane"])
+        allowed_lanes = set(self.run_data["Lanes"])
+        used_lanes = set(self.dataframe["Lane"])
+
         disallowed_lanes = used_lanes.difference(allowed_lanes)
 
         if disallowed_lanes:
             return (
                 name,
                 False,
-                f"Lane(s) {disallowed_lanes} are not allowed.",
+                f"Lane(s) {disallowed_lanes} not allowed, does not exist in flowcell.",
             )
 
         return name, True, ""
