@@ -16,6 +16,7 @@ from models.validation_fns import get_base, padded_index_df
 class MainValidator(QObject):
 
     clear_validator_widgets = Signal()
+    prevalidator_status = Signal(bool)
 
     def __init__(self, samples_model, cfg_mgr, dataset_mgr, app_mgr):
         super().__init__()
@@ -38,16 +39,18 @@ class MainValidator(QObject):
 
         self.clear_validator_widgets.emit()
 
-        assess_color_balance = bool(self.cfg_mgr.run_data.get("AssessBalance"))
-        status = self.pre_validator.validate()
-
-        if not status:
+        if not self.pre_validator.validate():
+            self.prevalidator_status.emit(False)
             return
+
+        self.prevalidator_status.emit(True)
+
+        self.dataset_mgr.set_samplesheet_obj()
 
         self.dataset_validator.validate()
         self.index_distance_validator.validate()
 
-        if assess_color_balance:
+        if bool(self.cfg_mgr.run_data.get("AssessBalance")):
             self.color_balance_validator.validate()
 
 
@@ -77,9 +80,10 @@ class PreValidator(QObject):
     def validate(self):
         """Run a series of validations on the SampleSheetModel and RunSetup config"""
         results = []
-        self.dataframe = self.dataset_mgr.base_sample_dataframe_lane_explode()
+        self.dataframe = self.dataset_mgr.sample_dataframe_lane_explode()
         self.run_data = self.cfg_mgr.run_data
 
+        results.append(self.run_data_is_set())
         results.append(self.required_cols_populated())
         results.append(self.run_lanes_int_validation())
         results.append(self.empty_sample_id_validation())
@@ -91,10 +95,19 @@ class PreValidator(QObject):
         self.data_ready.emit(results)
         return status
 
+    def run_data_is_set(self):
+        validation_name = "Run data set validator"
+        msg = "Run data has not been set"
+
+        if not self.cfg_mgr.run_data_is_set:
+            return validation_name, False, msg
+
+        return validation_name, True, ""
+
     def required_cols_populated(self):
         validation_name = "required fields populated"
         required_columns = self.cfg_mgr.required_sample_fields
-        dataframe = self.dataset_mgr.base_sample_dataframe_lane_explode()
+        dataframe = self.dataset_mgr.sample_dataframe_lane_explode()
 
         all_columns_populated = []
         for column in required_columns:

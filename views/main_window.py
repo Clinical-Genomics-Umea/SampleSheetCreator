@@ -10,9 +10,6 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QWidget,
     QPushButton,
-    QGraphicsScene,
-    QGraphicsView,
-    QFrame,
 )
 
 from PySide6.QtGui import QAction, QActionGroup, QPainter, QIcon
@@ -93,6 +90,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.make_action = QAction("Make", self)
         self.settings_action = QAction("Settings", self)
 
+        self.make_action.setEnabled(False)
+
         self.columns_settings_button = QPushButton("Columns")
         self.columns_settings_button.setObjectName("columns_settings")
 
@@ -130,6 +129,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.leftmenu_stackedWidget.setFixedWidth(300)
         self.leftmenu_stackedWidget.hide()
+
+    def set_make_action_enabled_status(self, is_enabled):
+        self.make_action.setEnabled(is_enabled)
 
     def setup_left_menu_file(self):
         layout = self.leftmenu_file.layout()
@@ -199,8 +201,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         action_id = action.data()
         is_checked = action.isChecked()
 
-        # print(action_id, is_checked)
-
         if action_id not in known_actions:
             return
 
@@ -213,6 +213,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.run_validate.emit()
             elif action_id == "make":
                 self.main_stackedWidget.setCurrentWidget(self.main_make)
+                self.export_widget.del_data_tree()
             elif action_id == "config":
                 self.main_stackedWidget.setCurrentWidget(self.main_settings)
 

@@ -1,8 +1,10 @@
+import json
+
 import pandas as pd
 from pprint import pprint
 
 
-def samplesheetv2(sample_obj):
+def to_samplesheetv2(sample_obj):
 
     pprint(sample_obj)
 
@@ -37,3 +39,7 @@ def samplesheetv2(sample_obj):
         output.append("")
 
     return "\n".join(output)
+
+
+def to_json(sample_obj):
+    return json.dumps(sample_obj)

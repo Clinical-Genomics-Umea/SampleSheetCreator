@@ -14,6 +14,7 @@ class ApplicationManager:
         self._appname_to_appobj = {}
         self._app_to_appnames = {}
         self._appname_to_app = {}
+        self._app_to_appgroup = {}
 
         for file in app_files:
             if not file.is_file():
@@ -33,6 +34,9 @@ class ApplicationManager:
             if appname not in self._appname_to_appobj:
                 self._appname_to_appobj[appname] = appobj
 
+            if app not in self._app_to_appgroup:
+                self._app_to_appgroup[app] = appgroup
+
             if appgroup not in self._appgroup_to_appnames:
                 self._appgroup_to_appnames[appgroup] = []
 
@@ -44,6 +48,9 @@ class ApplicationManager:
 
     def appname_to_app(self, appname):
         return self._appname_to_app[appname]
+
+    def app_to_appgroup(self, app):
+        return self._app_to_appgroup[app]
 
     @property
     def appgroup_to_appname_to_appobj(self):

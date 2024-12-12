@@ -1,5 +1,6 @@
 import json
 import re
+from datetime import datetime
 
 from PySide6.QtCore import QSettings, QObject, Signal, Slot
 from pathlib import Path
@@ -10,16 +11,16 @@ from utils.utils import read_yaml_file, int_str_to_int_list, uuid
 class ConfigurationManager(QObject):
     """Configuration Manager"""
 
-    run_setup_changed = Signal(object)
+    run_data_changed = Signal(object)
     users_changed = Signal()
     run_data_error = Signal(list)
 
     def __init__(self):
         """Initialize the configuration manager."""
-
         super().__init__()
 
         self.qt_settings = QSettings("Region Västerbotten", "samplecheater")
+        self._run_data_is_set = False
 
         self.read_cycle_pattern = re.compile(r"^\d+(-\d+)*$")
 
@@ -33,6 +34,7 @@ class ConfigurationManager(QObject):
             "validation_settings_path": Path(
                 "config/validation/validation_settings.yaml"
             ),
+            "samplesheet_v1_template": Path("config/samplesheet_v1.yaml"),
         }
 
         self._instruments_flowcell_obj = read_yaml_file(
@@ -46,6 +48,13 @@ class ConfigurationManager(QObject):
         self._samples_settings = read_yaml_file(
             self._config_paths["samples_settings_path"]
         )
+        self._samplesheet_v1_template = read_yaml_file(
+            self._config_paths["samplesheet_v1_template"]
+        )
+
+    @property
+    def samplesheet_v1_template(self):
+        return self._samplesheet_v1_template
 
     @property
     def required_sample_fields(self):
@@ -53,7 +62,6 @@ class ConfigurationManager(QObject):
 
     @property
     def run_lanes(self):
-        print(self._run_settings)
         return self._run_settings["Lanes"]
 
     @property
@@ -85,8 +93,6 @@ class ConfigurationManager(QObject):
 
         for header, rc in zip(read_cycle_headers, read_cycles.split("-")):
             reads[header] = rc
-
-        print("Reads", reads)
 
         return reads
 
@@ -196,10 +202,19 @@ class ConfigurationManager(QObject):
         if run_data["CustomReadCycles"]:
             run_data["ReadCycles"] = run_data["CustomReadCycles"]
 
-        # print(self._run_data)
+        today = datetime.today()
+        self._run_data["Date"] = today.strftime("%Y-%m-%d")
+
+        self._run_data["UUID7"] = uuid()
+
+        self._run_data_is_set = True
 
         # Emit the changed signal
-        self.run_setup_changed.emit(self._run_data)
+        self.run_data_changed.emit(self._run_data)
+
+    @property
+    def run_data_is_set(self):
+        return self._run_data_is_set
 
     @property
     def read_cycles(self):

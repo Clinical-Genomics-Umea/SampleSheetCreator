@@ -3,7 +3,7 @@ from PySide6.QtCore import QObject
 from models.application import ApplicationManager
 from models.configuration import ConfigurationManager
 from models.datasetmanager import DataSetManager
-from models.make_export import MakeJson
+from models.export import MakeJson
 from models.sample_model import SampleModel, CustomProxyModel
 from models.validation import MainValidator
 from views.main_window import MainWindow
@@ -106,6 +106,9 @@ class MainController(QObject):
         self._main_validator.clear_validator_widgets.connect(
             self._main_window.validation_widget.clear_validation_widgets
         )
+        self._main_validator.prevalidator_status.connect(
+            self._main_window.set_make_action_enabled_status
+        )
 
     def _connect_override_pattern_signals(self):
         self._main_window.samples_widget.sample_view.override_patterns_ready.connect(
@@ -122,7 +125,7 @@ class MainController(QObject):
         self._main_window.run_setup_widget.setup_commited.connect(
             self._config_manager.set_run_data
         )
-        self._config_manager.run_setup_changed.connect(
+        self._config_manager.run_data_changed.connect(
             self._main_window.run_view_widget.set_data
         )
         self._config_manager.users_changed.connect(

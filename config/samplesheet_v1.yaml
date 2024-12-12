@@ -1,0 +1,33 @@
+Header:
+  Application: FASTQ Only
+  Investigator: Investigator
+  RunName: RunName
+  RunDescription:  RunDescription
+  Flowcell: Flowcell
+  ReagentKit: ReagentKit
+  Date: Date
+  InstrumentType: Instrument
+  UUID7: UUID7
+  SampleSheetVersion: SampleSheetVersion
+  FastqExtractTool: FastqExtractTool
+  I5SampleSheetOrientation: I5SampleSheetOrientation
+
+Settings:
+  Adapter: AdapterRead1
+  AdapterRead2: AdapterRead2
+
+Reads:
+  - Read1Cycles
+  - Read2Cycles
+
+Data:
+  - Sample_ID
+  - IndexI7Name
+  - IndexI7
+  - IndexI5Name
+  - IndexI5
+  - IndexKitDefinitionName
+
+Translate:
+  Index2: index2
+  Index: index

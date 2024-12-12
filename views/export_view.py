@@ -13,8 +13,7 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QFileDialog,
 )
-from pprint import pprint
-from models.samplesheet import samplesheetv2
+from models.samplesheet import to_samplesheetv2, to_json
 
 
 class ExportWidget(QWidget):
@@ -49,23 +48,27 @@ class ExportWidget(QWidget):
 
         self.layout.addLayout(hbox)
         self.layout.addWidget(self.tab_widget)
-        self.show_json_btn.clicked.connect(self.show_data_tree)
-        self.export_samplesheet_v2_btn.clicked.connect(self.export_samplesheet_v2)
+        self.show_json_btn.clicked.connect(self._show_data_tree)
+        self.export_samplesheet_v2_btn.clicked.connect(self._export_samplesheet_v2)
+        self.export_json_btn.clicked.connect(self._export_json)
 
-    def show_data_tree(self):
+    def del_data_tree(self):
+        if self.json_tree:
+            self.json_tree.deleteLater()
+            self.json_tree = None
+
+    def _show_data_tree(self):
         if self.json_tree:
             self.json_tree.deleteLater()
 
-        data = self.dataset_mgr.samplesheet_obj()
-
-        pprint(data)
+        data = self.dataset_mgr.samplesheet_obj_data()
 
         self.json_tree = JsonTreeWidget(data)
         header = self.json_tree.header()
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
         self.tab_widget.addTab(self.json_tree, "Data Structure")
 
-    def export_samplesheet_v2(self):
+    def _export_samplesheet_v2(self):
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getSaveFileName(
             None,
@@ -78,11 +81,39 @@ class ExportWidget(QWidget):
         if file_path:
             f_obj = Path(file_path)
 
+            data = self.dataset_mgr.samplesheet_v2()
+            f_obj.write_text(data)
+
+    def _export_json(self):
+        options = QFileDialog.Options()
+        file_path, _ = QFileDialog.getSaveFileName(
+            None,
+            "Save JSON file (json)",
+            "",
+            "JSON Files (*.json);;All Files (*)",
+            options=options,
+        )
+
+        if file_path:
+            f_obj = Path(file_path)
+            json_data = self.dataset_mgr.json_data()
+            f_obj.write_text(json_data)
+
+    def _export_samplesheet_v1(self):
+        options = QFileDialog.Options()
+        file_path, _ = QFileDialog.getSaveFileName(
+            None,
+            "Save SampleSheet V1 file (json)",
+            "",
+            "SampleSheet Files (*.csv);;All Files (*)",
+            options=options,
+        )
+
+        if file_path:
+            f_obj = Path(file_path)
             data = self.dataset_mgr.samplesheet_obj()
-
-            samplesheetv2_txt = samplesheetv2(data)
-
-            f_obj.write_text(samplesheetv2_txt)
+            json_str = to_json(data)
+            f_obj.write_text(json_str)
 
 
 class JsonTreeWidget(QTreeWidget):
