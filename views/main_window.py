@@ -130,6 +130,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.leftmenu_stackedWidget.setFixedWidth(300)
         self.leftmenu_stackedWidget.hide()
 
+    def disable_make_action(self):
+        self.make_action.setEnabled(False)
+        self.validation_widget.clear_validation_widgets()
+
     def set_make_action_enabled_status(self, is_enabled):
         self.make_action.setEnabled(is_enabled)
 

@@ -5,7 +5,7 @@ from datetime import datetime
 from PySide6.QtCore import QSettings, QObject, Signal, Slot
 from pathlib import Path
 
-from utils.utils import read_yaml_file, int_str_to_int_list, uuid
+from utils.utils import read_yaml_file, uuid
 
 
 class ConfigurationManager(QObject):
@@ -44,6 +44,8 @@ class ConfigurationManager(QObject):
         self._run_view_widgets_config = self._run_settings["RunViewWidgets"]
         self._run_setup_widgets_config = self._run_settings["RunSetupWidgets"]
         self._run_data = self._run_settings["RunDataDefaults"]
+        self._run_data_fields = self._run_settings["RunDataFields"]
+        self._read_cycles_fields = self._run_settings["ReadCyclesFields"]
 
         self._samples_settings = read_yaml_file(
             self._config_paths["samples_settings_path"]
@@ -51,6 +53,14 @@ class ConfigurationManager(QObject):
         self._samplesheet_v1_template = read_yaml_file(
             self._config_paths["samplesheet_v1_template"]
         )
+
+    @property
+    def run_data_fields(self):
+        return self._run_data_fields
+
+    @property
+    def read_cycles_fields(self):
+        return self._read_cycles_fields
 
     @property
     def samplesheet_v1_template(self):

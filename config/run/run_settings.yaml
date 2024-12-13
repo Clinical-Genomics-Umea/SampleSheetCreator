@@ -1,6 +1,30 @@
 ---
 # run.yaml
 
+RunDataFields:
+  - Date
+  - Investigator
+  - Instrument
+  - Flowcell
+  - SampleSheetVersion
+  - RunName
+  - RunDescription
+  - ReadCycles
+  - ReagentKit
+  - I5SampleSheetOrientation
+  - I5SeqOrientation
+  - Lanes
+  - Chemistry
+  - FastqExtractTool
+  - AssessBalance
+  - UUID7
+
+ReadCyclesFields:
+  - Read1Cycles
+  - Read2Cycles
+  - Index1Cycles
+  - Index2Cycles
+
 RunDataDefaults:
   Date: "NA"
   Investigator: "NA"
@@ -55,22 +79,10 @@ RunSetupWidgets:
     Instrument: combobox
     Flowcell: combobox
   SampleSheet and Validation:
+    FastqExtractTool: combobox
     ReagentKit: combobox
     ReadCycles: combobox
     CustomReadCycles: lineedit
-    SampleSheetVersion: lineedit
-
-ReadCycles:
-  151-8-8-151:
-    Read1Cycles: 151
-    Read2Cycles: 151
-    Index1Cycles: 8
-    Index2Cycles: 8
-  151-10-10-151:
-    Read1Cycles: 151
-    Read2Cycles: 151
-    Index1Cycles: 10
-    Index2Cycles: 10
 
 FastqExtractTool:
   - bcl2fastq

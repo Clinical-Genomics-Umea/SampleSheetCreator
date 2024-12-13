@@ -9,7 +9,6 @@ from models.application import ApplicationManager
 from models.configuration import ConfigurationManager
 from models.datasetmanager import DataSetManager
 from models.sample_model import SampleModel
-from utils.utils import explode_lane_column
 from models.validation_fns import get_base, padded_index_df
 
 
@@ -27,12 +26,10 @@ class MainValidator(QObject):
         self.pre_validator = PreValidator(samples_model, cfg_mgr, app_mgr, dataset_mgr)
         self.dataset_validator = DataSetValidator(samples_model, cfg_mgr, dataset_mgr)
         self.index_distance_validator = IndexDistanceValidator(
-            samples_model,
-            cfg_mgr,
+            samples_model, cfg_mgr, dataset_mgr
         )
         self.color_balance_validator = ColorBalanceValidator(
-            samples_model,
-            cfg_mgr,
+            samples_model, cfg_mgr, dataset_mgr
         )
 
     def validate(self):
@@ -130,13 +127,14 @@ class PreValidator(QObject):
         name = "application settings validation"
 
         app_exploded_df = self.dataframe.explode("ApplicationName", ignore_index=True)
-        unique_app_names = app_exploded_df["ApplicationName"].unique()
+        unique_appnames = app_exploded_df["ApplicationName"].unique()
 
         app_settings = {}
         app_settings_results = {}
 
-        for app_name in unique_app_names:
-            app = self.app_mgr.appobj_by_appname(app_name)
+        for appname in unique_appnames:
+
+            app = self.app_mgr.appobj_by_appname(appname)
             application = app["Application"]
 
             if application not in app_settings:
@@ -303,6 +301,7 @@ class IndexDistanceValidator(QObject):
         self,
         model: SampleModel,
         cfg_mgr: ConfigurationManager,
+        dataset_mgr: DataSetManager,
     ):
         super().__init__()
 
@@ -314,6 +313,7 @@ class IndexDistanceValidator(QObject):
 
         self.model = model
         self.cfg_mgr = cfg_mgr
+        self.dataset_mgr = dataset_mgr
 
         self.thread = None
         self.worker = None
@@ -324,7 +324,7 @@ class IndexDistanceValidator(QObject):
         i5_rc = i5_orientation == "rc"
 
         self.thread = QThread()
-        self.worker = IndexDistanceValidationWorker(self.model, i5_rc)
+        self.worker = IndexDistanceValidationWorker(self.dataset_mgr, i5_rc)
 
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
@@ -349,22 +349,21 @@ class IndexDistanceValidationWorker(QObject):
     results_ready = Signal(object)
     error = Signal(str)
 
-    def __init__(self, model: SampleModel, i5_rc: bool):
+    def __init__(self, dataset_mgr: DataSetManager, i5_rc: bool):
         super().__init__()
-
-        self.df = model.to_dataframe()
+        self.dataset_mgr = dataset_mgr
+        self.df = self.dataset_mgr.sample_dataframe_lane_explode()
         self.i5_rc = i5_rc
 
     def run(self):
-        df_split = explode_lane_column(self.df)
 
         try:
             result = {}
-            unique_lanes = df_split["Lane"].unique()
+            used_lanes = self.dataset_mgr.used_lanes
 
-            for lane in unique_lanes:
+            for lane in used_lanes:
                 lane_result = {}
-                lane_df = df_split[df_split["Lane"] == lane]
+                lane_df = self.df[self.df["Lane"] == lane]
 
                 i7_padded_indexes = padded_index_df(lane_df, 10, "IndexI7", "Sample_ID")
                 i5_padded_indexes = padded_index_df(
@@ -426,29 +425,29 @@ class ColorBalanceValidator(QObject):
         self,
         model: SampleModel,
         cfg_mgr: ConfigurationManager,
+        dataset_mgr: DataSetManager,
     ):
         super().__init__()
 
         self.model = model
         self.cfg_mgr = cfg_mgr
+        self.dataset_mgr = dataset_mgr
 
-        i5_orientation = cfg_mgr.run_data.get("I5SeqOrientation")
-        # print("i5 orientation", i5_orientation)
+        i5_set_orientation = cfg_mgr.run_data.get("I5SeqOrientation")
 
-        self.i5_rc = i5_orientation == "rc"
+        self.i5_rc = i5_set_orientation == "rc"
 
     def validate(self):
         i5_orientation = self.cfg_mgr.run_data.get("I5SeqOrientation")
         i5_rc = i5_orientation == "rc"
 
-        df = explode_lane_column(self.model.to_dataframe())
+        df = self.dataset_mgr.sample_dataframe_lane_explode()
 
         if df.empty:
             return
 
         unique_lanes = df["Lane"].unique()
         i5_col_name = "IndexI5RC" if i5_rc else "IndexI5"
-        # print(i5_col_name)
 
         result = {}
 

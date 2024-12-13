@@ -1,4 +1,5 @@
 import re
+from copy import deepcopy
 
 from utils.utils import int_str_to_int_list, json_to_obj
 
@@ -6,10 +7,6 @@ import json
 
 import pandas as pd
 from pprint import pprint
-
-
-# def to_json(sample_obj):
-#     return json.dumps(sample_obj)
 
 
 class DataSetManager:
@@ -96,15 +93,16 @@ class DataSetManager:
     def samplesheet_obj_data(self):
         """Return the samplesheet object with the data dict converted to records."""
         samplesheet_obj = self._samplesheet_obj
+        new_ss_obj = deepcopy(samplesheet_obj)
+        for appobj in new_ss_obj["Applications"]:
+            appobj["Data"] = (appobj["Data"].to_dict(orient="records"),)
 
-        for appobj in samplesheet_obj["Applications"]:
-            appobj["Data"] = appobj["Data"].to_dict(orient="records")
-
-        samplesheet_obj["I5SampleSheetOrientation"] = self.cfg_mgr.run_data[
+        new_ss_obj["Extra"] = {}
+        new_ss_obj["Extra"]["I5SampleSheetOrientation"] = self.cfg_mgr.run_data[
             "I5SampleSheetOrientation"
         ]
 
-        return samplesheet_obj
+        return new_ss_obj
 
     def samplesheet_v1(self):
         data_df = self.base_sample_dataframe().copy()
@@ -257,7 +255,9 @@ class DataSetManager:
             dfs = []
             settings = []
             for appname in used_app_to_appnames[app]:
-                appname_df = data_df[data_df["ApplicationName"] == appname].copy()
+                appname_df = data_df[data_df["ApplicationName"] == appname].copy(
+                    deep=True
+                )
                 dfs.append(self.app_mgr.app_data_populate(appname_df, appname))
 
                 appobj = self.app_mgr.appobj_by_appname(appname)
@@ -278,6 +278,12 @@ class DataSetManager:
 
         return _app_settings_data
 
+    @property
+    def used_lanes(self):
+        df = self.sample_dataframe_lane_explode()
+        used_lanes = set(df["Lane"])
+        return sorted(list(used_lanes))
+
     def base_sample_dataframe(self):
         self.set_read_cycles()
         dataframe = self.sample_model.to_dataframe()
@@ -287,12 +293,16 @@ class DataSetManager:
         dataframe_corr = self._dataframe_strs_to_obj(dataframe)
         return dataframe_corr
 
+    # def base_sample_dataframe_lane_explode(self):
+    #     base_df = self.base_sample_dataframe()
+    #     return base_df.explode("Lane", ignore_index=True)
+
     def sample_dataframe_lane_explode(self):
-        base_df = self.base_sample_dataframe()
+        base_df = self.base_sample_dataframe().copy(deep=True)
         return base_df.explode("Lane", ignore_index=True)
 
     def _appname_explode(self):
-        base_df = self.base_sample_dataframe()
+        base_df = self.base_sample_dataframe().copy(deep=True)
         return base_df.explode("ApplicationName", ignore_index=True)
 
     @staticmethod

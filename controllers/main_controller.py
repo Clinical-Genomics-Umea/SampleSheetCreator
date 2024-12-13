@@ -4,6 +4,7 @@ from models.application import ApplicationManager
 from models.configuration import ConfigurationManager
 from models.datasetmanager import DataSetManager
 from models.export import MakeJson
+from models.run_data_model import RunDataModel
 from models.sample_model import SampleModel, CustomProxyModel
 from models.validation import MainValidator
 from views.main_window import MainWindow
@@ -22,6 +23,8 @@ class MainController(QObject):
         self._sample_model = SampleModel(self._config_manager.samples_settings)
         self._sample_proxy_model = CustomProxyModel()
         self._sample_proxy_model.setSourceModel(self._sample_model)
+
+        self._run_model = RunDataModel(self._config_manager)
 
         self._dataset_manager = DataSetManager(
             self._sample_model, self._config_manager, self._application_manager
@@ -53,6 +56,10 @@ class MainController(QObject):
         self._connect_file_signals()
         self._connect_override_pattern_signals()
         self._connect_application_signal()
+        self._connect_sample_model_signals()
+
+    def _connect_sample_model_signals(self):
+        self._sample_model.dataChanged.connect(self._main_window.disable_make_action)
 
     def _connect_application_signal(self):
         self._main_window.applications_widget.application_data_ready.connect(
@@ -133,6 +140,10 @@ class MainController(QObject):
         )
         self._config_manager.run_data_error.connect(
             self._main_window.run_setup_widget.show_error
+        )
+
+        self._main_window.run_setup_widget.setup_commited.connect(
+            self._run_model.set_run_data
         )
 
     # def setup_file_connections(self):

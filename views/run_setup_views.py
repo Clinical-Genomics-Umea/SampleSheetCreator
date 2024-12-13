@@ -60,21 +60,23 @@ class RunSetupWidget(QWidget):
         self.populate_investigators()
         self._populate_instruments()
         self._populate_flowcells()
-        self._populate_samplesheet_version()
+        # self._populate_samplesheet_version()
         self._populate_reagent_kits()
         self._populate_read_cycles()
+        self._populate_fastq_extract_tool()
 
         self.input_widgets["Instrument"].currentTextChanged.connect(
             self._populate_flowcells
         )
+        # self.input_widgets["Instrument"].currentTextChanged.connect(
+        #     self._populate_samplesheet_version
+        # )
         self.input_widgets["Instrument"].currentTextChanged.connect(
-            self._populate_samplesheet_version
+            self._populate_fastq_extract_tool
         )
-
         self.input_widgets["Flowcell"].currentTextChanged.connect(
             self._populate_reagent_kits
         )
-
         self.input_widgets["Flowcell"].currentTextChanged.connect(
             self._populate_read_cycles
         )
@@ -115,13 +117,13 @@ class RunSetupWidget(QWidget):
         self.input_widgets["Flowcell"].clear()
         self.input_widgets["Flowcell"].addItems(flowcells)
 
-    def _populate_samplesheet_version(self):
-        current_instrument = self.input_widgets["Instrument"].currentText()
-        samplesheet_version = self.cfg_mgr.instrument_flowcells[current_instrument][
-            "SampleSheetVersion"
-        ]
-        self.input_widgets["SampleSheetVersion"].clear()
-        self.input_widgets["SampleSheetVersion"].setText(str(samplesheet_version))
+    # def _populate_samplesheet_version(self):
+    #     current_instrument = self.input_widgets["Instrument"].currentText()
+    #     samplesheet_version = self.cfg_mgr.instrument_flowcells[current_instrument][
+    #         "SampleSheetVersion"
+    #     ]
+    #     self.input_widgets["SampleSheetVersion"].clear()
+    #     self.input_widgets["SampleSheetVersion"].setText(str(samplesheet_version))
 
     def _populate_reagent_kits(self):
         current_instrument = self.input_widgets["Instrument"].currentText()
@@ -168,6 +170,19 @@ class RunSetupWidget(QWidget):
         self.input_widgets["CustomReadCycles"].clear()
         template = self.input_widgets["ReadCycles"].currentText()
         self.input_widgets["CustomReadCycles"].setValidator(PatternValidator(template))
+
+    def _populate_fastq_extract_tool(self):
+        current_instrument = self.input_widgets["Instrument"].currentText()
+
+        if not len(current_instrument) > 0:
+            return
+
+        fastq_extract_tools = self.cfg_mgr.instrument_flowcells[current_instrument][
+            "FastqExtractTool"
+        ]
+
+        self.input_widgets["FastqExtractTool"].clear()
+        self.input_widgets["FastqExtractTool"].addItems(fastq_extract_tools)
 
     def _create_run_widgets(self):
         for (

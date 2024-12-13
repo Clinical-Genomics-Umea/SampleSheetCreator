@@ -68,8 +68,8 @@ class ApplicationManager:
 
         return _appgroup_to_appname_to_appobj
 
-    def appobj_by_appname(self, name):
-        return self._appname_to_appobj[name]
+    def appobj_by_appname(self, appname):
+        return self._appname_to_appobj[appname]
 
     def app_data_populate(self, df, appname):
         appobj = self._appname_to_appobj[appname]

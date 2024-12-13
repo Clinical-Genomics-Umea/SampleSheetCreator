@@ -21,11 +21,10 @@ NovaSeqX:
         "2x100": [ "101-8-8-101", "101-10-10-101" ]
         "2x150": [ "151-8-8-151", "151-10-10-151" ]
   Chemistry: xleap
-  FastqExtractToolI5SampleSheetOrientation:
-    bcl2fastq: fwd
+  I5SampleSheetOrientation:
+    bcl2fastq: rc
     bclconvert: fwd
-  I5SampleSheetOrientation: fwd
-  FastqExtractTool: bclconvert
+  FastqExtractTool: [bclconvert, bcl2fastq]
   SampleSheetVersion: 2
   I5SeqOrientation: rc
   AssessBalance: true
@@ -39,21 +38,20 @@ NextSeq500:
     MidOutput:
       Lanes: [1]
       ReagentKit:
-        "1x75": [ "76-8", "76-10" ]
+        "1x75": [ "76-8-0-0", "76-10-0-0" ]
         "2x100": [ "101-8-8-101", "101-10-10-101" ]
         "2x150": [ "151-8-8-151", "151-10-10-151" ]
     HighOutput:
       Lanes: [1]
       ReagentKit:
-        "1x75": [ "76-8", "76-10" ]
+        "1x75": [ "76-8-0-0", "76-10-0-0" ]
         "2x100": [ "101-8-8-101", "101-10-10-101" ]
         "2x150": [ "151-8-8-151", "151-10-10-151" ]
   Chemistry: 2-channel_sbs
-  FastqExtractToolI5SampleSheetOrientation:
+  I5SampleSheetOrientation:
     bcl2fastq: rc
     bclconvert: rc
-  I5SampleSheetOrientation: rc
-  FastqExtractTool: bcl2fastq
+  FastqExtractTool: [bclconvert, bcl2fastq]
   SampleSheetVersion: 1
   I5SeqOrientation: rc
   AssessBalance: false
@@ -76,7 +74,7 @@ MiSeq:
     KitV2:
       Lanes: [1]
       ReagentKit:
-        "1x36": [ "37-8", "37-10" ]
+        "1x36": [ "37-8-0-0", "37-10-0-0" ]
         "2x25": [ "26-8-8-26", "26-10-10-26" ]
         "2x150": [ "151-8-8-151", "151-10-10-151" ]
         "2x250": [ "251-8-8-251", "251-10-10-251" ]
@@ -86,11 +84,10 @@ MiSeq:
         "2x75": [ "76-8-8-76", "76-10-10-76" ]
         "2x300": [ "301-8-8-301", "301-10-10-301" ]
   Chemistry: 4-channel_sbs
-  FastqExtractToolI5SampleSheetOrientation:
+  I5SampleSheetOrientation:
     bcl2fastq: fwd
     bclconvert: fwd
-  I5SampleSheetOrientation: fwd
-  FastqExtractTool: bcl2fastq
+  FastqExtractTool: [bclconvert, bcl2fastq]
   SampleSheetVersion: 1
   I5SeqOrientation: fwd
   AssessBalance: false
