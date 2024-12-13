@@ -24,10 +24,13 @@ class MainController(QObject):
         self._sample_proxy_model = CustomProxyModel()
         self._sample_proxy_model.setSourceModel(self._sample_model)
 
-        self._run_model = RunDataModel(self._config_manager)
+        self._run_data_model = RunDataModel(self._config_manager)
 
         self._dataset_manager = DataSetManager(
-            self._sample_model, self._config_manager, self._application_manager
+            self._sample_model,
+            self._config_manager,
+            self._application_manager,
+            self._run_data_model,
         )
 
         self._main_window = MainWindow(
@@ -129,12 +132,12 @@ class MainController(QObject):
         )
 
     def _connect_run_signals(self):
-        self._main_window.run_setup_widget.setup_commited.connect(
-            self._config_manager.set_run_data
-        )
-        self._config_manager.run_data_changed.connect(
-            self._main_window.run_view_widget.set_data
-        )
+        # self._main_window.run_setup_widget.setup_commited.connect(
+        #     self._config_manager.set_run_data
+        # )
+        # self._config_manager.run_data_changed.connect(
+        #     self._main_window.run_view_widget.set_data
+        # )
         self._config_manager.users_changed.connect(
             self._main_window.run_setup_widget.populate_investigators
         )
@@ -143,7 +146,10 @@ class MainController(QObject):
         )
 
         self._main_window.run_setup_widget.setup_commited.connect(
-            self._run_model.set_run_data
+            self._run_data_model.set_run_data
+        )
+        self._run_data_model.run_data_ready.connect(
+            self._main_window.run_view_widget.set_data
         )
 
     # def setup_file_connections(self):

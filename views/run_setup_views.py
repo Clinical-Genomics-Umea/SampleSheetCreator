@@ -357,6 +357,7 @@ class RunView(QWidget):
         self._layout.addSpacerItem(spacer)
 
     def set_data(self, data):
+        print(data)
         for key, value in data.items():
             if key in self._view_widgets:
 

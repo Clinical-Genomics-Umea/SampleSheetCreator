@@ -10,7 +10,9 @@ from pprint import pprint
 
 
 class DataSetManager:
-    def __init__(self, sample_model, cfg_mgr, app_mgr):
+    def __init__(self, sample_model, cfg_mgr, app_mgr, run_data_model):
+
+        self.run_data_model = run_data_model
 
         self.sample_model = sample_model
         self.cfg_mgr = cfg_mgr
@@ -21,7 +23,7 @@ class DataSetManager:
 
     def set_read_cycles(self):
         self.read_cycles = []
-        _read_cycles = self.cfg_mgr.read_cycles
+        _read_cycles = self.run_data_model.read_cycles
 
         if _read_cycles:
             _read_cycles.strip()

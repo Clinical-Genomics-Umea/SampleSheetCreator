@@ -10,6 +10,7 @@ RunDataFields:
   - RunName
   - RunDescription
   - ReadCycles
+  - CustomReadCycles
   - ReagentKit
   - I5SampleSheetOrientation
   - I5SeqOrientation

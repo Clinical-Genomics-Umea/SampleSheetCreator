@@ -55,6 +55,10 @@ class ConfigurationManager(QObject):
         )
 
     @property
+    def instrument_flowcells(self):
+        return self._instruments_flowcell_obj
+
+    @property
     def run_data_fields(self):
         return self._run_data_fields
 
