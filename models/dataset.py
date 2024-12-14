@@ -95,8 +95,8 @@ class DataSetManager:
 
     def samplesheet_v1(self):
         data_df = self.base_sample_dataframe().copy()
-        run_data = self.cfg_mgr.rundata
-        read_cycles = self.cfg_mgr.samplesheet_read_cycles()
+        run_data = self.rundata_model.rundata
+        read_cycles = self.rundata_model.read_cycles_dict
         template = self.cfg_mgr.samplesheet_v1_template
 
         header = {}
@@ -293,10 +293,6 @@ class DataSetManager:
         )
         dataframe_corr = self._dataframe_strs_to_obj(dataframe)
         return dataframe_corr
-
-    # def base_sample_dataframe_lane_explode(self):
-    #     base_df = self.base_sample_dataframe()
-    #     return base_df.explode("Lane", ignore_index=True)
 
     def sample_dataframe_lane_explode(self):
         base_df = self.base_sample_dataframe().copy(deep=True)
