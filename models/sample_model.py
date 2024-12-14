@@ -1,6 +1,3 @@
-import re
-
-import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, QSortFilterProxyModel
 from PySide6.QtGui import QStandardItemModel
@@ -20,7 +17,7 @@ def field_count(fields):
 
 
 class SampleModel(QStandardItemModel):
-    def __init__(self, sample_settings):
+    def __init__(self, sample_settings: dict):
         super(SampleModel, self).__init__()
 
         self.sections_fields = sample_settings["fields"]
@@ -129,7 +126,7 @@ class SampleModel(QStandardItemModel):
             flags |= Qt.ItemIsDropEnabled
         return flags
 
-    def to_dataframe(self):
+    def to_dataframe(self) -> pd.DataFrame:
         """
         Convert the data in the model to a DataFrame.
 

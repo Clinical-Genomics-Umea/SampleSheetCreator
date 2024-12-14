@@ -53,7 +53,7 @@ class ApplicationManager:
         return self._app_to_appgroup[app]
 
     @property
-    def appgroup_to_appname_to_appobj(self):
+    def app_hierarchy(self):
         _appgroup_to_appname_to_appobj = {}
         for appgroup in self._appgroup_to_appnames:
             if appgroup not in _appgroup_to_appname_to_appobj:

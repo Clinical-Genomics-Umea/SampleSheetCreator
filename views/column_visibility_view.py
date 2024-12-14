@@ -35,11 +35,11 @@ class ColumnVisibilityControl(QTreeWidget):
 
         self.field_item_map = {}
 
-        self.create_tree(samples_settings)
+        self._create_tree(samples_settings)
         self.setHeaderHidden(True)
         self.expandAll()
 
-    def create_tree(self, samples_settings: dict):
+    def _create_tree(self, samples_settings: dict):
 
         all_fields = samples_settings["fields"]
 
@@ -58,11 +58,22 @@ class ColumnVisibilityControl(QTreeWidget):
 
         self.insertTopLevelItems(0, top_level_items)
 
-        self.itemChanged.connect(self.on_item_changed)
+        self.itemChanged.connect(self._on_item_changed)
 
     @Slot(QTreeWidgetItem, int)
-    def on_item_changed(self, item, state):
+    def _on_item_changed(self, item: QTreeWidgetItem) -> None:
+        """
+        Slot function connected to the `itemChanged` signal of the QTreeWidget.
+        When a check box in the tree is changed, this function is called with the
+        changed item and the column number (which is always 0 in this case).
+        The function emits the `field_visibility_state_changed` signal with the
+        field name and the new state of the check box.
 
+        If the changed item is a top-level item, it sets the check state of all
+        its children to the same state. If the changed item is a child item, it
+        sets the check state of its parent item to `Qt.Checked` if any of its
+        children are checked, and to `Qt.Unchecked` if none of them are checked.
+        """
         state = item.checkState(0)
 
         if item.childCount() == 0:

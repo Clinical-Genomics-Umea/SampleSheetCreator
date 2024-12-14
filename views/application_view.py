@@ -1,4 +1,3 @@
-from pathlib import Path
 import yaml
 import qtawesome as qta
 
@@ -10,20 +9,19 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QSpacerItem,
     QLabel,
-    QFrame,
     QDialog,
     QTextEdit,
 )
 
-from PySide6.QtCore import Signal, Qt, QObject, Slot
+from PySide6.QtCore import Signal, Qt, Slot
 
 from models.application import ApplicationManager
-from utils.utils import read_yaml_file
+from models.dataset import DataSetManager
 from views.ui_components_view import HorizontalLine
 
 
 class ClickableLabel(QLabel):
-    def __init__(self, text, data, parent=None):
+    def __init__(self, text: str, data: dict, parent=None):
         super().__init__(text, parent)
         self.data = data
         self.name = data["ApplicationName"]
@@ -31,9 +29,9 @@ class ClickableLabel(QLabel):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.show_popup()
+            self._show_popup()
 
-    def show_popup(self):
+    def _show_popup(self):
         # Create a popup dialog
         dialog = QDialog(self)
         dialog.setWindowTitle(self.name)
@@ -53,7 +51,7 @@ class Applications(QWidget):
 
     application_data_ready = Signal(dict)
 
-    def __init__(self, app_mgr, dataset_mgr):
+    def __init__(self, app_mgr: ApplicationManager, dataset_mgr: DataSetManager):
         super().__init__()
         self.app_mgr = app_mgr
         self.dataset_mgr = dataset_mgr
@@ -69,24 +67,27 @@ class Applications(QWidget):
 
         self.app_widgets = []
 
-        self.setup()
+        self._setup()
 
-    def setup(self):
+    def _setup(self):
+        """Set up the main layout of the Applications widget."""
+
         self.main_layout.setSpacing(5)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
 
         self.vertical_layout.setSpacing(5)
         self.vertical_layout.setContentsMargins(0, 0, 0, 0)
 
-        group_name_obj = self.app_mgr.appgroup_to_appname_to_appobj
-        for group in group_name_obj:
+        app_hierarchy = self.app_mgr.app_hierarchy
+
+        for group in app_hierarchy:
             group_label = QLabel(group)
             group_label.setStyleSheet("font-style: italic")
             self.vertical_layout.addWidget(HorizontalLine())
             self.vertical_layout.addWidget(group_label)
-            for name in group_name_obj[group]:
 
-                app_widget = ApplicationWidget(group_name_obj[group][name])
+            for app_name in app_hierarchy[group]:
+                app_widget = ApplicationWidget(app_hierarchy[group][app_name])
                 self.app_widgets.append(app_widget)
                 self.vertical_layout.addWidget(app_widget)
 
@@ -99,13 +100,6 @@ class Applications(QWidget):
     @Slot(object)
     def _handle_app_button_click(self, data):
         self.application_data_ready.emit(data)
-
-    @staticmethod
-    def get_line():
-        line = QFrame()
-        line.setFrameShape(QFrame.HLine)
-        line.setFrameShadow(QFrame.Sunken)
-        return line
 
 
 class ApplicationWidget(QWidget):
@@ -133,9 +127,9 @@ class ApplicationWidget(QWidget):
 
         self.setLayout(layout)
 
-        self.app_button.clicked.connect(self.apply_clicked)
+        self.app_button.clicked.connect(self._apply_clicked)
 
-    def apply_clicked(self):
+    def _apply_clicked(self) -> None:
 
         print("apply", self.app_data)
 
