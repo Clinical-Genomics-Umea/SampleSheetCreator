@@ -15,6 +15,7 @@ from PySide6.QtCore import (
     QAbstractItemModel,
     QRect,
     QEvent,
+    QSortFilterProxyModel,
 )
 from PySide6.QtWidgets import (
     QTableView,
@@ -372,7 +373,7 @@ class SampleTableView(QTableView):
         header.setContextMenuPolicy(Qt.CustomContextMenu)
         header.customContextMenuRequested.connect(self._header_popup)
 
-        self.original_top_left_selection = None
+        # self.original_top_left_selection = None
         self.resizeColumnsToContents()
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
@@ -381,8 +382,25 @@ class SampleTableView(QTableView):
         self.model().removeRows(selected_rows[0].row(), len(selected_rows))
 
     @Slot(dict)
-    def set_application(self, app_obj):
-        app_data = app_obj["Data"]
+    def set_application(self, application_object: dict) -> None:
+        """
+        Sets the application data for the selected rows in the model.
+
+        This method updates the specified rows in the proxy model with the application data
+        provided in the application_object. If the application is already set in the selection,
+        a warning dialog is displayed. Special handling is performed for the "BCLConvert"
+        application to set additional data.
+
+        Parameters:
+        - application_object (dict): A dictionary containing the application details, including:
+            - "Data": The data to be set for the application.
+            - "ApplicationName": The name of the application.
+            - "Application": The type of application.
+
+        Returns:
+        - None
+        """
+        application_data = application_object["Data"]
 
         proxy_model = self.model()
         source_model = proxy_model.sourceModel()
@@ -393,28 +411,30 @@ class SampleTableView(QTableView):
             return
 
         header_index_map = header_to_index_map(proxy_model)
-        application_name_col = header_index_map["ApplicationName"]
-        application_name = app_obj["ApplicationName"]
-        app = app_obj["Application"]
+        app_name_column = header_index_map["ApplicationName"]
+        application_name = application_object["ApplicationName"]
+        application = application_object["Application"]
 
         for row in selected_rows:
-            data = self._get_json_data_as_obj(proxy_model, row, application_name_col)
-            row_apps = [app_name.split("_")[0] for app_name in data]
+            current_data = self._json_data_as_obj(proxy_model, row, app_name_column)
+            existing_applications = [name.split("_")[0] for name in current_data]
 
-            if app in row_apps:
-                dlg = WarningDialog(f"{app} already set in selection.")
-                dlg.exec()
+            if application in existing_applications:
+                warning_dialog = WarningDialog(
+                    f"{application} already set in selection."
+                )
+                warning_dialog.exec()
                 return
 
         source_model.blockSignals(True)
 
         for row in selected_rows:
-            self._set_json_data(
-                proxy_model, row, application_name_col, application_name
-            )
+            self._set_str_to_json(proxy_model, row, app_name_column, application_name)
 
-            if app_obj["Application"] == "BCLConvert":
-                self._set_bclconvert_data(proxy_model, row, header_index_map, app_data)
+            if application == "BCLConvert":
+                self._set_bclconvert_data(
+                    proxy_model, row, header_index_map, application_data
+                )
 
         source_model.blockSignals(False)
         source_model.dataChanged.emit(
@@ -425,37 +445,57 @@ class SampleTableView(QTableView):
             Qt.DisplayRole,
         )
 
-    def _set_bclconvert_data(self, proxy_model, row, header_key_dict, profile_data):
-        assert proxy_model is not None
-        assert header_key_dict is not None
-        assert row >= 0
-        assert profile_data is not None
+    @staticmethod
+    def _set_bclconvert_data(
+        proxy_model: QSortFilterProxyModel,
+        row: int,
+        header_index_map: dict,
+        app_data: dict,
+    ) -> None:
+        """
+        Sets BCLConvert data in the specified row of the proxy model.
 
-        for key, value in profile_data.items():
-            if key in header_key_dict:
-                column = header_key_dict[key]
-                assert column >= 0
+        Parameters:
+        - proxy_model: The QSortFilterProxyModel to set data in.
+        - row: The row index in the proxy model.
+        - header_index_map: A dictionary mapping header keys to column indices.
+        - app_data: A dictionary of data to set.
+        """
+        if not proxy_model or row < 0 or not app_data:
+            return
+
+        for key, value in app_data.items():
+            column = header_index_map.get(key)
+            if column is not None:
                 proxy_model.setData(proxy_model.index(row, column), value)
 
-    def _get_json_data_as_obj(self, model, row, col):
-        data_json = model.data(model.index(row, col), Qt.DisplayRole)
-        if not data_json:
-            data_json = "[]"
+    @staticmethod
+    def _json_data_as_obj(model: QSortFilterProxyModel, row: int, column: int) -> str:
+        """
+        Retrieve JSON data from a specified cell in the model and return it as a Python object.
 
-        data = json.loads(data_json)
+        Parameters:
+        - model: The QAbstractItemModel from which data is retrieved.
+        - row: The row index of the cell.
+        - column: The column index of the cell.
 
-        return data
+        Returns:
+        - The JSON data from the specified cell, parsed as a Python object.
+        """
+        json_data = model.data(model.index(row, column), Qt.DisplayRole) or "[]"
+        return json.loads(json_data)
 
     @staticmethod
-    def _set_json_data(model, row, col, value):
-        data_json = model.data(model.index(row, col), Qt.DisplayRole)
-        if not data_json:
-            data_json = "[]"
-
-        data = json.loads(data_json)
+    def _set_str_to_json(model, row: int, column: int, value: str) -> None:
+        """
+        Sets the value of the specified cell to the given value, stored as a json
+        array. If the cell is currently empty, it will be initialized with an
+        empty list.
+        """
+        current_data = model.data(model.index(row, column), Qt.DisplayRole) or "[]"
+        data = json.loads(current_data)
         data.append(value)
-        data_json = json.dumps(data)
-        model.setData(model.index(row, col), data_json)
+        model.setData(model.index(row, column), json.dumps(data))
 
     def _table_popup(self):
         self.table_context_menu.exec(QCursor.pos())
@@ -484,7 +524,7 @@ class SampleTableView(QTableView):
     #     }
 
     @Slot(str, bool)
-    def set_column_visibility_state(self, field, state):
+    def set_column_visibility_state(self, field: str, state: bool) -> None:
         i = self.model().sourceModel().fields.index(field)
 
         column_visible = not self.isColumnHidden(i)
@@ -536,15 +576,7 @@ class SampleTableView(QTableView):
             return
 
     def _set_columns_hidden(self, selected_columns):
-        """
-        Set the specified columns as hidden in the table.
 
-        Parameters:
-            selected_columns (list): A list of integers representing the indices of the columns to be hidden.
-
-        Returns:
-            None
-        """
         for col in selected_columns:
             self.setColumnHidden(col, True)
 
@@ -584,6 +616,7 @@ class SampleTableView(QTableView):
         return selected_data
 
     def _delete_selection(self):
+
         model = self.model()
         selected_indexes = self.selectedIndexes()
 
@@ -666,7 +699,19 @@ class SampleTableView(QTableView):
             case _:
                 super().keyPressEvent(event)
 
-    def paste_clipboard_content(self):
+    def paste_clipboard_content(self) -> bool:
+        """
+        Paste the content from the clipboard into the selected cell(s) of the model.
+
+        This function retrieves text data from the clipboard, converts it into a model,
+        and pastes it into the selected indexes of the current model. If only one cell
+        is selected, the entire clipboard content is pasted starting from that cell. If
+        multiple cells are selected and the clipboard content is a single cell, it is
+        duplicated across the selected cells.
+
+        Returns:
+            bool: True if the paste operation was successful, False otherwise.
+        """
         model = self.model()
 
         source_model = clipboard_text_to_model()
@@ -700,42 +745,45 @@ class SampleTableView(QTableView):
         return False
 
     @Slot(str)
-    def set_override_pattern(self, pattern: str):
-        print("set override pattern")
+    def set_override_pattern(self, pattern: str) -> None:
+        """
+        Sets the OverrideCyclesPattern for the selected rows to the given pattern.
+
+        If no rows are selected, this does nothing.
+
+        :param pattern: The pattern to set
+        """
         selection_model = self.selectionModel()
         if not selection_model:
             return
 
-        selected_indexes = selection_model.selectedRows()
-        if not selected_indexes:
-            return
+        selected_rows = [index.row() for index in selection_model.selectedRows()]
 
-        selected_rows = [index.row() for index in selected_indexes]
-
-        model = self.model()
-        if not model:
+        source_model = self.model()
+        if not source_model:
             return
 
         header_labels = [
-            model.headerData(col, Qt.Horizontal, Qt.DisplayRole)
-            for col in range(model.columnCount())
+            source_model.headerData(col, Qt.Horizontal, Qt.DisplayRole)
+            for col in range(source_model.columnCount())
         ]
-
         override_col = header_labels.index("OverrideCyclesPattern")
 
         for row in selected_rows:
-            # print(pattern)
+            index = source_model.index(row, override_col)
+            if index.isValid():
+                source_model.setData(index, pattern, Qt.EditRole)
 
-            if row < 0 or row >= model.rowCount():
-                continue
+    def get_override_pattern(self) -> None:
+        """Get the override pattern for the selected rows in the table view.
 
-            index = model.index(row, override_col)
-            if not index.isValid():
-                continue
+        This function retrieves the OverrideCyclesPattern column data for the selected
+        rows in the table view. The data is then emitted via the override_patterns_ready
+        signal.
 
-            model.setData(index, pattern, Qt.EditRole)
-
-    def get_selected_override_patterns(self):
+        :return: None
+        :rtype: None
+        """
         model = self.model()
         if not model:
             return

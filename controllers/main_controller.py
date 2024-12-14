@@ -123,7 +123,7 @@ class MainController(QObject):
             self._main_window.override_widget.set_override_pattern
         )
         self._main_window.override_widget.get_selected_overrides_btn.clicked.connect(
-            self._main_window.samples_widget.sample_view.get_selected_override_patterns
+            self._main_window.samples_widget.sample_view.get_override_pattern
         )
         self._main_window.override_widget.custom_override_pattern_ready.connect(
             self._main_window.samples_widget.sample_view.set_override_pattern
