@@ -135,6 +135,8 @@ class SamplesWidget(QWidget):
         self.extended_selection_pushbutton.setCheckable(True)
         self.clear_selection_btn = QPushButton("clear selection")
         self.column_visibility_btn = QPushButton("column visibility")
+        self.delete_rows_btn = QPushButton("delete selected rows")
+
         self.column_visibility_ctrl = ColumnVisibilityWidget(samples_settings)
 
         hbox = QHBoxLayout()
@@ -147,6 +149,7 @@ class SamplesWidget(QWidget):
 
         hbox.addWidget(self.extended_selection_pushbutton)
         hbox.addWidget(self.clear_selection_btn)
+        hbox.addWidget(self.delete_rows_btn)
         hbox.addLayout(hbox_filter)
         hbox.addWidget(self.column_visibility_btn)
 
@@ -165,10 +168,10 @@ class SamplesWidget(QWidget):
         header = self.sample_view.horizontalHeader()
         header.setMinimumSectionSize(100)
 
-        self.extended_selection_pushbutton.clicked.connect(self.set_selection_mode)
+        self.extended_selection_pushbutton.clicked.connect(self._set_selection_mode)
         horizontal_header = self.sample_view.horizontalHeader()
         horizontal_header.setSectionsClickable(False)
-        self.set_selection_mode()
+        self._set_selection_mode()
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
@@ -180,9 +183,10 @@ class SamplesWidget(QWidget):
         self.sample_view.field_visibility_state_changed.connect(
             self.column_visibility_ctrl.column_visibility_control.set_column_visibility_state
         )
-        self.column_visibility_btn.clicked.connect(self.toggle_column_visibility_ctrl)
+        self.column_visibility_btn.clicked.connect(self._toggle_column_visibility_ctrl)
+        self.delete_rows_btn.clicked.connect(self.sample_view.del_selected_rows)
 
-    def toggle_column_visibility_ctrl(self):
+    def _toggle_column_visibility_ctrl(self):
         if self.column_visibility_ctrl.isVisible():
             self.column_visibility_ctrl.hide()
         else:
@@ -193,7 +197,7 @@ class SamplesWidget(QWidget):
         self.filter_edit.textChanged.connect(samples_proxy_model.set_filter_text)
 
         self.sample_view.selectionModel().selectionChanged.connect(
-            self.on_sampleview_selection_changed
+            self._on_sampleview_selection_changed
         )
         # header_index_map = header_to_index_map(samples_proxy_model)
 
@@ -201,7 +205,7 @@ class SamplesWidget(QWidget):
         for col in range(samples_proxy_model.columnCount()):
             header.setSectionResizeMode(col, QHeaderView.ResizeToContents)
 
-    def set_selection_mode(self):
+    def _set_selection_mode(self):
         if self.extended_selection_pushbutton.isChecked():
             self.sample_view.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
@@ -209,17 +213,17 @@ class SamplesWidget(QWidget):
             self.sample_view.setSelectionMode(QAbstractItemView.ContiguousSelection)
 
     @staticmethod
-    def selected_rows_columns_count(selected_indexes):
+    def _selected_rows_columns_count(selected_indexes):
 
         selected_rows = {index.row() for index in selected_indexes}
         selected_columns = {index.column() for index in selected_indexes}
 
         return len(selected_rows), len(selected_columns)
 
-    def on_sampleview_selection_changed(self):
+    def _on_sampleview_selection_changed(self):
         selection_model = self.sample_view.selectionModel()
         selected_indexes = selection_model.selectedIndexes()
-        srows, scols = self.selected_rows_columns_count(selected_indexes)
+        srows, scols = self._selected_rows_columns_count(selected_indexes)
 
         if srows == 1 and scols == 1 and selected_indexes:
             model = self.sample_view.model()
@@ -246,79 +250,80 @@ class SamplesWidget(QWidget):
             self.cell_value.setText("")
 
 
-class JsonButtonDelegate(QStyledItemDelegate):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-    def paint(self, painter, option, index):
-        # Draw a button in the cell
-        style = option.widget.style()
-        button_rect = style.subElementRect(QStyle.SE_PushButtonContents, option)
-        button_rect = QRect(
-            option.rect.x() + 5,
-            option.rect.y() + 5,
-            option.rect.width() - 10,
-            option.rect.height() - 10,
-        )
-
-        # Use QStyleOptionButton instead of QStyle.OptionButton
-        button_options = QStyleOptionButton()
-        button_options.rect = button_rect
-        button_options.text = "View JSON"
-        button_options.state = QStyle.State_Enabled
-        style.drawControl(QStyle.CE_PushButton, button_options, painter)
-
-    def editorEvent(self, event, model, option, index):
-        # Handle button clicks
-        if event.type() == QEvent.MouseButtonPress:
-            if option.rect.contains(event.pos()):
-                # Get the JSON data from the model
-                json_data = index.data()
-                self.open_json_tree_view(json_data)
-        return super().editorEvent(event, model, option, index)
-
-    def open_json_tree_view(self, json_data):
-        # Parse JSON and show in a QTreeView
-        try:
-            parsed_data = json.loads(json_data)
-        except json.JSONDecodeError:
-            parsed_data = {"error": "Invalid JSON"}
-
-        # Create a dialog to display the tree view
-        dialog = QDialog()
-        dialog.setWindowTitle("JSON Viewer")
-        layout = QVBoxLayout(dialog)
-
-        tree_view = QTreeView()
-        tree_model = QStandardItemModel()
-        tree_model.setHorizontalHeaderLabels(["Key", "Value"])
-
-        # Recursively populate the tree model with JSON data
-        def populate_tree(parent, data):
-            if isinstance(data, dict):
-                for key, value in data.items():
-                    key_item = QStandardItem(key)
-                    value_item = QStandardItem(
-                        str(value) if not isinstance(value, (dict, list)) else ""
-                    )
-                    parent.appendRow([key_item, value_item])
-                    if isinstance(value, (dict, list)):
-                        populate_tree(key_item, value)
-            elif isinstance(data, list):
-                for i, value in enumerate(data):
-                    key_item = QStandardItem(f"[{i}]")
-                    value_item = QStandardItem(
-                        str(value) if not isinstance(value, (dict, list)) else ""
-                    )
-                    parent.appendRow([key_item, value_item])
-                    if isinstance(value, (dict, list)):
-                        populate_tree(key_item, value)
-
-        populate_tree(tree_model.invisibleRootItem(), parsed_data)
-        tree_view.setModel(tree_model)
-        layout.addWidget(tree_view)
-
-        dialog.exec()
+# class JsonButtonDelegate(QStyledItemDelegate):
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+#
+#     def paint(self, painter, option, index):
+#         # Draw a button in the cell
+#         style = option.widget.style()
+#         button_rect = style.subElementRect(QStyle.SE_PushButtonContents, option)
+#         button_rect = QRect(
+#             option.rect.x() + 5,
+#             option.rect.y() + 5,
+#             option.rect.width() - 10,
+#             option.rect.height() - 10,
+#         )
+#
+#         # Use QStyleOptionButton instead of QStyle.OptionButton
+#         button_options = QStyleOptionButton()
+#         button_options.rect = button_rect
+#         button_options.text = "View JSON"
+#         button_options.state = QStyle.State_Enabled
+#         style.drawControl(QStyle.CE_PushButton, button_options, painter)
+#
+# def editorEvent(self, event, model, option, index):
+#     # Handle button clicks
+#     if event.type() == QEvent.MouseButtonPress:
+#         if option.rect.contains(event.pos()):
+#             # Get the JSON data from the model
+#             json_data = index.data()
+#             self.open_json_tree_view(json_data)
+#     return super().editorEvent(event, model, option, index)
+#
+# def open_json_tree_view(self, json_data):
+#     # Parse JSON and show in a QTreeView
+#     try:
+#         parsed_data = json.loads(json_data)
+#     except json.JSONDecodeError:
+#         parsed_data = {"error": "Invalid JSON"}
+#
+#     # Create a dialog to display the tree view
+#     dialog = QDialog()
+#     dialog.setWindowTitle("JSON Viewer")
+#     layout = QVBoxLayout(dialog)
+#
+#     tree_view = QTreeView()
+#     tree_model = QStandardItemModel()
+#     tree_model.setHorizontalHeaderLabels(["Key", "Value"])
+#
+#     # Recursively populate the tree model with JSON data
+#     def populate_tree(parent, data):
+#         if isinstance(data, dict):
+#             for key, value in data.items():
+#                 key_item = QStandardItem(key)
+#                 value_item = QStandardItem(
+#                     str(value) if not isinstance(value, (dict, list)) else ""
+#                 )
+#                 parent.appendRow([key_item, value_item])
+#                 if isinstance(value, (dict, list)):
+#                     populate_tree(key_item, value)
+#         elif isinstance(data, list):
+#             for i, value in enumerate(data):
+#                 key_item = QStandardItem(f"[{i}]")
+#                 value_item = QStandardItem(
+#                     str(value) if not isinstance(value, (dict, list)) else ""
+#                 )
+#                 parent.appendRow([key_item, value_item])
+#                 if isinstance(value, (dict, list)):
+#                     populate_tree(key_item, value)
+#
+#     populate_tree(tree_model.invisibleRootItem(), parsed_data)
+#     tree_view.setModel(tree_model)
+#     layout.addWidget(tree_view)
+#
+#     dialog.exec()
+#
 
 
 class WarningDialog(QDialog):
@@ -357,19 +362,23 @@ class SampleTableView(QTableView):
         self.clipboard = QClipboard()
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.table_popup)
+        self.customContextMenuRequested.connect(self._table_popup)
 
         self.table_context_menu = QMenu(self)
-        self.table_context_menu_setup()
+        self._table_context_menu_setup()
 
         self.header_context_menu = QMenu(self)
         header = self.horizontalHeader()
         header.setContextMenuPolicy(Qt.CustomContextMenu)
-        header.customContextMenuRequested.connect(self.header_popup)
+        header.customContextMenuRequested.connect(self._header_popup)
 
         self.original_top_left_selection = None
         self.resizeColumnsToContents()
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+    def del_selected_rows(self):
+        selected_rows = self.selectionModel().selectedRows()
+        self.model().removeRows(selected_rows[0].row(), len(selected_rows))
 
     @Slot(dict)
     def set_application(self, app_obj):
@@ -448,17 +457,17 @@ class SampleTableView(QTableView):
         data_json = json.dumps(data)
         model.setData(model.index(row, col), data_json)
 
-    def table_popup(self):
+    def _table_popup(self):
         self.table_context_menu.exec(QCursor.pos())
 
-    def table_context_menu_setup(self):
+    def _table_context_menu_setup(self):
         copy_action = self.table_context_menu.addAction("Copy")
         paste_action = self.table_context_menu.addAction("Paste")
         delete_action = self.table_context_menu.addAction("Delete")
 
-        copy_action.triggered.connect(self.copy_selection)
+        copy_action.triggered.connect(self._copy_selection)
         paste_action.triggered.connect(self.paste_clipboard_content)
-        delete_action.triggered.connect(self.delete_selection)
+        delete_action.triggered.connect(self._delete_selection)
 
     def setColumnHidden(self, column, hide):
         super().setColumnHidden(column, hide)
@@ -468,11 +477,11 @@ class SampleTableView(QTableView):
 
         self.field_visibility_state_changed.emit(field, state)
 
-    def get_columns_visibility_state(self):
-        return {
-            self.model().sourceModel().fields[i]: not self.isColumnHidden(i)
-            for i in range(self.model().columnCount())
-        }
+    # def get_columns_visibility_state(self):
+    #     return {
+    #         self.model().sourceModel().fields[i]: not self.isColumnHidden(i)
+    #         for i in range(self.model().columnCount())
+    #     }
 
     @Slot(str, bool)
     def set_column_visibility_state(self, field, state):
@@ -485,7 +494,7 @@ class SampleTableView(QTableView):
 
         self.setColumnHidden(i, not state)
 
-    def header_popup(self, pos: QPoint):
+    def _header_popup(self, pos: QPoint):
         """
         Display a context menu when right-clicking on the header of the SampleTableView.
 
@@ -496,7 +505,7 @@ class SampleTableView(QTableView):
         index = self.indexAt(pos)
         clicked_column = index.column()
 
-        selected_columns = self.get_selected_columns()
+        selected_columns = self._get_selected_columns()
 
         # Get the name of the clicked column
         colname = self.model().sourceModel().fields[clicked_column]
@@ -521,12 +530,12 @@ class SampleTableView(QTableView):
                 "Hide selected fields"
             )
             hide_selected_cols.triggered.connect(
-                lambda: self.set_columns_hidden(selected_columns)
+                lambda: self._set_columns_hidden(selected_columns)
             )
             self.header_context_menu.exec(QCursor.pos())
             return
 
-    def set_columns_hidden(self, selected_columns):
+    def _set_columns_hidden(self, selected_columns):
         """
         Set the specified columns as hidden in the table.
 
@@ -541,17 +550,17 @@ class SampleTableView(QTableView):
 
         self.clearSelection()
 
-    def get_selected_columns(self):
+    def _get_selected_columns(self):
         selection_model = self.selectionModel()
         selected_indexes = selection_model.selectedColumns()
         return [column.column() for column in selected_indexes]
 
-    def copy_selection(self):
-        selected_data = self.get_selected_data()
+    def _copy_selection(self):
+        selected_data = self._get_selected_data()
         selected_csv = list2d_to_tabbed_str(selected_data)
         self.clipboard.setText(selected_csv)
 
-    def get_selected_data(self):
+    def _get_selected_data(self):
         selected_indexes = self.selectedIndexes()
         selected_data = []
 
@@ -574,7 +583,7 @@ class SampleTableView(QTableView):
 
         return selected_data
 
-    def delete_selection(self):
+    def _delete_selection(self):
         model = self.model()
         selected_indexes = self.selectedIndexes()
 
@@ -596,7 +605,7 @@ class SampleTableView(QTableView):
 
         # Delete needs to be in a separate if statement to work (for mysterious reasons)
         if event.key() == Qt.Key_Delete:
-            self.delete_selection()
+            self._delete_selection()
             return True
 
         match event.key(), event.modifiers():
@@ -642,7 +651,7 @@ class SampleTableView(QTableView):
                 return True
 
             case Qt.Key_C, Qt.ControlModifier:
-                self.copy_selection()
+                self._copy_selection()
                 return True
 
             case Qt.Key_V, Qt.ControlModifier:

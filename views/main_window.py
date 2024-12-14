@@ -94,36 +94,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.columns_settings_button.setObjectName("columns_settings")
 
         self.override_widget = OverrideCyclesWidget()
-        self.setup_override()
+        self._setup_override()
 
-        self.setup_left_toolbar_actions()
+        self._setup_left_toolbar_actions()
 
         self.file_widget = FileView()
-        self.setup_left_menu_file()
+        self._setup_leftmenu_file()
 
         self.samples_widget = SamplesWidget(self.config_manager.samples_settings)
-        self.setup_samples_widget()
+        self._setup_samples_widget()
 
         self.run_setup_widget = RunSetupWidget(self.config_manager, dataset_manager)
         self.run_view_widget = RunView(self.config_manager)
-        self.setup_run_view()
+        self._setup_run_view()
 
         self.validation_widget = MainValidationWidget(self.dataset_manager)
-        self.setup_validation_widget()
+        self._setup_validation_widget()
 
         self.indexes_widget = IndexKitToolbox(Path("config/indexes/indexes_json"))
-        self.setup_left_menu_indexes()
+        self._setup_left_menu_indexes()
 
         self.applications_widget = Applications(
             self.application_manager, self.dataset_manager
         )
-        self.setup_left_menu_applications()
+        self._setup_left_menu_applications()
 
         self.config_widget = ConfigurationWidget(self.config_manager)
-        self.setup_config()
+        self._setup_config()
 
         self.export_widget = ExportWidget(self.dataset_manager)
-        self.setup_export_widget()
+        self._setup_export_widget()
 
         self.leftmenu_stackedWidget.setFixedWidth(300)
         self.leftmenu_stackedWidget.hide()
@@ -135,49 +135,45 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def set_export_action_status(self, is_enabled):
         self.export_action.setEnabled(is_enabled)
 
-    def setup_left_menu_file(self):
+    def _setup_leftmenu_file(self):
         layout = self.leftmenu_file.layout()
         layout.addWidget(self.file_widget)
 
-    def setup_override(self):
+    def _setup_override(self):
         layout = self.leftmenu_override.layout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.override_widget)
 
-    def setup_export_widget(self):
+    def _setup_export_widget(self):
         layout = self.main_export.layout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.export_widget)
 
-    def setup_validation_widget(self):
+    def _setup_validation_widget(self):
         layout = self.main_validation.layout()
         layout.addWidget(self.validation_widget)
 
-    def setup_config(self):
+    def _setup_config(self):
         layout = self.main_settings.layout()
         layout.addWidget(self.config_widget)
 
-    def setup_samples_widget(self):
+    def _setup_samples_widget(self):
         layout = self.main_data.layout()
         layout.addWidget(self.samples_widget)
         self.main_stackedWidget.setCurrentWidget(self.main_data)
 
-    def setup_run_view(self):
+    def _setup_run_view(self):
         self.leftmenu_runsetup.layout().addWidget(self.run_setup_widget)
         main_data_layout = self.main_data.layout()
         main_data_layout.insertWidget(0, self.run_view_widget)
 
-    def handle_run_set_button_click(self):
-        run_info = self.run_setup_widget.get_data()
-        self.run_view_widget.set_data(run_info)
-
-    def setup_left_menu_indexes(self):
+    def _setup_left_menu_indexes(self):
         layout = self.leftmenu_indexes.layout()
         layout.addWidget(self.indexes_widget)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
-    def setup_left_menu_applications(self):
+    def _setup_left_menu_applications(self):
         layout = self.leftmenu_apps.layout()
         layout.addWidget(self.applications_widget)
         layout.setSpacing(0)
@@ -242,8 +238,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.leftmenu_stackedWidget.hide()
             self.main_stackedWidget.setCurrentWidget(self.main_data)
 
-    def setup_left_toolbar_actions(self):
+    def _setup_left_toolbar_actions(self):
         """Set up the tool actions for the application."""
+
+        self.left_toolBar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
 
         actions = [
             (self.file_action, "msc.files", "file"),
@@ -263,9 +261,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         action_group.setExclusionPolicy(QActionGroup.ExclusionPolicy.ExclusiveOptional)
 
         for action, action_icon, action_id in actions:
-            # print(action, action_icon, action_id)
             action.setCheckable(True)
             action.setChecked(False)
+            action.setText(action_id)
             action.setData(action_id)
             action.setIcon(qta.icon(action_icon, options=[{"draw": "image"}]))
             action_group.addAction(action)
