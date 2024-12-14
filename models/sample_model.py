@@ -36,7 +36,7 @@ class SampleModel(QStandardItemModel):
         self.refresh_view()
 
     def refresh_view(self):
-        # Emit dataChanged signal to notify the view to update
+
         top_left = self.index(0, 0)
         bottom_right = self.index(self.rowCount() - 1, self.columnCount() - 1)
         self.dataChanged.emit(top_left, bottom_right)
@@ -89,8 +89,6 @@ class SampleModel(QStandardItemModel):
         json_data_qba = data.data("application/json")
         decoded_data = decode_bytes_json(json_data_qba)
 
-        # print(decoded_data)
-
         start_row = parent.row()
 
         self.blockSignals(True)
@@ -132,6 +130,12 @@ class SampleModel(QStandardItemModel):
         return flags
 
     def to_dataframe(self):
+        """
+        Convert the data in the model to a DataFrame.
+
+        Returns:
+            DataFrame: A DataFrame containing the data from the model.
+        """
         # Get the number of rows and columns in the model
         rows = self.rowCount()
         columns = self.columnCount()
@@ -144,6 +148,8 @@ class SampleModel(QStandardItemModel):
             row_data = []
             for column in range(columns):
                 item = self.item(row, column)
+                # If the item is None, use None as the value
+                # Otherwise, use the text of the item
                 row_data.append(item.text() if item is not None else None)
             data.append(row_data)
 
@@ -154,8 +160,11 @@ class SampleModel(QStandardItemModel):
         headers = [self.headerData(i, Qt.Horizontal) for i in range(columns)]
         df.columns = headers
 
+        # Calculate the reverse complement of the IndexI5 column
         df["IndexI5RC"] = df["IndexI5"].apply(self.reverse_complement)
 
+        # Replace empty strings and whitespace-only strings with NaN
+        # and drop any rows that contain only NaN values
         df.replace("", pd.NA, inplace=True)
         df.replace(r"^\s*$", pd.NA, regex=True)
         df.dropna(how="all", inplace=True)
