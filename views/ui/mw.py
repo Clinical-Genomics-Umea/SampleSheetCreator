@@ -71,13 +71,13 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.leftmenu_stackedWidget.addWidget(self.leftmenu_indexes)
-        self.leftmenu_profiles = QWidget()
-        self.leftmenu_profiles.setObjectName(u"leftmenu_profiles")
-        self.verticalLayout_6 = QVBoxLayout(self.leftmenu_profiles)
+        self.leftmenu_apps = QWidget()
+        self.leftmenu_apps.setObjectName(u"leftmenu_apps")
+        self.verticalLayout_6 = QVBoxLayout(self.leftmenu_apps)
         self.verticalLayout_6.setSpacing(6)
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
         self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
-        self.leftmenu_stackedWidget.addWidget(self.leftmenu_profiles)
+        self.leftmenu_stackedWidget.addWidget(self.leftmenu_apps)
         self.leftmenu_runsetup = QWidget()
         self.leftmenu_runsetup.setObjectName(u"leftmenu_runsetup")
         self.verticalLayout_2 = QVBoxLayout(self.leftmenu_runsetup)
@@ -121,11 +121,11 @@ class Ui_MainWindow(object):
         self.verticalLayout_11 = QVBoxLayout(self.main_settings)
         self.verticalLayout_11.setObjectName(u"verticalLayout_11")
         self.main_stackedWidget.addWidget(self.main_settings)
-        self.main_make = QWidget()
-        self.main_make.setObjectName(u"main_make")
-        self.verticalLayout_13 = QVBoxLayout(self.main_make)
+        self.main_export = QWidget()
+        self.main_export.setObjectName(u"main_export")
+        self.verticalLayout_13 = QVBoxLayout(self.main_export)
         self.verticalLayout_13.setObjectName(u"verticalLayout_13")
-        self.main_stackedWidget.addWidget(self.main_make)
+        self.main_stackedWidget.addWidget(self.main_export)
 
         self.main_verticalLayout.addWidget(self.main_stackedWidget)
 
@@ -140,8 +140,8 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.leftmenu_stackedWidget.setCurrentIndex(1)
-        self.main_stackedWidget.setCurrentIndex(1)
+        self.leftmenu_stackedWidget.setCurrentIndex(3)
+        self.main_stackedWidget.setCurrentIndex(3)
 
 
         QMetaObject.connectSlotsByName(MainWindow)

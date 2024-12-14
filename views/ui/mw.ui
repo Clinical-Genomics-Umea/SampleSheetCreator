@@ -69,7 +69,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="leftmenu_config">
        <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -128,7 +128,7 @@
         </property>
        </layout>
       </widget>
-      <widget class="QWidget" name="leftmenu_profiles">
+      <widget class="QWidget" name="leftmenu_apps">
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <property name="spacing">
          <number>6</number>
@@ -182,7 +182,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="main_data">
          <layout class="QVBoxLayout" name="verticalLayout">
@@ -222,7 +222,7 @@
         <widget class="QWidget" name="main_settings">
          <layout class="QVBoxLayout" name="verticalLayout_11"/>
         </widget>
-        <widget class="QWidget" name="main_make">
+        <widget class="QWidget" name="main_export">
          <layout class="QVBoxLayout" name="verticalLayout_13"/>
         </widget>
        </widget>

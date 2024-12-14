@@ -60,7 +60,7 @@ class MainController(QObject):
         self._connect_sample_model_signals()
 
     def _connect_sample_model_signals(self):
-        self._sample_model.dataChanged.connect(self._main_window.disable_make_action)
+        self._sample_model.dataChanged.connect(self._main_window.disable_export_action)
 
     def _connect_application_signal(self):
         self._main_window.applications_widget.application_data_ready.connect(
@@ -81,12 +81,12 @@ class MainController(QObject):
         actions = [
             self._main_window.file_action,
             self._main_window.run_action,
-            self._main_window.profiles_action,
+            self._main_window.apps_action,
             self._main_window.indexes_action,
             self._main_window.override_action,
             self._main_window.settings_action,
             self._main_window.validate_action,
-            self._main_window.make_action,
+            self._main_window.export_action,
         ]
 
         for action in actions:
@@ -115,7 +115,7 @@ class MainController(QObject):
             self._main_window.validation_widget.clear_validation_widgets
         )
         self._main_validator.prevalidator_status.connect(
-            self._main_window.set_make_action_enabled_status
+            self._main_window.set_export_action_status
         )
 
     def _connect_override_pattern_signals(self):

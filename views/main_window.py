@@ -20,10 +20,8 @@ from models.configuration import ConfigurationManager
 from models.dataset import DataSetManager
 from views.configuration_view import ConfigurationWidget
 from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
-from views.column_visibility_view import ColumnVisibilityControl
 from views.file_view import FileView
 from views.index_view import IndexKitToolbox
-from views.make_view import SampleSheetEdit
 from views.override_view import OverrideCyclesWidget
 from views.application_view import Applications
 from views.run_setup_views import RunSetupWidget, RunView
@@ -83,14 +81,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.file_action = QAction("File", self)
         self.run_action = QAction("Run", self)
-        self.profiles_action = QAction("Profiles", self)
+        self.apps_action = QAction("Apps", self)
         self.indexes_action = QAction("Indexes", self)
         self.override_action = QAction("Override", self)
         self.validate_action = QAction("Validate", self)
-        self.make_action = QAction("Make", self)
+        self.export_action = QAction("Export", self)
         self.settings_action = QAction("Settings", self)
 
-        self.make_action.setEnabled(False)
+        self.export_action.setEnabled(False)
 
         self.columns_settings_button = QPushButton("Columns")
         self.columns_settings_button.setObjectName("columns_settings")
@@ -130,12 +128,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.leftmenu_stackedWidget.setFixedWidth(300)
         self.leftmenu_stackedWidget.hide()
 
-    def disable_make_action(self):
-        self.make_action.setEnabled(False)
+    def disable_export_action(self):
+        self.export_action.setEnabled(False)
         self.validation_widget.clear_validation_widgets()
 
-    def set_make_action_enabled_status(self, is_enabled):
-        self.make_action.setEnabled(is_enabled)
+    def set_export_action_status(self, is_enabled):
+        self.export_action.setEnabled(is_enabled)
 
     def setup_left_menu_file(self):
         layout = self.leftmenu_file.layout()
@@ -147,7 +145,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout.addWidget(self.override_widget)
 
     def setup_export_widget(self):
-        layout = self.main_make.layout()
+        layout = self.main_export.layout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.export_widget)
 
@@ -180,7 +178,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
 
     def setup_left_menu_applications(self):
-        layout = self.leftmenu_profiles.layout()
+        layout = self.leftmenu_apps.layout()
         layout.addWidget(self.applications_widget)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -191,15 +189,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         known_actions = {
             "file",
             "run",
-            "profiles",
+            "apps",
             "indexes",
             "override",
             "config",
             "validate",
-            "make",
+            "export",
         }
 
-        main_data_actions = {"file", "run", "profiles", "indexes", "override"}
+        main_data_actions = {"file", "run", "apps", "indexes", "override"}
 
         action = self.sender()
         action_id = action.data()
@@ -215,8 +213,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif action_id == "validate":
                 self.main_stackedWidget.setCurrentWidget(self.main_validation)
                 self.run_validate.emit()
-            elif action_id == "make":
-                self.main_stackedWidget.setCurrentWidget(self.main_make)
+            elif action_id == "export":
+                self.main_stackedWidget.setCurrentWidget(self.main_export)
                 self.export_widget.del_data_tree()
             elif action_id == "config":
                 self.main_stackedWidget.setCurrentWidget(self.main_settings)
@@ -228,9 +226,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif action_id == "run":
                 self.leftmenu_stackedWidget.show()
                 self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_runsetup)
-            elif action_id == "profiles":
+            elif action_id == "apps":
                 self.leftmenu_stackedWidget.show()
-                self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_profiles)
+                self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_apps)
             elif action_id == "indexes":
                 self.leftmenu_stackedWidget.show()
                 self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_indexes)
@@ -251,10 +249,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             (self.file_action, "msc.files", "file"),
             (self.run_action, "msc.symbol-misc", "run"),
             (self.indexes_action, "mdi6.barcode", "indexes"),
-            (self.profiles_action, "msc.symbol-method", "profiles"),
+            (self.apps_action, "msc.symbol-method", "apps"),
             (self.override_action, "msc.sync", "override"),
             (self.validate_action, "msc.check-all", "validate"),
-            (self.make_action, "msc.coffee", "make"),
+            (self.export_action, "msc.coffee", "export"),
             (self.settings_action, "msc.settings-gear", "config"),
         ]
 
