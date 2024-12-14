@@ -1,4 +1,5 @@
 import json
+from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
@@ -47,6 +48,13 @@ class MainValidator(QObject):
 
         if self.dataset_mgr.assess_balance:
             self.color_balance_validator.validate()
+
+
+@dataclass
+class ValidationResult:
+    name: str
+    status: bool
+    message: str = ""
 
 
 class PreValidator(QObject):

@@ -3,7 +3,6 @@ from PySide6.QtCore import QObject
 from models.application import ApplicationManager
 from models.configuration import ConfigurationManager
 from models.dataset import DataSetManager
-from models.export import MakeJson
 from models.rundata_model import RunDataModel
 from models.sample_model import SampleModel, CustomProxyModel
 from models.validation import MainValidator

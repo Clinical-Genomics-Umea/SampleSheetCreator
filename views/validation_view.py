@@ -359,7 +359,7 @@ class ColorBalanceWidget(QTableView):
         df.iloc[-1, 0] = "Summary"
         df.iloc[-1, 1] = ""
 
-        self.color_balance_model = self.make_color_balance_model(df, base_colors)
+        self.color_balance_model = self._create_color_balance_model(df, base_colors)
         self.setModel(self.color_balance_model)
         self.color_balance_model.update_summation()
         self.verticalHeader().setVisible(False)
@@ -380,22 +380,29 @@ class ColorBalanceWidget(QTableView):
         self.setFixedWidth(1500)
 
     @staticmethod
-    def make_color_balance_model(df, base_colors):
+    def _create_color_balance_model(
+        df: pd.DataFrame, base_colors: dict
+    ) -> IndexColorBalanceModel:
+        """Create a color balance model from a dataframe and a set of base colors."""
 
         model = IndexColorBalanceModel(base_colors, parent=None)
 
-        column_names = [col_name.replace("Index", "") for col_name in df.columns]
-
         # Set the column headers as the model's horizontal headers
-        model.setHorizontalHeaderLabels(column_names)
+        model.setHorizontalHeaderLabels(
+            [col.replace("Index", "") for col in df.columns]
+        )
 
-        for row_index, row_data in df.iterrows():
-            row_items = [QStandardItem(str(item)) for item in row_data]
+        # Populate the model with data from the dataframe
+        for index, row in df.iterrows():
+            row_items = [QStandardItem(str(item)) for item in row]
             model.appendRow(row_items)
 
         return model
 
     def paintEvent(self, event):
+        """
+        Paint a grid on top of the QTableView, to separate the color balance columns from the rest of the columns.
+        """
         super().paintEvent(event)
         painter = QPainter(self.viewport())
 
@@ -403,52 +410,42 @@ class ColorBalanceWidget(QTableView):
         column_count = model.columnCount()
         row_count = model.rowCount()
 
-        last_row_index = model.rowCount() - 1
+        last_row_index = row_count - 1
 
         thick_pen = QPen(QColor("dark gray"), 2, Qt.SolidLine)
         painter.setPen(thick_pen)
 
-        for col in range(column_count):
-            last_row_rect = self.visualRect(model.index(last_row_index, col))
-            painter.drawLine(last_row_rect.topLeft(), last_row_rect.topRight())
+        # Paint a horizontal line at the bottom of the table
+        last_row_rect = self.visualRect(model.index(last_row_index, 0))
+        painter.drawLine(last_row_rect.topLeft(), last_row_rect.topRight())
 
+        # Paint vertical lines between the color balance columns and the rest of the columns
         for row in range(row_count):
-            i5_i7_index_boundry_rect = self.visualRect(model.index(row, 11))
-            painter.drawLine(
-                i5_i7_index_boundry_rect.topRight(),
-                i5_i7_index_boundry_rect.bottomRight(),
-            )
+            i5_i7_rect = self.visualRect(model.index(row, 11))
+            painter.drawLine(i5_i7_rect.topRight(), i5_i7_rect.bottomRight())
 
-        for row in range(row_count):
-            i5_i7_index_boundry_rect = self.visualRect(model.index(row, 0))
-            painter.drawLine(
-                i5_i7_index_boundry_rect.topRight(),
-                i5_i7_index_boundry_rect.bottomRight(),
-            )
+            first_col_rect = self.visualRect(model.index(row, 0))
+            painter.drawLine(first_col_rect.topRight(), first_col_rect.bottomRight())
 
-        for row in range(row_count):
-            i5_i7_index_boundry_rect = self.visualRect(model.index(row, 1))
-            painter.drawLine(
-                i5_i7_index_boundry_rect.topRight(),
-                i5_i7_index_boundry_rect.bottomRight(),
-            )
+            second_col_rect = self.visualRect(model.index(row, 1))
+            painter.drawLine(second_col_rect.topRight(), second_col_rect.bottomRight())
 
-    @staticmethod
-    def split_string_column(input_df, column_name1, column_name2):
-        """
-        Split a column of strings into multiple columns with one character per column.
-
-        :param dataframe: Pandas DataFrame containing the string column.
-        :param column_name: Name of the column containing the strings.
-        :return: DataFrame with one column per character in the strings.
-        """
-        df1 = input_df[column_name1].apply(lambda x: pd.Series(list(x)))
-        df1.columns = [f"{column_name1}_{i + 1}" for i in range(10)]
-
-        df2 = input_df[column_name2].apply(lambda x: pd.Series(list(x)))
-        df2.columns = [f"{column_name2}_{i + 1}" for i in range(10)]
-
-        return pd.concat([df1, df2], axis=1)
+    # @staticmethod
+    # def split_string_column(input_df, column_name1, column_name2):
+    #     """
+    #     Split a column of strings into multiple columns with one character per column.
+    #
+    #     :param dataframe: Pandas DataFrame containing the string column.
+    #     :param column_name: Name of the column containing the strings.
+    #     :return: DataFrame with one column per character in the strings.
+    #     """
+    #     df1 = input_df[column_name1].apply(lambda x: pd.Series(list(x)))
+    #     df1.columns = [f"{column_name1}_{i + 1}" for i in range(10)]
+    #
+    #     df2 = input_df[column_name2].apply(lambda x: pd.Series(list(x)))
+    #     df2.columns = [f"{column_name2}_{i + 1}" for i in range(10)]
+    #
+    #     return pd.concat([df1, df2], axis=1)
 
 
 class ColorBalanceRowDelegate(QStyledItemDelegate):
@@ -470,17 +467,23 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
             super().paint(painter, option, index)
 
     def paint_gg_i1_1_row(self, painter, option, index):
-        index_other = index.model().index(index.row(), 3)
-        value = index.data(Qt.DisplayRole)
-        value_other = index_other.data(Qt.DisplayRole)
+        """
+        If the value at the current index and the value at the adjacent index are both "G",
+        paint the background of the cell a light red color.
+        """
+        adjacent_index = index.model().index(index.row(), 3)
+        current_value = index.data(Qt.DisplayRole)
+        adjacent_value = adjacent_index.data(Qt.DisplayRole)
 
-        if value == value_other == "G":
+        if current_value == adjacent_value == "G":
             painter.save()
             painter.fillRect(option.rect, QColor(255, 127, 127))
             super().paint(painter, option, index)
             painter.restore()
         else:
             super().paint(painter, option, index)
+
+    # Cleaned up by standardizing variable names, removing debugging statements, and improving readability.
 
     def paint_gg_i1_2_row(self, painter, option, index):
         index_other = index.model().index(index.row(), 2)
@@ -497,31 +500,30 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
 
     def paint_color_balance_row(self, painter, option, index):
         json_data = index.data(Qt.DisplayRole)
-        if json_data:
-            data = json.loads(json_data)
+        if not json_data:
+            return
 
-            color_lines = "\n".join(
-                [f"{key}: {value}" for key, value in data["colors"].items()]
-            )
-            bases_lines = "\n".join(
-                [f"{key}: {value}" for key, value in data["bases"].items()]
-            )
-            multiline = color_lines + "\n----\n" + bases_lines
+        data = json.loads(json_data)
+        color_text = "\n".join(
+            [f"{color}: {count}" for color, count in data["colors"].items()]
+        )
+        bases_text = "\n".join(
+            [f"{base}: {count}" for base, count in data["bases"].items()]
+        )
+        full_text = f"{color_text}\n----\n{bases_text}"
 
-            document = QTextDocument()
-            document.setPlainText(multiline)
+        document = QTextDocument()
+        document.setPlainText(full_text)
 
-            if data["colors"]["G"] < 0.1:
-                self.setNoGreenBackgroundColorWarning(document, QColor(255, 127, 127))
+        if data["colors"].get("G", 0) < 0.1:
+            self.setNoGreenBackgroundColorWarning(document, QColor(255, 127, 127))
 
-            # Adjust the document size to the cell size
-            document.setTextWidth(option.rect.width())
+        document.setTextWidth(option.rect.width())
 
-            # Render the document
-            painter.save()
-            painter.translate(option.rect.topLeft())
-            document.drawContents(painter)
-            painter.restore()
+        painter.save()
+        painter.translate(option.rect.topLeft())
+        document.drawContents(painter)
+        painter.restore()
 
     def setDarkBackgroundColorWarning(self, document, color):
         cursor = QTextCursor(document)
