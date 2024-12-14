@@ -17,7 +17,7 @@ from PySide6.QtCore import Qt, QSize, Signal
 
 from models.application import ApplicationManager
 from models.configuration import ConfigurationManager
-from models.datasetmanager import DataSetManager
+from models.dataset import DataSetManager
 from views.configuration_view import ConfigurationWidget
 from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
 from views.column_visibility_view import ColumnVisibilityControl
@@ -110,7 +110,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.run_view_widget = RunView(self.config_manager)
         self.setup_run_view()
 
-        self.validation_widget = MainValidationWidget(self.config_manager)
+        self.validation_widget = MainValidationWidget(self.dataset_manager)
         self.setup_validation_widget()
 
         self.indexes_widget = IndexKitToolbox(Path("config/indexes/indexes_json"))

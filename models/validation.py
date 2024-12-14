@@ -7,7 +7,7 @@ from PySide6.QtGui import QStandardItemModel
 
 from models.application import ApplicationManager
 from models.configuration import ConfigurationManager
-from models.datasetmanager import DataSetManager
+from models.dataset import DataSetManager
 from models.sample_model import SampleModel
 from models.validation_fns import get_base, padded_index_df
 
@@ -26,11 +26,9 @@ class MainValidator(QObject):
         self.pre_validator = PreValidator(samples_model, cfg_mgr, app_mgr, dataset_mgr)
         self.dataset_validator = DataSetValidator(samples_model, cfg_mgr, dataset_mgr)
         self.index_distance_validator = IndexDistanceValidator(
-            samples_model, cfg_mgr, dataset_mgr
+            samples_model, dataset_mgr
         )
-        self.color_balance_validator = ColorBalanceValidator(
-            samples_model, cfg_mgr, dataset_mgr
-        )
+        self.color_balance_validator = ColorBalanceValidator(samples_model, dataset_mgr)
 
     def validate(self):
 
@@ -47,7 +45,7 @@ class MainValidator(QObject):
         self.dataset_validator.validate()
         self.index_distance_validator.validate()
 
-        if bool(self.cfg_mgr.run_data.get("AssessBalance")):
+        if self.dataset_mgr.assess_balance:
             self.color_balance_validator.validate()
 
 
@@ -67,7 +65,7 @@ class PreValidator(QObject):
         self.application_names = None
         self.used_lanes = None
         self.dataframe = None
-        self.run_data = None
+        self.rundata = None
 
         self.samplesheet_model = sample_model
         self.cfg_mgr = cfg_mgr
@@ -78,9 +76,9 @@ class PreValidator(QObject):
         """Run a series of validations on the SampleSheetModel and RunSetup config"""
         results = []
         self.dataframe = self.dataset_mgr.sample_dataframe_lane_explode()
-        self.run_data = self.cfg_mgr.run_data
+        self.rundata = self.dataset_mgr.rundata
 
-        results.append(self.run_data_is_set())
+        results.append(self.rundata_is_set())
         results.append(self.required_cols_populated())
         results.append(self.run_lanes_int_validation())
         results.append(self.empty_sample_id_validation())
@@ -92,11 +90,11 @@ class PreValidator(QObject):
         self.data_ready.emit(results)
         return status
 
-    def run_data_is_set(self):
+    def rundata_is_set(self):
         validation_name = "Run data set validator"
         msg = "Run data has not been set"
 
-        if not self.cfg_mgr.run_data_is_set:
+        if not self.dataset_mgr.has_rundata:
             return validation_name, False, msg
 
         return validation_name, True, ""
@@ -179,7 +177,7 @@ class PreValidator(QObject):
     def run_lanes_int_validation(self):
         name = "set number of lanes validation"
 
-        run_lanes = self.run_data["Lanes"]
+        run_lanes = self.rundata["Lanes"]
 
         if not isinstance(run_lanes, list):
             return name, False, "Lanes must a list of integers."
@@ -237,7 +235,7 @@ class PreValidator(QObject):
     def allowed_lanes_validation(self):
         name = "allowed lanes validation"
 
-        allowed_lanes = set(self.run_data["Lanes"])
+        allowed_lanes = set(self.rundata["Lanes"])
         used_lanes = set(self.dataframe["Lane"])
 
         disallowed_lanes = used_lanes.difference(allowed_lanes)
@@ -300,7 +298,6 @@ class IndexDistanceValidator(QObject):
     def __init__(
         self,
         model: SampleModel,
-        cfg_mgr: ConfigurationManager,
         dataset_mgr: DataSetManager,
     ):
         super().__init__()
@@ -308,11 +305,7 @@ class IndexDistanceValidator(QObject):
         if model is None:
             raise ValueError("model cannot be None")
 
-        if cfg_mgr is None:
-            raise ValueError("cfg_mgr cannot be None")
-
         self.model = model
-        self.cfg_mgr = cfg_mgr
         self.dataset_mgr = dataset_mgr
 
         self.thread = None
@@ -320,18 +313,16 @@ class IndexDistanceValidator(QObject):
 
     def validate(self):
 
-        i5_orientation = self.cfg_mgr.run_data.get("I5SeqOrientation")
-        i5_rc = i5_orientation == "rc"
+        i5_seq_orientation = self.dataset_mgr.i5_seq_orientation
+        i5_seq_rc = i5_seq_orientation == "rc"
 
         self.thread = QThread()
-        self.worker = IndexDistanceValidationWorker(self.dataset_mgr, i5_rc)
+        self.worker = IndexDistanceValidationWorker(self.dataset_mgr, i5_seq_rc)
 
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
         self.worker.results_ready.connect(self._receiver)
         self.worker.error.connect(self._receiver)
-
-        print("starting worker")
 
         self.thread.start()
 
@@ -349,11 +340,11 @@ class IndexDistanceValidationWorker(QObject):
     results_ready = Signal(object)
     error = Signal(str)
 
-    def __init__(self, dataset_mgr: DataSetManager, i5_rc: bool):
+    def __init__(self, dataset_mgr: DataSetManager, i5_seq_rc: bool):
         super().__init__()
         self.dataset_mgr = dataset_mgr
         self.df = self.dataset_mgr.sample_dataframe_lane_explode()
-        self.i5_rc = i5_rc
+        self.i5_seq_rc = i5_seq_rc
 
     def run(self):
 
@@ -367,7 +358,10 @@ class IndexDistanceValidationWorker(QObject):
 
                 i7_padded_indexes = padded_index_df(lane_df, 10, "IndexI7", "Sample_ID")
                 i5_padded_indexes = padded_index_df(
-                    lane_df, 10, "IndexI5RC" if self.i5_rc else "IndexI5", "Sample_ID"
+                    lane_df,
+                    10,
+                    "IndexI5RC" if self.i5_seq_rc else "IndexI5",
+                    "Sample_ID",
                 )
 
                 merged_indexes = pd.merge(
@@ -424,22 +418,20 @@ class ColorBalanceValidator(QObject):
     def __init__(
         self,
         model: SampleModel,
-        cfg_mgr: ConfigurationManager,
         dataset_mgr: DataSetManager,
     ):
         super().__init__()
 
         self.model = model
-        self.cfg_mgr = cfg_mgr
         self.dataset_mgr = dataset_mgr
 
-        i5_set_orientation = cfg_mgr.run_data.get("I5SeqOrientation")
+        i5_seq_orientation = dataset_mgr.i5_seq_orientation
 
-        self.i5_rc = i5_set_orientation == "rc"
+        self.i5_rc = i5_seq_orientation == "rc"
 
     def validate(self):
-        i5_orientation = self.cfg_mgr.run_data.get("I5SeqOrientation")
-        i5_rc = i5_orientation == "rc"
+        i5_orientation = self.dataset_mgr.i5_seq_orientation
+        i5_seq_rc = i5_orientation == "rc"
 
         df = self.dataset_mgr.sample_dataframe_lane_explode()
 
@@ -447,7 +439,7 @@ class ColorBalanceValidator(QObject):
             return
 
         unique_lanes = df["Lane"].unique()
-        i5_col_name = "IndexI5RC" if i5_rc else "IndexI5"
+        i5_col_name = "IndexI5RC" if i5_seq_rc else "IndexI5"
 
         result = {}
 
@@ -501,7 +493,10 @@ class IndexColorBalanceModel(QStandardItemModel):
     def __init__(self, base_colors, parent):
         super(IndexColorBalanceModel, self).__init__(parent=parent)
         self.dataChanged.connect(self.update_summation)
-        self.transformed_base_colors = {
+
+        print(base_colors)
+
+        self._transformed_base_colors = {
             key: [color[0].upper() for color in colors]
             for key, colors in base_colors.items()
         }
@@ -510,7 +505,6 @@ class IndexColorBalanceModel(QStandardItemModel):
         # Only modify data for display purposes
         if role == Qt.DisplayRole:
             original_value = super().data(index, role)
-            # Replace "na" with "-"
             if original_value == "nan":
                 return "-"
         return super().data(index, role)
@@ -568,7 +562,7 @@ class IndexColorBalanceModel(QStandardItemModel):
 
         for base, count in dict1.items():
 
-            base_colors = self.transformed_base_colors[base]
+            base_colors = self._transformed_base_colors[base]
             no_colors = len(base_colors)
 
             for color in base_colors:

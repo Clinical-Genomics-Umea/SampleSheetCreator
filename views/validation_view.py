@@ -42,9 +42,10 @@ from models.validation import IndexColorBalanceModel
 
 
 class MainValidationWidget(QWidget):
-    def __init__(self, cfg_mgr):
+    def __init__(self, dataset_mgr):
         super().__init__()
 
+        self.dataset_mgr = dataset_mgr
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -55,7 +56,9 @@ class MainValidationWidget(QWidget):
         self.pre_validation_widget = PreValidationWidget()
         self.dataset_validation_widget = DataSetValidationWidget()
         self.main_index_validation_widget = MainIndexDistanceValidationWidget()
-        self.main_color_balance_validation_widget = MainColorBalanceWidget(cfg_mgr)
+        self.main_color_balance_validation_widget = MainColorBalanceWidget(
+            self.dataset_mgr
+        )
 
         self.tab_widget.addTab(self.pre_validation_widget, "pre-validation")
         self.tab_widget.addTab(self.dataset_validation_widget, "dataset validation")
@@ -304,10 +307,10 @@ class IndexDistanceHeatMap(QTableWidget):
 
 class MainColorBalanceWidget(QTabWidget):
 
-    def __init__(self, cfg_mgr):
+    def __init__(self, dataset_mgr):
         super().__init__()
 
-        self.cfg_mgr = cfg_mgr
+        self.dataset_mgr = dataset_mgr
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -332,16 +335,17 @@ class MainColorBalanceWidget(QTabWidget):
             tab_scroll_area = QScrollArea()
             tab_scroll_area.setFrameShape(QFrame.NoFrame)
 
-            color_balance_table = ColorBalanceWidget(results[lane], self.cfg_mgr)
+            color_balance_table = ColorBalanceWidget(
+                results[lane], self.dataset_mgr.base_colors
+            )
 
             self.addTab(color_balance_table, f"lane {lane}")
 
 
 class ColorBalanceWidget(QTableView):
-    def __init__(self, merged_df, cfg_mgr, parent=None):
+    def __init__(self, indexes_df, base_colors, parent=None):
         super(ColorBalanceWidget, self).__init__(parent)
-        df = merged_df.copy()
-        self.cfg_mgr = cfg_mgr
+        df = indexes_df.copy()
 
         df["Proportion"] = "1"
 
@@ -355,11 +359,11 @@ class ColorBalanceWidget(QTableView):
         df.iloc[-1, 0] = "Summary"
         df.iloc[-1, 1] = ""
 
-        self.cb_model = self.make_color_balance_model(df)
-        self.setModel(self.cb_model)
-        self.cb_model.update_summation()
+        self.color_balance_model = self.make_color_balance_model(df, base_colors)
+        self.setModel(self.color_balance_model)
+        self.color_balance_model.update_summation()
         self.verticalHeader().setVisible(False)
-        self.setup(self.cfg_mgr.base_colors)
+        self.setup(base_colors)
 
     def setup(self, base_colors):
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -367,7 +371,7 @@ class ColorBalanceWidget(QTableView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        last_row = self.cb_model.rowCount() - 1
+        last_row = self.color_balance_model.rowCount() - 1
         self.setRowHeight(last_row, 140)
         self.setItemDelegate(ColorBalanceRowDelegate())
 
@@ -375,14 +379,10 @@ class ColorBalanceWidget(QTableView):
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.setFixedWidth(1500)
 
-    def make_color_balance_model(self, df):
-        """
-        Convert a Pandas DataFrame to a QStandardItemModel.
+    @staticmethod
+    def make_color_balance_model(df, base_colors):
 
-        :param df: Pandas DataFrame to convert.
-        :return: QStandardItemModel representing the DataFrame.
-        """
-        model = IndexColorBalanceModel(self.cfg_mgr.base_colors, parent=self)
+        model = IndexColorBalanceModel(base_colors, parent=None)
 
         column_names = [col_name.replace("Index", "") for col_name in df.columns]
 
@@ -442,13 +442,10 @@ class ColorBalanceWidget(QTableView):
         :param column_name: Name of the column containing the strings.
         :return: DataFrame with one column per character in the strings.
         """
-        # Use apply and pd.Series to split the string column into multiple columns
         df1 = input_df[column_name1].apply(lambda x: pd.Series(list(x)))
-        # df1 = input_df[column_name1].apply(string_to_ndarray)
         df1.columns = [f"{column_name1}_{i + 1}" for i in range(10)]
 
         df2 = input_df[column_name2].apply(lambda x: pd.Series(list(x)))
-        # df2 = input_df[column_name2].apply(string_to_ndarray)
         df2.columns = [f"{column_name2}_{i + 1}" for i in range(10)]
 
         return pd.concat([df1, df2], axis=1)
@@ -513,9 +510,6 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
 
             document = QTextDocument()
             document.setPlainText(multiline)
-
-            # if data['colors']['Da'] > 0.5:
-            #     self.setDarkBackgroundColorWarning(document, QColor(255, 127, 127))
 
             if data["colors"]["G"] < 0.1:
                 self.setNoGreenBackgroundColorWarning(document, QColor(255, 127, 127))

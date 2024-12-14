@@ -1,7 +1,7 @@
 import re
 from copy import deepcopy
 
-from utils.utils import int_str_to_int_list, json_to_obj
+from utils.utils import int_str_to_int_list, json_to_obj, uuid
 
 import json
 
@@ -10,25 +10,13 @@ from pprint import pprint
 
 
 class DataSetManager:
-    def __init__(self, sample_model, cfg_mgr, app_mgr, run_data_model):
+    def __init__(self, sample_model, app_mgr, rundata_model):
 
-        self.run_data_model = run_data_model
-
+        self.rundata_model = rundata_model
         self.sample_model = sample_model
-        self.cfg_mgr = cfg_mgr
         self.app_mgr = app_mgr
         self.read_cycles_header = ("r1", "i1", "i2", "r2")
-        self.read_cycles = []
         self._samplesheet_obj = None
-
-    def set_read_cycles(self):
-        self.read_cycles = []
-        _read_cycles = self.run_data_model.read_cycles
-
-        if _read_cycles:
-            _read_cycles.strip()
-            for item in _read_cycles.split("-"):
-                self.read_cycles.append(int(item.strip()))
 
     @staticmethod
     def _convert_override_pattern(input_str, target_sum):
@@ -57,12 +45,11 @@ class DataSetManager:
         item_list = item.strip().split("-")
         output_items = []
 
-        if not self.read_cycles:
-            return item
-
         for i, item in enumerate(item_list):
             output_items.append(
-                self._convert_override_pattern(item, self.read_cycles[i])
+                self._convert_override_pattern(
+                    item, self.rundata_model.read_cycles_list[i]
+                )
             )
 
         return ";".join(output_items)
@@ -100,15 +87,15 @@ class DataSetManager:
             appobj["Data"] = (appobj["Data"].to_dict(orient="records"),)
 
         new_ss_obj["Extra"] = {}
-        new_ss_obj["Extra"]["I5SampleSheetOrientation"] = self.cfg_mgr.run_data[
+        new_ss_obj["Extra"][
             "I5SampleSheetOrientation"
-        ]
+        ] = self.rundata_model.i5_samplesheet_orientation
 
         return new_ss_obj
 
     def samplesheet_v1(self):
         data_df = self.base_sample_dataframe().copy()
-        run_data = self.cfg_mgr.run_data
+        run_data = self.cfg_mgr.rundata
         read_cycles = self.cfg_mgr.samplesheet_read_cycles()
         template = self.cfg_mgr.samplesheet_v1_template
 
@@ -126,7 +113,7 @@ class DataSetManager:
             v = read_cycles[tv]
             reads.append(v)
 
-        if self.cfg_mgr.run_data["I5SampleSheetOrientation"] == "rc":
+        if self.cfg_mgr.rundata["I5SampleSheetOrientation"] == "rc":
             data_df["IndexI5"] = data_df["IndexI5RC"]
 
         data_df = data_df[template["Data"]]
@@ -208,7 +195,7 @@ class DataSetManager:
                 data_df = pd.DataFrame.from_dict(app_obj["Data"])
 
                 if "IndexI5" in data_df.columns:
-                    if self.cfg_mgr.run_data["I5SampleSheetOrientation"] == "rc":
+                    if self.rundata_model.rundata["I5SampleSheetOrientation"] == "rc":
                         data_df["IndexI5"] = data_df["IndexI5RC"]
 
                     del data_df["IndexI5RC"]
@@ -225,11 +212,24 @@ class DataSetManager:
 
         return "\n".join(output)
 
+    def _header_data(self):
+        return {
+            "FileFormatVersion": self.rundata_model.rundata["SampleSheetVersion"],
+            "InstrumentType": self.rundata_model.rundata["Instrument"],
+            "RunName": self.rundata_model.rundata["RunName"],
+            "RunDescription": self.rundata_model.rundata["RunDescription"],
+            "Custom_Flowcell": self.rundata_model.rundata["Flowcell"],
+            "Custom_UUID7": uuid(),
+        }
+
+    def _read_cycle_data(self):
+        return self.rundata_model.read_cycles_dict
+
     def set_samplesheet_obj(self):
 
         obj = {
-            "Header": self.cfg_mgr.samplesheet_header_data,
-            "Reads": self.cfg_mgr.samplesheet_read_cycles,
+            "Header": self._header_data(),
+            "Reads": self._read_cycle_data(),
             "Applications": self.app_settings_data(),
         }
 
@@ -287,7 +287,6 @@ class DataSetManager:
         return sorted(list(used_lanes))
 
     def base_sample_dataframe(self):
-        self.set_read_cycles()
         dataframe = self.sample_model.to_dataframe()
         dataframe["OverrideCycles"] = dataframe["OverrideCyclesPattern"].apply(
             self._override_cycles
@@ -320,3 +319,27 @@ class DataSetManager:
         _exploded_name_lane_df = _exploded_name_df.explode("Lane", ignore_index=True)
 
         return _exploded_name_lane_df
+
+    @property
+    def assess_balance(self) -> bool:
+        return self.rundata_model.assess_balance
+
+    @property
+    def has_rundata(self) -> bool:
+        return self.rundata_model.has_rundata
+
+    @property
+    def rundata(self) -> dict:
+        return self.rundata_model.rundata
+
+    @property
+    def i5_samplesheet_orientation(self) -> str:
+        return self.rundata_model.i5_samplesheet_orientation
+
+    @property
+    def i5_seq_orientation(self) -> str:
+        return self.rundata_model.i5_seq_orientation
+
+    @property
+    def base_colors(self) -> dict:
+        return self.rundata_model.base_colors
