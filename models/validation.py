@@ -344,7 +344,7 @@ class IndexDistanceValidationWorker(QObject):
         }
         """
         try:
-            validation_results = {}
+            validation_data = {}
             for lane in self.dataset_mgr.used_lanes:
 
                 index_lane_df = self.df[self.df["Lane"] == lane]
@@ -362,15 +362,13 @@ class IndexDistanceValidationWorker(QObject):
                     i7_index_pos_df, i5_index_pos_df, on="Sample_ID"
                 )
 
-                distance_matrices = {
+                validation_data[int(lane)] = {
                     "i7_i5": self._index_distance_matrix_df(i7_i5_indexes_pos_df),
                     "i7": self._index_distance_matrix_df(i7_index_pos_df),
-                    "i5": self._index_distance_matrix_df(i5_index_pos_df)
+                    "i5": self._index_distance_matrix_df(i5_index_pos_df),
                 }
 
-                validation_results[int(lane)] = distance_matrices
-
-            self.results_ready.emit(validation_results)
+            self.results_ready.emit(validation_data)
 
         except Exception as error:
             self.error.emit(str(error))
