@@ -11,7 +11,6 @@ from models.application import ApplicationManager
 from models.configuration import ConfigurationManager
 from models.dataset import DataSetManager
 from models.sample_model import SampleModel
-from models.validation_fns import get_base, padded_index_df
 
 
 class MainValidator(QObject):
@@ -333,64 +332,149 @@ class IndexDistanceValidationWorker(QObject):
         self.i5_seq_rc = i5_seq_rc
 
     def run(self):
+        """
+        Run the index distance validation and emit the result when finished.
 
+        Emits a dictionary with the lane number as the key and a distance matrices dictionary with the
+        following structure as the value:
+        {
+            "i7_i5": pd.DataFrame,
+            "i7": pd.DataFrame,
+            "i5": pd.DataFrame
+        }
+        """
         try:
-            result = {}
-            used_lanes = self.dataset_mgr.used_lanes
+            validation_results = {}
+            for lane in self.dataset_mgr.used_lanes:
 
-            for lane in used_lanes:
-                lane_result = {}
-                lane_df = self.df[self.df["Lane"] == lane]
+                index_lane_df = self.df[self.df["Lane"] == lane]
 
-                i7_padded_indexes = padded_index_df(lane_df, 10, "IndexI7", "Sample_ID")
-                i5_padded_indexes = padded_index_df(
-                    lane_df,
-                    10,
+                i7_index_pos_df = self._padded_index_pos_df(
+                    index_lane_df, "IndexI7", "Sample_ID"
+                )
+                i5_index_pos_df = self._padded_index_pos_df(
+                    index_lane_df,
                     "IndexI5RC" if self.i5_seq_rc else "IndexI5",
                     "Sample_ID",
                 )
 
-                merged_indexes = pd.merge(
-                    i7_padded_indexes, i5_padded_indexes, on="Sample_ID"
+                i7_i5_indexes_pos_df = pd.merge(
+                    i7_index_pos_df, i5_index_pos_df, on="Sample_ID"
                 )
 
-                lane_result["i7_i5_substitutions"] = self.substitutions_heatmap_df(
-                    merged_indexes
+                distance_matrices = {
+                    "i7_i5": self._index_distance_matrix_df(i7_i5_indexes_pos_df),
+                    "i7": self._index_distance_matrix_df(i7_index_pos_df),
+                    "i5": self._index_distance_matrix_df(i5_index_pos_df)
+                }
+
+                validation_results[int(lane)] = distance_matrices
+
+            self.results_ready.emit(validation_results)
+
+        except Exception as error:
+            self.error.emit(str(error))
+
+    @staticmethod
+    def _base_by_index_pos(index_seq, index_pos):
+        """
+        Retrieve the DNA base from a given DNA sequence at a specified position.
+
+        Parameters
+        ----------
+        index_seq : str
+            The DNA sequence from which to retrieve the base.
+        index_pos : int
+            The zero-based position of the base to retrieve.
+
+        Returns
+        -------
+        str or float
+            The DNA base at the specified position, or np.nan if the index is out of bounds.
+        """
+        if index_pos >= len(index_seq):
+            return np.nan
+        else:
+            return index_seq[index_pos]
+
+    def _padded_index_pos_df(
+        self, data_df: pd.DataFrame, index_col_name: str, sample_id_col_name: str
+    ) -> pd.DataFrame:
+        """
+        Extract the DNA bases at each position for the given index type and dataframe.
+
+        Parameters
+        ----------
+        data_df : pd.DataFrame
+            DataFrame with the index to be extracted
+        index_col_name : str
+            Name of the column in `df` containing the index
+        sample_id_col_name : str
+            Name of the column in `df` containing the sample ID
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame with the extracted DNA bases, concatenated with the sample ID column
+        """
+
+        max_index_length = data_df[index_col_name].apply(len).max()
+        index_base_name = index_col_name.replace("Index", "")
+
+        # Generate column names
+        index_pos_names = [
+            f"{index_base_name}_{i + 1}" for i in range(max_index_length)
+        ]
+
+        padded_index_pos_df = (
+            data_df[index_col_name]
+            .apply(
+                lambda x: pd.Series(
+                    self._base_by_index_pos(x, i) for i in range(max_index_length)
                 )
-                lane_result["i7_substitutions"] = self.substitutions_heatmap_df(
-                    i7_padded_indexes
-                )
-                lane_result["i5_substitutions"] = self.substitutions_heatmap_df(
-                    i5_padded_indexes
-                )
+            )
+            .fillna(np.nan)
+        )
+        padded_index_pos_df.columns = index_pos_names
 
-                result[int(lane)] = lane_result
+        # Concatenate indexes and return the resulting DataFrame
+        return pd.concat([data_df[sample_id_col_name], padded_index_pos_df], axis=1)
 
-            self.results_ready.emit(result)
+    def _index_distance_matrix_df(
+        self, indexes_df: pd.DataFrame, sample_id_colname: str = "Sample_ID"
+    ) -> pd.DataFrame:
+        """
+        Generate a index distance matrix for the given DataFrame containing indexes.
 
-        except Exception as e:
-            self.error.emit(str(e))
+        Parameters
+        ----------
+        indexes_df : pd.DataFrame
+            DataFrame of indexes with Sample_ID column
+        sample_id_colname : str, optional
+            Name of the column containing Sample_IDs, by default "Sample_ID"
 
-    def substitutions_heatmap_df(
-        self, indexes_df: pd.DataFrame, id_colname="Sample_ID"
-    ):
-        a = indexes_df.drop(id_colname, axis=1).to_numpy()
+        Returns
+        -------
+        pd.DataFrame
+            Heatmap of substitutions for the given indexes
+        """
+        a = indexes_df.drop(sample_id_colname, axis=1).to_numpy()
 
-        header = list(indexes_df[id_colname])
+        header = list(indexes_df[sample_id_colname])
         return pd.pandas.DataFrame(
-            self.get_row_mismatch_matrix(a), index=header, columns=header
+            self._get_row_mismatch_matrix(a), index=header, columns=header
         )
 
-    def get_row_mismatch_matrix(self, array: np.ndarray) -> np.ndarray:
+    def _get_row_mismatch_matrix(self, array: np.ndarray) -> np.ndarray:
         # Reshape A and B to 3D arrays with dimensions (N, 1, K) and (1, M, K), respectively
         array1 = array[:, np.newaxis, :]
         array2 = array[np.newaxis, :, :]
 
         # Apply the custom function using vectorized operations
-        return np.sum(np.vectorize(self.cmp_bases)(array1, array2), axis=2)
+        return np.sum(np.vectorize(self._cmp_bases)(array1, array2), axis=2)
 
     @staticmethod
-    def cmp_bases(v1, v2):
+    def _cmp_bases(v1, v2):
         if isinstance(v1, str) and isinstance(v2, str):
             return np.sum(v1 != v2)
 
