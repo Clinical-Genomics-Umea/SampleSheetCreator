@@ -26,7 +26,7 @@ class MainValidator(QObject):
 
         self.pre_validator = PreValidator(samples_model, cfg_mgr, app_mgr, dataset_mgr)
         self.dataset_validator = DataSetValidator(samples_model, cfg_mgr, dataset_mgr)
-        self.index_distance_validator = IndexDistanceDataGenerator(
+        self.index_distance_validator = IndexDistanceMatrixGenerator(
             samples_model, dataset_mgr
         )
         self.color_balance_validator = ColorBalanceValidator(samples_model, dataset_mgr)
@@ -277,7 +277,7 @@ class DataSetValidator(QObject):
         self.data_ready.emit(sample_dfs)
 
 
-class IndexDistanceDataGenerator(QObject):
+class IndexDistanceMatrixGenerator(QObject):
     data_ready = Signal(object)
 
     def __init__(
@@ -302,7 +302,7 @@ class IndexDistanceDataGenerator(QObject):
         i5_seq_rc = i5_seq_orientation == "rc"
 
         self.thread = QThread()
-        self.worker = IndexDistanceValidationWorker(self.dataset_mgr, i5_seq_rc)
+        self.worker = IndexDistanceMatricesWorker(self.dataset_mgr, i5_seq_rc)
 
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
@@ -321,7 +321,7 @@ class IndexDistanceDataGenerator(QObject):
         self.data_ready.emit(results)
 
 
-class IndexDistanceValidationWorker(QObject):
+class IndexDistanceMatricesWorker(QObject):
     results_ready = Signal(object)
     error = Signal(str)
 
