@@ -1,11 +1,13 @@
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Slot
 
-from models.application import ApplicationManager
-from models.configuration import ConfigurationManager
-from models.dataset import DataSetManager
-from models.rundata_model import RunDataModel
-from models.sample_model import SampleModel, CustomProxyModel
-from models.validation import MainValidator
+from models.application.application import ApplicationManager
+from models.configuration.configuration import ConfigurationManager
+from models.dataset.dataset import DataSetManager
+from models.rundata.rundata_model import RunDataModel
+from models.sample.sample_model import SampleModel, CustomProxyModel
+from models.validation.set_data_validation import AddDataValidator
+from models.validation.dataset_validation import MainValidator
+from views.notify import Notify
 from views.main_window import MainWindow
 
 
@@ -36,14 +38,17 @@ class MainController(QObject):
         )
         self._main_window.samples_widget.set_model(self._sample_proxy_model)
 
+        self._notify = Notify(self._main_window)
+
         self._main_validator = MainValidator(
             self._sample_model,
             self._config_manager,
             self._dataset_manager,
             self._application_manager,
         )
-
-        # self._make_json = MakeJson(self._sample_model, self._config_manager)
+        self._add_data_validator = AddDataValidator(
+            self._dataset_manager, self._application_manager
+        )
 
         self._connect_signals()
 
@@ -63,9 +68,17 @@ class MainController(QObject):
         self._sample_model.dataChanged.connect(self._main_window.disable_export_action)
 
     def _connect_application_signal(self):
-        self._main_window.applications_widget.application_data_ready.connect(
+        self._main_window.applications_widget.add_signal.connect(
+            self._add_data_validator.add_app_validator
+        )
+        self._add_data_validator.app_allowed.connect(
             self._main_window.samples_widget.sample_view.set_application
         )
+        self._main_window.applications_widget.remove_signal.connect(
+            self._main_window.samples_widget.sample_view.remove_application
+        )
+
+        self._add_data_validator.app_not_allowed.connect(self._notify.app_not_allowed)
 
     def _connect_file_signals(self):
         self._main_window.file_widget.new_samplesheet_btn.clicked.connect(
@@ -107,7 +120,6 @@ class MainController(QObject):
         self._main_validator.dataset_validator.data_ready.connect(
             self._main_window.validation_widget.dataset_validation_widget.populate
         )
-
         self._main_window.validation_widget.validate_button.clicked.connect(
             self._main_validator.validate
         )
@@ -130,12 +142,6 @@ class MainController(QObject):
         )
 
     def _connect_run_signals(self):
-        # self._main_window.run_setup_widget.setup_commited.connect(
-        #     self._config_manager.set_run_data
-        # )
-        # self._config_manager.run_data_changed.connect(
-        #     self._main_window.run_view_widget.set_data
-        # )
         self._config_manager.users_changed.connect(
             self._main_window.run_setup_widget.populate_investigators
         )
@@ -149,11 +155,6 @@ class MainController(QObject):
         self._run_data_model.run_data_ready.connect(
             self._main_window.run_view_widget.set_data
         )
-
-    # def setup_file_connections(self):
-    #     self._main_window.file_widget.new_samplesheet_btn.clicked.connect(
-    #         self._sample_model.set_empty_strings
-    #     )
 
 
 # controllers/settings_controller.py

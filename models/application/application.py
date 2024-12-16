@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from models.configuration import ConfigurationManager
+from models.configuration.configuration import ConfigurationManager
 from utils.utils import read_yaml_file
 
 

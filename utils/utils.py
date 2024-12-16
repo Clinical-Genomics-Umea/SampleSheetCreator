@@ -20,6 +20,13 @@ def json_to_obj(json_str):
         return []
 
 
+def obj_to_json(obj):
+    try:
+        return json.dumps(obj)
+    except:
+        return []
+
+
 def int_str_to_int_list(int_str):
     try:
         int_str_list = list(re.findall(r"\d+", int_str))

@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QFileDialog,
 )
-from models.samplesheet import to_samplesheetv2, to_json
+from models.sample.samplesheet import to_samplesheetv2, to_json
 
 
 class ExportWidget(QWidget):

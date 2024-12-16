@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel, Qt
 from camel_converter import to_pascal
 
-from models.indexes_model import IndexKitDefinition
+from models.indexes.indexes_model import IndexKitDefinition
 from views.ui_components_view import HorizontalLine
 
 

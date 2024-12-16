@@ -15,9 +15,9 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QAction, QActionGroup, QPainter, QIcon
 from PySide6.QtCore import Qt, QSize, Signal
 
-from models.application import ApplicationManager
-from models.configuration import ConfigurationManager
-from models.dataset import DataSetManager
+from models.application.application import ApplicationManager
+from models.configuration.configuration import ConfigurationManager
+from models.dataset.dataset import DataSetManager
 from views.configuration_view import ConfigurationWidget
 from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
 from views.file_view import FileView

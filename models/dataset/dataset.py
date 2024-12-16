@@ -1,12 +1,11 @@
 import re
 from copy import deepcopy
 
+from PySide6.QtCore import Signal
+
 from utils.utils import int_str_to_int_list, json_to_obj, uuid
-
 import json
-
 import pandas as pd
-from pprint import pprint
 
 
 class DataSetManager:
@@ -69,7 +68,7 @@ class DataSetManager:
 
         sample_dfs_obj = {
             "no_explode": self.base_sample_dataframe(),
-            "apn_explode": self._appname_explode(),
+            "apn_explode": self.sample_dataframe_appname_explode(),
             "lane_explode": self.sample_dataframe_lane_explode(),
         }
 
@@ -239,7 +238,7 @@ class DataSetManager:
 
         _app_settings_data = []
 
-        data_df = self._appname_explode()
+        data_df = self.sample_dataframe_appname_explode()
         data_df["OverrideCycles"] = data_df["OverrideCyclesPattern"].apply(
             self._override_cycles
         )
@@ -288,9 +287,9 @@ class DataSetManager:
 
     def base_sample_dataframe(self):
         dataframe = self.sample_model.to_dataframe()
-        dataframe["OverrideCycles"] = dataframe["OverrideCyclesPattern"].apply(
-            self._override_cycles
-        )
+        # dataframe["OverrideCycles"] = dataframe["OverrideCyclesPattern"].apply(
+        #     self._override_cycles
+        # )
         dataframe_corr = self._dataframe_strs_to_obj(dataframe)
         return dataframe_corr
 
@@ -298,7 +297,7 @@ class DataSetManager:
         base_df = self.base_sample_dataframe().copy(deep=True)
         return base_df.explode("Lane", ignore_index=True)
 
-    def _appname_explode(self):
+    def sample_dataframe_appname_explode(self):
         base_df = self.base_sample_dataframe().copy(deep=True)
         return base_df.explode("ApplicationName", ignore_index=True)
 

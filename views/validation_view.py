@@ -38,7 +38,7 @@ from PySide6.QtWidgets import (
     QFormLayout,
 )
 
-from models.validation import IndexColorBalanceModel
+from models.validation.dataset_validation import IndexColorBalanceModel
 
 
 class MainValidationWidget(QWidget):

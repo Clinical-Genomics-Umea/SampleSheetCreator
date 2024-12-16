@@ -4,7 +4,9 @@ from PySide6.QtGui import (
     QCursor,
     QStandardItemModel,
     QFont,
-    QStandardItem,
+    QPainter,
+    QColor,
+    QFontMetrics,
 )
 from PySide6.QtCore import (
     Qt,
@@ -12,10 +14,10 @@ from PySide6.QtCore import (
     QPoint,
     Slot,
     QItemSelectionModel,
-    QAbstractItemModel,
-    QRect,
-    QEvent,
     QSortFilterProxyModel,
+    QSize,
+    QModelIndex,
+    QRect,
 )
 from PySide6.QtWidgets import (
     QTableView,
@@ -28,23 +30,21 @@ from PySide6.QtWidgets import (
     QWidget,
     QLineEdit,
     QPushButton,
-    QCheckBox,
     QHBoxLayout,
     QSizePolicy,
     QDialog,
-    QTreeView,
-    QStyle,
-    QStyledItemDelegate,
-    QStyleOptionButton,
     QDialogButtonBox,
+    QStyledItemDelegate,
+    QStyle,
+    QStyleOptionViewItem,
 )
 
 import json
+from utils.utils import json_to_obj, obj_to_json
 
-from models.sample_model import CustomProxyModel
+from models.sample.sample_model import CustomProxyModel
 from utils.utils import header_to_index_map
 from views.column_visibility_view import ColumnVisibilityWidget
-from views.run_setup_views import RunView
 
 
 def list2d_to_tabbed_str(data):
@@ -174,6 +174,8 @@ class SamplesWidget(QWidget):
         horizontal_header.setSectionsClickable(False)
         self._set_selection_mode()
 
+        self.appname_delegate = ApplicationNameDelegate()
+
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.column_visibility_ctrl.hide()
@@ -193,6 +195,25 @@ class SamplesWidget(QWidget):
         else:
             self.column_visibility_ctrl.show()
 
+    def _get_column_index_by_header(self, header_label):
+        """
+        Get the column index for the specified header label in a QTableView.
+
+        :param view: QTableView object
+        :param header_label: The header label to search for
+        :return: Column index (int) if found, otherwise -1
+        """
+        model = self.sample_view.model()  # Get the model associated with the view
+        if model is None:
+            return -1
+
+        for column in range(model.columnCount()):
+            # Get the header text for each column
+            header_text = model.headerData(column, Qt.Horizontal, Qt.DisplayRole)
+            if header_text == header_label:
+                return column
+        return -1
+
     def set_model(self, samples_proxy_model: CustomProxyModel):
         self.sample_view.setModel(samples_proxy_model)
         self.filter_edit.textChanged.connect(samples_proxy_model.set_filter_text)
@@ -203,8 +224,13 @@ class SamplesWidget(QWidget):
         # header_index_map = header_to_index_map(samples_proxy_model)
 
         header = self.sample_view.horizontalHeader()
-        for col in range(samples_proxy_model.columnCount()):
+        for col in range(samples_proxy_model.columnCount() - 1):
             header.setSectionResizeMode(col, QHeaderView.ResizeToContents)
+
+        appname_col = self._get_column_index_by_header("ApplicationName")
+        self.sample_view.setItemDelegateForColumn(appname_col, self.appname_delegate)
+
+        # self.sample_view.resizeColumnToContents(appname_col)
 
     def _set_selection_mode(self):
         if self.extended_selection_pushbutton.isChecked():
@@ -249,82 +275,6 @@ class SamplesWidget(QWidget):
             self.cell_value.setText(f"multiple ... ")
         else:
             self.cell_value.setText("")
-
-
-# class JsonButtonDelegate(QStyledItemDelegate):
-#     def __init__(self, parent=None):
-#         super().__init__(parent)
-#
-#     def paint(self, painter, option, index):
-#         # Draw a button in the cell
-#         style = option.widget.style()
-#         button_rect = style.subElementRect(QStyle.SE_PushButtonContents, option)
-#         button_rect = QRect(
-#             option.rect.x() + 5,
-#             option.rect.y() + 5,
-#             option.rect.width() - 10,
-#             option.rect.height() - 10,
-#         )
-#
-#         # Use QStyleOptionButton instead of QStyle.OptionButton
-#         button_options = QStyleOptionButton()
-#         button_options.rect = button_rect
-#         button_options.text = "View JSON"
-#         button_options.state = QStyle.State_Enabled
-#         style.drawControl(QStyle.CE_PushButton, button_options, painter)
-#
-# def editorEvent(self, event, model, option, index):
-#     # Handle button clicks
-#     if event.type() == QEvent.MouseButtonPress:
-#         if option.rect.contains(event.pos()):
-#             # Get the JSON data from the model
-#             json_data = index.data()
-#             self.open_json_tree_view(json_data)
-#     return super().editorEvent(event, model, option, index)
-#
-# def open_json_tree_view(self, json_data):
-#     # Parse JSON and show in a QTreeView
-#     try:
-#         parsed_data = json.loads(json_data)
-#     except json.JSONDecodeError:
-#         parsed_data = {"error": "Invalid JSON"}
-#
-#     # Create a dialog to display the tree view
-#     dialog = QDialog()
-#     dialog.setWindowTitle("JSON Viewer")
-#     layout = QVBoxLayout(dialog)
-#
-#     tree_view = QTreeView()
-#     tree_model = QStandardItemModel()
-#     tree_model.setHorizontalHeaderLabels(["Key", "Value"])
-#
-#     # Recursively populate the tree model with JSON data
-#     def populate_tree(parent, data):
-#         if isinstance(data, dict):
-#             for key, value in data.items():
-#                 key_item = QStandardItem(key)
-#                 value_item = QStandardItem(
-#                     str(value) if not isinstance(value, (dict, list)) else ""
-#                 )
-#                 parent.appendRow([key_item, value_item])
-#                 if isinstance(value, (dict, list)):
-#                     populate_tree(key_item, value)
-#         elif isinstance(data, list):
-#             for i, value in enumerate(data):
-#                 key_item = QStandardItem(f"[{i}]")
-#                 value_item = QStandardItem(
-#                     str(value) if not isinstance(value, (dict, list)) else ""
-#                 )
-#                 parent.appendRow([key_item, value_item])
-#                 if isinstance(value, (dict, list)):
-#                     populate_tree(key_item, value)
-#
-#     populate_tree(tree_model.invisibleRootItem(), parsed_data)
-#     tree_view.setModel(tree_model)
-#     layout.addWidget(tree_view)
-#
-#     dialog.exec()
-#
 
 
 class WarningDialog(QDialog):
@@ -373,13 +323,111 @@ class SampleTableView(QTableView):
         header.setContextMenuPolicy(Qt.CustomContextMenu)
         header.customContextMenuRequested.connect(self._header_popup)
 
-        # self.original_top_left_selection = None
-        self.resizeColumnsToContents()
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+    def _get_column_index_by_header(self, header_label):
+        """
+        Get the column index for the specified header label in a QTableView.
+
+        :param view: QTableView object
+        :param header_label: The header label to search for
+        :return: Column index (int) if found, otherwise -1
+        """
+        model = self.model()  # Get the model associated with the view
+        if model is None:
+            return -1
+
+        for column in range(model.columnCount()):
+            # Get the header text for each column
+            header_text = model.headerData(column, Qt.Horizontal, Qt.DisplayRole)
+            if header_text == header_label:
+                return column
+        return -1
 
     def del_selected_rows(self):
         selected_rows = self.selectionModel().selectedRows()
         self.model().removeRows(selected_rows[0].row(), len(selected_rows))
+
+    def _set_dynamic_column_width(self):
+        """
+        Dynamically adjust column width based on delegate's size hint
+
+        :param table_view: QTableView instance
+        """
+        model = self.model()
+        delegate = self.itemDelegate()
+
+        # Create a dummy style option
+        option = QStyleOptionViewItem()
+
+        # Track maximum width
+        max_column_width = 0
+
+        col = self._get_column_index_by_header("ApplicationName")
+
+        # Iterate through all rows to find maximum width
+        for row in range(model.rowCount()):
+            index = model.index(row, col)
+            size_hint = delegate.sizeHint(option, index)
+            max_column_width = max(max_column_width, size_hint.width())
+
+        print(max_column_width)
+
+        # Set the column width
+        self.setColumnWidth(col, int(max_column_width * 1.1))
+
+    @Slot(dict)
+    def remove_application(self, application_object: dict) -> None:
+        proxy_model = self.model()
+        source_model = proxy_model.sourceModel()
+        selection_model = self.selectionModel()
+        selected_rows = [index.row() for index in selection_model.selectedRows()]
+
+        if not selected_rows:
+            return
+
+        header_index_map = header_to_index_map(proxy_model)
+
+        appname_column = header_index_map["ApplicationName"]
+        appname = application_object["ApplicationName"]
+        application = application_object["Application"]
+        application_data = application_object["Data"]
+
+        source_model.blockSignals(True)
+
+        for row in selected_rows:
+            appnames_json = (
+                proxy_model.data(proxy_model.index(row, appname_column), Qt.DisplayRole)
+                or "[]"
+            )
+            appnames_list = json_to_obj(appnames_json)
+            if appname in appnames_list:
+                appnames_list.remove(appname)
+
+            appnames_json = obj_to_json(appnames_list)
+
+            proxy_model.setData(
+                proxy_model.index(row, appname_column),
+                appnames_json,
+                Qt.EditRole,
+            )
+
+            if application == "BCLConvert":
+                self._set_bclconvert_data_empty(
+                    proxy_model, row, header_index_map, application_data
+                )
+
+        source_model.blockSignals(False)
+
+        source_model.dataChanged.emit(
+            source_model.index(0, 0),
+            source_model.index(
+                source_model.rowCount() - 1, source_model.columnCount() - 1
+            ),
+            Qt.DisplayRole,
+        )
+
+        self._set_dynamic_column_width()
 
     @Slot(dict)
     def set_application(self, application_object: dict) -> None:
@@ -412,24 +460,13 @@ class SampleTableView(QTableView):
 
         header_index_map = header_to_index_map(proxy_model)
         app_name_column = header_index_map["ApplicationName"]
-        application_name = application_object["ApplicationName"]
+        app_name = application_object["ApplicationName"]
         application = application_object["Application"]
-
-        for row in selected_rows:
-            current_data = self._json_data_as_obj(proxy_model, row, app_name_column)
-            existing_applications = [name.split("_")[0] for name in current_data]
-
-            if application in existing_applications:
-                warning_dialog = WarningDialog(
-                    f"{application} already set in selection."
-                )
-                warning_dialog.exec()
-                return
 
         source_model.blockSignals(True)
 
         for row in selected_rows:
-            self._set_str_to_json(proxy_model, row, app_name_column, application_name)
+            self._set_str_to_json(proxy_model, row, app_name_column, app_name)
 
             if application == "BCLConvert":
                 self._set_bclconvert_data(
@@ -444,6 +481,8 @@ class SampleTableView(QTableView):
             ),
             Qt.DisplayRole,
         )
+
+        self._set_dynamic_column_width()
 
     @staticmethod
     def _set_bclconvert_data(
@@ -470,6 +509,30 @@ class SampleTableView(QTableView):
                 proxy_model.setData(proxy_model.index(row, column), value)
 
     @staticmethod
+    def _set_bclconvert_data_empty(
+        proxy_model: QSortFilterProxyModel,
+        row: int,
+        header_index_map: dict,
+        app_data: dict,
+    ) -> None:
+        """
+        Sets BCLConvert data in the specified row of the proxy model.
+
+        Parameters:
+        - proxy_model: The QSortFilterProxyModel to set data in.
+        - row: The row index in the proxy model.
+        - header_index_map: A dictionary mapping header keys to column indices.
+        - app_data: A dictionary of data to set.
+        """
+        if not proxy_model or row < 0 or not app_data:
+            return
+
+        for key, value in app_data.items():
+            column = header_index_map.get(key)
+            if column is not None:
+                proxy_model.setData(proxy_model.index(row, column), "")
+
+    @staticmethod
     def _json_data_as_obj(model: QSortFilterProxyModel, row: int, column: int) -> str:
         """
         Retrieve JSON data from a specified cell in the model and return it as a Python object.
@@ -482,8 +545,8 @@ class SampleTableView(QTableView):
         Returns:
         - The JSON data from the specified cell, parsed as a Python object.
         """
-        json_data = model.data(model.index(row, column), Qt.DisplayRole) or "[]"
-        return json.loads(json_data)
+        data = model.data(model.index(row, column), Qt.DisplayRole) or "[]"
+        return json_to_obj(data)
 
     @staticmethod
     def _set_str_to_json(model, row: int, column: int, value: str) -> None:
@@ -493,9 +556,10 @@ class SampleTableView(QTableView):
         empty list.
         """
         current_data = model.data(model.index(row, column), Qt.DisplayRole) or "[]"
-        data = json.loads(current_data)
-        data.append(value)
-        model.setData(model.index(row, column), json.dumps(data))
+        data = json_to_obj(current_data)
+        if value not in data:
+            data.append(value)
+            model.setData(model.index(row, column), obj_to_json(data))
 
     def _table_popup(self):
         self.table_context_menu.exec(QCursor.pos())
@@ -516,12 +580,6 @@ class SampleTableView(QTableView):
         state = not self.isColumnHidden(column)
 
         self.field_visibility_state_changed.emit(field, state)
-
-    # def get_columns_visibility_state(self):
-    #     return {
-    #         self.model().sourceModel().fields[i]: not self.isColumnHidden(i)
-    #         for i in range(self.model().columnCount())
-    #     }
 
     @Slot(str, bool)
     def set_column_visibility_state(self, field: str, state: bool) -> None:
@@ -815,3 +873,115 @@ class SampleTableView(QTableView):
             data.append(model.data(index, Qt.DisplayRole))
 
         self.override_patterns_ready.emit(data)
+
+
+class ApplicationNameDelegate(QStyledItemDelegate):
+    def __init__(self, parent=None, item_spacing=5, item_height=25, item_padding=2):
+        super().__init__(parent)
+        self.item_spacing = item_spacing
+        self.item_height = item_height
+        self.item_padding = item_padding
+
+    def paint(self, painter: QPainter, option, index: QModelIndex):
+        # Get the JSON string from the model
+        json_str = index.data(Qt.DisplayRole)
+
+        # If it's not a JSON string, fall back to default painting
+        if not json_str or not isinstance(json_str, str):
+            super().paint(painter, option, index)
+            return
+
+        try:
+            # Parse the JSON string
+            items = json.loads(json_str)
+
+            # Validate that it's a list
+            if not isinstance(items, list):
+                super().paint(painter, option, index)
+                return
+
+            # Draw background if item is selected
+            if option.state & QStyle.State_Selected:
+                painter.fillRect(option.rect, option.palette.highlight())
+
+            # Prepare for painting
+            painter.save()
+
+            # Start drawing items horizontally
+            current_x = option.rect.x() + self.item_spacing
+
+            # Use a fixed font for consistent sizing
+            font = QFont()
+            painter.setFont(font)
+            font_metrics = QFontMetrics(font)
+
+            for item in items:
+                # Convert item to string
+                item_str = str(item)
+
+                # Calculate text width
+                text_width = (
+                    font_metrics.horizontalAdvance(item_str) + 2 * self.item_padding
+                )
+
+                # Create rectangle for the item
+                item_rect = QRect(
+                    current_x,
+                    option.rect.y() + (option.rect.height() - self.item_height) // 2,
+                    text_width,
+                    self.item_height,
+                )
+
+                # Draw frame
+                painter.setPen(QColor(255, 255, 255))
+                painter.drawRect(item_rect)
+
+                # Draw text inside the frame
+                painter.drawText(
+                    item_rect.adjusted(self.item_padding, 0, -self.item_padding, 0),
+                    Qt.AlignVCenter | Qt.AlignLeft,
+                    item_str,
+                )
+
+                # Move to next item's position
+                current_x += text_width + self.item_spacing
+
+            painter.restore()
+
+        except json.JSONDecodeError:
+            # If JSON is invalid, fall back to default painting
+            super().paint(painter, option, index)
+
+    def sizeHint(self, option, index: QModelIndex) -> QSize:
+        # Get the JSON string from the model
+        json_str = index.data(Qt.DisplayRole)
+
+        try:
+            # Parse the JSON string
+            items = json.loads(json_str)
+
+            # Validate that it's a list
+            if not isinstance(items, list):
+                return super().sizeHint(option, index)
+
+            # Prepare for size calculation
+            font = QFont()
+            font_metrics = QFontMetrics(font)
+
+            # Calculate total width
+            total_width = self.item_spacing * 2  # Initial spacing
+            for item in items:
+                # Calculate width for each item
+                item_width = (
+                    font_metrics.horizontalAdvance(str(item))
+                    + 2 * self.item_padding  # Padding on both sides
+                )
+                total_width += item_width + self.item_spacing
+
+            # Return size with calculated width and fixed height
+
+            return QSize(total_width, self.item_height + 5)  # Add some vertical padding
+
+        except (json.JSONDecodeError, TypeError):
+            # If JSON is invalid, use default size hint
+            return super().sizeHint(option, index)

@@ -1,5 +1,5 @@
 from PySide6.QtCore import QObject, Slot, Signal
-from models.configuration import ConfigurationManager
+from models.configuration.configuration import ConfigurationManager
 
 
 class RunDataModel(QObject):
@@ -163,10 +163,6 @@ class RunDataModel(QObject):
     @property
     def read_cycles_list(self) -> list:
         return self._read_cycles_list
-
-    @property
-    def run_data(self) -> dict:
-        return self._rundata
 
     @property
     def assess_balance(self) -> bool:

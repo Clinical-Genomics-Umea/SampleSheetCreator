@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QFormLayout,
 )
 from PySide6.QtCore import Slot
-from models.configuration import ConfigurationManager
+from models.configuration.configuration import ConfigurationManager
 
 
 class ConfigurationWidget(QWidget):

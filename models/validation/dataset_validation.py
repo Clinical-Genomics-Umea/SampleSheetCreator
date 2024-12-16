@@ -7,10 +7,10 @@ import pandas as pd
 from PySide6.QtCore import QThread, Slot, Signal, QObject, Qt
 from PySide6.QtGui import QStandardItemModel
 
-from models.application import ApplicationManager
-from models.configuration import ConfigurationManager
-from models.dataset import DataSetManager
-from models.sample_model import SampleModel
+from models.application.application import ApplicationManager
+from models.configuration.configuration import ConfigurationManager
+from models.dataset.dataset import DataSetManager
+from models.sample.sample_model import SampleModel
 
 
 class MainValidator(QObject):
