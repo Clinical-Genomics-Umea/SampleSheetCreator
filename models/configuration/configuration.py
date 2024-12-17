@@ -41,7 +41,7 @@ class ConfigurationManager(QObject):
             self._config_paths["instrument_flowcells_path"]
         )
         self._run_settings = read_yaml_file(self._config_paths["run_settings_path"])
-        self._run_view_widgets_config = self._run_settings["RunViewWidgets"]
+        self._run_view_widgets_config = self._run_settings["RunViewFields"]
         self._run_setup_widgets_config = self._run_settings["RunSetupWidgets"]
         self._run_data = self._run_settings["RunDataDefaults"]
         self._run_data_fields = self._run_settings["RunDataFields"]

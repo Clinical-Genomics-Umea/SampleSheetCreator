@@ -22,9 +22,9 @@ RunDataFields:
 
 ReadCyclesFields:
   - Read1Cycles
-  - Read2Cycles
   - Index1Cycles
   - Index2Cycles
+  - Read2Cycles
 
 RunDataDefaults:
   Date: "NA"
@@ -48,29 +48,34 @@ RunDataDefaults:
   G: "NA"
   C: "NA"
 
-RunViewWidgets:
+RunViewFields:
   General:
-    Investigator: label
-    Instrument: label
-    Flowcell: label
-    SampleSheetVersion: label
-    RunName: label
-    RunDescription: label
+    - Date
+    - Investigator
+    - RunName
+    - RunDescription
   Sequencing:
-    I5SampleSheetOrientation: label
-    Lanes: label
-    ReagentKit: label
-    ReadCycles: label
-    Chemistry: label
-    FastqExtractTool: label
+    - Instrument
+    - Flowcell
+    - Lanes
+    - ReagentKit
+    - Chemistry
+    - I5SeqOrientation
+  ReadCycles:
+    - Read1Cycles
+    - Index1Cycles
+    - Index2Cycles
+    - Read2Cycles
+  I5SampleSheetOrientation:
+    - BCL2Fastq
+    - BCLConvert
   Validation:
-    I5SeqOrientation: label
-    AssessBalance: label
-  Fluorophores:
-    A: label
-    T: label
-    G: label
-    C: label
+    - AssessColorBalance
+  Colors:
+    - A
+    - T
+    - G
+    - C
 
 RunSetupWidgets:
   General:

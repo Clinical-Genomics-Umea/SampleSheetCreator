@@ -34,10 +34,10 @@ class RunDataModel(QObject):
             self._rundata["Instrument"]
         ]["I5SeqOrientation"]
 
-    def _set_i5_smplsht_orientation(self):
-        self._rundata["I5SampleSheetOrientation"] = self._instr_fcells_obj[
-            self._rundata["Instrument"]
-        ]["I5SampleSheetOrientation"][self._rundata["FastqExtractTool"]]
+    # def _set_i5_smplsht_orientation(self):
+    #     self._rundata["I5SampleSheetOrientation"] = self._instr_fcells_obj[
+    #         self._rundata["Instrument"]
+    #     ]["I5SampleSheetOrientation"][self._rundata["FastqExtractTool"]]
 
     def _set_lanes(self):
         self._rundata["Lanes"] = self._instr_fcells_obj[self._rundata["Instrument"]][
@@ -58,8 +58,8 @@ class RunDataModel(QObject):
         ]["Chemistry"]
 
     def _set_assess_balance(self):
-        self._rundata["AssessBalance"] = bool(
-            self._instr_fcells_obj[self._rundata["Instrument"]]["AssessBalance"]
+        self._rundata["AssessColorBalance"] = bool(
+            self._instr_fcells_obj[self._rundata["Instrument"]]["AssessColorBalance"]
         )
 
     def _set_samplesheet_version(self):
@@ -86,7 +86,7 @@ class RunDataModel(QObject):
 
         self._rundata["ReadCycles"] = crc_str
 
-    def _set_read_cycles_attributes(self):
+    def _set_read_cycles_dict(self):
         read_cycles = self._rundata["ReadCycles"].split("-")
 
         self._read_cycles_dict = {
@@ -102,6 +102,18 @@ class RunDataModel(QObject):
             int(read_cycles[2]),
             int(read_cycles[3]),
         ]
+
+    def _set_read_cycle_items(self):
+        self._rundata["Read1Cycles"] = self._read_cycles_dict["Read1Cycles"]
+        self._rundata["Index1Cycles"] = self._read_cycles_dict["Index1Cycles"]
+        self._rundata["Index2Cycles"] = self._read_cycles_dict["Index2Cycles"]
+        self._rundata["Read2Cycles"] = self._read_cycles_dict["Read2Cycles"]
+
+    def _set_extract_tool_samplesheet_orientation(self):
+        for tool, orientation in self._instr_fcells_obj[self._rundata["Instrument"]][
+            "I5SampleSheetOrientation"
+        ].items():
+            self._rundata[tool] = orientation
 
     @Slot(dict)
     def set_run_data(self, run_data: dict):
@@ -126,7 +138,7 @@ class RunDataModel(QObject):
             self._rundata[key] = value
 
         # Set instrument specific settings
-        self._set_i5_smplsht_orientation()
+        # self._set_i5_smplsht_orientation()
         self._set_i5_seq_orientation()
         self._set_lanes()
         self._set_fluorophores()
@@ -134,7 +146,9 @@ class RunDataModel(QObject):
         self._set_assess_balance()
         self._set_samplesheet_version()
         self._set_read_cycles_from_custom()
-        self._set_read_cycles_attributes()
+        self._set_read_cycles_dict()
+        self._set_read_cycle_items()
+        self._set_extract_tool_samplesheet_orientation()
 
         # Set base fluorphores
         self._rundata["A"] = self._base_to_fluorophore_list("A")

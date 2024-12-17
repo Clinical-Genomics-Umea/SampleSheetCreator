@@ -44,7 +44,8 @@ from utils.utils import json_to_obj, obj_to_json
 
 from models.sample.sample_model import CustomProxyModel
 from utils.utils import header_to_index_map
-from views.column_visibility_view import ColumnVisibilityWidget
+from views.runview.runview import RunInfoView
+from views.sample.column_visibility_view import ColumnVisibilityWidget
 
 
 def list2d_to_tabbed_str(data):
@@ -117,6 +118,9 @@ def regular_paste(selected_indexes, source_model, target_proxy_model):
 
 
 class SamplesWidget(QWidget):
+
+    selection_data = Signal(object)
+
     def __init__(self, samples_settings):
         super().__init__()
 
@@ -129,15 +133,12 @@ class SamplesWidget(QWidget):
         self.samples_model = None
 
         self.sample_view = SampleTableView()
-        self.cell_value = QLabel("")
-        self.cell_value.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        self.cell_value.setFont(QFont("Arial", 8))
+
         self.extended_selection_pushbutton = QPushButton("extended selection")
         self.extended_selection_pushbutton.setCheckable(True)
         self.clear_selection_btn = QPushButton("clear selection")
         self.column_visibility_btn = QPushButton("column visibility")
         self.delete_rows_btn = QPushButton("delete selected rows")
-
         self.column_visibility_ctrl = ColumnVisibilityWidget(samples_settings)
 
         hbox = QHBoxLayout()
@@ -162,7 +163,7 @@ class SamplesWidget(QWidget):
         hbox2.addWidget(self.column_visibility_ctrl)
         vbox.addLayout(hbox2)
 
-        vbox.addWidget(self.cell_value)
+        # vbox.addWidget(self.cell_value)
         self.setLayout(vbox)
 
         self.sample_view.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -248,33 +249,15 @@ class SamplesWidget(QWidget):
         return len(selected_rows), len(selected_columns)
 
     def _on_sampleview_selection_changed(self):
+
+        print("Selection changed")
         selection_model = self.sample_view.selectionModel()
         selected_indexes = selection_model.selectedIndexes()
         srows, scols = self._selected_rows_columns_count(selected_indexes)
 
-        if srows == 1 and scols == 1 and selected_indexes:
-            model = self.sample_view.model()
+        data = {"rows": srows, "cols": scols}
 
-            data = model.data(selected_indexes[0], Qt.DisplayRole)
-            column = selected_indexes[0].column()
-            row = selected_indexes[0].row() + 1
-            column_name = (
-                self.sample_view.horizontalHeader()
-                .model()
-                .headerData(column, Qt.Horizontal)
-            )
-
-            if data is None:
-                data = "Empty"
-            elif data == "":
-                data = "Empty"
-
-            self.cell_value.setText(f"{column_name}, {row}:  {data}")
-
-        elif srows > 1 or scols > 1 and selected_indexes:
-            self.cell_value.setText(f"multiple ... ")
-        else:
-            self.cell_value.setText("")
+        self.selection_data.emit(data)
 
 
 class WarningDialog(QDialog):

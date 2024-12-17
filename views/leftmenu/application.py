@@ -17,7 +17,7 @@ from PySide6.QtCore import Signal, Qt, Slot
 
 from models.application.application import ApplicationManager
 from models.dataset.dataset import DataSetManager
-from views.ui_components_view import HorizontalLine
+from views.ui_components import HorizontalLine
 
 
 class ClickableLabel(QLabel):

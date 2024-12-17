@@ -21,7 +21,7 @@ from PySide6.QtCore import QSortFilterProxyModel, QMimeData, QAbstractTableModel
 from camel_converter import to_pascal
 
 from models.indexes.indexes_model import IndexKitDefinition
-from views.ui_components_view import HorizontalLine
+from views.ui_components import HorizontalLine
 
 
 def create_chained_sfproxies(model_names: list) -> dict:

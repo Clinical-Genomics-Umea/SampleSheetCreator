@@ -221,14 +221,14 @@ class DataSetManager:
             "Custom_UUID7": uuid(),
         }
 
-    def _read_cycle_data(self):
+    def read_cycle_data(self):
         return self.rundata_model.read_cycles_dict
 
     def set_samplesheet_obj(self):
 
         obj = {
             "Header": self._header_data(),
-            "Reads": self._read_cycle_data(),
+            "Reads": self.read_cycle_data(),
             "Applications": self.app_settings_data(),
         }
 

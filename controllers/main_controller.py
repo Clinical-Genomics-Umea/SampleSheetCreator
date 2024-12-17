@@ -1,13 +1,13 @@
-from PySide6.QtCore import QObject, Slot
+from PySide6.QtCore import QObject
 
 from models.application.application import ApplicationManager
 from models.configuration.configuration import ConfigurationManager
 from models.dataset.dataset import DataSetManager
 from models.rundata.rundata_model import RunDataModel
 from models.sample.sample_model import SampleModel, CustomProxyModel
-from models.validation.set_data_validation import AddDataValidator
+from models.validation.compatibility import DataCompatibilityChecker
 from models.validation.dataset_validation import MainValidator
-from views.notify import Notify
+from views.notify.notify import StatusBar
 from views.main_window import MainWindow
 
 
@@ -20,6 +20,7 @@ class MainController(QObject):
 
         self._config_manager = ConfigurationManager()
         self._application_manager = ApplicationManager(self._config_manager)
+        self._status_bar = StatusBar()
 
         self._sample_model = SampleModel(self._config_manager.samples_settings)
         self._sample_proxy_model = CustomProxyModel()
@@ -34,11 +35,12 @@ class MainController(QObject):
         )
 
         self._main_window = MainWindow(
-            self._config_manager, self._application_manager, self._dataset_manager
+            self._config_manager,
+            self._application_manager,
+            self._dataset_manager,
+            self._status_bar,
         )
         self._main_window.samples_widget.set_model(self._sample_proxy_model)
-
-        self._notify = Notify(self._main_window)
 
         self._main_validator = MainValidator(
             self._sample_model,
@@ -46,7 +48,7 @@ class MainController(QObject):
             self._dataset_manager,
             self._application_manager,
         )
-        self._add_data_validator = AddDataValidator(
+        self._compatibility_checker = DataCompatibilityChecker(
             self._dataset_manager, self._application_manager
         )
 
@@ -56,6 +58,7 @@ class MainController(QObject):
         """
         Connect UI signals to controller slots.
         """
+        self._connect_notifications()
         self._connect_validation_signals()
         self._connect_left_tool_action_signals()
         self._connect_run_signals()
@@ -63,22 +66,41 @@ class MainController(QObject):
         self._connect_override_pattern_signals()
         self._connect_application_signal()
         self._connect_sample_model_signals()
+        self._connect_drop_paste_signals()
+
+    def _connect_notifications(self):
+        self._main_window.samples_widget.selection_data.connect(
+            self._status_bar.display_selection_data
+        )
+        self._compatibility_checker.dropped_not_allowed.connect(
+            self._status_bar.display_error_msg
+        )
 
     def _connect_sample_model_signals(self):
         self._sample_model.dataChanged.connect(self._main_window.disable_export_action)
 
     def _connect_application_signal(self):
         self._main_window.applications_widget.add_signal.connect(
-            self._add_data_validator.add_app_validator
+            self._compatibility_checker.app_checker
         )
-        self._add_data_validator.app_allowed.connect(
+        self._compatibility_checker.app_allowed.connect(
             self._main_window.samples_widget.sample_view.set_application
         )
         self._main_window.applications_widget.remove_signal.connect(
             self._main_window.samples_widget.sample_view.remove_application
         )
 
-        self._add_data_validator.app_not_allowed.connect(self._notify.app_not_allowed)
+        self._compatibility_checker.app_not_allowed.connect(
+            self._status_bar.display_error_msg
+        )
+
+    def _connect_drop_paste_signals(self):
+        self._sample_model.dropped_data.connect(
+            self._compatibility_checker.dropped_checker
+        )
+        self._compatibility_checker.dropped_allowed.connect(
+            self._sample_model.set_dropped_data
+        )
 
     def _connect_file_signals(self):
         self._main_window.file_widget.new_samplesheet_btn.clicked.connect(
@@ -153,7 +175,7 @@ class MainController(QObject):
             self._run_data_model.set_run_data
         )
         self._run_data_model.run_data_ready.connect(
-            self._main_window.run_view_widget.set_data
+            self._main_window.run_info_view.set_data
         )
 
 

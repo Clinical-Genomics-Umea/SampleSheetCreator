@@ -135,7 +135,6 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.left_toolBar = QToolBar(MainWindow)
         self.left_toolBar.setObjectName(u"left_toolBar")
-        self.left_toolBar.setMinimumSize(QSize(70, 0))
         MainWindow.addToolBar(Qt.ToolBarArea.LeftToolBarArea, self.left_toolBar)
 
         self.retranslateUi(MainWindow)

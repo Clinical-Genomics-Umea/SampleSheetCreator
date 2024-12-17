@@ -12,25 +12,27 @@ from PySide6.QtWidgets import (
     QPushButton,
 )
 
-from PySide6.QtGui import QAction, QActionGroup, QPainter, QIcon
+from PySide6.QtGui import QAction, QActionGroup, QIcon
 from PySide6.QtCore import Qt, QSize, Signal
 
 from models.application.application import ApplicationManager
 from models.configuration.configuration import ConfigurationManager
 from models.dataset.dataset import DataSetManager
-from views.configuration_view import ConfigurationWidget
+from views.config.configuration_view import ConfigurationWidget
 from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
-from views.file_view import FileView
-from views.index_view import IndexKitToolbox
-from views.override_view import OverrideCyclesWidget
-from views.application_view import Applications
-from views.run_setup_views import RunSetupWidget, RunView
-from views.export_view import ExportWidget
-from views.validation_view import (
+from views.leftmenu.file import FileView
+from views.leftmenu.index import IndexKitToolbox
+from views.notify.notify import StatusBar
+from views.leftmenu.override import OverrideCyclesWidget
+from views.leftmenu.application import Applications
+from views.runview.runview import RunView, RunInfoView
+from views.leftmenu.runsetup import RunSetupWidget
+from views.export.export_view import ExportWidget
+from views.validation.validation_view import (
     MainValidationWidget,
 )
 
-from views.samples_view import SamplesWidget
+from views.sample.sample_view import SamplesWidget
 from views.ui.mw import Ui_MainWindow
 import qtawesome as qta
 
@@ -54,6 +56,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         config_manager: ConfigurationManager,
         application_manager: ApplicationManager,
         dataset_manager: DataSetManager,
+        status_bar: StatusBar,
     ):
         """
         Initialize the main window
@@ -64,6 +67,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setWindowIcon(
             QIcon(qta.icon("ri.settings-line", options=[{"draw": "image"}]))
         )
+        self.status_bar = status_bar
+        self.setStatusBar(self.status_bar)
 
         self.config_manager = config_manager
         self.application_manager = application_manager
@@ -105,7 +110,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._setup_samples_widget()
 
         self.run_setup_widget = RunSetupWidget(self.config_manager, dataset_manager)
-        self.run_view_widget = RunView(self.config_manager)
+        # self.run_view_widget = RunView(self.config_manager)
+        self.run_info_view = RunInfoView("Run Setup", self.config_manager)
         self._setup_run_view()
 
         self.validation_widget = MainValidationWidget(self.dataset_manager)
@@ -165,7 +171,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def _setup_run_view(self):
         self.leftmenu_runsetup.layout().addWidget(self.run_setup_widget)
         main_data_layout = self.main_data.layout()
-        main_data_layout.insertWidget(0, self.run_view_widget)
+        # main_data_layout.insertWidget(0, self.run_view_widget)
+        main_data_layout.insertWidget(0, self.run_info_view)
 
     def _setup_left_menu_indexes(self):
         layout = self.leftmenu_indexes.layout()
@@ -242,16 +249,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """Set up the tool actions for the application."""
 
         self.left_toolBar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        self.left_toolBar.setFixedWidth(50)
 
         actions = [
-            (self.file_action, "msc.files", "file"),
-            (self.run_action, "msc.symbol-misc", "run"),
-            (self.indexes_action, "mdi6.barcode", "indexes"),
-            (self.apps_action, "msc.symbol-method", "apps"),
-            (self.override_action, "msc.sync", "override"),
-            (self.validate_action, "msc.check-all", "validate"),
-            (self.export_action, "msc.coffee", "export"),
-            (self.settings_action, "msc.settings-gear", "config"),
+            (self.file_action, "msc.files", "file", "file"),
+            (self.run_action, "msc.symbol-misc", "run", "run"),
+            (self.indexes_action, "mdi6.barcode", "indexes", "index"),
+            (self.apps_action, "msc.symbol-method", "apps", "apps"),
+            (self.override_action, "msc.sync", "override", "o-ride "),
+            (self.validate_action, "msc.check-all", "validate", "valid"),
+            (self.export_action, "msc.coffee", "export", "export"),
+            (self.settings_action, "msc.settings-gear", "config", "config"),
         ]
 
         spacer = QWidget()
@@ -260,10 +268,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         action_group = QActionGroup(self)
         action_group.setExclusionPolicy(QActionGroup.ExclusionPolicy.ExclusiveOptional)
 
-        for action, action_icon, action_id in actions:
+        for action, action_icon, action_id, action_name in actions:
             action.setCheckable(True)
             action.setChecked(False)
-            action.setText(action_id)
+            action.setText(action_name)
             action.setData(action_id)
             action.setIcon(qta.icon(action_icon, options=[{"draw": "image"}]))
             action_group.addAction(action)

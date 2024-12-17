@@ -1,5 +1,7 @@
+from pprint import pprint
+
 import pandas as pd
-from PySide6.QtCore import Qt, QSortFilterProxyModel
+from PySide6.QtCore import Qt, QSortFilterProxyModel, Signal
 from PySide6.QtGui import QStandardItemModel
 
 from utils.utils import decode_bytes_json
@@ -17,6 +19,9 @@ def field_count(fields):
 
 
 class SampleModel(QStandardItemModel):
+
+    dropped_data = Signal(object)
+
     def __init__(self, sample_settings: dict):
         super(SampleModel, self).__init__()
 
@@ -71,6 +76,29 @@ class SampleModel(QStandardItemModel):
         """
         return bool(data.hasFormat("application/json"))
 
+    def set_dropped_data(self, data):
+        pprint(data)
+
+        start_row = data["start_row"]
+
+        self.blockSignals(True)
+
+        for i, row_data in enumerate(data["decoded_data"]):
+            for key, value in row_data.items():
+                row = start_row + i
+                if key in self.fields:
+                    column = self.fields.index(key)
+                    self.setData(self.index(row, column), value)
+
+        self.blockSignals(False)
+        self.dataChanged.emit(
+            self.index(0, 0),
+            self.index(self.rowCount() - 1, self.columnCount() - 1),
+            Qt.DisplayRole,
+        )
+
+        return True
+
     def dropMimeData(self, data, action, row, column, parent) -> bool:
         """
         Drop the mime data into the specified location in the model.
@@ -86,23 +114,28 @@ class SampleModel(QStandardItemModel):
         json_data_qba = data.data("application/json")
         decoded_data = decode_bytes_json(json_data_qba)
 
-        start_row = parent.row()
+        data = {"start_row": parent.row(), "decoded_data": decoded_data}
+        self.dropped_data.emit(data)
 
-        self.blockSignals(True)
+        return True
 
-        for i, row_data in enumerate(decoded_data):
-            for key, value in row_data.items():
-                row = start_row + i
-                if key in self.fields:
-                    column = self.fields.index(key)
-                    self.setData(self.index(row, column), value)
-
-        self.blockSignals(False)
-        self.dataChanged.emit(
-            self.index(0, 0),
-            self.index(self.rowCount() - 1, self.columnCount() - 1),
-            Qt.DisplayRole,
-        )
+        # start_row = parent.row()
+        #
+        # self.blockSignals(True)
+        #
+        # for i, row_data in enumerate(decoded_data):
+        #     for key, value in row_data.items():
+        #         row = start_row + i
+        #         if key in self.fields:
+        #             column = self.fields.index(key)
+        #             self.setData(self.index(row, column), value)
+        #
+        # self.blockSignals(False)
+        # self.dataChanged.emit(
+        #     self.index(0, 0),
+        #     self.index(self.rowCount() - 1, self.columnCount() - 1),
+        #     Qt.DisplayRole,
+        # )
 
         return True
 

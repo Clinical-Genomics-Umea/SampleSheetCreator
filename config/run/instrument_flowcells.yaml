@@ -22,12 +22,12 @@ NovaSeqX:
         "2x150": [ "151-8-8-151", "151-10-10-151" ]
   Chemistry: xleap
   I5SampleSheetOrientation:
-    bcl2fastq: rc
-    bclconvert: fwd
+    BCL2Fastq: rc
+    BCLConvert: fwd
   FastqExtractTool: [bclconvert, bcl2fastq]
   SampleSheetVersion: 2
   I5SeqOrientation: rc
-  AssessBalance: true
+  AssessColorBalance: true
   Fluorophores:
     A: [ "blue" ]
     T: [ "green" ]
@@ -49,12 +49,12 @@ NextSeq500:
         "2x150": [ "151-8-8-151", "151-10-10-151" ]
   Chemistry: 2-channel_sbs
   I5SampleSheetOrientation:
-    bcl2fastq: rc
-    bclconvert: rc
+    BCL2Fastq: rc
+    BCLConvert: rc
   FastqExtractTool: [bclconvert, bcl2fastq]
   SampleSheetVersion: 1
   I5SeqOrientation: rc
-  AssessBalance: false
+  AssessColorBalance: false
   Fluorophores:
     A: [ "red", "green" ]
     T: [ "green" ]
@@ -85,12 +85,12 @@ MiSeq:
         "2x300": [ "301-8-8-301", "301-10-10-301" ]
   Chemistry: 4-channel_sbs
   I5SampleSheetOrientation:
-    bcl2fastq: fwd
-    bclconvert: fwd
+    BCL2Fastq: fwd
+    BCLConvert: fwd
   FastqExtractTool: [bclconvert, bcl2fastq]
   SampleSheetVersion: 1
   I5SeqOrientation: fwd
-  AssessBalance: false
+  AssessColorBalance: false
   Fluorophores:
     A: [ "red" ]
     T: [ "green" ]
