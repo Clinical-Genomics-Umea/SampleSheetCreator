@@ -1,4 +1,5 @@
 from pathlib import Path
+from pprint import pprint
 
 from models.configuration.configuration import ConfigurationManager
 from utils.utils import read_yaml_file
@@ -63,8 +64,6 @@ class ApplicationManager:
                 _appgroup_to_appname_to_appobj[appgroup][appname] = (
                     self._appname_to_appobj[appname]
                 )
-
-        print(_appgroup_to_appname_to_appobj)
 
         return _appgroup_to_appname_to_appobj
 

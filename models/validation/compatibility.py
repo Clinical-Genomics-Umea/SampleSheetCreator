@@ -3,6 +3,7 @@ from PySide6.QtCore import Signal, QObject, Slot
 
 from models.application.application import ApplicationManager
 from models.dataset.dataset import DataSetManager
+from utils.utils import validate_override_pattern, preset_override_cycles
 
 
 class DataCompatibilityChecker(QObject):
@@ -12,6 +13,10 @@ class DataCompatibilityChecker(QObject):
 
     dropped_allowed = Signal(object)
     dropped_not_allowed = Signal(object)
+    dropped_not_allowed_flash = Signal()
+
+    override_pattern_invalid = Signal(list)
+    override_pattern_valid = Signal(object)
 
     def __init__(self, dataset_mgr: DataSetManager, app_mgr: ApplicationManager):
         super().__init__()
@@ -24,9 +29,7 @@ class DataCompatibilityChecker(QObject):
         index_i7_max_len = df["IndexI7"].str.len().max()
         index_i5_max_len = df["IndexI5"].str.len().max()
 
-        read_cycles = self.dataset_mgr.read_cycle_data()
-
-        print(read_cycles)
+        read_cycles = self.dataset_mgr.read_cycles_dict()
 
         error_list = []
 
@@ -44,31 +47,84 @@ class DataCompatibilityChecker(QObject):
 
         if error_list:
             self.dropped_not_allowed.emit(", ".join(error_list))
+            self.dropped_not_allowed_flash.emit()
         else:
             self.dropped_allowed.emit(dropped_data)
 
     def app_checker(self, appobj: dict) -> None:
-        appname = appobj["ApplicationName"]
+        new_appname = appobj["ApplicationName"]
 
         df = self.dataset_mgr.sample_dataframe_appname_explode()
+        if df.empty:
+            self.app_allowed.emit(appobj)
+            return
+
         unique_existing_appnames = df["ApplicationName"].unique()
 
-        new_app_obj = self.app_mgr.appobj_by_appname(appname)
+        new_app_obj = self.app_mgr.appobj_by_appname(new_appname)
         new_settings = new_app_obj["Settings"]
-        new_group = new_app_obj["ApplicationGroupName"]
+        new_app = new_app_obj["Application"]
 
         for existing_appname in unique_existing_appnames:
+            if not existing_appname:
+                continue
+
             existing_app_obj = self.app_mgr.appobj_by_appname(existing_appname)
             existing_settings = existing_app_obj["Settings"]
-            existing_group = existing_app_obj["ApplicationGroupName"]
+            existing_app = existing_app_obj["Application"]
+            existing_appname = existing_app_obj["ApplicationName"]
 
-            print(existing_settings)
-            print(new_settings)
-
-            if existing_group == new_group and existing_settings != new_settings:
-                print("app not allowed")
-                self.app_not_allowed.emit(appobj)
+            if existing_app == new_app and existing_settings != new_settings:
+                msg = f"{new_appname} not allowed with {existing_appname} settings"
+                self.app_not_allowed.emit(msg)
                 return
 
-        print("app allowed")
+            if existing_appname == new_appname:
+                msg = f"{new_appname} already exists for one or more selected samples"
+                self.app_not_allowed.emit(msg)
+                return
+
         self.app_allowed.emit(appobj)
+
+    #
+    # def run_checker(self, rundata_obj: dict):
+    #     df = self.dataset_mgr.base_sample_dataframe()
+    #
+    #     r7, i7, i5, r5 = map(int, rundata_obj["ReadCycles"].split("-"))
+    #
+    #     index_i7_max_len = df["IndexI7"].str.len().max()
+    #     index_i5_max_len = df["IndexI5"].str.len().max()
+    #
+    #     read_cycles = self.dataset_mgr.read_cycles_dict()
+
+    def override_cycles_checker(self, override_pattern: dict):
+
+        invalid_override_names = []
+
+        for cycles_name, pattern in override_pattern.items():
+            if not validate_override_pattern(cycles_name, pattern):
+                print(f"{cycles_name} has invalid override pattern {pattern}")
+                invalid_override_names.append(cycles_name)
+
+        if invalid_override_names:
+            self.override_pattern_invalid.emit(invalid_override_names)
+            return
+
+        run_read_cycles = self.dataset_mgr.read_cycles_dict
+
+        for cycles_name, pattern in override_pattern.items():
+            preset_len = preset_override_cycles(cycles_name, pattern)
+
+            if preset_len > run_read_cycles[cycles_name]:
+                print(
+                    f"{cycles_name} has preset length {preset_len} which is longer than run read cycles {run_read_cycles[cycles_name]}"
+                )
+                invalid_override_names.append(cycles_name)
+
+        if invalid_override_names:
+            self.override_pattern_invalid.emit(invalid_override_names)
+            return
+
+        self.override_pattern_valid.emit(override_pattern)
+
+        return

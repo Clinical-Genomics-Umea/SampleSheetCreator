@@ -112,13 +112,11 @@ class RunInfoView(QGroupBox):
 
     def set_data(self, data):
         for key, value in data.items():
-            print(key, value)
             if key in self.run_info_data:
                 if isinstance(value, list):
                     value = int_list_to_int_str(value)
                 if isinstance(value, int):
                     value = str(value)
-                    print(value)
 
                 self.run_info_data[key].setText(value)
 
@@ -153,7 +151,6 @@ class RunView(QWidget):
         self._layout.addSpacerItem(spacer)
 
     def set_data(self, data):
-        print(data)
         for key, value in data.items():
             if key in self._view_widgets:
 

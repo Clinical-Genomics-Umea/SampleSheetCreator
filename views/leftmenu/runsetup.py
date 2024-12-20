@@ -208,11 +208,9 @@ class RunSetupWidget(QWidget):
 
         for i, value in enumerate(readcycles):
             if i == 1:
-                print(value, index_maxlens["IndexI7_maxlen"])
                 if index_maxlens["IndexI7_maxlen"] > value:
                     return False
             if i == 2:
-                print(value, index_maxlens["IndexI5_maxlen"])
                 if index_maxlens["IndexI5_maxlen"] > value:
                     return False
 

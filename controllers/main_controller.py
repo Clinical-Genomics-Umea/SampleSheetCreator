@@ -67,6 +67,7 @@ class MainController(QObject):
         self._connect_application_signal()
         self._connect_sample_model_signals()
         self._connect_drop_paste_signals()
+        self._connect_lane_signals()
 
     def _connect_notifications(self):
         self._main_window.samples_widget.selection_data.connect(
@@ -75,9 +76,14 @@ class MainController(QObject):
         self._compatibility_checker.dropped_not_allowed.connect(
             self._status_bar.display_error_msg
         )
+        self._compatibility_checker.dropped_not_allowed_flash.connect(
+            self._main_window.samples_widget.flash_table
+        )
 
     def _connect_sample_model_signals(self):
-        self._sample_model.dataChanged.connect(self._main_window.disable_export_action)
+        self._sample_model.dataChanged.connect(
+            self._main_window.set_export_action_disabled
+        )
 
     def _connect_application_signal(self):
         self._main_window.applications_widget.add_signal.connect(
@@ -119,6 +125,7 @@ class MainController(QObject):
             self._main_window.apps_action,
             self._main_window.indexes_action,
             self._main_window.override_action,
+            self._main_window.lane_action,
             self._main_window.settings_action,
             self._main_window.validate_action,
             self._main_window.export_action,
@@ -149,7 +156,7 @@ class MainController(QObject):
             self._main_window.validation_widget.clear_validation_widgets
         )
         self._main_validator.prevalidator_status.connect(
-            self._main_window.set_export_action_status
+            self._main_window.update_export_action_state
         )
 
     def _connect_override_pattern_signals(self):
@@ -160,7 +167,10 @@ class MainController(QObject):
             self._main_window.samples_widget.sample_view.get_override_pattern
         )
         self._main_window.override_widget.custom_override_pattern_ready.connect(
-            self._main_window.samples_widget.sample_view.set_override_pattern
+            self._compatibility_checker.override_cycles_checker
+        )
+        self._compatibility_checker.override_pattern_invalid.connect(
+            self._main_window.override_widget.on_invalid_result
         )
 
     def _connect_run_signals(self):
@@ -176,6 +186,17 @@ class MainController(QObject):
         )
         self._run_data_model.run_data_ready.connect(
             self._main_window.run_info_view.set_data
+        )
+        self._run_data_model.run_data_changed.connect(
+            self._main_window.set_override_action_enabled
+        )
+        self._run_data_model.run_data_changed.connect(
+            self._main_window.lane_widget.set_lanes
+        )
+
+    def _connect_lane_signals(self):
+        self._main_window.lane_widget.lanes_ready.connect(
+            self._main_window.samples_widget.sample_view.set_lanes
         )
 
 

@@ -78,6 +78,11 @@ class Ui_MainWindow(object):
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
         self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
         self.leftmenu_stackedWidget.addWidget(self.leftmenu_apps)
+        self.leftmenu_lane = QWidget()
+        self.leftmenu_lane.setObjectName(u"leftmenu_lane")
+        self.verticalLayout_7 = QVBoxLayout(self.leftmenu_lane)
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
+        self.leftmenu_stackedWidget.addWidget(self.leftmenu_lane)
         self.leftmenu_runsetup = QWidget()
         self.leftmenu_runsetup.setObjectName(u"leftmenu_runsetup")
         self.verticalLayout_2 = QVBoxLayout(self.leftmenu_runsetup)
@@ -139,7 +144,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.leftmenu_stackedWidget.setCurrentIndex(3)
+        self.leftmenu_stackedWidget.setCurrentIndex(4)
         self.main_stackedWidget.setCurrentIndex(3)
 
 

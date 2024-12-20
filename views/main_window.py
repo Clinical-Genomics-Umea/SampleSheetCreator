@@ -22,6 +22,7 @@ from views.config.configuration_view import ConfigurationWidget
 from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
 from views.leftmenu.file import FileView
 from views.leftmenu.index import IndexKitToolbox
+from views.leftmenu.lane import LanesWidget
 from views.notify.notify import StatusBar
 from views.leftmenu.override import OverrideCyclesWidget
 from views.leftmenu.application import Applications
@@ -89,6 +90,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.apps_action = QAction("Apps", self)
         self.indexes_action = QAction("Indexes", self)
         self.override_action = QAction("Override", self)
+        self.lane_action = QAction("Lane", self)
         self.validate_action = QAction("Validate", self)
         self.export_action = QAction("Export", self)
         self.settings_action = QAction("Settings", self)
@@ -101,6 +103,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.override_widget = OverrideCyclesWidget()
         self._setup_override()
 
+        self.lane_widget = LanesWidget(self.dataset_manager)
+        self._setup_lane()
+
         self._setup_left_toolbar_actions()
 
         self.file_widget = FileView()
@@ -110,7 +115,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._setup_samples_widget()
 
         self.run_setup_widget = RunSetupWidget(self.config_manager, dataset_manager)
-        # self.run_view_widget = RunView(self.config_manager)
         self.run_info_view = RunInfoView("Run Setup", self.config_manager)
         self._setup_run_view()
 
@@ -134,12 +138,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.leftmenu_stackedWidget.setFixedWidth(300)
         self.leftmenu_stackedWidget.hide()
 
-    def disable_export_action(self):
+    def set_export_action_disabled(self):
         self.export_action.setEnabled(False)
-        self.validation_widget.clear_validation_widgets()
 
-    def set_export_action_status(self, is_enabled):
+    def set_override_action_enabled(self):
+        self.override_action.setEnabled(True)
+
+    def update_export_action_state(self, is_enabled):
         self.export_action.setEnabled(is_enabled)
+
+    def update_override_action_state(self, is_enabled):
+        self.override_action.setEnabled(is_enabled)
+
+    def update_validate_action_state(self, is_enabled):
+        self.validate_action.setEnabled(is_enabled)
 
     def _setup_leftmenu_file(self):
         layout = self.leftmenu_file.layout()
@@ -149,6 +161,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout = self.leftmenu_override.layout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.override_widget)
+        self.update_override_action_state(False)
+
+    def _setup_lane(self):
+        layout = self.leftmenu_lane.layout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.lane_widget)
 
     def _setup_export_widget(self):
         layout = self.main_export.layout()
@@ -158,6 +176,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def _setup_validation_widget(self):
         layout = self.main_validation.layout()
         layout.addWidget(self.validation_widget)
+        self.update_validate_action_state(False)
 
     def _setup_config(self):
         layout = self.main_settings.layout()
@@ -195,16 +214,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             "apps",
             "indexes",
             "override",
+            "lane",
             "config",
             "validate",
             "export",
         }
 
-        main_data_actions = {"file", "run", "apps", "indexes", "override"}
+        main_data_actions = {"file", "run", "apps", "indexes", "override", "lane"}
 
         action = self.sender()
         action_id = action.data()
         is_checked = action.isChecked()
+
+        print(action_id, is_checked)
 
         if action_id not in known_actions:
             return
@@ -238,6 +260,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif action_id == "override":
                 self.leftmenu_stackedWidget.show()
                 self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_override)
+            elif action_id == "lane":
+                self.leftmenu_stackedWidget.show()
+                self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_lane)
             else:
                 return
 
@@ -257,6 +282,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             (self.indexes_action, "mdi6.barcode", "indexes", "index"),
             (self.apps_action, "msc.symbol-method", "apps", "apps"),
             (self.override_action, "msc.sync", "override", "o-ride "),
+            (self.lane_action, "mdi6.road", "lane", "lane"),
             (self.validate_action, "msc.check-all", "validate", "valid"),
             (self.export_action, "msc.coffee", "export", "export"),
             (self.settings_action, "msc.settings-gear", "config", "config"),
@@ -283,5 +309,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.left_toolBar.addAction(action_group.actions()[4])
         self.left_toolBar.addAction(action_group.actions()[5])
         self.left_toolBar.addAction(action_group.actions()[6])
-        self.left_toolBar.addWidget(spacer)
         self.left_toolBar.addAction(action_group.actions()[7])
+        self.left_toolBar.addWidget(spacer)
+        self.left_toolBar.addAction(action_group.actions()[8])

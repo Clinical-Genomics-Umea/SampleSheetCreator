@@ -1,4 +1,4 @@
-from PySide6.QtCore import QAbstractItemModel, Qt, QSortFilterProxyModel
+from PySide6.QtCore import QAbstractItemModel, Qt, QSortFilterProxyModel, QTimer
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 
 import pandas as pd
@@ -7,6 +7,50 @@ import yaml
 import json
 import uuid6
 import re
+
+read_cycle_patterns = {
+    "Read1Cycles": {
+        "findall": r"(Y\d+|N\d+|U\d+|Y{r})",
+        "validate": r"^(Y\d+|N\d+|U\d+)*(Y{r})(Y\d+|N\d+|U\d+)*$",
+    },
+    "Index1Cycles": {
+        "findall": r"(I\d+|N\d+|U\d+|I{i})",
+        "validate": r"^(I\d+|N\d+|U\d+)*(I{i})(I\d+|N\d+|U\d+)*$",
+    },
+    "Index2Cycles": {
+        "findall": r"(I\d+|N\d+|U\d+|I{i})",
+        "validate": r"^(I\d+|N\d+|U\d+)*(I{i})(I\d+|N\d+|U\d+)*$",
+    },
+    "Read2Cycles": {
+        "findall": r"(Y\d+|N\d+|U\d+|Y{r})",
+        "validate": r"^(Y\d+|N\d+|U\d+)*(Y{r})(Y\d+|N\d+|U\d+)*$",
+    },
+}
+
+
+def validate_override_pattern(cycles_name, pattern):
+    print(cycles_name, pattern)
+    if re.fullmatch(read_cycle_patterns[cycles_name]["validate"], pattern):
+        return True
+
+    return False
+
+
+def preset_override_cycles(cycles_name, pattern):
+    matches = re.findall(read_cycle_patterns[cycles_name]["validate"], pattern)
+    preset_oc_len = 0
+    print(matches)
+    for m in matches:
+        if "{" not in m:
+            preset_oc_len += int(m[1:])
+
+    return preset_oc_len
+
+
+def flash_widget(widget):
+    original_style = widget.styleSheet()
+    widget.setStyleSheet("border: 1px solid red;")
+    QTimer.singleShot(500, lambda: widget.setStyleSheet(original_style))
 
 
 def uuid():

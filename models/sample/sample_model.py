@@ -77,8 +77,6 @@ class SampleModel(QStandardItemModel):
         return bool(data.hasFormat("application/json"))
 
     def set_dropped_data(self, data):
-        pprint(data)
-
         start_row = data["start_row"]
 
         self.blockSignals(True)

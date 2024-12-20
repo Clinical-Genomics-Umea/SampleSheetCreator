@@ -562,8 +562,6 @@ class IndexColorBalanceModel(QStandardItemModel):
         super(IndexColorBalanceModel, self).__init__(parent=parent)
         self.dataChanged.connect(self.update_summation)
 
-        print(base_colors)
-
         self._transformed_base_colors = {
             key: [color[0].upper() for color in colors]
             for key, colors in base_colors.items()

@@ -7,7 +7,7 @@
         "version": "1",
         "description": "Ilmn DNA-RNA UD Indexes SetD Tagmentation - ILMN PCR-Free Index Kit",
         "index_strategy": "DualOnly",
-        "override_cycles_pattern": "Y{r1}-I{i1}-I{i2}-Y{r2}"
+        "override_cycles_pattern": "Y{r}-I{i}-I{i}-Y{r}"
     },
     "resources": {
         "adapter": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",

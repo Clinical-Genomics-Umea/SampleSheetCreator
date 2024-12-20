@@ -3,10 +3,6 @@ from PySide6.QtGui import (
     QClipboard,
     QCursor,
     QStandardItemModel,
-    QFont,
-    QPainter,
-    QColor,
-    QFontMetrics,
 )
 from PySide6.QtCore import (
     Qt,
@@ -15,9 +11,7 @@ from PySide6.QtCore import (
     Slot,
     QItemSelectionModel,
     QSortFilterProxyModel,
-    QSize,
-    QModelIndex,
-    QRect,
+    QTimer,
 )
 from PySide6.QtWidgets import (
     QTableView,
@@ -175,7 +169,7 @@ class SamplesWidget(QWidget):
         horizontal_header.setSectionsClickable(False)
         self._set_selection_mode()
 
-        self.appname_delegate = ApplicationNameDelegate()
+        # self.appname_delegate = ApplicationNameDelegate()
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
@@ -189,6 +183,9 @@ class SamplesWidget(QWidget):
         )
         self.column_visibility_btn.clicked.connect(self._toggle_column_visibility_ctrl)
         self.delete_rows_btn.clicked.connect(self.sample_view.del_selected_rows)
+
+    def flash_table(self):
+        self.sample_view.flash_error()
 
     def _toggle_column_visibility_ctrl(self):
         if self.column_visibility_ctrl.isVisible():
@@ -225,13 +222,8 @@ class SamplesWidget(QWidget):
         # header_index_map = header_to_index_map(samples_proxy_model)
 
         header = self.sample_view.horizontalHeader()
-        for col in range(samples_proxy_model.columnCount() - 1):
+        for col in range(samples_proxy_model.columnCount()):
             header.setSectionResizeMode(col, QHeaderView.ResizeToContents)
-
-        appname_col = self._get_column_index_by_header("ApplicationName")
-        self.sample_view.setItemDelegateForColumn(appname_col, self.appname_delegate)
-
-        # self.sample_view.resizeColumnToContents(appname_col)
 
     def _set_selection_mode(self):
         if self.extended_selection_pushbutton.isChecked():
@@ -308,6 +300,11 @@ class SampleTableView(QTableView):
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
+    def flash_error(self):
+        original_style = self.styleSheet()
+        self.setStyleSheet("border: 1px solid red;")
+        QTimer.singleShot(500, lambda: self.setStyleSheet(original_style))
+
     def _get_column_index_by_header(self, header_label):
         """
         Get the column index for the specified header label in a QTableView.
@@ -331,33 +328,33 @@ class SampleTableView(QTableView):
         selected_rows = self.selectionModel().selectedRows()
         self.model().removeRows(selected_rows[0].row(), len(selected_rows))
 
-    def _set_dynamic_column_width(self):
-        """
-        Dynamically adjust column width based on delegate's size hint
-
-        :param table_view: QTableView instance
-        """
-        model = self.model()
-        delegate = self.itemDelegate()
-
-        # Create a dummy style option
-        option = QStyleOptionViewItem()
-
-        # Track maximum width
-        max_column_width = 0
-
-        col = self._get_column_index_by_header("ApplicationName")
-
-        # Iterate through all rows to find maximum width
-        for row in range(model.rowCount()):
-            index = model.index(row, col)
-            size_hint = delegate.sizeHint(option, index)
-            max_column_width = max(max_column_width, size_hint.width())
-
-        print(max_column_width)
-
-        # Set the column width
-        self.setColumnWidth(col, int(max_column_width * 1.1))
+    # def _set_dynamic_column_width(self):
+    #     """
+    #     Dynamically adjust column width based on delegate's size hint
+    #
+    #     :param table_view: QTableView instance
+    #     """
+    #     model = self.model()
+    #     delegate = self.itemDelegate()
+    #
+    #     # Create a dummy style option
+    #     option = QStyleOptionViewItem()
+    #
+    #     # Track maximum width
+    #     max_column_width = 0
+    #
+    #     col = self._get_column_index_by_header("ApplicationName")
+    #
+    #     # Iterate through all rows to find maximum width
+    #     for row in range(model.rowCount()):
+    #         index = model.index(row, col)
+    #         size_hint = delegate.sizeHint(option, index)
+    #         max_column_width = max(max_column_width, size_hint.width())
+    #
+    #     print(max_column_width)
+    #
+    #     # Set the column width
+    #     self.setColumnWidth(col, int(max_column_width * 1.1))
 
     @Slot(dict)
     def remove_application(self, application_object: dict) -> None:
@@ -410,7 +407,7 @@ class SampleTableView(QTableView):
             Qt.DisplayRole,
         )
 
-        self._set_dynamic_column_width()
+        # self._set_dynamic_column_width()
 
     @Slot(dict)
     def set_application(self, application_object: dict) -> None:
@@ -465,7 +462,37 @@ class SampleTableView(QTableView):
             Qt.DisplayRole,
         )
 
-        self._set_dynamic_column_width()
+    @Slot(list)
+    def set_lanes(self, lanes: list) -> None:
+        proxy_model = self.model()
+        source_model = proxy_model.sourceModel()
+        selection_model = self.selectionModel()
+        selected_rows = [index.row() for index in selection_model.selectedRows()]
+
+        if not selected_rows:
+            return
+
+        lanes_json = obj_to_json(lanes)
+
+        header_index_map = header_to_index_map(proxy_model)
+        lane_column = header_index_map["Lane"]
+
+        source_model.blockSignals(True)
+
+        for row in selected_rows:
+            proxy_model.setData(
+                proxy_model.index(row, lane_column), lanes_json, Qt.EditRole
+            )
+
+        source_model.blockSignals(False)
+
+        source_model.dataChanged.emit(
+            source_model.index(0, 0),
+            source_model.index(
+                source_model.rowCount() - 1, source_model.columnCount() - 1
+            ),
+            Qt.DisplayRole,
+        )
 
     @staticmethod
     def _set_bclconvert_data(
@@ -858,113 +885,113 @@ class SampleTableView(QTableView):
         self.override_patterns_ready.emit(data)
 
 
-class ApplicationNameDelegate(QStyledItemDelegate):
-    def __init__(self, parent=None, item_spacing=5, item_height=25, item_padding=2):
-        super().__init__(parent)
-        self.item_spacing = item_spacing
-        self.item_height = item_height
-        self.item_padding = item_padding
-
-    def paint(self, painter: QPainter, option, index: QModelIndex):
-        # Get the JSON string from the model
-        json_str = index.data(Qt.DisplayRole)
-
-        # If it's not a JSON string, fall back to default painting
-        if not json_str or not isinstance(json_str, str):
-            super().paint(painter, option, index)
-            return
-
-        try:
-            # Parse the JSON string
-            items = json.loads(json_str)
-
-            # Validate that it's a list
-            if not isinstance(items, list):
-                super().paint(painter, option, index)
-                return
-
-            # Draw background if item is selected
-            if option.state & QStyle.State_Selected:
-                painter.fillRect(option.rect, option.palette.highlight())
-
-            # Prepare for painting
-            painter.save()
-
-            # Start drawing items horizontally
-            current_x = option.rect.x() + self.item_spacing
-
-            # Use a fixed font for consistent sizing
-            font = QFont()
-            painter.setFont(font)
-            font_metrics = QFontMetrics(font)
-
-            for item in items:
-                # Convert item to string
-                item_str = str(item)
-
-                # Calculate text width
-                text_width = (
-                    font_metrics.horizontalAdvance(item_str) + 2 * self.item_padding
-                )
-
-                # Create rectangle for the item
-                item_rect = QRect(
-                    current_x,
-                    option.rect.y() + (option.rect.height() - self.item_height) // 2,
-                    text_width,
-                    self.item_height,
-                )
-
-                # Draw frame
-                painter.setPen(QColor(255, 255, 255))
-                painter.drawRect(item_rect)
-
-                # Draw text inside the frame
-                painter.drawText(
-                    item_rect.adjusted(self.item_padding, 0, -self.item_padding, 0),
-                    Qt.AlignVCenter | Qt.AlignLeft,
-                    item_str,
-                )
-
-                # Move to next item's position
-                current_x += text_width + self.item_spacing
-
-            painter.restore()
-
-        except json.JSONDecodeError:
-            # If JSON is invalid, fall back to default painting
-            super().paint(painter, option, index)
-
-    def sizeHint(self, option, index: QModelIndex) -> QSize:
-        # Get the JSON string from the model
-        json_str = index.data(Qt.DisplayRole)
-
-        try:
-            # Parse the JSON string
-            items = json.loads(json_str)
-
-            # Validate that it's a list
-            if not isinstance(items, list):
-                return super().sizeHint(option, index)
-
-            # Prepare for size calculation
-            font = QFont()
-            font_metrics = QFontMetrics(font)
-
-            # Calculate total width
-            total_width = self.item_spacing * 2  # Initial spacing
-            for item in items:
-                # Calculate width for each item
-                item_width = (
-                    font_metrics.horizontalAdvance(str(item))
-                    + 2 * self.item_padding  # Padding on both sides
-                )
-                total_width += item_width + self.item_spacing
-
-            # Return size with calculated width and fixed height
-
-            return QSize(total_width, self.item_height + 5)  # Add some vertical padding
-
-        except (json.JSONDecodeError, TypeError):
-            # If JSON is invalid, use default size hint
-            return super().sizeHint(option, index)
+# class ApplicationNameDelegate(QStyledItemDelegate):
+#     def __init__(self, parent=None, item_spacing=5, item_height=25, item_padding=2):
+#         super().__init__(parent)
+#         self.item_spacing = item_spacing
+#         self.item_height = item_height
+#         self.item_padding = item_padding
+#
+#     def paint(self, painter: QPainter, option, index: QModelIndex):
+#         # Get the JSON string from the model
+#         json_str = index.data(Qt.DisplayRole)
+#
+#         # If it's not a JSON string, fall back to default painting
+#         if not json_str or not isinstance(json_str, str):
+#             super().paint(painter, option, index)
+#             return
+#
+#         try:
+#             # Parse the JSON string
+#             items = json.loads(json_str)
+#
+#             # Validate that it's a list
+#             if not isinstance(items, list):
+#                 super().paint(painter, option, index)
+#                 return
+#
+#             # Draw background if item is selected
+#             if option.state & QStyle.State_Selected:
+#                 painter.fillRect(option.rect, option.palette.highlight())
+#
+#             # Prepare for painting
+#             painter.save()
+#
+#             # Start drawing items horizontally
+#             current_x = option.rect.x() + self.item_spacing
+#
+#             # Use a fixed font for consistent sizing
+#             font = QFont()
+#             painter.setFont(font)
+#             font_metrics = QFontMetrics(font)
+#
+#             for item in items:
+#                 # Convert item to string
+#                 item_str = str(item)
+#
+#                 # Calculate text width
+#                 text_width = (
+#                     font_metrics.horizontalAdvance(item_str) + 2 * self.item_padding
+#                 )
+#
+#                 # Create rectangle for the item
+#                 item_rect = QRect(
+#                     current_x,
+#                     option.rect.y() + (option.rect.height() - self.item_height) // 2,
+#                     text_width,
+#                     self.item_height,
+#                 )
+#
+#                 # Draw frame
+#                 painter.setPen(QColor(255, 255, 255))
+#                 painter.drawRect(item_rect)
+#
+#                 # Draw text inside the frame
+#                 painter.drawText(
+#                     item_rect.adjusted(self.item_padding, 0, -self.item_padding, 0),
+#                     Qt.AlignVCenter | Qt.AlignLeft,
+#                     item_str,
+#                 )
+#
+#                 # Move to next item's position
+#                 current_x += text_width + self.item_spacing
+#
+#             painter.restore()
+#
+#         except json.JSONDecodeError:
+#             # If JSON is invalid, fall back to default painting
+#             super().paint(painter, option, index)
+#
+#     def sizeHint(self, option, index: QModelIndex) -> QSize:
+#         # Get the JSON string from the model
+#         json_str = index.data(Qt.DisplayRole)
+#
+#         try:
+#             # Parse the JSON string
+#             items = json.loads(json_str)
+#
+#             # Validate that it's a list
+#             if not isinstance(items, list):
+#                 return super().sizeHint(option, index)
+#
+#             # Prepare for size calculation
+#             font = QFont()
+#             font_metrics = QFontMetrics(font)
+#
+#             # Calculate total width
+#             total_width = self.item_spacing * 2  # Initial spacing
+#             for item in items:
+#                 # Calculate width for each item
+#                 item_width = (
+#                     font_metrics.horizontalAdvance(str(item))
+#                     + 2 * self.item_padding  # Padding on both sides
+#                 )
+#                 total_width += item_width + self.item_spacing
+#
+#             # Return size with calculated width and fixed height
+#
+#             return QSize(total_width, self.item_height + 5)  # Add some vertical padding
+#
+#         except (json.JSONDecodeError, TypeError):
+#             # If JSON is invalid, use default size hint
+#             return super().sizeHint(option, index)

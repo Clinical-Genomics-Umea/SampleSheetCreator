@@ -34,11 +34,6 @@ class RunDataModel(QObject):
             self._rundata["Instrument"]
         ]["I5SeqOrientation"]
 
-    # def _set_i5_smplsht_orientation(self):
-    #     self._rundata["I5SampleSheetOrientation"] = self._instr_fcells_obj[
-    #         self._rundata["Instrument"]
-    #     ]["I5SampleSheetOrientation"][self._rundata["FastqExtractTool"]]
-
     def _set_lanes(self):
         self._rundata["Lanes"] = self._instr_fcells_obj[self._rundata["Instrument"]][
             "Flowcell"
@@ -109,6 +104,15 @@ class RunDataModel(QObject):
         self._rundata["Index2Cycles"] = self._read_cycles_dict["Index2Cycles"]
         self._rundata["Read2Cycles"] = self._read_cycles_dict["Read2Cycles"]
 
+    @property
+    def read_cycles_dict(self):
+        return {
+            "Read1Cycles": self._rundata["Read1Cycles"],
+            "Index1Cycles": self._rundata["Index1Cycles"],
+            "Index2Cycles": self._rundata["Index2Cycles"],
+            "Read2Cycles": self._rundata["Read2Cycles"],
+        }
+
     def _set_extract_tool_samplesheet_orientation(self):
         for tool, orientation in self._instr_fcells_obj[self._rundata["Instrument"]][
             "I5SampleSheetOrientation"
@@ -170,9 +174,9 @@ class RunDataModel(QObject):
     def i5_seq_orientation(self) -> str:
         return self._rundata["I5SeqOrientation"]
 
-    @property
-    def read_cycles_dict(self) -> dict:
-        return self._read_cycles_dict
+    # @property
+    # def read_cycles_dict(self) -> dict:
+    #     return self._read_cycles_dict
 
     @property
     def read_cycles_list(self) -> list:
@@ -193,3 +197,7 @@ class RunDataModel(QObject):
     @property
     def base_colors(self) -> dict:
         return self._rundata["Fluorophores"]
+
+    @property
+    def lanes(self) -> list:
+        return self._rundata["Lanes"]

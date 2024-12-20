@@ -54,15 +54,24 @@ class DataSetManager:
         return ";".join(output_items)
 
     def index_maxlens(self):
+        """Return a dictionary of the maximum lengths of IndexI5 and IndexI7 columns in the sample model dataframe."""
         dataframe = self.sample_model.to_dataframe()
 
         if dataframe.empty:
-            return None
+            return {"IndexI7_maxlen": 0, "IndexI5_maxlen": 0}
 
-        indexi7_maxlen = int(dataframe["IndexI7"].str.len().max())
-        indexi5_maxlen = int(dataframe["IndexI5"].str.len().max())
+        index_i7_maxlen = dataframe["IndexI7"].str.len().max()
+        index_i5_maxlen = dataframe["IndexI5"].str.len().max()
 
-        return {"IndexI7_maxlen": indexi7_maxlen, "IndexI5_maxlen": indexi5_maxlen}
+        try:
+            index_i7_maxlen = int(index_i7_maxlen)
+            index_i5_maxlen = int(index_i5_maxlen)
+
+        except ValueError:
+            index_i7_maxlen = 0
+            index_i5_maxlen = 0
+
+        return {"IndexI7_maxlen": index_i7_maxlen, "IndexI5_maxlen": index_i5_maxlen}
 
     def validation_view_obj(self):
 
@@ -221,14 +230,14 @@ class DataSetManager:
             "Custom_UUID7": uuid(),
         }
 
-    def read_cycle_data(self):
+    def read_cycles_dict(self) -> dict:
         return self.rundata_model.read_cycles_dict
 
     def set_samplesheet_obj(self):
 
         obj = {
             "Header": self._header_data(),
-            "Reads": self.read_cycle_data(),
+            "Reads": self.read_cycles_dict(),
             "Applications": self.app_settings_data(),
         }
 
@@ -285,6 +294,10 @@ class DataSetManager:
         used_lanes = set(df["Lane"])
         return sorted(list(used_lanes))
 
+    @property
+    def run_lanes(self):
+        return self.rundata_model.lanes
+
     def base_sample_dataframe(self):
         dataframe = self.sample_model.to_dataframe()
         # dataframe["OverrideCycles"] = dataframe["OverrideCyclesPattern"].apply(
@@ -298,8 +311,12 @@ class DataSetManager:
         return base_df.explode("Lane", ignore_index=True)
 
     def sample_dataframe_appname_explode(self):
-        base_df = self.base_sample_dataframe().copy(deep=True)
-        return base_df.explode("ApplicationName", ignore_index=True)
+        _df = self.base_sample_dataframe().copy(deep=True)
+        df = _df[_df["ApplicationName"].apply(lambda x: x != [])]
+        if not df.empty:
+            return df.explode("ApplicationName", ignore_index=True)
+
+        return df
 
     @staticmethod
     def _dataframe_strs_to_obj(dataframe):
