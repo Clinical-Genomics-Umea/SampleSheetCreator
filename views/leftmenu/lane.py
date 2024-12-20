@@ -78,10 +78,11 @@ class LanesWidget(QWidget):
         self.lanes_checkboxes = {}
 
         lanes = self.dataset_mgr.run_lanes
+        self.checkboxes_layout.addRow("Lane designation", QLabel("Usage"))
         for lane in lanes:
             checkbox = QCheckBox()
             self.lanes_checkboxes[lane] = checkbox
-            self.checkboxes_layout.addRow(f"lane {lane}", self.lanes_checkboxes[lane])
+            self.checkboxes_layout.addRow(f"Lane {lane}", self.lanes_checkboxes[lane])
 
     def emit_lanes(self):
         lanes = []

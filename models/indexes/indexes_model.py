@@ -1,13 +1,23 @@
 from functools import reduce
 
 import pandas as pd
-from io import StringIO
 from pathlib import Path
 import json
 import jsonschema
-from PySide6.QtCore import QObject
 from jsonschema import validate
-from camel_converter import to_snake
+
+
+class IndexKitManager(object):
+    def __init__(self, index_kits_path: Path, schema_path: Path):
+        self._index_kits_path = index_kits_path
+        self._schema_path = schema_path
+        self._index_kits = []
+        self._load_index_kits()
+
+        self._index_kit_by_name = {ik["Name"]: ik for ik in self._index_kits}
+
+    def _load_index_kits(self):
+        self._index_kits = [ik for ik in self._index_kits_path.glob("*.json")]
 
 
 class IndexKitDefinition:
@@ -91,8 +101,8 @@ class IndexKitDefinition:
 #
 #
 # def run_import():
-#     index_root = Path(r'C:\Dev\PyCharmProjects\SampleSheetCreator\config\indexes\indexes_json')
-#     index_schema = Path(r'C:\Dev\PyCharmProjects\SampleSheetCreator\config\indexes\indexes_json_schema.json')
+#     index_root = Path(r'C:\Dev\PyCharmProjects\SampleSheetCreator\config\indexes\data')
+#     index_schema = Path(r'C:\Dev\PyCharmProjects\SampleSheetCreator\config\indexes\schema.json')
 #
 #     jsons = index_root.glob('*.json')
 #
@@ -119,7 +129,7 @@ class IndexKitDefinition:
 #
 # def run_convert():
 #     index_root = Path(r'C:\Dev\PyCharmProjects\SampleSheetCreator\config\indexes\Illumina_UDI')
-#     out_root = Path(r'C:\Dev\PyCharmProjects\SampleSheetCreator\config\indexes\indexes_json')
+#     out_root = Path(r'C:\Dev\PyCharmProjects\SampleSheetCreator\config\indexes\data')
 #
 #     tsvs = index_root.glob('*.tsv')
 #

@@ -26,7 +26,7 @@ class ConfigurationManager(QObject):
 
         # paths
         self._config_paths = {
-            "indexes_settings_basepath": Path("config/indexes/indexes_json"),
+            "indexes_settings_basepath": Path("config/indexes/data"),
             "application_settings_basepath": Path("config/applications"),
             "run_settings_path": Path("config/run/run_settings.yaml"),
             "instrument_flowcells_path": Path("config/run/instrument_flowcells.yaml"),

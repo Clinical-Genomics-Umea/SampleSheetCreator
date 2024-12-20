@@ -121,7 +121,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.validation_widget = MainValidationWidget(self.dataset_manager)
         self._setup_validation_widget()
 
-        self.indexes_widget = IndexKitToolbox(Path("config/indexes/indexes_json"))
+        self.indexes_widget = IndexKitToolbox(Path("config/indexes/data"))
         self._setup_left_menu_indexes()
 
         self.applications_widget = Applications(
@@ -137,6 +137,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.leftmenu_stackedWidget.setFixedWidth(300)
         self.leftmenu_stackedWidget.hide()
+
+    def set_lanes_action_enabled(self):
+        self.lane_action.setEnabled(True)
 
     def set_export_action_disabled(self):
         self.export_action.setEnabled(False)
@@ -167,6 +170,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout = self.leftmenu_lane.layout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.lane_widget)
+        self.lane_action.setEnabled(False)
 
     def _setup_export_widget(self):
         layout = self.main_export.layout()

@@ -180,7 +180,6 @@ class MainController(QObject):
         self._config_manager.run_data_error.connect(
             self._main_window.run_setup_widget.show_error
         )
-
         self._main_window.run_setup_widget.setup_commited.connect(
             self._run_data_model.set_run_data
         )
@@ -192,6 +191,9 @@ class MainController(QObject):
         )
         self._run_data_model.run_data_changed.connect(
             self._main_window.lane_widget.set_lanes
+        )
+        self._run_data_model.run_data_changed.connect(
+            self._main_window.set_lanes_action_enabled
         )
 
     def _connect_lane_signals(self):

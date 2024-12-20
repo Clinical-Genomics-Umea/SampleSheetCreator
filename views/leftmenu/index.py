@@ -123,6 +123,10 @@ class IndexTableModel(QAbstractTableModel):
             flags |= Qt.ItemIsDragEnabled
         return flags
 
+    def indexes_to_rows(self, indexes):
+        row_indexes = {index.row() for index in indexes}
+        return sorted(list(row_indexes))
+
     def mimeData(self, indexes):
         """
         Generates a QMimeData object containing the data to be transferred to external applications.
@@ -133,9 +137,13 @@ class IndexTableModel(QAbstractTableModel):
         Returns:
             QMimeData: The QMimeData object containing the transferred data.
         """
+
+        print(indexes)
+
         mime_data = QMimeData()
-        row_indexes = {index.row() for index in indexes}
-        df = pd.DataFrame(self.dataframe, index=list(row_indexes))
+        # row_indexes = {index.row() for index in indexes}
+        rows = self.indexes_to_rows(indexes)
+        df = pd.DataFrame(self.dataframe, index=rows)
         records = df.to_dict(orient="records")
 
         # Convert the records to JSON
@@ -156,8 +164,6 @@ class IDKWidget(QWidget):
         self.index_df = index_df.rename(columns=pascal_case_col_map)
 
         self.shown_fields = self.get_shown_fields()
-
-        # setup sortfilterproxies
 
         self.sfproxy = {field: QSortFilterProxyModel() for field in self.shown_fields}
 
@@ -262,9 +268,7 @@ class IKDWidgetContainer(QWidget):
         self.ikd = ikd
         self.idk_widget_list = []
 
-        name = ikd.name()
         if ikd.has_indices_dual_fixed():
-            # print(name, ikd.indices_dual_fixed())
             self.idk_widget_list.append(IDKWidget(ikd.indices_dual_fixed()))
 
         elif ikd.has_indices_i7() and ikd.has_indices_i5():
@@ -281,7 +285,7 @@ class IKDWidgetContainer(QWidget):
 class IndexKitToolbox(QWidget):
     def __init__(self, indexes_base_path: Path):
         super().__init__()
-        index_schema_path = Path("config/indexes/indexes_json_schema.json")
+        index_schema_path = Path("config/indexes/schema.json")
         idk_list = self._ikd_list(indexes_base_path, index_schema_path)
         # print(idk_list)
         self.ikd_widgets = {idk.name(): IKDWidgetContainer(idk) for idk in idk_list}
@@ -312,6 +316,5 @@ class IndexKitToolbox(QWidget):
     def _ikd_list(index_dir_root: Path, index_schema_path: Path) -> list:
 
         index_files = [f for f in index_dir_root.glob("*.json")]
-        # print(index_files)
 
         return [IndexKitDefinition(f, index_schema_path) for f in index_files]
