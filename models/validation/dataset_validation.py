@@ -7,9 +7,9 @@ import pandas as pd
 from PySide6.QtCore import QThread, Slot, Signal, QObject, Qt
 from PySide6.QtGui import QStandardItemModel
 
-from models.application.application import ApplicationManager
-from models.configuration.configuration import ConfigurationManager
-from models.dataset.dataset import DataSetManager
+from models.application.application_manager import ApplicationManager
+from models.configuration.configuration_manager import ConfigurationManager
+from models.dataset.dataset_manager import DataSetManager
 from models.sample.sample_model import SampleModel
 
 

@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QCheckBox,
 )
 
-from models.dataset.dataset import DataSetManager
+from models.dataset.dataset_manager import DataSetManager
 from models.rundata.rundata_model import RunDataModel
 from utils.utils import flash_widget
 from views.ui_components import HorizontalLine

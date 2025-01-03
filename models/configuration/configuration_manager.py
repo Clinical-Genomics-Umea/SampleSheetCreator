@@ -35,6 +35,7 @@ class ConfigurationManager(QObject):
                 "config/validation/validation_settings.yaml"
             ),
             "samplesheet_v1_template": Path("config/samplesheet_v1.yaml"),
+            "index_kit_schema_path": Path("config/indexes/schema.json"),
         }
 
         self._instruments_flowcell_obj = read_yaml_file(
@@ -53,6 +54,14 @@ class ConfigurationManager(QObject):
         self._samplesheet_v1_template = read_yaml_file(
             self._config_paths["samplesheet_v1_template"]
         )
+
+    @property
+    def index_kits_path(self):
+        return self._config_paths["indexes_settings_basepath"]
+
+    @property
+    def index_kit_schema_path(self):
+        return self._config_paths["index_kit_schema_path"]
 
     @property
     def instrument_flowcells(self):

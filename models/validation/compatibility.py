@@ -1,8 +1,8 @@
 import pandas as pd
 from PySide6.QtCore import Signal, QObject, Slot
 
-from models.application.application import ApplicationManager
-from models.dataset.dataset import DataSetManager
+from models.application.application_manager import ApplicationManager
+from models.dataset.dataset_manager import DataSetManager
 from utils.utils import validate_override_pattern, preset_override_cycles
 
 

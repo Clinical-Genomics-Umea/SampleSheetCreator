@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 import sys
 
-from pathlib import Path
-
 from PySide6.QtWidgets import (
     QMainWindow,
     QSizePolicy,
@@ -15,20 +13,21 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QAction, QActionGroup, QIcon
 from PySide6.QtCore import Qt, QSize, Signal
 
-from models.application.application import ApplicationManager
-from models.configuration.configuration import ConfigurationManager
-from models.dataset.dataset import DataSetManager
-from views.config.configuration_view import ConfigurationWidget
+from models.application.application_manager import ApplicationManager
+from models.configuration.configuration_manager import ConfigurationManager
+from models.dataset.dataset_manager import DataSetManager
+from models.indexes.index_kit_manager import IndexKitManager
+from views.config.configuration_widget import ConfigurationWidget
 from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
-from views.leftmenu.file import FileView
-from views.leftmenu.index import IndexKitToolbox
-from views.leftmenu.lane import LanesWidget
+from views.leftmenu.file.file import FileView
+from views.leftmenu.index.index_kit_toolbox import IndexKitToolbox
+from views.leftmenu.lane.lane import LanesWidget
 from views.notify.notify import StatusBar
-from views.leftmenu.override import OverrideCyclesWidget
-from views.leftmenu.application import Applications
-from views.runview.runview import RunView, RunInfoView
-from views.leftmenu.runsetup import RunSetupWidget
-from views.export.export_view import ExportWidget
+from views.leftmenu.override.override import OverrideCyclesWidget
+from views.leftmenu.application.application_container import ApplicationContainerWidget
+from views.run.runview import RunInfoView
+from views.leftmenu.run_setup.runsetup import RunSetupWidget
+from views.export.export import ExportWidget
 from views.validation.validation_view import (
     MainValidationWidget,
 )
@@ -57,6 +56,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         config_manager: ConfigurationManager,
         application_manager: ApplicationManager,
         dataset_manager: DataSetManager,
+        index_kit_manager: IndexKitManager,
         status_bar: StatusBar,
     ):
         """
@@ -74,6 +74,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.config_manager = config_manager
         self.application_manager = application_manager
         self.dataset_manager = dataset_manager
+        self.index_kit_manager = index_kit_manager
 
         self.setMinimumWidth(1000)
         self.left_toolBar.setMovable(False)
@@ -96,6 +97,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.settings_action = QAction("Settings", self)
 
         self.export_action.setEnabled(False)
+        self.apps_action.setEnabled(False)
+        self.indexes_action.setEnabled(False)
 
         self.columns_settings_button = QPushButton("Columns")
         self.columns_settings_button.setObjectName("columns_settings")
@@ -121,10 +124,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.validation_widget = MainValidationWidget(self.dataset_manager)
         self._setup_validation_widget()
 
-        self.indexes_widget = IndexKitToolbox(Path("config/indexes/data"))
+        self.index_toolbox_widget = IndexKitToolbox(self.index_kit_manager)
         self._setup_left_menu_indexes()
 
-        self.applications_widget = Applications(
+        self.applications_widget = ApplicationContainerWidget(
             self.application_manager, self.dataset_manager
         )
         self._setup_left_menu_applications()
@@ -137,6 +140,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.leftmenu_stackedWidget.setFixedWidth(300)
         self.leftmenu_stackedWidget.hide()
+
+    def set_index_apps_actions_enabled(self):
+        self.apps_action.setEnabled(True)
+        self.indexes_action.setEnabled(True)
 
     def set_lanes_action_enabled(self):
         self.lane_action.setEnabled(True)
@@ -199,7 +206,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def _setup_left_menu_indexes(self):
         layout = self.leftmenu_indexes.layout()
-        layout.addWidget(self.indexes_widget)
+        layout.addWidget(self.index_toolbox_widget)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 

@@ -1,8 +1,9 @@
 from PySide6.QtCore import QObject
 
-from models.application.application import ApplicationManager
-from models.configuration.configuration import ConfigurationManager
-from models.dataset.dataset import DataSetManager
+from models.application.application_manager import ApplicationManager
+from models.configuration.configuration_manager import ConfigurationManager
+from models.dataset.dataset_manager import DataSetManager
+from models.indexes.index_kit_manager import IndexKitManager
 from models.rundata.rundata_model import RunDataModel
 from models.sample.sample_model import SampleModel, CustomProxyModel
 from models.validation.compatibility import DataCompatibilityChecker
@@ -22,6 +23,11 @@ class MainController(QObject):
         self._application_manager = ApplicationManager(self._config_manager)
         self._status_bar = StatusBar()
 
+        self._index_kit_manager = IndexKitManager(
+            self._config_manager.index_kits_path,
+            self._config_manager.index_kit_schema_path,
+        )
+
         self._sample_model = SampleModel(self._config_manager.samples_settings)
         self._sample_proxy_model = CustomProxyModel()
         self._sample_proxy_model.setSourceModel(self._sample_model)
@@ -38,6 +44,7 @@ class MainController(QObject):
             self._config_manager,
             self._application_manager,
             self._dataset_manager,
+            self._index_kit_manager,
             self._status_bar,
         )
         self._main_window.samples_widget.set_model(self._sample_proxy_model)
@@ -194,6 +201,9 @@ class MainController(QObject):
         )
         self._run_data_model.run_data_changed.connect(
             self._main_window.set_lanes_action_enabled
+        )
+        self._run_data_model.run_data_changed.connect(
+            self._main_window.set_index_apps_actions_enabled
         )
 
     def _connect_lane_signals(self):

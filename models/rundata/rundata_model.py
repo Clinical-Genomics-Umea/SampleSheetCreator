@@ -1,5 +1,5 @@
 from PySide6.QtCore import QObject, Slot, Signal
-from models.configuration.configuration import ConfigurationManager
+from models.configuration.configuration_manager import ConfigurationManager
 
 
 class RunDataModel(QObject):
