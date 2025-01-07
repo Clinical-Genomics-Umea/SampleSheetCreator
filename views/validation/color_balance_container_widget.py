@@ -29,6 +29,7 @@ class ColorBalanceContainerWidget(QTabWidget):
 
     @Slot(object)
     def populate(self, results):
+        print("color balance populate", results)
 
         for lane in results:
             tab_scroll_area = QScrollArea()

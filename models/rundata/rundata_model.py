@@ -188,7 +188,7 @@ class RunDataModel(QObject):
 
     @property
     def assess_balance(self) -> bool:
-        return self._rundata["AssessBalance"]
+        return self._rundata["AssessColorBalance"]
 
     @property
     def has_rundata(self) -> bool:

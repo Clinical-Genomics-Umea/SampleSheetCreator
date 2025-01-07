@@ -7,7 +7,7 @@ from models.indexes.index_kit_manager import IndexKitManager
 from models.rundata.rundata_model import RunDataModel
 from models.sample.sample_model import SampleModel, CustomProxyModel
 from models.validation.data_compatibility_checker import DataCompatibilityChecker
-from models.validation.dataset_validation import MainValidator
+from models.validation.main_validator import MainValidator
 from views.notify.notify import StatusBar
 from views.main_window import MainWindow
 
@@ -151,7 +151,7 @@ class MainController(QObject):
             self._main_window.validation_widget.main_index_validation_widget.populate
         )
         self._main_validator.color_balance_validator.data_ready.connect(
-            self._main_window.validation_widget.main_color_balance_validation_widget.populate
+            self._main_window.validation_widget.color_balance_validation_container_widget.populate
         )
         self._main_validator.dataset_validator.data_ready.connect(
             self._main_window.validation_widget.dataset_validation_widget.populate

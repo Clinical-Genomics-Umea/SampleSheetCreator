@@ -25,10 +25,10 @@ from views.leftmenu.lane.lane import LanesWidget
 from views.notify.notify import StatusBar
 from views.leftmenu.override.override import OverrideCyclesWidget
 from views.leftmenu.application.application_container import ApplicationContainerWidget
-from views.run.runview import RunInfoView
-from views.leftmenu.run_setup.runsetup import RunSetupWidget
+from views.run.run_info_view import RunInfoView
+from views.leftmenu.run_setup.run_setup import RunSetupWidget
 from views.export.export import ExportWidget
-from views.validation.main_validation_widgetpy import (
+from views.validation.main_validation_widget import (
     MainValidationWidget,
 )
 

@@ -38,7 +38,7 @@ from utils.utils import json_to_obj, obj_to_json
 
 from models.sample.sample_model import CustomProxyModel
 from utils.utils import header_to_index_map
-from views.run.runview import RunInfoView
+from views.run.run_info_view import RunInfoView
 from views.sample.column_visibility_view import ColumnVisibilityWidget
 
 
