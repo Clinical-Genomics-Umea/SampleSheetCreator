@@ -12,12 +12,17 @@ class IndexKitContainerWidget(QWidget):
         self.layout.setSpacing(5)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
-        self.i7_len = 0
-        self.i5_len = 0
+        self._index_i7_len = iko.index_i7_len
+        self._index_i5_len = iko.index_i5_len
 
-        for name in iko.index_sets.keys():
-            index_widget = IndexKitWidget(iko.index_sets[name])
-
-            iko.index_sets[name]
-
+        for name in iko.index_set.keys():
+            index_widget = IndexKitWidget(iko.index_set[name])
             self.layout.addWidget(index_widget)
+
+    @property
+    def index_i7_len(self):
+        return self._index_i7_len
+
+    @property
+    def index_i5_len(self):
+        return self._index_i5_len

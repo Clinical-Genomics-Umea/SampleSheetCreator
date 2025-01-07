@@ -1,6 +1,6 @@
 {
     "IlmnChecksum": "ncbSlPYlpSRtJgsy7yfnQg==",
-    "Name": "Ilmn DNA-RNA UD Indexes SetD Tagm PCR-Free2",
+    "IndexKitName": "Ilmn DNA-RNA UD Indexes SetD Tagm PCR-Free2",
     "DisplayName": "Ilmn DNA-RNA UD Indexes SetD Tagmentation - ILMN PCR-Free2",
     "Version": "1",
     "Description": "Ilmn DNA-RNA UD Indexes SetD Tagmentation - ILMN PCR-Free Index Kit",
@@ -14,10 +14,8 @@
     "OverrideCyclesPattern": "Y{r}-I{i}-I{i}-Y{r}",
     "IndexStrategy": "DualOnly",
     "UsedIndexSets": ["DualFixedSet"],
-    "IndexLen": {
-        "IndexI7": 10,
-        "IndexI5": 10
-    },
+    "IndexI7Len": 10,
+    "IndexI5Len": 10,
     "SupportedLibraryKits": ["Illumina DNA PCR-Free 2x149", "Illumina DNA PCR-Free 2x151"],
     "IndexSets": {
         "IndexI7Set": [

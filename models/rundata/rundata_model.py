@@ -6,6 +6,7 @@ class RunDataModel(QObject):
 
     run_data_changed = Signal()
     run_data_ready = Signal(dict)
+    index_lens_ready = Signal(int, int)
 
     def __init__(self, cfg_mgr: ConfigurationManager):
         super().__init__()
@@ -20,7 +21,6 @@ class RunDataModel(QObject):
         self._setup()
 
     def _setup(self):
-        print("run data fields", self._cfg_mgr.run_data_fields)
         for field in self._cfg_mgr.run_data_fields:
             self._rundata[field] = None
 
@@ -165,6 +165,10 @@ class RunDataModel(QObject):
 
         self.run_data_changed.emit()
         self.run_data_ready.emit(self._rundata)
+        self.index_lens_ready.emit(
+            self._read_cycles_dict["Index1Cycles"],
+            self._read_cycles_dict["Index2Cycles"],
+        )
 
     @property
     def i5_samplesheet_orientation(self) -> str:

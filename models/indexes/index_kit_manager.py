@@ -1,5 +1,7 @@
 from pathlib import Path
 import json
+from pprint import pprint
+
 import jsonschema
 from jsonschema import validate
 
@@ -11,6 +13,7 @@ class IndexKitManager(object):
         self._index_kits_path = index_kits_path
         self._schema = self._load_schema(schema_path)
         self._index_kit_json_data = self._load_index_data(index_kits_path)
+        # print(self._index_kit_json_data)
         self._index_kit_objects = self._get_index_kit_objects(self._index_kit_json_data)
 
     @staticmethod
@@ -28,10 +31,10 @@ class IndexKitManager(object):
         for index_json in index_jsons:
             with open(index_json, "r") as index_json_fh:
                 indata = json.load(index_json_fh)
-
                 try:
                     validate(instance=indata, schema=self._schema)
                 except jsonschema.ValidationError as e:
+                    print(e)
                     self._index_import_error = e
                     return
 

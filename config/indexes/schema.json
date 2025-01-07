@@ -105,7 +105,7 @@
     "IndexStrategy": {
       "type": "string"
     },
-    "Name": {
+    "IndexKitName": {
       "type": "string"
     },
     "OverrideCyclesPattern": {
@@ -129,7 +129,7 @@
   },
   "required": [
     "IlmnChecksum",
-    "Name",
+    "IndexKitName",
     "DisplayName",
     "Version",
     "Description",

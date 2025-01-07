@@ -28,7 +28,7 @@ from views.leftmenu.application.application_container import ApplicationContaine
 from views.run.runview import RunInfoView
 from views.leftmenu.run_setup.runsetup import RunSetupWidget
 from views.export.export import ExportWidget
-from views.validation.validation_view import (
+from views.validation.main_validation_widgetpy import (
     MainValidationWidget,
 )
 
@@ -144,6 +144,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def set_index_apps_actions_enabled(self):
         self.apps_action.setEnabled(True)
         self.indexes_action.setEnabled(True)
+        self.validate_action.setEnabled(True)
+        self.export_action.setEnabled(True)
 
     def set_lanes_action_enabled(self):
         self.lane_action.setEnabled(True)

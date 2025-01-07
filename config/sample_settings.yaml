@@ -10,11 +10,13 @@ fields:
     - IndexI7
     - IndexI5Name
     - IndexI5
-    - IndexKitDefinitionName
+    - IndexKitName
   BCLConvert:
     - OverrideCyclesPattern
     - BarcodeMismatchesIndex1
     - BarcodeMismatchesIndex2
+    - AdapterRead1
+    - AdapterRead2
   ApplicationProfile:
     - ApplicationName
 

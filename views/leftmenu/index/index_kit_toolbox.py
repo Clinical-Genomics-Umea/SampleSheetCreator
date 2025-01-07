@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QToolBox, QLabel
 
 from models.indexes.index_kit_manager import IndexKitManager
@@ -19,8 +20,28 @@ class IndexKitToolbox(QWidget):
 
         self.layout = QVBoxLayout()
         self.toolbox = QToolBox()
+        self.hidden_items = {}
 
         self._setup()
+
+    @Slot(int, int)
+    def set_index_kit_status(self, index_run_i5_len, index_run_i7_len):
+        for i in range(self.toolbox.count()):
+            index_kit_container_widget = self.toolbox.widget(i)
+            index_kit_i5_len = index_kit_container_widget.index_i5_len
+            index_kit_i7_len = index_kit_container_widget.index_i7_len
+
+            if (
+                index_run_i5_len >= index_kit_i5_len
+                and index_run_i7_len >= index_kit_i7_len
+            ):
+                self.toolbox.setItemEnabled(i, True)
+                widget = self.toolbox.widget(i)
+                widget.setHidden(False)
+            else:
+                self.toolbox.setItemEnabled(i, False)
+                widget = self.toolbox.widget(i)
+                widget.setHidden(True)
 
     def _setup(self):
 
@@ -34,8 +55,8 @@ class IndexKitToolbox(QWidget):
         self.layout.addWidget(HorizontalLine())
         self.layout.addWidget(self.toolbox)
 
-        for name, ikdw in self.index_kit_container_widgets.items():
-            self.toolbox.addItem(ikdw, name)
+        for name, ikcw in self.index_kit_container_widgets.items():
+            self.toolbox.addItem(ikcw, name)
 
         self.setLayout(self.layout)
 

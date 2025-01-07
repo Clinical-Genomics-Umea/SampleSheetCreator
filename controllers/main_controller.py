@@ -6,7 +6,7 @@ from models.dataset.dataset_manager import DataSetManager
 from models.indexes.index_kit_manager import IndexKitManager
 from models.rundata.rundata_model import RunDataModel
 from models.sample.sample_model import SampleModel, CustomProxyModel
-from models.validation.compatibility import DataCompatibilityChecker
+from models.validation.data_compatibility_checker import DataCompatibilityChecker
 from models.validation.dataset_validation import MainValidator
 from views.notify.notify import StatusBar
 from views.main_window import MainWindow
@@ -204,6 +204,9 @@ class MainController(QObject):
         )
         self._run_data_model.run_data_changed.connect(
             self._main_window.set_index_apps_actions_enabled
+        )
+        self._run_data_model.index_lens_ready.connect(
+            self._main_window.index_toolbox_widget.set_index_kit_status
         )
 
     def _connect_lane_signals(self):
