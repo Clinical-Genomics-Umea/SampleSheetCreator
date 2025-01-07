@@ -1,4 +1,11 @@
-from PySide6.QtWidgets import QTabWidget, QWidget, QVBoxLayout, QSizePolicy, QTableWidget, QTableWidgetItem
+from PySide6.QtWidgets import (
+    QTabWidget,
+    QWidget,
+    QVBoxLayout,
+    QSizePolicy,
+    QTableWidget,
+    QTableWidgetItem,
+)
 
 
 class DataSetValidationWidget(QTabWidget):
