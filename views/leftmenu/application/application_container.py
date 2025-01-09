@@ -14,7 +14,9 @@ class ApplicationContainerWidget(QWidget):
     add_signal = Signal(dict)
     remove_signal = Signal(dict)
 
-    def __init__(self, application_manager: ApplicationManager, dataset_manager: DataSetManager):
+    def __init__(
+        self, application_manager: ApplicationManager, dataset_manager: DataSetManager
+    ):
         super().__init__()
 
         self._application_manager = application_manager
@@ -52,7 +54,9 @@ class ApplicationContainerWidget(QWidget):
             self._vertical_layout.addWidget(type_label)
 
             for application_name in application_hierarchy[application_type]:
-                application_widget = ApplicationWidget(application_hierarchy[application_type][application_name])
+                application_widget = ApplicationWidget(
+                    application_hierarchy[application_type][application_name]
+                )
                 self.app_widgets.append(application_widget)
                 self._vertical_layout.addWidget(application_widget)
 
