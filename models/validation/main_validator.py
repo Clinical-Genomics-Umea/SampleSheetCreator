@@ -36,12 +36,10 @@ class MainValidator(QObject):
 
         self.prevalidator_status.emit(True)
 
-        self.dataset_mgr.set_samplesheet_obj()
+        self.dataset_mgr.set_data_obj()
 
         self.dataset_validator.validate()
         self.index_distance_validator.generate()
-
-        print("assess_balance", self.dataset_mgr.assess_balance)
 
         if self.dataset_mgr.assess_balance:
             self.color_balance_validator.validate()

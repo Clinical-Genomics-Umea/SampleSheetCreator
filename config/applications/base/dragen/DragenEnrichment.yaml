@@ -1,9 +1,9 @@
 ---
-Version: 1.0
-OnBoard: true
-ApplicationGroupName: Dragen
-ApplicationName: DragenEnrichment_SomaticIDTGms560
+BaseVersion: 1.0
+BaseApplication: DragenEnrichment
+ApplicationType: dragen
 Application: DragenEnrichment
+ApplicationName: DragenEnrichment
 
 Settings:
   SoftwareVersion: 4.1.23
@@ -15,15 +15,16 @@ Data:
   BedFile: gms560_hg38.BedFile
   ReferenceGenomeDir: hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2
   VariantCallingMode: AllVariantCallers
-  GermlineOrSomatic: somatic
+  GermlineOrSomatic: germline
   AuxNoiseBaselineFile: na
   AuxCnvPanelOfNormalsFile: na
 
 DataFields:
+  - Sample_ID
   - ReferenceGenomeDir
   - BedFile
   - GermlineOrSomatic
   - AuxNoiseBaselineFile
   - AuxCnvPanelOfNormalsFile
   - VariantCallingMode
-  - Sample_ID
+

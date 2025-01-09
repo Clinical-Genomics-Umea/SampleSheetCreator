@@ -1,8 +1,10 @@
 ---
-Version: 1.0
-ApplicationGroupName: Dragen
-ApplicationName: DragenRna_IDT
+BaseVersion: 1.0
+BaseBaseApplication: DragenRna
+ApplicationType: dragen
 Application: DragenRna
+ApplicationName: DragenRna
+
 
 Settings:
   SoftwareVersion: 4.1.23

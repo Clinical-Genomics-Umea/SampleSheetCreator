@@ -61,7 +61,7 @@ class DataCompatibilityChecker(QObject):
 
         unique_existing_appnames = df["ApplicationName"].unique()
 
-        new_app_obj = self.app_mgr.appobj_by_appname(new_appname)
+        new_app_obj = self.app_mgr.app_name_to_app_obj(new_appname)
         new_settings = new_app_obj["Settings"]
         new_app = new_app_obj["Application"]
 
@@ -69,7 +69,7 @@ class DataCompatibilityChecker(QObject):
             if not existing_appname:
                 continue
 
-            existing_app_obj = self.app_mgr.appobj_by_appname(existing_appname)
+            existing_app_obj = self.app_mgr.app_name_to_app_obj(existing_appname)
             existing_settings = existing_app_obj["Settings"]
             existing_app = existing_app_obj["Application"]
             existing_appname = existing_app_obj["ApplicationName"]

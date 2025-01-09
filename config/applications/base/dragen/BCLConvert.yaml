@@ -1,12 +1,13 @@
 ---
-Version: 1.0
-OnBoard: true
-ApplicationGroupName: Dragen
-ApplicationName: BCLConvert_2
+BaseVersion: 1.0
+BaseApplication: BCLConvert
+ApplicationType: dragen
 Application: BCLConvert
+ApplicationName: BCLConvert
+
 
 Settings:
-  SoftwareVersion: 4.1.22
+  SoftwareVersion: 4.1.23
   FastqCompressionFormat: gzip
 
 Data:

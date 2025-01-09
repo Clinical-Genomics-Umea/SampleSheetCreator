@@ -26,8 +26,9 @@ Data:
   - IndexI7
   - IndexI5Name
   - IndexI5
-  - IndexKitDefinitionName
+  - IndexKitName
 
 Translate:
-  Index2: index2
   Index: index
+  Index2: index2
+

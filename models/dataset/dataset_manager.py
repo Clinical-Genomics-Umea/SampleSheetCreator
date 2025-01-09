@@ -1,7 +1,5 @@
 import re
-from copy import deepcopy
-
-from PySide6.QtCore import Signal
+from pprint import pprint
 
 from utils.utils import int_str_to_int_list, json_to_obj, uuid
 import json
@@ -15,11 +13,12 @@ class DataSetManager:
         self.sample_model = sample_model
         self.app_mgr = app_mgr
         self.read_cycles_header = ("r1", "i1", "i2", "r2")
-        self._samplesheet_obj = None
+        self._data_obj = None
 
     @staticmethod
     def _convert_override_pattern(input_str, target_sum):
-        parts = re.findall(r"([A-Z])(\d+|\{(?:r1|i1|i2|r2)\})", input_str)
+
+        parts = re.findall(r"([A-Z])(\d+|\{(?:r|i)\})", input_str)
 
         non_placeholders = [
             (key, int(num)) for key, num in parts if not num.startswith("{")
@@ -84,66 +83,11 @@ class DataSetManager:
         return sample_dfs_obj
 
     def json_data(self):
-        s_obj = self.samplesheet_obj_data()
+        s_obj = self.data_obj()
         return json.dumps(s_obj)
 
-    def samplesheet_obj_data(self):
-        """Return the samplesheet object with the data dict converted to records."""
-        samplesheet_obj = self._samplesheet_obj
-        new_ss_obj = deepcopy(samplesheet_obj)
-        for appobj in new_ss_obj["Applications"]:
-            appobj["Data"] = (appobj["Data"].to_dict(orient="records"),)
-
-        new_ss_obj["Extra"] = {}
-        new_ss_obj["Extra"][
-            "I5SampleSheetOrientation"
-        ] = self.rundata_model.i5_samplesheet_orientation
-
-        return new_ss_obj
-
-    def samplesheet_v1(self):
-        data_df = self.base_sample_dataframe().copy()
-        run_data = self.rundata_model.rundata
-        read_cycles = self.rundata_model.read_cycles_dict
-        template = self.cfg_mgr.samplesheet_v1_template
-
-        header = {}
-        for k, v in template["Header"].items():
-
-            if v in run_data:
-                rd_val = run_data[v]
-                header[k] = rd_val
-            else:
-                header[k] = v
-
-        reads = []
-        for tv in template["Reads"]:
-            v = read_cycles[tv]
-            reads.append(v)
-
-        if self.cfg_mgr.rundata["I5SampleSheetOrientation"] == "rc":
-            data_df["IndexI5"] = data_df["IndexI5RC"]
-
-        data_df = data_df[template["Data"]]
-        settings = self._bclconvert_adapters(data_df)
-        data = data_df.to_csv(index=False).splitlines()
-
-        output = ["[Header]"]
-        output.extend([f"{k},{v}" for k, v in header.items()])
-
-        output.append("")
-        output.append("[Settings]")
-        output.extend([f"{k},{v}" for k, v in settings.items()])
-
-        output.append("")
-        output.append("[Reads]")
-        output.extend(reads)
-
-        output.append("")
-        output.append("[Data]")
-        output.extend(data)
-
-        return "\n".join(output)
+    def data_obj(self):
+        return self._data_obj
 
     def _bclconvert_adapters(self, data_df):
         application_names = data_df["ApplicationName"].explode().tolist()
@@ -152,7 +96,7 @@ class DataSetManager:
         adapters_read2 = set()
 
         for name in application_names:
-            app_object = self.app_mgr.appobj_by_appname(name)
+            app_object = self.app_mgr.app_name_to_app_obj(name)
             if app_object.get("Application") == "BCLConvert":
                 adapters_read1.update(
                     app_object.get("Settings", {})
@@ -174,52 +118,6 @@ class DataSetManager:
 
         return adapters
 
-    def samplesheet_v2(self):
-        sample_obj = self._samplesheet_obj
-
-        header = ["[Header]"]
-        for k, v in sample_obj["Header"].items():
-            header.append(f"{k},{v}")
-
-        reads = ["[Reads]"]
-        for k, v in sample_obj["Reads"].items():
-            reads.append(f"{k},{v}")
-
-        applications = []
-        for app_obj in sample_obj["Applications"]:
-
-            app = app_obj["Application"]
-
-            if app_obj["ApplicationGroupName"] == "Dragen":
-                applications.append(f"[{app}_Settings]")
-
-                for k, v in app_obj["Settings"].items():
-                    applications.append(f"{k},{v}")
-
-                applications.append("")
-
-                applications.append(f"[{app}_Data]")
-
-                data_df = pd.DataFrame.from_dict(app_obj["Data"])
-
-                if "IndexI5" in data_df.columns:
-                    if self.rundata_model.rundata["I5SampleSheetOrientation"] == "rc":
-                        data_df["IndexI5"] = data_df["IndexI5RC"]
-
-                    del data_df["IndexI5RC"]
-
-                csv_obj = data_df.to_csv(index=False).splitlines()
-                applications.extend(csv_obj)
-                applications.append("")
-
-        output = header
-        output.append("")
-        output.extend(reads)
-        output.append("")
-        output.extend(applications)
-
-        return "\n".join(output)
-
     def _header_data(self):
         return {
             "FileFormatVersion": self.rundata_model.rundata["SampleSheetVersion"],
@@ -233,58 +131,89 @@ class DataSetManager:
     def read_cycles_dict(self) -> dict:
         return self.rundata_model.read_cycles_dict
 
-    def set_samplesheet_obj(self):
+    def set_data_obj(self):
+
+        app_settings_data = self.app_settings_data()
 
         obj = {
             "Header": self._header_data(),
             "Reads": self.read_cycles_dict(),
-            "Applications": self.app_settings_data(),
+            "Applications": [],
+            "SampleSheetConfig": {},
         }
 
-        self._samplesheet_obj = obj
+        for item in app_settings_data:
+            item_obj = {
+                "ApplicationGroupName": item["ApplicationGroupName"],
+                "Application": item["Application"],
+                "Data": item["Data"].to_dict(orient="records"),
+                "Settings": item["Settings"],
+            }
 
-    def app_settings_data(self):
+            obj["Applications"].append(item_obj)
 
+        sample_sheet_config = {
+            "InstrumentType": obj["Header"]["InstrumentType"],
+            "I5SeqOrientation": self.rundata_model.i5_seq_orientation,
+            "I5SampleSheetOrientation": self.rundata_model.i5_samplesheet_orientation,
+        }
+
+        obj["SampleSheetConfig"] = sample_sheet_config
+
+        self._data_obj = obj
+
+        pprint(self._data_obj)
+
+    def app_settings_data(self) -> list:
+        """Returns a list of dictionaries containing application settings and data."""
         _app_settings_data = []
 
-        data_df = self.sample_dataframe_appname_explode()
-        data_df["OverrideCycles"] = data_df["OverrideCyclesPattern"].apply(
-            self._override_cycles
-        )
+        all_sample_data_df = self.sample_dataframe_appname_explode()
+        all_sample_data_df["OverrideCycles"] = all_sample_data_df[
+            "OverrideCyclesPattern"
+        ].apply(self._override_cycles)
 
-        unique_appnames = data_df["ApplicationName"].unique()
+        unique_appnames = all_sample_data_df["ApplicationName"].unique()
 
-        used_app_to_appnames = {}
+        _tmp = {}
         for appname in unique_appnames:
-            app = self.app_mgr.appname_to_app(appname)
-            if app not in used_app_to_appnames:
-                used_app_to_appnames[app] = []
-            used_app_to_appnames[app].append(appname)
+            app = self.app_mgr.app_name_to_app(appname)
+            if app not in _tmp:
+                _tmp[app] = {"Data": [], "Settings": {}, "DataFields": []}
 
-        for app in used_app_to_appnames:
-            dfs = []
-            settings = []
-            for appname in used_app_to_appnames[app]:
-                appname_df = data_df[data_df["ApplicationName"] == appname].copy(
-                    deep=True
-                )
-                dfs.append(self.app_mgr.app_data_populate(appname_df, appname))
+            data_df = all_sample_data_df[
+                all_sample_data_df["ApplicationName"] == appname
+            ].copy(deep=True)
 
-                appobj = self.app_mgr.appobj_by_appname(appname)
-                settings.append(appobj["Settings"])
+            appname_data = self.app_mgr.app_name_to_data(appname)
 
-            merged_df = pd.concat(dfs)
-            are_identical = all(d == settings[0] for d in settings)
+            print(appname_data)
 
-            if are_identical:
-                _app_settings_data.append(
-                    {
-                        "ApplicationGroupName": self.app_mgr.app_to_appgroup(app),
-                        "Application": app,
-                        "Data": merged_df,
-                        "Settings": settings[0],
-                    }
-                )
+            for k, v in appname_data.items():
+                if k not in data_df.columns:
+                    data_df[k] = v
+
+            data_df = data_df[self.app_mgr.app_name_to_data_fields(appname)]
+
+            _tmp[app]["Data"].append(data_df)
+            _tmp[app]["Settings"] = self.app_mgr.app_name_to_settings(appname)
+
+        for app in _tmp:
+            concat_data = pd.concat(_tmp[app]["Data"])
+
+            if "Lane" in concat_data.columns:
+                print("before explode", concat_data.to_string())
+                concat_data = concat_data.explode("Lane", ignore_index=True)
+                print("after explode", concat_data.to_string())
+
+            _app_settings_data.append(
+                {
+                    "ApplicationGroupName": self.app_mgr.app_to_app_type(app),
+                    "Application": app,
+                    "Data": concat_data,
+                    "Settings": _tmp[app]["Settings"],
+                }
+            )
 
         return _app_settings_data
 
@@ -300,9 +229,6 @@ class DataSetManager:
 
     def base_sample_dataframe(self):
         dataframe = self.sample_model.to_dataframe()
-        # dataframe["OverrideCycles"] = dataframe["OverrideCyclesPattern"].apply(
-        #     self._override_cycles
-        # )
         dataframe_corr = self._dataframe_strs_to_obj(dataframe)
         return dataframe_corr
 
@@ -345,7 +271,7 @@ class DataSetManager:
         return self.rundata_model.rundata
 
     @property
-    def i5_samplesheet_orientation(self) -> str:
+    def i5_samplesheet_orientation(self) -> dict:
         return self.rundata_model.i5_samplesheet_orientation
 
     @property

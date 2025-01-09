@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from PySide6.QtCore import Signal, Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSpacerItem, QSizePolicy
 
@@ -12,50 +14,52 @@ class ApplicationContainerWidget(QWidget):
     add_signal = Signal(dict)
     remove_signal = Signal(dict)
 
-    def __init__(self, app_mgr: ApplicationManager, dataset_mgr: DataSetManager):
+    def __init__(self, application_manager: ApplicationManager, dataset_manager: DataSetManager):
         super().__init__()
-        self.app_mgr = app_mgr
-        self.dataset_mgr = dataset_mgr
-        self.main_layout = QVBoxLayout()
-        self.setLayout(self.main_layout)
 
-        apps_label = QLabel("Applications")
-        apps_label.setStyleSheet("font-weight: bold")
-        self.main_layout.addWidget(apps_label)
+        self._application_manager = application_manager
+        self._dataset_manager = dataset_manager
 
-        self.vertical_layout = QVBoxLayout()
-        self.main_layout.addLayout(self.vertical_layout)
+        self._main_layout = QVBoxLayout()
+        self.setLayout(self._main_layout)
 
-        self.app_widgets = []
+        application_label = QLabel("Applications")
+        application_label.setStyleSheet("font-weight: bold")
+        self._main_layout.addWidget(application_label)
+
+        self._vertical_layout = QVBoxLayout()
+        self._main_layout.addLayout(self._vertical_layout)
+
+        self._application_widgets = []
 
         self._setup()
 
     def _setup(self):
         """Set up the main layout of the Applications widget."""
 
-        self.main_layout.setSpacing(5)
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self._main_layout.setSpacing(5)
+        self._main_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.vertical_layout.setSpacing(5)
-        self.vertical_layout.setContentsMargins(0, 0, 0, 0)
+        self._vertical_layout.setSpacing(5)
+        self._vertical_layout.setContentsMargins(0, 0, 0, 0)
 
-        app_hierarchy = self.app_mgr.app_hierarchy
+        application_hierarchy = self.app_mgr.app_hierarchy
 
-        for group in app_hierarchy:
-            group_label = QLabel(group)
-            group_label.setStyleSheet("font-style: italic")
-            self.vertical_layout.addWidget(HorizontalLine())
-            self.vertical_layout.addWidget(group_label)
+        for application_type in application_hierarchy:
+            type_label = QLabel(application_type)
+            type_label.setStyleSheet("font-style: italic")
+            self._vertical_layout.addWidget(HorizontalLine())
+            self._vertical_layout.addWidget(type_label)
 
-            for app_name in app_hierarchy[group]:
-                app_widget = ApplicationWidget(app_hierarchy[group][app_name])
-                self.app_widgets.append(app_widget)
-                self.vertical_layout.addWidget(app_widget)
+            for application_name in application_hierarchy[application_type]:
+                application_widget = ApplicationWidget(application_hierarchy[application_type][application_name])
+                self.app_widgets.append(application_widget)
+                self._vertical_layout.addWidget(application_widget)
 
-                app_widget.add_app.connect(self._handle_add_click)
-                app_widget.rem_app.connect(self._handle_remove_click)
+                application_widget.add_app.connect(self._handle_add_click)
+                application_widget.rem_app.connect(self._handle_remove_click)
 
-        self.main_layout.addSpacerItem(
+        self._main_layout.addSpacerItem(
             QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         )
 

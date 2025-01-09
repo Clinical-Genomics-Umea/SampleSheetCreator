@@ -55,7 +55,7 @@ class SampleModel(QStandardItemModel):
         Returns:
         - None
         """
-        print("set empty strings")
+
         for row in range(self.rowCount()):
             for column in range(self.columnCount()):
                 self.setData(self.index(row, column), "")

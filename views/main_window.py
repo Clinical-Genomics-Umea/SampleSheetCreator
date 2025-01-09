@@ -135,7 +135,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.config_widget = ConfigurationWidget(self.config_manager)
         self._setup_config()
 
-        self.export_widget = ExportWidget(self.dataset_manager)
+        self.export_widget = ExportWidget(self.dataset_manager, self.config_manager)
         self._setup_export_widget()
 
         self.leftmenu_stackedWidget.setFixedWidth(300)

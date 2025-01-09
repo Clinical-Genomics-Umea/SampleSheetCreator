@@ -1,7 +1,7 @@
 from PySide6.QtCore import QObject, Signal, Slot
 
-from models.configuration import ConfigurationManager
-from models.sample_model import SampleModel
+from models.configuration.configuration_manager import ConfigurationManager
+from models.sample.sample_model import SampleModel
 
 
 class MakeJson(QObject):

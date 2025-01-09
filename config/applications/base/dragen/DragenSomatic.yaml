@@ -1,8 +1,9 @@
 ---
-Version: 1.0
-ApplicationGroupName: Dragen
-ApplicationName: DragenSomatic_IDT
+BaseVersion: 1.0
+BaseApplication: DragenSomatic
+ApplicationType: dragen
 Application: DragenSomatic
+ApplicationName: DragenSomatic
 
 Settings:
   SoftwareVersion: 4.1.23

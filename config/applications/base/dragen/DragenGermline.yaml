@@ -1,9 +1,9 @@
 ---
-Version: 1.0
-ApplicationGroupName: Dragen
-OnBoard: true
-ApplicationName: DragenGermline_WGS
+BaseVersion: 1.0
+BaseApplication: DragenGermline
+ApplicationType: dragen
 Application: DragenGermline
+ApplicationName: DragenGermline
 
 Settings:
   SoftwareVersion: 4.1.23

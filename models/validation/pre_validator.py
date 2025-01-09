@@ -58,7 +58,7 @@ class PreValidator(QObject):
             self.run_lanes_int_validation,
             self.empty_sample_id_validation,
             self.dataframe_type_validation,
-            self.application_validation,
+            self.application_settings_validation,
             self.allowed_lanes_validation,
             self.validate_unique_sample_lane_combinations,
         ]
@@ -96,7 +96,7 @@ class PreValidator(QObject):
             )
         return PreValidationResult(name="required fields populated", status=True)
 
-    def application_validation(self) -> PreValidationResult:
+    def application_settings_validation(self) -> PreValidationResult:
         """Validate application settings consistency"""
         app_exploded_df = self.dataframe.explode("ApplicationName", ignore_index=True)
         unique_appnames = app_exploded_df["ApplicationName"].unique()
@@ -104,7 +104,7 @@ class PreValidator(QObject):
         # Group settings by application
         app_settings = {}
         for appname in unique_appnames:
-            app = self.app_mgr.appobj_by_appname(appname)
+            app = self.app_mgr.app_name_to_app_obj(appname)
             app_type = app["Application"]
 
             if app_type not in app_settings:

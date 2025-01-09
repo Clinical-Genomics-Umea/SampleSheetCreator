@@ -1,0 +1,6 @@
+---
+Version: 1.0
+ApplicationName: DEnrichment_Germline_IDT_Gms560
+BaseApplication: DragenEnrichment
+BaseVersion: 1.0
+BaseApplicationPath: ../../base/dragen/DragenEnrichment.yaml

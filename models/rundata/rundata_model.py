@@ -171,8 +171,11 @@ class RunDataModel(QObject):
         )
 
     @property
-    def i5_samplesheet_orientation(self) -> str:
-        return self._rundata["I5SampleSheetOrientation"]
+    def i5_samplesheet_orientation(self) -> dict:
+        return {
+            "BCL2Fastq": self._rundata["BCL2Fastq"],
+            "BCLConvert": self._rundata["BCL2Fastq"],
+        }
 
     @property
     def i5_seq_orientation(self) -> str:

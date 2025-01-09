@@ -1,0 +1,7 @@
+---
+Version: 1.0
+ApplicationName: Dragen_Germline_WGS
+BaseApplication: DragenGermline
+BaseVersion: 1.0
+BaseApplicationPath: ../../base/dragen/DragenGermline.yaml
+

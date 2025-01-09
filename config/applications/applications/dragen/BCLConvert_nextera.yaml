@@ -1,0 +1,9 @@
+---
+Version: 1.0
+ApplicationName: BCLConvert_Nextera
+BaseApplication: BCLConvert
+BaseVersion: 1.0
+BaseApplicationPath: ../../base/dragen/BCLConvert.yaml
+
+
+

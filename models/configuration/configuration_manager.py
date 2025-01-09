@@ -1,7 +1,9 @@
 import json
 import re
 from datetime import datetime
+from pprint import pprint
 
+import yaml
 from PySide6.QtCore import QSettings, QObject, Signal, Slot
 from pathlib import Path
 
@@ -24,44 +26,78 @@ class ConfigurationManager(QObject):
 
         self.read_cycle_pattern = re.compile(r"^\d+(-\d+)*$")
 
-        # paths
-        self._config_paths = {
-            "indexes_settings_basepath": Path("config/indexes/data"),
-            "application_settings_basepath": Path("config/applications"),
-            "run_settings_path": Path("config/run/run_settings.yaml"),
-            "instrument_flowcells_path": Path("config/run/instrument_flowcells.yaml"),
-            "samples_settings_path": Path("config/sample_settings.yaml"),
-            "validation_settings_path": Path(
-                "config/validation/validation_settings.yaml"
-            ),
-            "samplesheet_v1_template": Path("config/samplesheet_v1.yaml"),
-            "index_kit_schema_path": Path("config/indexes/schema.json"),
-        }
+        self._indexes_settings_basepath = Path("config/indexes/data")
+        self._application_settings_base_path = Path("config/applications/base")
 
-        self._instruments_flowcell_obj = read_yaml_file(
-            self._config_paths["instrument_flowcells_path"]
+        self._applications_path = Path("config/applications/applications")
+        self._run_settings_path = Path("config/run/run_settings.yaml")
+        self._instrument_flowcells_path = Path("config/run/instrument_flowcells.yaml")
+        self._samples_settings_path = Path("config/sample_settings.yaml")
+        self._validation_settings_path = Path(
+            "config/validation/validation_settings.yaml"
         )
-        self._run_settings = read_yaml_file(self._config_paths["run_settings_path"])
+        self._samplesheet_v1_template_path = Path("config/samplesheet_v1.yaml")
+        self._index_kit_schema_path = Path("config/indexes/schema.json")
+
+        self._instruments_flowcell_obj = read_yaml_file(self._instrument_flowcells_path)
+
+        self._run_settings = read_yaml_file(self._run_settings_path)
         self._run_view_widgets_config = self._run_settings["RunViewFields"]
         self._run_setup_widgets_config = self._run_settings["RunSetupWidgets"]
         self._run_data = self._run_settings["RunDataDefaults"]
         self._run_data_fields = self._run_settings["RunDataFields"]
         self._read_cycles_fields = self._run_settings["ReadCyclesFields"]
 
-        self._samples_settings = read_yaml_file(
-            self._config_paths["samples_settings_path"]
-        )
+        self._samples_settings = read_yaml_file(self._samples_settings_path)
         self._samplesheet_v1_template = read_yaml_file(
-            self._config_paths["samplesheet_v1_template"]
+            self._samplesheet_v1_template_path
         )
+
+        self._paths = {
+            "indexes_settings_basepath": self._indexes_settings_basepath,
+            "applications_path": self._applications_path,
+            "run_settings_path": self._run_settings_path,
+            "instrument_flowcells_path": self._instrument_flowcells_path,
+            "samples_settings_path": self._samples_settings_path,
+            "validation_settings_path": self._validation_settings_path,
+            "samplesheet_v1_template_path": self._samplesheet_v1_template_path,
+            "index_kit_schema_path": self._index_kit_schema_path,
+        }
+
+        self._application_configs = []
+        self._set_application_configs()
+
+    def _set_application_configs(self):
+        app_paths = self._applications_path.glob("**/*.yaml")
+
+        for app_path in app_paths:
+            with app_path.open() as fp:
+                app_config = yaml.safe_load(fp)
+            name = app_config.get("ApplicationName", None)
+            version = app_config.get("Version", None)
+
+            if name and version:
+                self.application_configs.append(
+                    self._app_config_merge(app_config, app_path)
+                )
+
+        pprint(self._application_configs)
+
+    @property
+    def application_configs(self):
+        return self._application_configs
+
+    @property
+    def fastq_extract_tool(self):
+        return self._run_settings["FastqExtractTool"]
 
     @property
     def index_kits_path(self):
-        return self._config_paths["indexes_settings_basepath"]
+        return self._indexes_settings_basepath
 
     @property
     def index_kit_schema_path(self):
-        return self._config_paths["index_kit_schema_path"]
+        return self._index_kit_schema_path
 
     @property
     def instrument_flowcells(self):
@@ -240,20 +276,15 @@ class ConfigurationManager(QObject):
         return self._run_data_is_set
 
     @property
-    def read_cycles(self):
-
-        if self.read_cycle_pattern.match(self._run_data["ReadCycles"]):
-            return self._run_data["ReadCycles"]
-
-        return None
-
-    @property
     def all_config_paths(self):
-        return {k: v.absolute() for k, v in self._config_paths.items()}
+
+        pprint(self._paths)
+
+        return {k: v.absolute() for k, v in self._paths.items()}
 
     @property
     def application_settings_basepath(self) -> Path:
-        return self._config_paths["application_settings_basepath"]
+        return self._application_settings_base_path
 
     @property
     def samples_settings(self) -> dict:
@@ -289,3 +320,49 @@ class ConfigurationManager(QObject):
             return json.loads(json_string)  # Convert back to list
         else:
             return []
+
+    def _app_config_merge(self, app_config, app_path):
+
+        # Ensure 'BaseApplicationPath' key exists
+        base_app_path = app_config["BaseApplicationPath"]
+
+        if not base_app_path:
+            raise ValueError(
+                f"The override file '{app_config}' must specify a 'BaseApplicationPath'."
+            )
+
+        # Resolve base configuration path
+        base_app_path = Path(base_app_path)
+        if not base_app_path.is_absolute():
+            # Resolve relative to the override file's location
+            base_app_path = app_path.parent / base_app_path
+
+        base_app_path = base_app_path.resolve()  # Get the absolute path
+
+        if not base_app_path.exists():
+            raise FileNotFoundError(
+                f"Base configuration file '{base_app_path}' not found."
+            )
+
+        # Load base configuration
+        with base_app_path.open("r") as base_file:
+            base_config = yaml.safe_load(base_file)
+
+        # Merge configurations
+        return self._merge_configs(base_config, app_config)
+
+    def _merge_configs(self, base_config, app_config):
+        """
+        Recursively merges two dictionaries.
+        Modifies the `base_config` dictionary in place with values from `app_config`.
+        """
+        for key, value in app_config.items():
+            if (
+                isinstance(value, dict)
+                and key in base_config
+                and isinstance(base_config[key], dict)
+            ):
+                self._merge_configs(base_config[key], value)
+            else:
+                base_config[key] = value
+        return base_config
