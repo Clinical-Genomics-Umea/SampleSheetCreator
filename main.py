@@ -14,11 +14,8 @@ class Application(QApplication):
 
 
 def main():
-    print("hej")
     app = QApplication(sys.argv)
-    print(app)
     controller = MainController()
-    print(controller.main_window)
     controller.main_window.show()
     app.exec()
 

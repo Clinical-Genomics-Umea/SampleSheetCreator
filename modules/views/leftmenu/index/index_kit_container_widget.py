@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from PySide6.QtWidgets import QWidget, QHBoxLayout
 
 from modules.models.indexes.index_kit_object import IndexKitObject
@@ -14,6 +16,8 @@ class IndexKitContainerWidget(QWidget):
         self.setLayout(self.layout)
         self._index_i7_len = iko.index_i7_len
         self._index_i5_len = iko.index_i5_len
+
+        pprint(iko.index_set)
 
         for name in iko.index_set.keys():
             index_widget = IndexKitWidget(iko.index_set[name])

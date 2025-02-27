@@ -57,8 +57,6 @@ class IndexKitWidget(QWidget):
 
         self.shown_fields = self.get_shown_fields()
 
-        print(self.shown_fields)
-
         self.sfproxy = {field: QSortFilterProxyModel() for field in self.shown_fields}
 
         # create filter lineedits

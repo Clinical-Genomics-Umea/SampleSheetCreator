@@ -214,35 +214,3 @@ class MainController(QObject):
             self.main_window.samples_widget.sample_view.set_lanes
         )
 
-
-# controllers/settings_controller.py
-class SettingsController(QObject):
-    def __init__(self, main_controller):
-        super().__init__()
-        self.main_controller = main_controller
-        self.settings_dialog = None
-
-    # def show_settings(self):
-    #     """Create and show settings dialog"""
-    #     if not self.settings_dialog:
-    #         from ..views.dialogs.settings_dialog import SettingsDialog
-    #
-    #         self.settings_dialog = SettingsDialog()
-    #         self.setup_settings_connections()
-    #     self.settings_dialog.show()
-
-    # def setup_settings_connections(self):
-    #     """Connect settings dialog signals"""
-    #     self.settings_dialog.settings_changed.connect(self.apply_settings)
-    #
-    # @Slot(dict)
-    # def apply_settings(self, new_settings):
-    #     """Apply new settings and update application state"""
-    #     try:
-    #         # Update application settings
-    #         self.main_controller.data_model.update_settings(new_settings)
-    #         # Refresh main window with new settings
-    #         self.main_controller.main_window.apply_settings(new_settings)
-    #     except Exception as e:
-    #         self.logger.error(f"Error applying settings: {e}")
-    #         self.settings_dialog.show_error("Failed to apply settings")

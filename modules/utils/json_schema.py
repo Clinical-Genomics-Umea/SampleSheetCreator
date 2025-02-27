@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-from pprint import pprint
 
 
 def infer_type(value):

@@ -1,7 +1,6 @@
 import json
 
 import pandas as pd
-from pprint import pprint
 
 
 def to_samplesheetv2(sample_obj):

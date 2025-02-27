@@ -1,7 +1,7 @@
 import json
 import re
 from datetime import datetime
-from pprint import pprint
+
 
 import yaml
 from PySide6.QtCore import QSettings, QObject, Signal, Slot
@@ -75,8 +75,6 @@ class ConfigurationManager(QObject):
                 app_config = yaml.safe_load(fp)
 
             self.application_configs.append(app_config)
-
-        pprint(self._application_configs)
 
     @property
     def application_configs(self):
