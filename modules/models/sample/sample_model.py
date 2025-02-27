@@ -111,7 +111,6 @@ class SampleModel(QStandardItemModel):
         """
         json_data_qba = data.data("application/json")
         decoded_data = decode_bytes_json(json_data_qba)
-        pprint(decoded_data)
 
         data = {"start_row": parent.row(), "decoded_data": decoded_data}
         self.dropped_data.emit(data)

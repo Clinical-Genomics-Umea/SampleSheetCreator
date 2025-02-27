@@ -111,11 +111,7 @@ class IndexKitWidget(QWidget):
 
         possible_fields = ["IndexI7Name", "IndexI5Name", "FixedPos"]
 
-        print(self.index_df.columns)
-
         shown_fields = [f for f in self.index_df.columns if f in possible_fields]
-
-        print(shown_fields)
 
         return shown_fields
 

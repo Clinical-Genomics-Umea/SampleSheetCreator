@@ -53,7 +53,6 @@ if __name__ == "__main__":
 
     schema = generate_schema(json_data)
 
-    pprint(schema)
 
     # schema_file_path = "schema.json"
     # with open(schema_file_path, "w") as f:

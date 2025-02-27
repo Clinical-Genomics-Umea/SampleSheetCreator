@@ -103,7 +103,6 @@ class DataCompatibilityChecker(QObject):
 
         for cycles_name, pattern in override_pattern.items():
             if not validate_override_pattern(cycles_name, pattern):
-                print(f"{cycles_name} has invalid override pattern {pattern}")
                 invalid_override_names.append(cycles_name)
 
         if invalid_override_names:
@@ -116,9 +115,6 @@ class DataCompatibilityChecker(QObject):
             preset_len = preset_override_cycles(cycles_name, pattern)
 
             if preset_len > run_read_cycles[cycles_name]:
-                print(
-                    f"{cycles_name} has preset length {preset_len} which is longer than run read cycles {run_read_cycles[cycles_name]}"
-                )
                 invalid_override_names.append(cycles_name)
 
         if invalid_override_names:

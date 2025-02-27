@@ -48,7 +48,6 @@ class Notify(QObject):
 
     @Slot(dict)
     def app_not_allowed(self, appobj):
-        print("app_not_allowed, notify")
 
         appname = appobj.get("ApplicationName", "Unknown App")
         message = f"{appname} incompatible with already set apps."

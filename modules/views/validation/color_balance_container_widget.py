@@ -20,7 +20,6 @@ class ColorBalanceContainerWidget(QTabWidget):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
     def clear(self):
-        print("clearing color balance widget")
         # Remove and delete each tab widget
         while self.count() > 0:
             widget = self.widget(0)  # Get the first widget in the tab widget
@@ -29,7 +28,6 @@ class ColorBalanceContainerWidget(QTabWidget):
 
     @Slot(object)
     def populate(self, results):
-        print("color balance populate", results)
 
         for lane in results:
             tab_scroll_area = QScrollArea()

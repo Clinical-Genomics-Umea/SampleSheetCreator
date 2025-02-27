@@ -33,7 +33,6 @@ class IndexKitManager(object):
                 try:
                     validate(instance=indata, schema=self._schema)
                 except jsonschema.ValidationError as e:
-                    print(e)
                     self._index_import_error = e
                     return
 

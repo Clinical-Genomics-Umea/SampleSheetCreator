@@ -6,7 +6,6 @@ from pprint import pprint
 
 def to_samplesheetv2(sample_obj):
 
-    pprint(sample_obj)
 
     output = ["[Header]"]
 

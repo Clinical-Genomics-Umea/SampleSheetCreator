@@ -18,12 +18,12 @@ fields:
     - AdapterRead1
     - AdapterRead2
   ApplicationProfile:
-    - ApplicationName
+    - ApplicationProfile
 
 required_fields:
   - Lane
   - Sample_ID
   - IndexI7
-  - ApplicationName
+  - ApplicationProfile
 
 

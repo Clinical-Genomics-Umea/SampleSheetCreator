@@ -236,8 +236,6 @@ class SamplesWidget(QWidget):
         return len(selected_rows), len(selected_columns)
 
     def _on_sampleview_selection_changed(self):
-
-        print("Selection changed")
         selection_model = self.sample_view.selectionModel()
         selected_indexes = selection_model.selectedIndexes()
         srows, scols = self._selected_rows_columns_count(selected_indexes)
@@ -346,7 +344,6 @@ class SampleTableView(QTableView):
     #         size_hint = delegate.sizeHint(option, index)
     #         max_column_width = max(max_column_width, size_hint.width())
     #
-    #     print(max_column_width)
     #
     #     # Set the column width
     #     self.setColumnWidth(col, int(max_column_width * 1.1))

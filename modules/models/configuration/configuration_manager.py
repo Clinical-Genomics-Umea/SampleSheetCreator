@@ -29,7 +29,7 @@ class ConfigurationManager(QObject):
         self._indexes_settings_basepath = Path("config/indexes/data")
         self._application_settings_base_path = Path("config/applications/base")
 
-        self._applications_path = Path("config/applications/applications")
+        self._application_profiles_path = Path("config/applications")
         self._run_settings_path = Path("config/run/run_settings.yaml")
         self._instrument_flowcells_path = Path("config/run/instrument_flowcells.yaml")
         self._samples_settings_path = Path("config/sample_settings.yaml")
@@ -55,7 +55,7 @@ class ConfigurationManager(QObject):
 
         self._paths = {
             "indexes_settings_basepath": self._indexes_settings_basepath,
-            "applications_path": self._applications_path,
+            "applications_path": self._application_profiles_path,
             "run_settings_path": self._run_settings_path,
             "instrument_flowcells_path": self._instrument_flowcells_path,
             "samples_settings_path": self._samples_settings_path,
@@ -68,18 +68,13 @@ class ConfigurationManager(QObject):
         self._set_application_configs()
 
     def _set_application_configs(self):
-        app_paths = self._applications_path.glob("**/*.yaml")
+        paths = self._application_profiles_path.glob("**/*.yaml")
 
-        for app_path in app_paths:
-            with app_path.open() as fp:
+        for path in paths:
+            with path.open() as fp:
                 app_config = yaml.safe_load(fp)
-            name = app_config.get("ApplicationName", None)
-            version = app_config.get("Version", None)
 
-            if name and version:
-                self.application_configs.append(
-                    self._app_config_merge(app_config, app_path)
-                )
+            self.application_configs.append(app_config)
 
         pprint(self._application_configs)
 
@@ -234,7 +229,6 @@ class ConfigurationManager(QObject):
         if not self.validate_run_data(run_data):
             return
 
-        print("Run data is valid")
         # Update the configuration
         self._run_data = run_data
 
@@ -277,9 +271,6 @@ class ConfigurationManager(QObject):
 
     @property
     def all_config_paths(self):
-
-        pprint(self._paths)
-
         return {k: v.absolute() for k, v in self._paths.items()}
 
     @property
@@ -325,48 +316,48 @@ class ConfigurationManager(QObject):
         else:
             return []
 
-    def _app_config_merge(self, app_config, app_path):
-
-        # Ensure 'BaseApplicationPath' key exists
-        base_app_path = app_config["BaseApplicationPath"]
-
-        if not base_app_path:
-            raise ValueError(
-                f"The override file '{app_config}' must specify a 'BaseApplicationPath'."
-            )
-
-        # Resolve base configuration path
-        base_app_path = Path(base_app_path)
-        if not base_app_path.is_absolute():
-            # Resolve relative to the override file's location
-            base_app_path = app_path.parent / base_app_path
-
-        base_app_path = base_app_path.resolve()  # Get the absolute path
-
-        if not base_app_path.exists():
-            raise FileNotFoundError(
-                f"Base configuration file '{base_app_path}' not found."
-            )
-
-        # Load base configuration
-        with base_app_path.open("r") as base_file:
-            base_config = yaml.safe_load(base_file)
-
-        # Merge configurations
-        return self._merge_configs(base_config, app_config)
-
-    def _merge_configs(self, base_config, app_config):
-        """
-        Recursively merges two dictionaries.
-        Modifies the `base_config` dictionary in place with values from `app_config`.
-        """
-        for key, value in app_config.items():
-            if (
-                isinstance(value, dict)
-                and key in base_config
-                and isinstance(base_config[key], dict)
-            ):
-                self._merge_configs(base_config[key], value)
-            else:
-                base_config[key] = value
-        return base_config
+    # def _app_config_merge(self, app_config, app_path):
+    #
+    #     # Ensure 'BaseApplicationPath' key exists
+    #     base_app_path = app_config["BaseApplicationPath"]
+    #
+    #     if not base_app_path:
+    #         raise ValueError(
+    #             f"The override file '{app_config}' must specify a 'BaseApplicationPath'."
+    #         )
+    #
+    #     # Resolve base configuration path
+    #     base_app_path = Path(base_app_path)
+    #     if not base_app_path.is_absolute():
+    #         # Resolve relative to the override file's location
+    #         base_app_path = app_path.parent / base_app_path
+    #
+    #     base_app_path = base_app_path.resolve()  # Get the absolute path
+    #
+    #     if not base_app_path.exists():
+    #         raise FileNotFoundError(
+    #             f"Base configuration file '{base_app_path}' not found."
+    #         )
+    #
+    #     # Load base configuration
+    #     with base_app_path.open("r") as base_file:
+    #         base_config = yaml.safe_load(base_file)
+    #
+    #     # Merge configurations
+    #     return self._merge_configs(base_config, app_config)
+    #
+    # def _merge_configs(self, base_config, app_config):
+    #     """
+    #     Recursively merges two dictionaries.
+    #     Modifies the `base_config` dictionary in place with values from `app_config`.
+    #     """
+    #     for key, value in app_config.items():
+    #         if (
+    #             isinstance(value, dict)
+    #             and key in base_config
+    #             and isinstance(base_config[key], dict)
+    #         ):
+    #             self._merge_configs(base_config[key], value)
+    #         else:
+    #             base_config[key] = value
+    #     return base_config

@@ -246,31 +246,21 @@ class DroppableHeader(QHeaderView):
     def __init__(self, orientation, parent=None):
         super().__init__(orientation, parent)
         self.setAcceptDrops(True)
-        # print("DroppableHeader initialized and set to accept drops.")
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasText():
-            # print("Drag enter event accepted.")
             event.acceptProposedAction()
-        else:
-            print("Drag enter event ignored.")
+
 
     def dragMoveEvent(self, event):
         if event.mimeData().hasText():
-            print("Drag move event accepted.")
             event.acceptProposedAction()
-        else:
-            print("Drag move event ignored.")
 
     def dropEvent(self, event):
         if event.mimeData().hasText():
             index = self.logicalIndexAt(event.position().toPoint())
-            print(f"Drop event at column index: {index}. Changing header text to: {event.mimeData().text()}")
             self.model().setHeaderData(index, Qt.Horizontal, event.mimeData().text())
             event.acceptProposedAction()
-        else:
-            print("Drop event ignored.")
-
 
 class DroppableTableWidget(QTableWidget):
     def __init__(self, rows, columns, parent=None):

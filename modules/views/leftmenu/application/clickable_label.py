@@ -8,7 +8,7 @@ class ClickableLabel(QLabel):
     def __init__(self, text: str, data: dict, parent=None):
         super().__init__(text, parent)
         self.data = data
-        self.name = data["ApplicationName"]
+        self.name = data["ApplicationProfile"]
         self.setCursor(Qt.PointingHandCursor)  # Change the cursor to a hand pointer
 
     def mousePressEvent(self, event):

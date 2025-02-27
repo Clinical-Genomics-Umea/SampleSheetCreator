@@ -1,6 +1,6 @@
 ---
 BaseVersion: 1.0
-ApplicationType: dragen
+ApplicationType: Dragen
 Application: DragenSomatic
 ApplicationProfile: DragenSomaticIdt
 ApplicationProfileVersion: 1.0

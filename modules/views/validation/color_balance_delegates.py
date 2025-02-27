@@ -139,9 +139,7 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
             return super().editorEvent(event, model, option, index)
 
     def menuAction(self, index, action_text):
-        print(
-            f"Double-clicked cell at row {index.row()}, column {index.column()}. Action: {action_text}"
-        )
+        pass
 
     def commitAndCloseEditor(self):
 

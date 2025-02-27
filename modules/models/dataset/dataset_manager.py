@@ -162,8 +162,6 @@ class DataSetManager:
 
         self._data_obj = obj
 
-        pprint(self._data_obj)
-
     def app_settings_data(self) -> list:
         """Returns a list of dictionaries containing application settings and data."""
         _app_settings_data = []

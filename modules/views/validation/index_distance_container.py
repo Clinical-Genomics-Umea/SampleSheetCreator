@@ -28,12 +28,10 @@ class IndexDistanceValidationContainerWidget(QTabWidget):
             return
 
         for lane in results:
-            print(results[lane])
             tab = LaneIndexDistanceWidget(results[lane])
             self.addTab(tab, f"lane {lane}")
 
     def clear(self):
-        print("clearing main index distance validation widget")
         # Remove and delete each tab widget
         while self.count() > 0:
             widget = self.widget(0)  # Get the first widget in the tab widget

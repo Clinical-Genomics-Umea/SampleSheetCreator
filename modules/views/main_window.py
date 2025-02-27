@@ -239,8 +239,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         action_id = action.data()
         is_checked = action.isChecked()
 
-        print(action_id, is_checked)
-
         if action_id not in known_actions:
             return
 

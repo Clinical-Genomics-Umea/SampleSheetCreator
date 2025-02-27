@@ -29,7 +29,6 @@ read_cycle_patterns = {
 
 
 def validate_override_pattern(cycles_name, pattern):
-    print(cycles_name, pattern)
     if re.fullmatch(read_cycle_patterns[cycles_name]["validate"], pattern):
         return True
 
@@ -39,7 +38,6 @@ def validate_override_pattern(cycles_name, pattern):
 def preset_override_cycles(cycles_name, pattern):
     matches = re.findall(read_cycle_patterns[cycles_name]["validate"], pattern)
     preset_oc_len = 0
-    print(matches)
     for m in matches:
         if "{" not in m:
             preset_oc_len += int(m[1:])

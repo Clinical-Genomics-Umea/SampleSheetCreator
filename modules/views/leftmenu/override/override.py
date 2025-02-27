@@ -94,7 +94,6 @@ class OverrideCyclesWidget(QWidget):
 
     @Slot()
     def on_invalid_result(self, error_fields):
-        print(error_fields)
 
         for field in error_fields:
             flash_widget(self._oc_lineedits_dict[field])

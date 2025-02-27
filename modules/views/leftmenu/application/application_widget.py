@@ -24,7 +24,7 @@ class ApplicationWidget(QWidget):
         self._remove_button = QPushButton("-")
         self._remove_button.setMaximumWidth(50)
 
-        self.app_label = ClickableLabel(app_data["ApplicationName"], app_data)
+        self.app_label = ClickableLabel(app_data["ApplicationProfile"], app_data)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)

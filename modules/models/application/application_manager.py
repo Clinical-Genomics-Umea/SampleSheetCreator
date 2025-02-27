@@ -35,7 +35,6 @@ class ApplicationManager:
         _type_to_profile_to_obj = {}
 
         for obj in self._app_objects:
-            print(obj)
             a_type = obj["ApplicationType"]
             a_profile = obj["ApplicationProfile"]
 
