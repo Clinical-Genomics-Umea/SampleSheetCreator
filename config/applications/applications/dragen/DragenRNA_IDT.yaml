@@ -1,6 +1,0 @@
----
-Version: 1.0
-ApplicationName: DragenRna_IDT
-BaseApplication: DragenGermline
-BaseVersion: 1.0
-BaseApplicationPath: ../../base/dragen/DragenRNA.yaml

@@ -1,0 +1,13 @@
+---
+MethodType: WGS
+MethodName: WGS
+Description: Whole Genome Sequencing
+Version: 1.0
+
+ApplicationProfiles:
+  - ApplicationProfile: BCLConvertNextera
+    ApplicationProfileVersion: 1.0
+
+  - ApplicationProfile: BCLCovertNextera
+    ApplicationProfileVersion: 1.0
+
