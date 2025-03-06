@@ -113,6 +113,23 @@ class RunDataModel(QObject):
             "Read2Cycles": self._rundata["Read2Cycles"],
         }
 
+    @property
+    def index_1_cycles(self):
+        return self._rundata["Index1Cycles"]
+
+    @property
+    def index_2_cycles(self):
+        return self._rundata["Index2Cycles"]
+
+    @property
+    def read_1_cycles(self):
+        return self._rundata["Read1Cycles"]
+
+    @property
+    def read_2_cycles(self):
+        return self._rundata["Read2Cycles"]
+
+
     def _set_extract_tool_samplesheet_orientation(self):
         for tool, orientation in self._instr_fcells_obj[self._rundata["Instrument"]][
             "I5SampleSheetOrientation"

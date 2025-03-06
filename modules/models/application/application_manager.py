@@ -20,7 +20,7 @@ class ApplicationManager:
     def app_profile_to_app(self, app_name):
 
         for app_obj in self._app_objects:
-            if app_name == app_obj["ApplicationName"]:
+            if app_name == app_obj["ApplicationProfile"]:
                 return app_obj["Application"]
 
         return None

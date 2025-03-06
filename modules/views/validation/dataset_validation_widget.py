@@ -48,7 +48,7 @@ class DataSetValidationWidget(QTabWidget):
 
         for app_profile_name in unique_app_profile_names:
             df_app_profile = samples_dfs["apn_explode"][
-                samples_dfs["apn_explode"]["ApplicationName"] == app_profile_name
+                samples_dfs["apn_explode"]["ApplicationProfile"] == app_profile_name
             ]
             app_profile_widget = self.get_widget_table(df_app_profile)
             app_profile_tab.addTab(app_profile_widget, app_profile_name)

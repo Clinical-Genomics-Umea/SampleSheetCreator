@@ -22,7 +22,6 @@ from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
 from modules.views.leftmenu.file.file import FileView
 from modules.views.leftmenu.index.index_kit_toolbox import IndexKitToolbox
 from modules.views.leftmenu.lane.lane import LanesWidget
-from modules.views.notify.notify import StatusBar
 from modules.views.leftmenu.override.override import OverrideCyclesWidget
 from modules.views.leftmenu.application.application_container import ApplicationContainerWidget
 from modules.views.run.run_info_view import RunInfoView
@@ -53,11 +52,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def __init__(
         self,
-        config_manager: ConfigurationManager,
-        application_manager: ApplicationManager,
-        dataset_manager: DataSetManager,
-        index_kit_manager: IndexKitManager,
-        status_bar: StatusBar,
+        # config_manager: ConfigurationManager,
+        # application_manager: ApplicationManager,
+        # dataset_manager: DataSetManager,
+        # index_kit_manager: IndexKitManager
+        override_widget: OverrideCyclesWidget,
+        lane_widget: LanesWidget,
+        file_widget: FileView,
+        samples_widget: SamplesWidget,
+        run_setup_widget: RunSetupWidget,
+        run_info_widget: RunInfoView,
+        validation_widget: MainValidationWidget,
+        index_toolbox_widget: IndexKitToolbox,
+        applications_widget: ApplicationContainerWidget,
+        config_widget: ConfigurationWidget,
+        export_widget: ExportWidget,
     ):
         """
         Initialize the main window
@@ -68,13 +77,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setWindowIcon(
             QIcon(qta.icon("ri.settings-line", options=[{"draw": "image"}]))
         )
-        self.status_bar = status_bar
-        self.setStatusBar(self.status_bar)
 
-        self.config_manager = config_manager
-        self.application_manager = application_manager
-        self.dataset_manager = dataset_manager
-        self.index_kit_manager = index_kit_manager
+        self._override_widget = override_widget
+        self._lane_widget = lane_widget
+        self._file_widget = file_widget
+        self._samples_widget = samples_widget
+        self._run_setup_widget = run_setup_widget
+        self._run_info_widget = run_info_widget
+        self._validation_widget = validation_widget
+        self._index_toolbox_widget = index_toolbox_widget
+        self._applications_widget = applications_widget
+        self._config_widget = config_widget
+        self._export_widget = export_widget
 
         self.setMinimumWidth(1000)
         self.left_toolBar.setMovable(False)
@@ -103,43 +117,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.columns_settings_button = QPushButton("Columns")
         self.columns_settings_button.setObjectName("columns_settings")
 
-        self.override_widget = OverrideCyclesWidget()
-        self._setup_override()
-
-        self.lane_widget = LanesWidget(self.dataset_manager)
-        self._setup_lane()
-
-        self._setup_left_toolbar_actions()
-
-        self.file_widget = FileView()
-        self._setup_leftmenu_file()
-
-        self.samples_widget = SamplesWidget(self.config_manager.samples_settings)
-        self._setup_samples_widget()
-
-        self.run_setup_widget = RunSetupWidget(self.config_manager, dataset_manager)
-        self.run_info_view = RunInfoView("Run Setup", self.config_manager)
-        self._setup_run_view()
-
-        self.validation_widget = MainValidationWidget(self.dataset_manager)
-        self._setup_validation_widget()
-
-        self.index_toolbox_widget = IndexKitToolbox(self.index_kit_manager)
-        self._setup_left_menu_indexes()
-
-        self.applications_widget = ApplicationContainerWidget(
-            self.application_manager, self.dataset_manager
-        )
-        self._setup_left_menu_applications()
-
-        self.config_widget = ConfigurationWidget(self.config_manager)
-        self._setup_config()
-
-        self.export_widget = ExportWidget(self.dataset_manager, self.config_manager)
-        self._setup_export_widget()
+        # self.override_widget = OverrideCyclesWidget()
 
         self.leftmenu_stackedWidget.setFixedWidth(300)
         self.leftmenu_stackedWidget.hide()
+        self._setup()
+
+    def _setup(self):
+        self._setup_override()
+        self._setup_lane()
+        self._setup_left_toolbar_actions()
+        self._setup_leftmenu_file()
+        self._setup_samples_widget()
+        self._setup_run_view()
+        self._setup_validation_widget()
+        self._setup_left_menu_indexes()
+        self._setup_left_menu_applications()
+        self._setup_config()
+        self._setup_export_widget()
 
     def set_index_apps_actions_enabled(self):
         self.apps_action.setEnabled(True)
@@ -167,54 +162,53 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def _setup_leftmenu_file(self):
         layout = self.leftmenu_file.layout()
-        layout.addWidget(self.file_widget)
+        layout.addWidget(self._file_widget)
 
     def _setup_override(self):
         layout = self.leftmenu_override.layout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.override_widget)
+        layout.addWidget(self._override_widget)
         self.update_override_action_state(False)
 
     def _setup_lane(self):
         layout = self.leftmenu_lane.layout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.lane_widget)
+        layout.addWidget(self._lane_widget)
         self.lane_action.setEnabled(False)
 
     def _setup_export_widget(self):
         layout = self.main_export.layout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.export_widget)
+        layout.addWidget(self._export_widget)
 
     def _setup_validation_widget(self):
         layout = self.main_validation.layout()
-        layout.addWidget(self.validation_widget)
+        layout.addWidget(self._validation_widget)
         self.update_validate_action_state(False)
 
     def _setup_config(self):
         layout = self.main_settings.layout()
-        layout.addWidget(self.config_widget)
+        layout.addWidget(self._config_widget)
 
     def _setup_samples_widget(self):
         layout = self.main_data.layout()
-        layout.addWidget(self.samples_widget)
+        layout.addWidget(self._samples_widget)
         self.main_stackedWidget.setCurrentWidget(self.main_data)
 
     def _setup_run_view(self):
-        self.leftmenu_runsetup.layout().addWidget(self.run_setup_widget)
+        self.leftmenu_runsetup.layout().addWidget(self._run_setup_widget)
         main_data_layout = self.main_data.layout()
-        # main_data_layout.insertWidget(0, self.run_view_widget)
-        main_data_layout.insertWidget(0, self.run_info_view)
+        main_data_layout.insertWidget(0, self._run_info_widget)
 
     def _setup_left_menu_indexes(self):
         layout = self.leftmenu_indexes.layout()
-        layout.addWidget(self.index_toolbox_widget)
+        layout.addWidget(self._index_toolbox_widget)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
     def _setup_left_menu_applications(self):
         layout = self.leftmenu_apps.layout()
-        layout.addWidget(self.applications_widget)
+        layout.addWidget(self._applications_widget)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 

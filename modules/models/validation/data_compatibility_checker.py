@@ -52,14 +52,14 @@ class DataCompatibilityChecker(QObject):
             self.dropped_allowed.emit(dropped_data)
 
     def app_checker(self, appobj: dict) -> None:
-        new_appname = appobj["ApplicationName"]
+        new_appname = appobj["ApplicationProfile"]
 
         df = self.dataset_mgr.sample_dataframe_appname_explode()
         if df.empty:
             self.app_allowed.emit(appobj)
             return
 
-        unique_existing_appnames = df["ApplicationName"].unique()
+        unique_existing_appnames = df["ApplicationProfile"].unique()
 
         new_app_obj = self.app_mgr.app_profile_to_app_obj(new_appname)
         new_settings = new_app_obj["Settings"]
@@ -72,7 +72,7 @@ class DataCompatibilityChecker(QObject):
             existing_app_obj = self.app_mgr.app_profile_to_app_obj(existing_appname)
             existing_settings = existing_app_obj["Settings"]
             existing_app = existing_app_obj["Application"]
-            existing_appname = existing_app_obj["ApplicationName"]
+            existing_appname = existing_app_obj["ApplicationProfile"]
 
             if existing_app == new_app and existing_settings != new_settings:
                 msg = f"{new_appname} not allowed with {existing_appname} settings"

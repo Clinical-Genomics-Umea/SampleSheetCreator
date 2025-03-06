@@ -90,7 +90,7 @@ class DataSetManager:
         return self._data_obj
 
     def _bclconvert_adapters(self, data_df):
-        application_names = data_df["ApplicationName"].explode().tolist()
+        application_names = data_df["ApplicationProfile"].explode().tolist()
 
         adapters_read1 = set()
         adapters_read2 = set()
@@ -144,7 +144,7 @@ class DataSetManager:
 
         for item in app_settings_data:
             item_obj = {
-                "ApplicationGroupName": item["ApplicationGroupName"],
+                "ApplicationType": item["ApplicationType"],
                 "Application": item["Application"],
                 "Data": item["Data"].to_dict(orient="records"),
                 "Settings": item["Settings"],
@@ -232,22 +232,22 @@ class DataSetManager:
 
     def sample_dataframe_appname_explode(self):
         _df = self.base_sample_dataframe().copy(deep=True)
-        df = _df[_df["ApplicationName"].apply(lambda x: x != [])]
+        df = _df[_df["ApplicationProfile"].apply(lambda x: x != [])]
         if not df.empty:
-            return df.explode("ApplicationName", ignore_index=True)
+            return df.explode("ApplicationProfile", ignore_index=True)
 
         return df
 
     @staticmethod
     def _dataframe_strs_to_obj(dataframe):
         dataframe["Lane"] = dataframe["Lane"].apply(int_str_to_int_list)
-        dataframe["ApplicationName"] = dataframe["ApplicationName"].apply(json_to_obj)
+        dataframe["ApplicationProfile"] = dataframe["ApplicationProfile"].apply(json_to_obj)
 
         return dataframe
 
     @staticmethod
     def _explode_apn_lane(dataframe):
-        _exploded_name_df = dataframe.explode("ApplicationName", ignore_index=True)
+        _exploded_name_df = dataframe.explode("ApplicationProfile", ignore_index=True)
         _exploded_name_lane_df = _exploded_name_df.explode("Lane", ignore_index=True)
 
         return _exploded_name_lane_df

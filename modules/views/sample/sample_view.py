@@ -360,8 +360,8 @@ class SampleTableView(QTableView):
 
         header_index_map = header_to_index_map(proxy_model)
 
-        appname_column = header_index_map["ApplicationName"]
-        appname = application_object["ApplicationName"]
+        appname_column = header_index_map["ApplicationProfile"]
+        appname = application_object["ApplicationProfile"]
         application = application_object["Application"]
         application_data = application_object["Data"]
 
@@ -431,8 +431,8 @@ class SampleTableView(QTableView):
             return
 
         header_index_map = header_to_index_map(proxy_model)
-        app_name_column = header_index_map["ApplicationName"]
-        app_name = application_object["ApplicationName"]
+        app_name_column = header_index_map["ApplicationProfile"]
+        app_name = application_object["ApplicationProfile"]
         application = application_object["Application"]
 
         source_model.blockSignals(True)

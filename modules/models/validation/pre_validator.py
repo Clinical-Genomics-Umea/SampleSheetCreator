@@ -98,8 +98,8 @@ class PreValidator(QObject):
 
     def application_settings_validation(self) -> PreValidationResult:
         """Validate application settings consistency"""
-        app_exploded_df = self.dataframe.explode("ApplicationName", ignore_index=True)
-        unique_appnames = app_exploded_df["ApplicationName"].unique()
+        app_exploded_df = self.dataframe.explode("ApplicationProfile", ignore_index=True)
+        unique_appnames = app_exploded_df["ApplicationProfile"].unique()
 
         # Group settings by application
         app_settings = {}
