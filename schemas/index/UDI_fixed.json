@@ -82,7 +82,7 @@
     "Version",
     "Description",
     "Adapters",
-    "FixedLayout",
+    "Layout",
     "OverrideCyclesPattern",
     "Type",
     "IndexI7Len",

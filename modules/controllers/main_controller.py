@@ -34,20 +34,19 @@ class MainController(QObject):
         """
         super().__init__()
 
-        self.logger = logging.getLogger(__name__)
+        self._config_manager = ConfigurationManager()
+        self._logger = logging.getLogger(__name__)
         self._status_bar = StatusBar()
 
         self._file_handler = logging.FileHandler(Path("log/log.txt"))
         self._status_handler = StatusBarLogHandler(self._status_bar)
-        self.logger.addHandler(self._file_handler)
-        self.logger.addHandler(self._status_handler)
+        self._logger.addHandler(self._file_handler)
+        self._logger.addHandler(self._status_handler)
 
-        self._config_manager = ConfigurationManager()
         self._application_manager = ApplicationManager(self._config_manager)
 
         self._index_kit_manager = IndexKitManager(
-            self._config_manager.index_kits_path,
-            self._config_manager.index_kit_schema_path,
+            self._config_manager, self._logger
         )
 
         self._sample_model = SampleModel(self._config_manager.samples_settings)

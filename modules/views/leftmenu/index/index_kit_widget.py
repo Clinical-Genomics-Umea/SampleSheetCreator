@@ -52,8 +52,7 @@ class IndexKitWidget(QWidget):
 
         super().__init__()
 
-        # pascal_case_col_map = {col: to_pascal(col) for col in index_df.columns}
-        self.index_df = index_df  # .rename(columns=pascal_case_col_map)
+        self.index_df = index_df
 
         self.shown_fields = self.get_shown_fields()
 
@@ -107,9 +106,11 @@ class IndexKitWidget(QWidget):
 
     def get_shown_fields(self):
 
-        possible_fields = ["IndexI7Name", "IndexI5Name", "FixedPos"]
+        possible_fields = ["IndexI7Name", "IndexI5Name", "Pos"]
 
         shown_fields = [f for f in self.index_df.columns if f in possible_fields]
+
+        print(shown_fields)
 
         return shown_fields
 

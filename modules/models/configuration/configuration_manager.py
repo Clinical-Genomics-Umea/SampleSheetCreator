@@ -85,11 +85,11 @@ class ConfigurationManager(QObject):
         return self._run_settings["FastqExtractTool"]
 
     @property
-    def index_kits_path(self):
+    def index_kits_root(self):
         return self._indexes_settings_basepath
 
     @property
-    def index_kit_schema_path(self):
+    def index_schema_root(self):
         return self._index_kit_schema_path
 
     @property
