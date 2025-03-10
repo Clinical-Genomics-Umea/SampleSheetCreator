@@ -1,0 +1,692 @@
+{
+    "UID": "ncbSlPYlpSRtJgsy7yfnQg==",
+    "IndexKitName": "Ilmn_DNA-RNA_UDI_SetD_Tag_PCR-Free",
+    "DisplayName": "Ilmn DNA-RNA UD Indexes Tagmentation - ILMN PCR-Free SetD",
+    "Version": "1",
+    "Description": "Ilmn DNA-RNA UD Indexes Tagmentation - ILMN PCR-Free Index Kit SetD",
+    "Adapters": {
+        "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
+        "AdapterRead2": "CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA"
+    },
+    "FixedLayout": "true",
+    "OverrideCyclesPattern": "Y{r}-I{i}-I{i}-Y{r}",
+    "Type": "UDI",
+    "IndexI7Len": 10,
+    "IndexI5Len": 10,
+    "IndexSets": {
+        "IndexDual": [
+            {
+                "Pos": "A01",
+                "IndexI7Name": "UDP0289V2",
+                "IndexI5Name": "UDP0289V2",
+                "IndexI7": "AGATAGTAGC",
+                "IndexI5": "GGCACGCCAT"
+            },
+            {
+                "Pos": "A02",
+                "IndexI7Name": "UDP0297",
+                "IndexI5Name": "UDP0297",
+                "IndexI7": "GAAGACTAGA",
+                "IndexI5": "ACTAGAACTT"
+            },
+            {
+                "Pos": "A03",
+                "IndexI7Name": "UDP0305",
+                "IndexI5Name": "UDP0305",
+                "IndexI7": "ATACATCACA",
+                "IndexI5": "TCTCCATTGA"
+            },
+            {
+                "Pos": "A04",
+                "IndexI7Name": "UDP0313",
+                "IndexI5Name": "UDP0313",
+                "IndexI7": "TTAATAGCAC",
+                "IndexI5": "ACCACGTCTG"
+            },
+            {
+                "Pos": "A05",
+                "IndexI7Name": "UDP0321V3",
+                "IndexI5Name": "UDP0321V3",
+                "IndexI7": "GTAACTCCGC",
+                "IndexI5": "AATAGAACGG"
+            },
+            {
+                "Pos": "A06",
+                "IndexI7Name": "UDP0329",
+                "IndexI5Name": "UDP0329",
+                "IndexI7": "GAGCTTGCCG",
+                "IndexI5": "AGGTTGCAGG"
+            },
+            {
+                "Pos": "A07",
+                "IndexI7Name": "UDP0337",
+                "IndexI5Name": "UDP0337",
+                "IndexI7": "TGTAAGGTGG",
+                "IndexI5": "AAGGCCTTGG"
+            },
+            {
+                "Pos": "A08",
+                "IndexI7Name": "UDP0345",
+                "IndexI5Name": "UDP0345",
+                "IndexI7": "CTGAATTAGT",
+                "IndexI5": "AATTCGATCG"
+            },
+            {
+                "Pos": "A09",
+                "IndexI7Name": "UDP0353",
+                "IndexI5Name": "UDP0353",
+                "IndexI7": "GATATCACAC",
+                "IndexI5": "GACTATATGT"
+            },
+            {
+                "Pos": "A10",
+                "IndexI7Name": "UDP0361",
+                "IndexI5Name": "UDP0361",
+                "IndexI7": "GTGTACCTTC",
+                "IndexI5": "CTGTGAGCTA"
+            },
+            {
+                "Pos": "A11",
+                "IndexI7Name": "UDP0369V3",
+                "IndexI5Name": "UDP0369V3",
+                "IndexI7": "GATGAATTCA",
+                "IndexI5": "TGCTGTGATT"
+            },
+            {
+                "Pos": "A12",
+                "IndexI7Name": "UDP0377",
+                "IndexI5Name": "UDP0377",
+                "IndexI7": "TGAGTACAAC",
+                "IndexI5": "ACGCTTGGAC"
+            },
+            {
+                "Pos": "B01",
+                "IndexI7Name": "UDP0290V2",
+                "IndexI5Name": "UDP0290V2",
+                "IndexI7": "ATTAGAAGAC",
+                "IndexI5": "GCAGGCTGGA"
+            },
+            {
+                "Pos": "B02",
+                "IndexI7Name": "UDP0298V3",
+                "IndexI5Name": "UDP0298V3",
+                "IndexI7": "CCAGGTTATC",
+                "IndexI5": "GAATGCAGTT"
+            },
+            {
+                "Pos": "B03",
+                "IndexI7Name": "UDP0306",
+                "IndexI5Name": "UDP0306",
+                "IndexI7": "TAGGTATGTT",
+                "IndexI5": "CGAGACCAAG"
+            },
+            {
+                "Pos": "B04",
+                "IndexI7Name": "UDP0314",
+                "IndexI5Name": "UDP0314",
+                "IndexI7": "CATTCACGCT",
+                "IndexI5": "GTTGTACTCA"
+            },
+            {
+                "Pos": "B05",
+                "IndexI7Name": "UDP0322",
+                "IndexI5Name": "UDP0322",
+                "IndexI7": "CTCGTAGGCA",
+                "IndexI5": "TCATCCTCTT"
+            },
+            {
+                "Pos": "B06",
+                "IndexI7Name": "UDP0330",
+                "IndexI5Name": "UDP0330",
+                "IndexI7": "AGCTAGCTTC",
+                "IndexI5": "TAATACGGAG"
+            },
+            {
+                "Pos": "B07",
+                "IndexI7Name": "UDP0338",
+                "IndexI5Name": "UDP0338",
+                "IndexI7": "CAACTGCAAC",
+                "IndexI5": "TGAACGCAAC"
+            },
+            {
+                "Pos": "B08",
+                "IndexI7Name": "UDP0346",
+                "IndexI5Name": "UDP0346",
+                "IndexI7": "TAAGGAGGAA",
+                "IndexI5": "TTCCGACATT"
+            },
+            {
+                "Pos": "B09",
+                "IndexI7Name": "UDP0354",
+                "IndexI5Name": "UDP0354",
+                "IndexI7": "AGCGCTGTGT",
+                "IndexI5": "CGTTCGGAAC"
+            },
+            {
+                "Pos": "B10",
+                "IndexI7Name": "UDP0362",
+                "IndexI5Name": "UDP0362",
+                "IndexI7": "ACCTGGCCAA",
+                "IndexI5": "TCACAGATCG"
+            },
+            {
+                "Pos": "B11",
+                "IndexI7Name": "UDP0370V3",
+                "IndexI5Name": "UDP0370V3",
+                "IndexI7": "ATCCGGCAGC",
+                "IndexI5": "GATCGAATAA"
+            },
+            {
+                "Pos": "B12",
+                "IndexI7Name": "UDP0378",
+                "IndexI5Name": "UDP0378",
+                "IndexI7": "CCGCGGTTCT",
+                "IndexI5": "GGAGTAGATT"
+            },
+            {
+                "Pos": "C01",
+                "IndexI7Name": "UDP0291V2",
+                "IndexI5Name": "UDP0291V2",
+                "IndexI7": "GCTCGCACAT",
+                "IndexI5": "ATGGCTTAAT"
+            },
+            {
+                "Pos": "C02",
+                "IndexI7Name": "UDP0299",
+                "IndexI5Name": "UDP0299",
+                "IndexI7": "TTCACTCACT",
+                "IndexI5": "TATCATGAGA"
+            },
+            {
+                "Pos": "C03",
+                "IndexI7Name": "UDP0307",
+                "IndexI5Name": "UDP0307",
+                "IndexI7": "CACCTAGCAC",
+                "IndexI5": "TGCTGGACAT"
+            },
+            {
+                "Pos": "C04",
+                "IndexI7Name": "UDP0315",
+                "IndexI5Name": "UDP0315",
+                "IndexI7": "GGCACTAAGG",
+                "IndexI5": "TCAGGTCAAC"
+            },
+            {
+                "Pos": "C05",
+                "IndexI7Name": "UDP0323",
+                "IndexI5Name": "UDP0323",
+                "IndexI7": "AAGTTCTAGT",
+                "IndexI5": "GGTAAGATAA"
+            },
+            {
+                "Pos": "C06",
+                "IndexI7Name": "UDP0331",
+                "IndexI5Name": "UDP0331",
+                "IndexI7": "CAATCCTTGT",
+                "IndexI5": "CGAAGACGCA"
+            },
+            {
+                "Pos": "C07",
+                "IndexI7Name": "UDP0339",
+                "IndexI5Name": "UDP0339",
+                "IndexI7": "ACATGAGTGA",
+                "IndexI5": "CCGCTTAGCT"
+            },
+            {
+                "Pos": "C08",
+                "IndexI7Name": "UDP0347",
+                "IndexI5Name": "UDP0347",
+                "IndexI7": "AGCTTACACA",
+                "IndexI5": "TGGCACGACC"
+            },
+            {
+                "Pos": "C09",
+                "IndexI7Name": "UDP0355",
+                "IndexI5Name": "UDP0355",
+                "IndexI7": "TCACCGCGCT",
+                "IndexI5": "TCGATACTAG"
+            },
+            {
+                "Pos": "C10",
+                "IndexI7Name": "UDP0363",
+                "IndexI5Name": "UDP0363",
+                "IndexI7": "TGTCTGGCCT",
+                "IndexI5": "AGAAGCCAAT"
+            },
+            {
+                "Pos": "C11",
+                "IndexI7Name": "UDP0371V3",
+                "IndexI5Name": "UDP0371V3",
+                "IndexI7": "ACGAACCATG",
+                "IndexI5": "ACTGAATTAC"
+            },
+            {
+                "Pos": "C12",
+                "IndexI7Name": "UDP0379",
+                "IndexI5Name": "UDP0379",
+                "IndexI7": "ATTGATACTG",
+                "IndexI5": "TACACGCTCC"
+            },
+            {
+                "Pos": "D01",
+                "IndexI7Name": "UDP0292",
+                "IndexI5Name": "UDP0292",
+                "IndexI7": "AATATTGCCA",
+                "IndexI5": "CGGTGACACC"
+            },
+            {
+                "Pos": "D02",
+                "IndexI7Name": "UDP0300",
+                "IndexI5Name": "UDP0300",
+                "IndexI7": "GGTCCGCTTC",
+                "IndexI5": "CTCACACAAG"
+            },
+            {
+                "Pos": "D03",
+                "IndexI7Name": "UDP0308",
+                "IndexI5Name": "UDP0308",
+                "IndexI7": "TTCAAGTATG",
+                "IndexI5": "GATGGTATCG"
+            },
+            {
+                "Pos": "D04",
+                "IndexI7Name": "UDP0316",
+                "IndexI5Name": "UDP0316",
+                "IndexI7": "ATTCGGTACA",
+                "IndexI5": "AGTCCGAGGA"
+            },
+            {
+                "Pos": "D05",
+                "IndexI7Name": "UDP0324",
+                "IndexI5Name": "UDP0324",
+                "IndexI7": "CCAAGAGGTG",
+                "IndexI5": "AACGAGCCAG"
+            },
+            {
+                "Pos": "D06",
+                "IndexI7Name": "UDP0332",
+                "IndexI5Name": "UDP0332",
+                "IndexI7": "CACCTGTTGC",
+                "IndexI5": "ATTGACACAT"
+            },
+            {
+                "Pos": "D07",
+                "IndexI7Name": "UDP0340",
+                "IndexI5Name": "UDP0340",
+                "IndexI7": "GCAACCAGTC",
+                "IndexI5": "CACCGAGGAA"
+            },
+            {
+                "Pos": "D08",
+                "IndexI7Name": "UDP0348",
+                "IndexI5Name": "UDP0348",
+                "IndexI7": "AACCAGCCAC",
+                "IndexI5": "GCCACAGCAC"
+            },
+            {
+                "Pos": "D09",
+                "IndexI7Name": "UDP0356",
+                "IndexI5Name": "UDP0356",
+                "IndexI7": "GATAGCCTTG",
+                "IndexI5": "TACCACAATG"
+            },
+            {
+                "Pos": "D10",
+                "IndexI7Name": "UDP0364",
+                "IndexI5Name": "UDP0364",
+                "IndexI7": "AGTTAATGCT",
+                "IndexI5": "ACTGCAGCCG"
+            },
+            {
+                "Pos": "D11",
+                "IndexI7Name": "UDP0372V3",
+                "IndexI5Name": "UDP0372V3",
+                "IndexI7": "CAACCAAGTA",
+                "IndexI5": "CCATCCACGC"
+            },
+            {
+                "Pos": "D12",
+                "IndexI7Name": "UDP0380",
+                "IndexI5Name": "UDP0380",
+                "IndexI7": "GGATTATGGA",
+                "IndexI5": "TCCGATAGAG"
+            },
+            {
+                "Pos": "E01",
+                "IndexI7Name": "UDP0293",
+                "IndexI5Name": "UDP0293",
+                "IndexI7": "TCGTGCATTC",
+                "IndexI5": "GCGTTGGTAT"
+            },
+            {
+                "Pos": "E02",
+                "IndexI7Name": "UDP0301V2",
+                "IndexI5Name": "UDP0301V2",
+                "IndexI7": "TAGTGGCTTG",
+                "IndexI5": "AGTTACTTGG"
+            },
+            {
+                "Pos": "E03",
+                "IndexI7Name": "UDP0309",
+                "IndexI5Name": "UDP0309",
+                "IndexI7": "TTAAGACAAG",
+                "IndexI5": "GGCTTAATTG"
+            },
+            {
+                "Pos": "E04",
+                "IndexI7Name": "UDP0317",
+                "IndexI5Name": "UDP0317",
+                "IndexI7": "ACTAATCTCC",
+                "IndexI5": "CACTTAATCT"
+            },
+            {
+                "Pos": "E05",
+                "IndexI7Name": "UDP0325",
+                "IndexI5Name": "UDP0325",
+                "IndexI7": "ATATCTGCTT",
+                "IndexI5": "TAGACAATCT"
+            },
+            {
+                "Pos": "E06",
+                "IndexI7Name": "UDP0333",
+                "IndexI5Name": "UDP0333",
+                "IndexI7": "CGTCACCTTG",
+                "IndexI5": "CAGCCGATTG"
+            },
+            {
+                "Pos": "E07",
+                "IndexI7Name": "UDP0341",
+                "IndexI5Name": "UDP0341",
+                "IndexI7": "GAGCGACGAT",
+                "IndexI5": "CGTATAATCA"
+            },
+            {
+                "Pos": "E08",
+                "IndexI7Name": "UDP0349",
+                "IndexI5Name": "UDP0349",
+                "IndexI7": "CTTAAGTCGA",
+                "IndexI5": "CAGTAGTTGT"
+            },
+            {
+                "Pos": "E09",
+                "IndexI7Name": "UDP0357",
+                "IndexI5Name": "UDP0357",
+                "IndexI7": "CCTGGACGCA",
+                "IndexI5": "TGGTATACCA"
+            },
+            {
+                "Pos": "E10",
+                "IndexI7Name": "UDP0365",
+                "IndexI5Name": "UDP0365",
+                "IndexI7": "GGTGAGTAAT",
+                "IndexI5": "AACATCTAGT"
+            },
+            {
+                "Pos": "E11",
+                "IndexI7Name": "UDP0373",
+                "IndexI5Name": "UDP0373",
+                "IndexI7": "GTTGCGTTCA",
+                "IndexI5": "GTTGCAGTTG"
+            },
+            {
+                "Pos": "E12",
+                "IndexI7Name": "UDP0381",
+                "IndexI5Name": "UDP0381",
+                "IndexI7": "TGGTTCTCAT",
+                "IndexI5": "CTCAAGGCCG"
+            },
+            {
+                "Pos": "F01",
+                "IndexI7Name": "UDP0294",
+                "IndexI5Name": "UDP0294",
+                "IndexI7": "AAGATACACG",
+                "IndexI5": "TGTGCTAACA"
+            },
+            {
+                "Pos": "F02",
+                "IndexI7Name": "UDP0302",
+                "IndexI5Name": "UDP0302",
+                "IndexI7": "ATTGAGGTCC",
+                "IndexI5": "CGGATTATAT"
+            },
+            {
+                "Pos": "F03",
+                "IndexI7Name": "UDP0310",
+                "IndexI5Name": "UDP0310",
+                "IndexI7": "CACCTCTCTT",
+                "IndexI5": "CTCGACTCCT"
+            },
+            {
+                "Pos": "F04",
+                "IndexI7Name": "UDP0318",
+                "IndexI5Name": "UDP0318",
+                "IndexI7": "TGTGTTAGTA",
+                "IndexI5": "TACTCTGTTA"
+            },
+            {
+                "Pos": "F05",
+                "IndexI7Name": "UDP0326",
+                "IndexI5Name": "UDP0326",
+                "IndexI7": "TGGATCTGGC",
+                "IndexI5": "CAATGCTGAA"
+            },
+            {
+                "Pos": "F06",
+                "IndexI7Name": "UDP0334",
+                "IndexI5Name": "UDP0334",
+                "IndexI7": "AATGACTGGT",
+                "IndexI5": "TCTCACGCGT"
+            },
+            {
+                "Pos": "F07",
+                "IndexI7Name": "UDP0342",
+                "IndexI5Name": "UDP0342",
+                "IndexI7": "CGAACGCACC",
+                "IndexI5": "ATGACAGAAC"
+            },
+            {
+                "Pos": "F08",
+                "IndexI7Name": "UDP0350",
+                "IndexI5Name": "UDP0350",
+                "IndexI7": "GCCTAACGTG",
+                "IndexI5": "AGCTCTCAAG"
+            },
+            {
+                "Pos": "F09",
+                "IndexI7Name": "UDP0358",
+                "IndexI5Name": "UDP0358",
+                "IndexI7": "TTACGCACCT",
+                "IndexI5": "GCTCTCGTTG"
+            },
+            {
+                "Pos": "F10",
+                "IndexI7Name": "UDP0366",
+                "IndexI5Name": "UDP0366",
+                "IndexI7": "TACTCTGCGC",
+                "IndexI5": "CCTTACTATG"
+            },
+            {
+                "Pos": "F11",
+                "IndexI7Name": "UDP0374",
+                "IndexI5Name": "UDP0374",
+                "IndexI7": "CTTCAACCAC",
+                "IndexI5": "TTATGCGCCT"
+            },
+            {
+                "Pos": "F12",
+                "IndexI7Name": "UDP0382",
+                "IndexI5Name": "UDP0382",
+                "IndexI7": "TCAACCACGA",
+                "IndexI5": "CAAGTTCATA"
+            },
+            {
+                "Pos": "G01",
+                "IndexI7Name": "UDP0295",
+                "IndexI5Name": "UDP0295",
+                "IndexI7": "TGCAATGAAT",
+                "IndexI5": "CCAGAAGTAA"
+            },
+            {
+                "Pos": "G02",
+                "IndexI7Name": "UDP0303",
+                "IndexI5Name": "UDP0303",
+                "IndexI7": "GGAGAGACTC",
+                "IndexI5": "TTGAAGCAGA"
+            },
+            {
+                "Pos": "G03",
+                "IndexI7Name": "UDP0311",
+                "IndexI5Name": "UDP0311",
+                "IndexI7": "TTCTCGTGCA",
+                "IndexI5": "ATACACAGAG"
+            },
+            {
+                "Pos": "G04",
+                "IndexI7Name": "UDP0319",
+                "IndexI5Name": "UDP0319",
+                "IndexI7": "CAACGACCTA",
+                "IndexI5": "GCGACTCGAT"
+            },
+            {
+                "Pos": "G05",
+                "IndexI7Name": "UDP0327",
+                "IndexI5Name": "UDP0327",
+                "IndexI7": "TTGAATCCAA",
+                "IndexI5": "GTCACGGTGT"
+            },
+            {
+                "Pos": "G06",
+                "IndexI7Name": "UDP0335",
+                "IndexI5Name": "UDP0335",
+                "IndexI7": "ATGATTCCGG",
+                "IndexI5": "CTCTGACGTG"
+            },
+            {
+                "Pos": "G07",
+                "IndexI7Name": "UDP0343",
+                "IndexI5Name": "UDP0343",
+                "IndexI7": "TCTTACGCCG",
+                "IndexI5": "ATTCATTGCA"
+            },
+            {
+                "Pos": "G08",
+                "IndexI7Name": "UDP0351",
+                "IndexI5Name": "UDP0351",
+                "IndexI7": "ACTTACTTCA",
+                "IndexI5": "TCTGGAATTA"
+            },
+            {
+                "Pos": "G09",
+                "IndexI7Name": "UDP0359",
+                "IndexI5Name": "UDP0359",
+                "IndexI7": "TCGTTGCTGC",
+                "IndexI5": "GTCTCGTGAA"
+            },
+            {
+                "Pos": "G10",
+                "IndexI7Name": "UDP0367",
+                "IndexI5Name": "UDP0367",
+                "IndexI7": "AGGTATGGCG",
+                "IndexI5": "GTGGCGAGAC"
+            },
+            {
+                "Pos": "G11",
+                "IndexI7Name": "UDP0375",
+                "IndexI5Name": "UDP0375",
+                "IndexI7": "TCTATTCAGT",
+                "IndexI5": "TCTCAGTACA"
+            },
+            {
+                "Pos": "G12",
+                "IndexI7Name": "UDP0383",
+                "IndexI5Name": "UDP0383",
+                "IndexI7": "TATGAACTTG",
+                "IndexI5": "AATCCTTAGG"
+            },
+            {
+                "Pos": "H01",
+                "IndexI7Name": "UDP0296",
+                "IndexI5Name": "UDP0296",
+                "IndexI7": "CTATGAAGGA",
+                "IndexI5": "CTTATACCTG"
+            },
+            {
+                "Pos": "H02",
+                "IndexI7Name": "UDP0304",
+                "IndexI5Name": "UDP0304",
+                "IndexI7": "CCGCTCCGTT",
+                "IndexI5": "TACGGCGAAG"
+            },
+            {
+                "Pos": "H03",
+                "IndexI7Name": "UDP0312",
+                "IndexI5Name": "UDP0312",
+                "IndexI7": "GCTAGGAAGT",
+                "IndexI5": "TCTCGGACGA"
+            },
+            {
+                "Pos": "H04",
+                "IndexI7Name": "UDP0320",
+                "IndexI5Name": "UDP0320",
+                "IndexI7": "CGGTCGGCAT",
+                "IndexI5": "CTAGGCAAGG"
+            },
+            {
+                "Pos": "H05",
+                "IndexI7Name": "UDP0328",
+                "IndexI5Name": "UDP0328",
+                "IndexI7": "CACGGCTAGT",
+                "IndexI5": "GGTGTACAAG"
+            },
+            {
+                "Pos": "H06",
+                "IndexI7Name": "UDP0336",
+                "IndexI5Name": "UDP0336",
+                "IndexI7": "TTAGGCTCAA",
+                "IndexI5": "TCGAATGGAA"
+            },
+            {
+                "Pos": "H07",
+                "IndexI7Name": "UDP0344",
+                "IndexI5Name": "UDP0344",
+                "IndexI7": "AGCTGATGTC",
+                "IndexI5": "TCATGTCCTG"
+            },
+            {
+                "Pos": "H08",
+                "IndexI7Name": "UDP0352",
+                "IndexI5Name": "UDP0352",
+                "IndexI7": "CGCATTCCGT",
+                "IndexI5": "ATTAGTGGAG"
+            },
+            {
+                "Pos": "H09",
+                "IndexI7Name": "UDP0360",
+                "IndexI5Name": "UDP0360",
+                "IndexI7": "CGACAAGGAT",
+                "IndexI5": "AAGGCCACCT"
+            },
+            {
+                "Pos": "H10",
+                "IndexI7Name": "UDP0368",
+                "IndexI5Name": "UDP0368",
+                "IndexI7": "TCCAGCCTGC",
+                "IndexI5": "GCCAGATCCA"
+            },
+            {
+                "Pos": "H11",
+                "IndexI7Name": "UDP0376",
+                "IndexI5Name": "UDP0376",
+                "IndexI7": "CAAGACGTCC",
+                "IndexI5": "AGTATACGGA"
+            },
+            {
+                "Pos": "H12",
+                "IndexI7Name": "UDP0384",
+                "IndexI5Name": "UDP0384",
+                "IndexI7": "AGTGGTTAAG",
+                "IndexI5": "GGTGGAATAC"
+            }
+        ]
+    }
+}

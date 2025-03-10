@@ -1,0 +1,109 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/Welcome6",
+    "definitions": {
+        "Welcome6": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ApplicationProfileVersion": {
+                    "type": "integer"
+                },
+                "ApplicationProfile": {
+                    "type": "string"
+                },
+                "Application": {
+                    "type": "string"
+                },
+                "ApplicationType": {
+                    "type": "string"
+                },
+                "Settings": {
+                    "$ref": "#/definitions/Settings"
+                },
+                "Data": {
+                    "$ref": "#/definitions/Data"
+                },
+                "DataFields": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "Translate": {
+                    "$ref": "#/definitions/Translate"
+                }
+            },
+            "required": [
+                "Application",
+                "ApplicationProfile",
+                "ApplicationProfileVersion",
+                "ApplicationType",
+                "Data",
+                "DataFields",
+                "Settings",
+                "Translate"
+            ],
+            "title": "Welcome6"
+        },
+        "Data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "BarcodeMismatchesIndex1": {
+                    "type": "integer"
+                },
+                "BarcodeMismatchesIndex2": {
+                    "type": "integer"
+                },
+                "AdapterRead1": {
+                    "type": "string"
+                },
+                "AdapterRead2": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "AdapterRead1",
+                "AdapterRead2",
+                "BarcodeMismatchesIndex1",
+                "BarcodeMismatchesIndex2"
+            ],
+            "title": "Data"
+        },
+        "Settings": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "SoftwareVersion": {
+                    "type": "string"
+                },
+                "FastqCompressionFormat": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "FastqCompressionFormat",
+                "SoftwareVersion"
+            ],
+            "title": "Settings"
+        },
+        "Translate": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "IndexI7": {
+                    "type": "string"
+                },
+                "IndexI5": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "IndexI5",
+                "IndexI7"
+            ],
+            "title": "Translate"
+        }
+    }
+}
