@@ -26,10 +26,8 @@ class ConfigurationManager(QObject):
 
         self.read_cycle_pattern = re.compile(r"^\d+(-\d+)*$")
 
-        self._indexes_settings_basepath = Path("config/indexes/data")
-        self._application_settings_base_path = Path("config/applications/base")
-
-        self._application_profiles_path = Path("config/applications")
+        self._index_def_root = Path("config/indexes/data")
+        self._application_def_root = Path("config/applications")
         self._run_settings_path = Path("config/run/run_settings.yaml")
         self._instrument_flowcells_path = Path("config/run/instrument_flowcells.yaml")
         self._samples_settings_path = Path("config/sample_settings.yaml")
@@ -37,7 +35,7 @@ class ConfigurationManager(QObject):
             "config/validation/validation_settings.yaml"
         )
         self._samplesheet_v1_template_path = Path("config/samplesheet_v1.yaml")
-        self._index_kit_schema_path = Path("config/indexes/schema.json")
+        self._index_schema_root = Path("schemas/index")
 
         self._instruments_flowcell_obj = read_yaml_file(self._instrument_flowcells_path)
 
@@ -54,21 +52,21 @@ class ConfigurationManager(QObject):
         )
 
         self._paths = {
-            "indexes_settings_basepath": self._indexes_settings_basepath,
-            "applications_path": self._application_profiles_path,
+            "index_def_root": self._index_def_root,
+            "application_def_root": self._application_def_root,
             "run_settings_path": self._run_settings_path,
             "instrument_flowcells_path": self._instrument_flowcells_path,
             "samples_settings_path": self._samples_settings_path,
             "validation_settings_path": self._validation_settings_path,
             "samplesheet_v1_template_path": self._samplesheet_v1_template_path,
-            "index_kit_schema_path": self._index_kit_schema_path,
+            "index_schema_root": self._index_schema_root,
         }
 
         self._application_configs = []
         self._set_application_configs()
 
     def _set_application_configs(self):
-        paths = self._application_profiles_path.glob("**/*.yaml")
+        paths = self._application_def_root.glob("**/*.yaml")
 
         for path in paths:
             with path.open() as fp:
@@ -86,11 +84,11 @@ class ConfigurationManager(QObject):
 
     @property
     def index_kits_root(self):
-        return self._indexes_settings_basepath
+        return self._index_def_root
 
     @property
     def index_schema_root(self):
-        return self._index_kit_schema_path
+        return self._index_schema_root
 
     @property
     def instrument_flowcells(self):
@@ -273,7 +271,7 @@ class ConfigurationManager(QObject):
 
     @property
     def application_settings_basepath(self) -> Path:
-        return self._application_settings_base_path
+        return self._application_def_root
 
     @property
     def samples_settings(self) -> dict:

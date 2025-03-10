@@ -26,8 +26,17 @@ class DataCompatibilityChecker(QObject):
     @Slot(object)
     def dropped_checker(self, dropped_data):
         df = pd.DataFrame(dropped_data["decoded_data"])
-        index_i7_max_len = df["IndexI7"].str.len().max()
-        index_i5_max_len = df["IndexI5"].str.len().max()
+
+        print(df.to_string())
+
+        index_i7_max_len = None
+        index_i5_max_len = None
+
+        if "IndexI7" in df.columns:
+            index_i7_max_len = df["IndexI7"].str.len().max()
+
+        if "IndexI5" in df.columns:
+            index_i5_max_len = df["IndexI5"].str.len().max()
 
         read_cycles = self.dataset_mgr.read_cycles_dict()
 

@@ -6,6 +6,7 @@ from PySide6.QtCore import QObject
 from modules.models.application.application_manager import ApplicationManager
 from modules.models.configuration.configuration_manager import ConfigurationManager
 from modules.models.dataset.dataset_manager import DataSetManager
+from modules.models.datastate.datastate_model import DataStateModel
 from modules.models.indexes.index_kit_manager import IndexKitManager
 from modules.models.logging.statusbar_handler import StatusBarLogHandler
 from modules.models.rundata.rundata_model import RunDataModel
@@ -53,12 +54,19 @@ class MainController(QObject):
         self._sample_proxy_model = CustomProxyModel()
         self._sample_proxy_model.setSourceModel(self._sample_model)
 
-        self._run_data_model = RunDataModel(self._config_manager)
+        self._rundata_model = RunDataModel(self._config_manager)
 
         self._dataset_manager = DataSetManager(
             self._sample_model,
             self._application_manager,
-            self._run_data_model,
+            self._rundata_model,
+        )
+
+        self._datastate_model = DataStateModel(
+            self._sample_model,
+            self._rundata_model,
+            self._application_manager,
+            self._logger
         )
 
         # widgets
@@ -101,7 +109,7 @@ class MainController(QObject):
             self._application_manager,
         )
         self._compatibility_checker = DataCompatibilityChecker(
-            self._dataset_manager, self._application_manager
+            self._datastate_model
         )
 
         self._connect_signals()
@@ -233,24 +241,24 @@ class MainController(QObject):
             self._run_setup_widget.show_error
         )
         self._run_setup_widget.setup_commited.connect(
-            self._run_data_model.set_run_data
+            self._rundata_model.set_run_data
         )
-        self._run_data_model.run_data_ready.connect(
+        self._rundata_model.run_data_ready.connect(
             self._run_info_widget.set_data
         )
-        self._run_data_model.run_data_changed.connect(
+        self._rundata_model.run_data_changed.connect(
             self.main_window.set_override_action_enabled
         )
-        self._run_data_model.run_data_changed.connect(
+        self._rundata_model.run_data_changed.connect(
             self._lane_widget.set_lanes
         )
-        self._run_data_model.run_data_changed.connect(
+        self._rundata_model.run_data_changed.connect(
             self.main_window.set_lanes_action_enabled
         )
-        self._run_data_model.run_data_changed.connect(
+        self._rundata_model.run_data_changed.connect(
             self.main_window.set_index_apps_actions_enabled
         )
-        self._run_data_model.index_lens_ready.connect(
+        self._rundata_model.index_lens_ready.connect(
             self._index_toolbox_widget.set_index_kit_status
         )
 

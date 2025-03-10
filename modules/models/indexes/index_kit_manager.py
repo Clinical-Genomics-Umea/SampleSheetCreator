@@ -1,6 +1,7 @@
 from logging import Logger
 from pathlib import Path
 import json
+from pprint import pprint
 
 import jsonschema
 from jsonschema import validate
@@ -26,14 +27,13 @@ class IndexKitManager(object):
     def _load_schemas(self):
 
         root_path = self._configuration_manager.index_schema_root
-
         index_schema_paths = [ik for ik in root_path.glob("*.json")]
         schemas = {}
 
         for schema_path in index_schema_paths:
             with open(schema_path, "r") as schema_fh:
-
                 name = schema_path.name.split('.')[0]
+                print(f"schema name {name}")
                 schemas[name] = json.load(schema_fh)
 
         return schemas
@@ -57,13 +57,16 @@ class IndexKitManager(object):
 
                 if schema_name in self._index_schemas:
                     try:
+                        pprint(indata)
                         validate(instance=indata, schema=self._index_schemas[schema_name])
                     except jsonschema.ValidationError as e:
+                        pprint(f"validation error {e}")
                         self._logger.error(f"validation of {index_json} failed")
                         return
 
                     index_data.append(indata)
                 else:
+                    print("schema name not in index schemas")
                     self._logger.error(f"{index_json} does not have a schema")
 
         return index_data

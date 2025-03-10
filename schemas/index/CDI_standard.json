@@ -101,7 +101,6 @@
     }
   },
   "required": [
-    "IlmnChecksum",
     "IndexKitName",
     "DisplayName",
     "Version",
