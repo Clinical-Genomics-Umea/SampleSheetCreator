@@ -1,6 +1,6 @@
 ---
 MethodType: WGS
-MethodName: WGS
+Method: WGS
 Description: Whole Genome Sequencing
 Version: 1.0
 
@@ -8,6 +8,6 @@ ApplicationProfiles:
   - ApplicationProfile: BCLConvertNextera
     ApplicationProfileVersion: 1.0
 
-  - ApplicationProfile: BCLCovertNextera
+  - ApplicationProfile: DragenGermlineIdtWgs
     ApplicationProfileVersion: 1.0
 

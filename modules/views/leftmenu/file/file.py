@@ -1,3 +1,4 @@
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QWidget,
     QPushButton,
@@ -8,21 +9,24 @@ from modules.views.ui_components import HorizontalLine
 
 
 class FileView(QWidget):
+
+    worksheet_filepath_ready = Signal(object)
+
     def __init__(self):
         super().__init__()
 
         profiles_label = QLabel("File")
         profiles_label.setStyleSheet("font-weight: bold")
 
-        self.new_samplesheet_btn = QPushButton("New Samplesheet")
-        self.import_worksheet_btn = QPushButton("Import Worksheet")
+        self._new_samplesheet_btn = QPushButton("New Samplesheet")
+        self._import_worksheet_btn = QPushButton("Import Worksheet")
 
         layout = QVBoxLayout()
 
         layout.addWidget(profiles_label)
         layout.addWidget(HorizontalLine())
-        layout.addWidget(self.new_samplesheet_btn)
-        layout.addWidget(self.import_worksheet_btn)
+        layout.addWidget(self._new_samplesheet_btn)
+        layout.addWidget(self._import_worksheet_btn)
         layout.addStretch()
 
         layout.setSpacing(5)
@@ -30,8 +34,12 @@ class FileView(QWidget):
 
         self.setLayout(layout)
 
-    def import_worksheet(self):
-        # TODO: open a dialog to import a worksheet file.
+        self._import_worksheet_btn.clicked.connect(self._import_worksheet)
+
+
+    def _import_worksheet(self):
+        print("import worksheet")
+
         file_path, _ = QFileDialog.getOpenFileName(
             None,
             "Import Worksheet",
@@ -40,5 +48,7 @@ class FileView(QWidget):
         )
 
         if file_path:
-            self.parent().parent().parent().import_worksheet(file_path)
-        # TODO: open a dialog to import a worksheet file.
+
+            print(file_path)
+
+            self.worksheet_filepath_ready.emit(file_path)

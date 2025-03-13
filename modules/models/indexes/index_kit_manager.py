@@ -33,7 +33,6 @@ class IndexKitManager(object):
         for schema_path in index_schema_paths:
             with open(schema_path, "r") as schema_fh:
                 name = schema_path.name.split('.')[0]
-                print(f"schema name {name}")
                 schemas[name] = json.load(schema_fh)
 
         return schemas
@@ -53,20 +52,15 @@ class IndexKitManager(object):
 
                 schema_name = f"{kit_type}_{layout}"
 
-                print(schema_name)
-
                 if schema_name in self._index_schemas:
                     try:
-                        pprint(indata)
                         validate(instance=indata, schema=self._index_schemas[schema_name])
                     except jsonschema.ValidationError as e:
-                        pprint(f"validation error {e}")
                         self._logger.error(f"validation of {index_json} failed")
                         return
 
                     index_data.append(indata)
                 else:
-                    print("schema name not in index schemas")
                     self._logger.error(f"{index_json} does not have a schema")
 
         return index_data

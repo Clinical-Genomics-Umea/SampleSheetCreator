@@ -43,7 +43,7 @@ class DataSetValidationWidget(QTabWidget):
         app_profile_tab = QTabWidget()
         self.addTab(app_profile_tab, "application profile")
         unique_app_profile_names = samples_dfs["apn_explode"][
-            "ApplicationName"
+            "ApplicationProfile"
         ].unique()
 
         for app_profile_name in unique_app_profile_names:

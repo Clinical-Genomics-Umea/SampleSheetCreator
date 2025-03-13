@@ -11,8 +11,6 @@ Settings:
 Data:
   BarcodeMismatchesIndex1: 1
   BarcodeMismatchesIndex2: 1
-  AdapterRead1: CTGTCTCTTATACACATCT+AGATGTGTATAAGAGACAG
-  AdapterRead2: CTGTCTCTTATACACATCT+AGATGTGTATAAGAGACAG
 
 DataFields:
   - Sample_ID

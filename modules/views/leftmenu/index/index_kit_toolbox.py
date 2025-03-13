@@ -18,11 +18,6 @@ class IndexKitToolbox(QWidget):
             for index_kit_object in index_kit_manager.index_kit_objects
         }
 
-        print("container_widget")
-
-        for w in self.index_kit_container_widgets:
-            print(w)
-
         self.layout = QVBoxLayout()
         self.toolbox = QToolBox()
         self.hidden_items = {}

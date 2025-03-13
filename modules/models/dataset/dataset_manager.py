@@ -96,7 +96,7 @@ class DataSetManager:
         adapters_read2 = set()
 
         for name in application_names:
-            app_object = self.app_mgr.app_profile_to_app_obj(name)
+            app_object = self.app_mgr.app_profile_to_app_prof_obj(name)
             if app_object.get("Application") == "BCLConvert":
                 adapters_read1.update(
                     app_object.get("Settings", {})

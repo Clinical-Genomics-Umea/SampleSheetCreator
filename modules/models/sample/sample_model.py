@@ -1,8 +1,9 @@
 
 import pandas as pd
 from PySide6.QtCore import Qt, QSortFilterProxyModel, Signal
-from PySide6.QtGui import QStandardItemModel
+from PySide6.QtGui import QStandardItemModel, QStandardItem
 
+from modules.models.sample.samplesheet_fns import to_json
 from modules.utils.utils import decode_bytes_json
 
 
@@ -95,6 +96,45 @@ class SampleModel(QStandardItemModel):
         )
 
         return True
+
+    def _find_first_empty_row(self):
+        """
+        Find the first empty row in the QStandardItemModel.
+        An empty row is where all columns are empty (optional: customize this logic).
+        """
+        row_count = self.rowCount()
+        column_count = self.columnCount()
+
+        for row in range(row_count):
+            is_empty = True
+            for col in range(column_count):
+                item = self.item(row, col)
+                if item is not None and item.text().strip() != "":
+                    is_empty = False
+                    break
+            if is_empty:
+                return row
+        return row_count
+
+    def set_worksheet_data(self, df):
+        model_columns = [self.headerData(col, Qt.Horizontal) for col in range(self.columnCount())]
+
+        for df_index, df_row in df.iterrows():
+            # Find the first empty row in the model
+            first_empty_row = self._find_first_empty_row()
+            # Add items to the row by matching column names
+            for col_index, column_name in enumerate(model_columns):
+                if column_name in df.columns:
+                    value = df_row[column_name]
+
+                    if isinstance(value, list):
+                        value = to_json(value)
+
+                    if isinstance(value, dict):
+                        value = to_json(value)
+
+                    item = QStandardItem(str(value))
+                    self.setItem(first_empty_row, col_index, item)
 
     def dropMimeData(self, data, action, row, column, parent) -> bool:
         """

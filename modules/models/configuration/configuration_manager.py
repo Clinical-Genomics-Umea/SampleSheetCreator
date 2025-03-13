@@ -28,13 +28,14 @@ class ConfigurationManager(QObject):
 
         self._index_def_root = Path("config/indexes/data")
         self._application_def_root = Path("config/applications")
+        self._method_def_root = Path("config/methods")
+
         self._run_settings_path = Path("config/run/run_settings.yaml")
         self._instrument_flowcells_path = Path("config/run/instrument_flowcells.yaml")
         self._samples_settings_path = Path("config/sample_settings.yaml")
-        self._validation_settings_path = Path(
-            "config/validation/validation_settings.yaml"
-        )
+        self._validation_settings_path = Path("config/validation/validation_settings.yaml")
         self._samplesheet_v1_template_path = Path("config/samplesheet_v1.yaml")
+
         self._index_schema_root = Path("schemas/index")
 
         self._instruments_flowcell_obj = read_yaml_file(self._instrument_flowcells_path)
@@ -54,6 +55,7 @@ class ConfigurationManager(QObject):
         self._paths = {
             "index_def_root": self._index_def_root,
             "application_def_root": self._application_def_root,
+            "methods_def_root": self._method_def_root,
             "run_settings_path": self._run_settings_path,
             "instrument_flowcells_path": self._instrument_flowcells_path,
             "samples_settings_path": self._samples_settings_path,
@@ -65,6 +67,9 @@ class ConfigurationManager(QObject):
         self._application_configs = []
         self._set_application_configs()
 
+        self._method_configs = []
+        self._set_method_configs()
+
     def _set_application_configs(self):
         paths = self._application_def_root.glob("**/*.yaml")
 
@@ -73,6 +78,20 @@ class ConfigurationManager(QObject):
                 app_config = yaml.safe_load(fp)
 
             self.application_configs.append(app_config)
+
+    def _set_method_configs(self):
+        paths = self._method_def_root.glob("**/*.yaml")
+
+        for path in paths:
+            with path.open() as fp:
+                method_config = yaml.safe_load(fp)
+
+            self.method_configs.append(method_config)
+
+
+    @property
+    def method_configs(self):
+        return self._method_configs
 
     @property
     def application_configs(self):

@@ -9,10 +9,12 @@ from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.datastate.datastate_model import DataStateModel
 from modules.models.indexes.index_kit_manager import IndexKitManager
 from modules.models.logging.statusbar_handler import StatusBarLogHandler
+from modules.models.methods.method_manager import MethodManager
 from modules.models.rundata.rundata_model import RunDataModel
 from modules.models.sample.sample_model import SampleModel, CustomProxyModel
 from modules.models.validation.data_compatibility_checker import DataCompatibilityChecker
 from modules.models.validation.main_validator import MainValidator
+from modules.models.worksheet.import_worksheet import WorkSheetImporter
 from modules.views.config.configuration_widget import ConfigurationWidget
 from modules.views.export.export import ExportWidget
 from modules.views.leftmenu.application.application_container import ApplicationContainerWidget
@@ -109,8 +111,14 @@ class MainController(QObject):
             self._application_manager,
         )
         self._compatibility_checker = DataCompatibilityChecker(
-            self._datastate_model
+            self._datastate_model,
+            self._dataset_manager,
+            self._logger
         )
+
+        self._method_manager = MethodManager(self._config_manager, self._application_manager, self._logger)
+        self._worksheet_importer = WorkSheetImporter(self._sample_model, self._method_manager,
+                                                     self._application_manager, self._logger)
 
         self._connect_signals()
 
@@ -133,12 +141,6 @@ class MainController(QObject):
         self._samples_widget.selection_data.connect(
             self._status_bar.display_selection_data
         )
-        self._compatibility_checker.dropped_not_allowed.connect(
-            self._status_bar.display_error_msg
-        )
-        self._compatibility_checker.dropped_not_allowed_flash.connect(
-            self._samples_widget.flash_table
-        )
 
     def _connect_sample_model_signals(self):
         self._sample_model.dataChanged.connect(
@@ -147,31 +149,32 @@ class MainController(QObject):
 
     def _connect_application_signal(self):
         self._applications_widget.add_signal.connect(
-            self._compatibility_checker.app_checker
+            self._compatibility_checker.app_check
         )
-        self._compatibility_checker.app_allowed.connect(
+        self._compatibility_checker.app_ok.connect(
             self._samples_widget.sample_view.set_application
         )
         self._applications_widget.remove_signal.connect(
             self._samples_widget.sample_view.remove_application
         )
 
-        self._compatibility_checker.app_not_allowed.connect(
-            self._status_bar.display_error_msg
-        )
 
     def _connect_drop_paste_signals(self):
         self._sample_model.dropped_data.connect(
-            self._compatibility_checker.dropped_checker
+            self._compatibility_checker.drop_check
         )
-        self._compatibility_checker.dropped_allowed.connect(
+        self._compatibility_checker.drop_ok.connect(
             self._sample_model.set_dropped_data
         )
 
     def _connect_file_signals(self):
-        self._file_widget.new_samplesheet_btn.clicked.connect(
-            self._sample_model.set_empty_strings
+        # self._file_widget.worksheet_file.connect(
+        #     self._sample_model.set_empty_strings
+        # )
+        self._file_widget.worksheet_filepath_ready.connect(
+            self._worksheet_importer.load_worksheet
         )
+
 
     def _connect_left_tool_action_signals(self):
         """Connect UI signals to controller slots"""
@@ -197,16 +200,16 @@ class MainController(QObject):
     def _connect_validation_signals(self):
         """Connect UI signals to validation slots"""
 
-        self._main_validator.pre_validator.data_ready.connect(
+        self._main_validator._pre_validator.data_ready.connect(
             self._validation_widget.pre_validation_widget.populate
         )
-        self._main_validator.index_distance_validator.data_ready.connect(
+        self._main_validator._index_distance_validator.data_ready.connect(
             self._validation_widget.main_index_validation_widget.populate
         )
-        self._main_validator.color_balance_validator.data_ready.connect(
+        self._main_validator._color_balance_validator.data_ready.connect(
             self._validation_widget.color_balance_validation_container_widget.populate
         )
-        self._main_validator.dataset_validator.data_ready.connect(
+        self._main_validator._dataset_validator.data_ready.connect(
             self._validation_widget.dataset_validation_widget.populate
         )
         self._validation_widget.validate_button.clicked.connect(
@@ -215,7 +218,7 @@ class MainController(QObject):
         self._main_validator.clear_validator_widgets.connect(
             self._validation_widget.clear_validation_widgets
         )
-        self._main_validator.prevalidator_status.connect(
+        self._main_validator.pre_validator_status.connect(
             self.main_window.update_export_action_state
         )
 
@@ -227,10 +230,7 @@ class MainController(QObject):
             self._samples_widget.sample_view.get_override_pattern
         )
         self._override_widget.custom_override_pattern_ready.connect(
-            self._compatibility_checker.override_cycles_checker
-        )
-        self._compatibility_checker.override_pattern_invalid.connect(
-            self._override_widget.on_invalid_result
+            self._compatibility_checker.override_cycles_check
         )
 
     def _connect_run_signals(self):

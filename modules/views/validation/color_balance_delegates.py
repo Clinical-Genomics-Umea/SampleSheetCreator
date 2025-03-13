@@ -34,7 +34,7 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
         If the value at the current index and the value at the adjacent index are both "G",
         paint the background of the cell a light red color.
         """
-        adjacent_index = index.model().index(index.row(), 3)
+        adjacent_index = index._sample_model().index(index.row(), 3)
         current_value = index.data(Qt.DisplayRole)
         adjacent_value = adjacent_index.data(Qt.DisplayRole)
 
@@ -49,7 +49,7 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
     # Cleaned up by standardizing variable names, removing debugging statements, and improving readability.
 
     def paint_gg_i1_2_row(self, painter, option, index):
-        index_other = index.model().index(index.row(), 2)
+        index_other = index._sample_model().index(index.row(), 2)
         value = index.data(Qt.DisplayRole)
         value_other = index_other.data(Qt.DisplayRole)
 

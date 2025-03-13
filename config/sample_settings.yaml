@@ -5,7 +5,7 @@ fields:
     - Lane
     - Sample_ID
   Indexes:
-    - FixedPos
+    - Pos
     - IndexI7Name
     - IndexI7
     - IndexI5Name

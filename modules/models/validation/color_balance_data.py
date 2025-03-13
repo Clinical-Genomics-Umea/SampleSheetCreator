@@ -1,3 +1,5 @@
+from logging import Logger
+
 import numpy as np
 import pandas as pd
 from PySide6.QtCore import QObject, Signal
@@ -12,23 +14,23 @@ class ColorBalanceValidator(QObject):
 
     def __init__(
         self,
-        model: SampleModel,
-        dataset_mgr: DataSetManager,
+        sample_model: SampleModel,
+        dataset_manager: DataSetManager,
+        logger: Logger
     ):
         super().__init__()
 
-        self.model = model
-        self.dataset_mgr = dataset_mgr
+        self._sample_model = sample_model
+        self._dataset_manager = dataset_manager
 
-        i5_seq_orientation = dataset_mgr.i5_seq_orientation
-
-        self.i5_rc = i5_seq_orientation == "rc"
+        i5_seq_orientation = dataset_manager.i5_seq_orientation
+        self._i5_rc = i5_seq_orientation == "rc"
 
     def validate(self):
-        i5_orientation = self.dataset_mgr.i5_seq_orientation
+        i5_orientation = self._dataset_manager.i5_seq_orientation
         i5_seq_rc = i5_orientation == "rc"
 
-        df = self.dataset_mgr.sample_dataframe_lane_explode()
+        df = self._dataset_manager.sample_dataframe_lane_explode()
 
         if df.empty:
             return

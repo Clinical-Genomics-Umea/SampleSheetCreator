@@ -17,8 +17,6 @@ class IndexKitContainerWidget(QWidget):
         self._index_i7_len = iko.index_i7_len
         self._index_i5_len = iko.index_i5_len
 
-        pprint(iko.index_set)
-
         for name in iko.index_set.keys():
             index_widget = IndexKitWidget(iko.index_set[name])
             self.layout.addWidget(index_widget)

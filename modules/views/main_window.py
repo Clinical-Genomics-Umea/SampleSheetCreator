@@ -52,10 +52,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def __init__(
         self,
-        # config_manager: ConfigurationManager,
-        # application_manager: ApplicationManager,
-        # dataset_manager: DataSetManager,
-        # index_kit_manager: IndexKitManager
         override_widget: OverrideCyclesWidget,
         lane_widget: LanesWidget,
         file_widget: FileView,
@@ -122,6 +118,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.leftmenu_stackedWidget.setFixedWidth(300)
         self.leftmenu_stackedWidget.hide()
         self._setup()
+
+
+
 
     def _setup(self):
         self._setup_override()
@@ -245,7 +244,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.run_validate.emit()
             elif action_id == "export":
                 self.main_stackedWidget.setCurrentWidget(self.main_export)
-                self.export_widget.del_data_tree()
+                self._export_widget.del_data_tree()
             elif action_id == "config":
                 self.main_stackedWidget.setCurrentWidget(self.main_settings)
 

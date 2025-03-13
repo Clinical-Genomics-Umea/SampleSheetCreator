@@ -1,3 +1,5 @@
+from logging import Logger
+
 from PySide6.QtCore import QObject, Signal, QThread, Slot
 
 from modules.models.dataset.dataset_manager import DataSetManager
@@ -10,27 +12,29 @@ class IndexDistanceMatrixGenerator(QObject):
 
     def __init__(
         self,
-        model: SampleModel,
-        dataset_mgr: DataSetManager,
+        sample_model: SampleModel,
+        dataset_manager: DataSetManager,
+        logger: Logger
     ):
         super().__init__()
 
-        if model is None:
+        if sample_model is None:
             raise ValueError("model cannot be None")
 
-        self.model = model
-        self.dataset_mgr = dataset_mgr
+        self._sample_model = sample_model
+        self._dataset_manager = dataset_manager
+        self._logger = logger
 
         self.thread = None
         self.worker = None
 
     def generate(self):
 
-        i5_seq_orientation = self.dataset_mgr.i5_seq_orientation
+        i5_seq_orientation = self._dataset_manager.i5_seq_orientation
         i5_seq_rc = i5_seq_orientation == "rc"
 
         self.thread = QThread()
-        self.worker = IndexDistanceMatricesWorker(self.dataset_mgr, i5_seq_rc)
+        self.worker = IndexDistanceMatricesWorker(self._dataset_manager, i5_seq_rc)
 
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)

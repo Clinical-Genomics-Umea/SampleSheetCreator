@@ -66,7 +66,7 @@ class ApplicationManager:
 
         return None
 
-    def app_profile_to_app_obj(self, app_profile):
+    def app_profile_to_app_prof_obj(self, app_profile):
         for app_obj in self._app_objects:
             if app_profile == app_obj["ApplicationProfile"]:
                 return app_obj
