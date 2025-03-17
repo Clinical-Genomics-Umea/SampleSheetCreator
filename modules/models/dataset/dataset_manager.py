@@ -1,18 +1,20 @@
 import re
 
-
+from modules.models.application.application_manager import ApplicationManager
+from modules.models.rundata.rundata_model import RunDataModel
+from modules.models.sample.sample_model import SampleModel
 from modules.utils.utils import int_str_to_int_list, json_to_obj, uuid
 import json
 import pandas as pd
 
 
 class DataSetManager:
-    def __init__(self, sample_model, app_mgr, rundata_model):
+    def __init__(self, sample_model: SampleModel, application_manager: ApplicationManager, rundata_model: RunDataModel):
 
-        self.rundata_model = rundata_model
-        self.sample_model = sample_model
-        self.app_mgr = app_mgr
-        self.read_cycles_header = ("r1", "i1", "i2", "r2")
+        self._rundata_model = rundata_model
+        self._sample_model = sample_model
+        self._application_manager = application_manager
+        self._read_cycles_header = ("r1", "i1", "i2", "r2")
         self._data_obj = None
 
     @staticmethod
@@ -46,7 +48,7 @@ class DataSetManager:
         for i, item in enumerate(item_list):
             output_items.append(
                 self._convert_override_pattern(
-                    item, self.rundata_model.read_cycles_list[i]
+                    item, self._rundata_model.read_cycles_list[i]
                 )
             )
 
@@ -54,7 +56,7 @@ class DataSetManager:
 
     def index_maxlens(self):
         """Return a dictionary of the maximum lengths of IndexI5 and IndexI7 columns in the sample model dataframe."""
-        dataframe = self.sample_model.to_dataframe()
+        dataframe = self._sample_model.to_dataframe()
 
         if dataframe.empty:
             return {"IndexI7_maxlen": 0, "IndexI5_maxlen": 0}
@@ -96,7 +98,7 @@ class DataSetManager:
         adapters_read2 = set()
 
         for name in application_names:
-            app_object = self.app_mgr.app_profile_to_app_prof_obj(name)
+            app_object = self._application_manager.app_profile_to_app_prof_obj(name)
             if app_object.get("Application") == "BCLConvert":
                 adapters_read1.update(
                     app_object.get("Settings", {})
@@ -112,7 +114,7 @@ class DataSetManager:
                 )
 
         adapters = {
-            "Adapter": "+".join(adapters_read1),
+            "AdapterRead1": "+".join(adapters_read1),
             "AdapterRead2": "+".join(adapters_read2),
         }
 
@@ -120,16 +122,20 @@ class DataSetManager:
 
     def _header_data(self):
         return {
-            "FileFormatVersion": self.rundata_model.rundata["SampleSheetVersion"],
-            "InstrumentType": self.rundata_model.rundata["Instrument"],
-            "RunName": self.rundata_model.rundata["RunName"],
-            "RunDescription": self.rundata_model.rundata["RunDescription"],
-            "Custom_Flowcell": self.rundata_model.rundata["Flowcell"],
+            "FileFormatVersion": self._rundata_model.rundata["SampleSheetVersion"],
+            "InstrumentType": self._rundata_model.rundata["Instrument"],
+            "RunName": self._rundata_model.rundata["RunName"],
+            "RunDescription": self._rundata_model.rundata["RunDescription"],
+            "Custom_Flowcell": self._rundata_model.rundata["Flowcell"],
             "Custom_UUID7": uuid(),
         }
 
+    @property
     def read_cycles_dict(self) -> dict:
-        return self.rundata_model.read_cycles_dict
+
+        read_cycles_dict = self._rundata_model.read_cycles_dict
+
+        return read_cycles_dict
 
     def set_data_obj(self):
 
@@ -154,8 +160,8 @@ class DataSetManager:
 
         sample_sheet_config = {
             "InstrumentType": obj["Header"]["InstrumentType"],
-            "I5SeqOrientation": self.rundata_model.i5_seq_orientation,
-            "I5SampleSheetOrientation": self.rundata_model.i5_samplesheet_orientation,
+            "I5SeqOrientation": self._rundata_model.i5_seq_orientation,
+            "I5SampleSheetOrientation": self._rundata_model.i5_samplesheet_orientation,
         }
 
         obj["SampleSheetConfig"] = sample_sheet_config
@@ -175,7 +181,7 @@ class DataSetManager:
 
         _tmp = {}
         for app_profile in unique_app_profiles:
-            app = self.app_mgr.app_profile_to_app(app_profile)
+            app = self._application_manager.app_profile_to_app(app_profile)
             if app not in _tmp:
                 _tmp[app] = {"Data": [], "Settings": {}, "DataFields": []}
 
@@ -183,16 +189,16 @@ class DataSetManager:
                 all_sample_data_df["ApplicationProfile"] == app_profile
             ].copy(deep=True)
 
-            app_profile_data = self.app_mgr.app_profile_to_data(app_profile)
+            app_profile_data = self._application_manager.app_profile_to_data(app_profile)
 
             for k, v in app_profile_data.items():
                 if k not in data_df.columns:
                     data_df[k] = v
 
-            data_df = data_df[self.app_mgr.app_profile_to_data_fields(app_profile)]
+            data_df = data_df[self._application_manager.app_profile_to_data_fields(app_profile)]
 
             _tmp[app]["Data"].append(data_df)
-            _tmp[app]["Settings"] = self.app_mgr.app_profile_to_settings(app_profile)
+            _tmp[app]["Settings"] = self._application_manager.app_profile_to_settings(app_profile)
 
         for app in _tmp:
             concat_data = pd.concat(_tmp[app]["Data"])
@@ -202,7 +208,7 @@ class DataSetManager:
 
             _app_settings_data.append(
                 {
-                    "ApplicationType": self.app_mgr.app_to_app_type(app),
+                    "ApplicationType": self._application_manager.app_to_app_type(app),
                     "Application": app,
                     "Data": concat_data,
                     "Settings": _tmp[app]["Settings"],
@@ -219,10 +225,10 @@ class DataSetManager:
 
     @property
     def run_lanes(self):
-        return self.rundata_model.lanes
+        return self._rundata_model.lanes
 
     def base_sample_dataframe(self):
-        dataframe = self.sample_model.to_dataframe()
+        dataframe = self._sample_model.to_dataframe()
         dataframe_corr = self._dataframe_strs_to_obj(dataframe)
         return dataframe_corr
 
@@ -254,24 +260,24 @@ class DataSetManager:
 
     @property
     def assess_balance(self) -> bool:
-        return self.rundata_model.assess_balance
+        return self._rundata_model.assess_balance
 
     @property
     def has_rundata(self) -> bool:
-        return self.rundata_model.has_rundata
+        return self._rundata_model.has_rundata
 
     @property
     def rundata(self) -> dict:
-        return self.rundata_model.rundata
+        return self._rundata_model.rundata
 
     @property
     def i5_samplesheet_orientation(self) -> dict:
-        return self.rundata_model.i5_samplesheet_orientation
+        return self._rundata_model.i5_samplesheet_orientation
 
     @property
     def i5_seq_orientation(self) -> str:
-        return self.rundata_model.i5_seq_orientation
+        return self._rundata_model.i5_seq_orientation
 
     @property
     def base_colors(self) -> dict:
-        return self.rundata_model.base_colors
+        return self._rundata_model.base_colors

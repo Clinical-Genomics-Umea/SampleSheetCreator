@@ -31,19 +31,19 @@ class MainValidator(QObject):
         self._dataset_manager = dataset_manager
         self._logger = logger
 
-        self._pre_validator = PreValidator(sample_model, configuration_manager,
-                                           application_manager, dataset_manager, logger)
-        self._dataset_validator = DataSetValidator(sample_model, configuration_manager, dataset_manager, logger)
-        self._index_distance_validator = IndexDistanceMatrixGenerator(
+        self.pre_validator = PreValidator(sample_model, configuration_manager,
+                                          application_manager, dataset_manager, logger)
+        self.dataset_validator = DataSetValidator(sample_model, configuration_manager, dataset_manager, logger)
+        self.index_distance_validator = IndexDistanceMatrixGenerator(
             sample_model, dataset_manager, logger
         )
-        self._color_balance_validator = ColorBalanceValidator(sample_model, dataset_manager, logger)
+        self.color_balance_validator = ColorBalanceValidator(sample_model, dataset_manager, logger)
 
     def validate(self):
 
         self.clear_validator_widgets.emit()
 
-        if not self._pre_validator.validate():
+        if not self.pre_validator.validate():
             self.pre_validator_status.emit(False)
             return
 
@@ -51,8 +51,8 @@ class MainValidator(QObject):
 
         self._dataset_manager.set_data_obj()
 
-        self._dataset_validator.validate()
-        self._index_distance_validator.generate()
+        self.dataset_validator.validate()
+        self.index_distance_validator.generate()
 
         if self._dataset_manager.assess_balance:
-            self._color_balance_validator.validate()
+            self.color_balance_validator.validate()

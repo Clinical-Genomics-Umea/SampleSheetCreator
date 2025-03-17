@@ -10,9 +10,10 @@ from modules.models.datastate.datastate_model import DataStateModel
 from modules.models.indexes.index_kit_manager import IndexKitManager
 from modules.models.logging.statusbar_handler import StatusBarLogHandler
 from modules.models.methods.method_manager import MethodManager
+from modules.models.override_cycles.OverrideCyclesModel import OverrideCyclesModel
 from modules.models.rundata.rundata_model import RunDataModel
 from modules.models.sample.sample_model import SampleModel, CustomProxyModel
-from modules.models.validation.data_compatibility_checker import DataCompatibilityChecker
+from modules.models.validation.data_compatibility_checker import DataCompatibilityTest
 from modules.models.validation.main_validator import MainValidator
 from modules.models.worksheet.import_worksheet import WorkSheetImporter
 from modules.views.config.configuration_widget import ConfigurationWidget
@@ -71,13 +72,17 @@ class MainController(QObject):
             self._logger
         )
 
+        self._override_cycles_model = OverrideCyclesModel(
+            self._datastate_model, self._dataset_manager, self._logger
+        )
+
         # widgets
-        self._override_widget = OverrideCyclesWidget()
+        self._override_widget = OverrideCyclesWidget(self._override_cycles_model)
         self._lane_widget = LanesWidget(self._dataset_manager)
         self._file_widget = FileView()
         self._samples_widget = SamplesWidget(self._config_manager.samples_settings)
         self._run_setup_widget = RunSetupWidget(self._config_manager, self._dataset_manager)
-        self._run_info_widget = RunInfoView("Run Setup", self._config_manager)
+        self._run_info_widget = RunInfoView(self._config_manager)
         self._validation_widget = MainValidationWidget(self._dataset_manager)
         self._index_toolbox_widget = IndexKitToolbox(self._index_kit_manager)
         self._applications_widget = ApplicationContainerWidget(
@@ -109,8 +114,9 @@ class MainController(QObject):
             self._config_manager,
             self._dataset_manager,
             self._application_manager,
+            self._logger
         )
-        self._compatibility_checker = DataCompatibilityChecker(
+        self._compatibility_checker = DataCompatibilityTest(
             self._datastate_model,
             self._dataset_manager,
             self._logger
@@ -200,16 +206,16 @@ class MainController(QObject):
     def _connect_validation_signals(self):
         """Connect UI signals to validation slots"""
 
-        self._main_validator._pre_validator.data_ready.connect(
+        self._main_validator.pre_validator.data_ready.connect(
             self._validation_widget.pre_validation_widget.populate
         )
-        self._main_validator._index_distance_validator.data_ready.connect(
+        self._main_validator.index_distance_validator.data_ready.connect(
             self._validation_widget.main_index_validation_widget.populate
         )
-        self._main_validator._color_balance_validator.data_ready.connect(
+        self._main_validator.color_balance_validator.data_ready.connect(
             self._validation_widget.color_balance_validation_container_widget.populate
         )
-        self._main_validator._dataset_validator.data_ready.connect(
+        self._main_validator.dataset_validator.data_ready.connect(
             self._validation_widget.dataset_validation_widget.populate
         )
         self._validation_widget.validate_button.clicked.connect(
@@ -230,7 +236,7 @@ class MainController(QObject):
             self._samples_widget.sample_view.get_override_pattern
         )
         self._override_widget.custom_override_pattern_ready.connect(
-            self._compatibility_checker.override_cycles_check
+            self._samples_widget.sample_view.set_override_pattern
         )
 
     def _connect_run_signals(self):

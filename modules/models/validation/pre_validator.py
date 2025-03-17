@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from logging import Logger
 from typing import Optional, Dict, List, Tuple
 
 import pandas as pd
@@ -23,16 +24,17 @@ class PreValidator(QObject):
     def __init__(
         self,
         sample_model: SampleModel,
-        cfg_mgr: ConfigurationManager,
-        app_mgr: ApplicationManager,
-        dataset_mgr: DataSetManager,
+        configuration_manager: ConfigurationManager,
+        application_manager: ApplicationManager,
+        dataset_manager: DataSetManager,
         logger: Logger,
     ):
         super().__init__()
-        self.sample_model = sample_model
-        self.cfg_mgr = cfg_mgr
-        self.app_mgr = app_mgr
-        self.dataset_mgr = dataset_mgr
+        self._sample_model = sample_model
+        self._configuration_manager = configuration_manager
+        self._application_manager = application_manager
+        self._dataset_manager = dataset_manager
+        self._logger = logger
 
         self.dataframe: Optional[pd.DataFrame] = None
         self.rundata: Optional[Dict] = None
@@ -50,8 +52,8 @@ class PreValidator(QObject):
 
     def validate(self) -> bool:
         """Run comprehensive validations on the dataset"""
-        self.dataframe = self.dataset_mgr.sample_dataframe_lane_explode()
-        self.rundata = self.dataset_mgr.rundata
+        self.dataframe = self._dataset_manager.sample_dataframe_lane_explode()
+        self.rundata = self._dataset_manager.rundata
 
         validators = [
             self.rundata_is_set,
@@ -72,7 +74,7 @@ class PreValidator(QObject):
 
     def rundata_is_set(self) -> PreValidationResult:
         """Validate if run data is set"""
-        if not self.dataset_mgr.has_rundata:
+        if not self._dataset_manager.has_rundata:
             return PreValidationResult(
                 name="Run data set validator",
                 status=False,
@@ -82,8 +84,8 @@ class PreValidator(QObject):
 
     def required_cols_populated(self) -> PreValidationResult:
         """Validate that required columns are populated"""
-        required_columns = self.cfg_mgr.required_sample_fields
-        dataframe = self.dataset_mgr.sample_dataframe_lane_explode()
+        required_columns = self._configuration_manager.required_sample_fields
+        dataframe = self._dataset_manager.sample_dataframe_lane_explode()
 
         missing_columns = [
             column for column in required_columns if dataframe[column].isnull().any()
@@ -108,7 +110,7 @@ class PreValidator(QObject):
         # Group settings by application
         app_settings = {}
         for appname in unique_profiles:
-            app = self.app_mgr.app_profile_to_app_prof_obj(appname)
+            app = self._application_manager.app_profile_to_app_prof_obj(appname)
             app_type = app["Application"]
 
             if app_type not in app_settings:

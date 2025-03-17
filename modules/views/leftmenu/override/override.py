@@ -8,16 +8,20 @@ from PySide6.QtWidgets import (
     QFormLayout,
 )
 
+from modules.models.override_cycles.OverrideCyclesModel import OverrideCyclesModel
 from modules.utils.utils import flash_widget
 from modules.views.ui_components import HorizontalLine
 
 
 class OverrideCyclesWidget(QWidget):
 
-    custom_override_pattern_ready = Signal(dict)
+    custom_override_pattern_ready = Signal(str)
 
-    def __init__(self):
+    def __init__(self, override_cycles_model: OverrideCyclesModel):
         super().__init__()
+
+        self._override_cycles_model = override_cycles_model
+
         self.setContentsMargins(0, 0, 0, 0)
 
         self.fields = [
@@ -69,7 +73,6 @@ class OverrideCyclesWidget(QWidget):
         layout.addStretch()
 
         self.setLayout(layout)
-
         self.apply_button.clicked.connect(self.emit_override_pattern)
 
     @Slot(list)
@@ -83,17 +86,15 @@ class OverrideCyclesWidget(QWidget):
                 self.oc_lineedits_list[i].setText(part)
 
     def emit_override_pattern(self):
-        pattern_dict = {}
+        override_cycles_dict = {}
 
         for key, lineedit in self._oc_lineedits_dict.items():
             sub_pattern = lineedit.text()
             if sub_pattern:
-                pattern_dict[key] = sub_pattern
+                override_cycles_dict[key] = sub_pattern
 
-        self.custom_override_pattern_ready.emit(pattern_dict)
+        if not self._override_cycles_model.override_cycles_validate(override_cycles_dict):
+            return
 
-    @Slot()
-    def on_invalid_result(self, error_fields):
-
-        for field in error_fields:
-            flash_widget(self._oc_lineedits_dict[field])
+        oc_str = self._override_cycles_model.override_cycles_dict_to_str(override_cycles_dict)
+        self.custom_override_pattern_ready.emit(oc_str)

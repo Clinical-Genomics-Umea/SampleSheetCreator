@@ -15,11 +15,11 @@ from modules.utils.utils import int_list_to_int_str
 
 
 class RunInfoView(QGroupBox):
-    def __init__(self, title="Group", cfg_mgr=None, parent=None):
-        super().__init__(title, parent)
+    def __init__(self, configuration_manager=None, parent=None):
+        super().__init__(parent)
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
-        self.defaults = cfg_mgr.run_view_widgets_config
+        self.defaults = configuration_manager.run_view_widgets_config
 
         # Main layout for the group box
         self.main_layout = QVBoxLayout(self)
@@ -33,6 +33,8 @@ class RunInfoView(QGroupBox):
             background-color: transparent;
         """
         )
+
+        title = "Run Info"
 
         self.open_box = "⮟  " + title
         self.closed_box = "⮞  " + title
