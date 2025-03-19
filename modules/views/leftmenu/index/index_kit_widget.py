@@ -110,8 +110,6 @@ class IndexKitWidget(QWidget):
 
         shown_fields = [f for f in self.index_df.columns if f in possible_fields]
 
-        print(shown_fields)
-
         return shown_fields
 
     def set_shown_columns(self):

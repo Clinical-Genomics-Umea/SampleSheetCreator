@@ -35,17 +35,15 @@ class OverrideCyclesModel(QObject):
         self._left_nondigits_re = re.compile(r'^\D+')
         self._placeholder_re = re.compile(r'\{[ir]\}')
 
-
-    @Slot(object)
-    def override_cycles_validate(self, override_cycles_dict: dict) -> None:
+    def override_cycles_validate(self, override_cycles_dict: dict) -> bool:
 
        for key, value in override_cycles_dict.items():
            if not self._validate_override_pattern(key, override_cycles_dict[key]):
-               self._logger.error("override cycles validation failed for key: " + key)
+               self._logger.error(f"override cycles validation failed for {key} : {value}")
                return False
 
            if not self._validate_override_len(key, override_cycles_dict[key]):
-               self._logger.error("override cycles len validation failed for key: " + key)
+               self._logger.error(f"override cycles length validation failed for {key} : {value}")
                return False
 
        return True

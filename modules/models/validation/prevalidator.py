@@ -9,6 +9,7 @@ from modules.models.application.application_manager import ApplicationManager
 from modules.models.configuration.configuration_manager import ConfigurationManager
 from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.sample.sample_model import SampleModel
+from modules.views.validation.prevalidation_widget import PreValidationWidget
 
 
 @dataclass
@@ -27,6 +28,7 @@ class PreValidator(QObject):
         configuration_manager: ConfigurationManager,
         application_manager: ApplicationManager,
         dataset_manager: DataSetManager,
+        prevalidation_widget: PreValidationWidget,
         logger: Logger,
     ):
         super().__init__()
@@ -35,6 +37,8 @@ class PreValidator(QObject):
         self._application_manager = application_manager
         self._dataset_manager = dataset_manager
         self._logger = logger
+
+        self._prevalidation_widget = prevalidation_widget
 
         self.dataframe: Optional[pd.DataFrame] = None
         self.rundata: Optional[Dict] = None
@@ -50,7 +54,7 @@ class PreValidator(QObject):
         results = [validator() for validator in validators]
         return results
 
-    def validate(self) -> bool:
+    def validate(self):
         """Run comprehensive validations on the dataset"""
         self.dataframe = self._dataset_manager.sample_dataframe_lane_explode()
         self.rundata = self._dataset_manager.rundata
@@ -69,8 +73,14 @@ class PreValidator(QObject):
         results = self._run_validators(validators)
         status = all(result.status for result in results)
 
-        self.data_ready.emit([(r.name, r.status, r.message) for r in results])
-        return status
+        results_list = [(r.name, r.status, r.message) for r in results]
+        self._prevalidation_widget.populate(results_list)
+
+        if not status:
+            self._logger.error(f"Prevalidation failed")
+            return False
+
+        return True
 
     def rundata_is_set(self) -> PreValidationResult:
         """Validate if run data is set"""

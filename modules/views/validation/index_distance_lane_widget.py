@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
 from modules.views.validation.index_distance_delegate import IndexDistanceColorDelegate
 
 
-class IndexDistanceWidget(QTableWidget):
+class IndexDistanceLaneWidget(QTableWidget):
     def __init__(self, substitutions):
         super().__init__()
 

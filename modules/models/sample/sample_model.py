@@ -74,19 +74,25 @@ class SampleModel(QStandardItemModel):
         Returns:
             bool: True if the mime data has the format "application/json", False otherwise.
         """
+
+        print(data)
+        print(data.hasFormat("application/json"))
+
         return bool(data.hasFormat("application/json"))
 
     def set_dropped_data(self, data):
+        print("Setting dropped data")
+        print(data)
         start_row = data["start_row"]
 
         self.blockSignals(True)
 
         for i, row_data in enumerate(data["decoded_data"]):
+            print(f"Setting row {start_row + i}")
             for key, value in row_data.items():
-                row = start_row + i
                 if key in self.fields:
                     column = self.fields.index(key)
-                    self.setData(self.index(row, column), value)
+                    self.setData(self.index(start_row + i, column), value)
 
         self.blockSignals(False)
         self.dataChanged.emit(
@@ -95,6 +101,7 @@ class SampleModel(QStandardItemModel):
             Qt.DisplayRole,
         )
 
+        print("Data set")
         return True
 
     def _find_first_empty_row(self):
@@ -148,31 +155,38 @@ class SampleModel(QStandardItemModel):
         Returns:
             bool: True if the drop was successful, False otherwise.
         """
+        print("Attempting to drop mime data...")
+
         json_data_qba = data.data("application/json")
         decoded_data = decode_bytes_json(json_data_qba)
+
+        print("Decoded data:", decoded_data)
 
         data = {"start_row": parent.row(), "decoded_data": decoded_data}
         self.dropped_data.emit(data)
 
-        return True
+        print("Dropped data emitted with starting row:", parent.row())
 
-        # start_row = parent.row()
-        #
-        # self.blockSignals(True)
-        #
-        # for i, row_data in enumerate(decoded_data):
-        #     for key, value in row_data.items():
-        #         row = start_row + i
-        #         if key in self.fields:
-        #             column = self.fields.index(key)
-        #             self.setData(self.index(row, column), value)
-        #
-        # self.blockSignals(False)
-        # self.dataChanged.emit(
-        #     self.index(0, 0),
-        #     self.index(self.rowCount() - 1, self.columnCount() - 1),
-        #     Qt.DisplayRole,
-        # )
+        self.blockSignals(True)
+        print("Signals blocked.")
+
+        for i, row_data in enumerate(decoded_data):
+            for key, value in row_data.items():
+                row = parent.row() + i
+                if key in self.fields:
+                    column = self.fields.index(key)
+                    self.setData(self.index(row, column), value)
+                    print(f"Set data at row {row}, column {column}: {value}")
+
+        self.blockSignals(False)
+        print("Signals unblocked.")
+
+        self.dataChanged.emit(
+            self.index(0, 0),
+            self.index(self.rowCount() - 1, self.columnCount() - 1),
+            Qt.DisplayRole,
+        )
+        print("Data changed signal emitted.")
 
         return True
 

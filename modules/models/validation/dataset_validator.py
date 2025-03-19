@@ -5,20 +5,23 @@ from PySide6.QtCore import Signal, QObject
 from modules.models.configuration.configuration_manager import ConfigurationManager
 from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.sample.sample_model import SampleModel
+from modules.views.validation.dataset_validation_widget import DataSetValidationWidget
 
 
 class DataSetValidator(QObject):
-    data_ready = Signal(object)
 
     def __init__(
         self,
         sample_model: SampleModel,
         configuration_manager: ConfigurationManager,
         dataset_manager: DataSetManager,
+        dataset_validation_widget: DataSetValidationWidget,
         logger: Logger
     ):
         super().__init__()
         self._logger = logger
+
+        self._dataset_validation_widget = dataset_validation_widget
 
         if sample_model is None:
             self._logger.error("sample_model cannot be None")
@@ -40,5 +43,5 @@ class DataSetValidator(QObject):
 
     def validate(self):
         sample_dfs = self._dataset_manager.validation_view_obj()
+        self._dataset_validation_widget.populate(sample_dfs)
 
-        self.data_ready.emit(sample_dfs)

@@ -23,43 +23,33 @@ class WorkSheetImporter(QObject):
         self._logger = logger
 
     def _worksheet_validation(self, df):
-        print("Starting worksheet validation.")
 
         if "Sample_ID" not in df.columns:
             self._logger.error(f"required column Sample_ID does not exist in worksheet")
-            print("Validation failed: 'Sample_ID' column missing.")
             return False
 
         if "Method" not in df.columns:
             self._logger.error(f"required column Method does not exist in worksheet")
-            print("Validation failed: 'Method' column missing.")
             return False
 
         num_rows = df.shape[0]
-        print(f"Number of rows in dataframe: {num_rows}")
 
         if num_rows < 1:
             self._logger.error(f"no rows in worksheet dataframe")
-            print("Validation failed: no rows in dataframe.")
             return False
 
         missing_values = df[df[['Sample_ID', 'Method']].isnull().any(axis=1)]
-        print(f"Number of rows with missing values: {missing_values.shape[0]}")
 
         if not missing_values.empty:
             self._logger.error("samplesheet data is incomplete, missing data.")
-            print("Validation failed: incomplete samplesheet data.")
             return False
 
         duplicates = df[df.duplicated(subset='Sample_ID', keep=False)]
-        print(f"Number of duplicate 'Sample_ID' values: {duplicates.shape[0]}")
 
         if not duplicates.empty:
             self._logger.error("duplicate Sample_ID values exist in samplesheet.")
-            print("Validation failed: duplicate 'Sample_ID' values found.")
             return False
 
-        print("Worksheet validation passed.")
         return True
 
 
@@ -80,8 +70,6 @@ class WorkSheetImporter(QObject):
             application_profiles = row['ApplicationProfile']
             for profile in application_profiles:
                 application_profile_obj = self._application_manager.app_profile_to_app_prof_obj(profile)
-
-                pprint(application_profile_obj)
 
                 profile_data_keys.update(application_profile_obj['Data'].keys())
 

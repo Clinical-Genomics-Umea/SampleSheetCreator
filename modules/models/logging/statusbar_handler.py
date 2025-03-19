@@ -18,3 +18,7 @@ class StatusBarLogHandler(logging.Handler):
 
         if "WARNING" in msg:
             self.status_bar.showMessage(msg, 7000)
+
+        elif "ERROR" in msg:
+            self.status_bar.showMessage(msg, 7000)
+

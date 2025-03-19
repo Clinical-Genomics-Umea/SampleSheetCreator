@@ -23,6 +23,14 @@ class DataStateModel(QObject):
         self.rundata_model = rundata_model
         self.application_manager = application_manager
 
+        self._validated = False
+
+    @property
+    def validated(self):
+        return self._validated
+
+
+
 
     def run_read1_cycles(self):
         return self.rundata_model.read_1_cycles

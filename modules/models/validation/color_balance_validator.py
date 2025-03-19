@@ -6,25 +6,25 @@ from PySide6.QtCore import QObject, Signal
 
 from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.sample.sample_model import SampleModel
+from modules.views.validation.color_balance_widget import ColorBalanceValidationWidget
 
 
 class ColorBalanceValidator(QObject):
-
-    data_ready = Signal(object)
 
     def __init__(
         self,
         sample_model: SampleModel,
         dataset_manager: DataSetManager,
+        color_balance_widget: ColorBalanceValidationWidget,
         logger: Logger
     ):
         super().__init__()
 
         self._sample_model = sample_model
         self._dataset_manager = dataset_manager
+        self._color_balance_widget = color_balance_widget
+        self._logger = logger
 
-        i5_seq_orientation = dataset_manager.i5_seq_orientation
-        self._i5_rc = i5_seq_orientation == "rc"
 
     def validate(self):
         i5_orientation = self._dataset_manager.i5_seq_orientation
@@ -56,7 +56,7 @@ class ColorBalanceValidator(QObject):
 
             result[lane] = concat_indexes
 
-        self.data_ready.emit(result)
+        self._color_balance_widget.populate(result)
 
     def _index_df_padded(
         self, df: pd.DataFrame, tot_len: int, col_name: str, id_name: str

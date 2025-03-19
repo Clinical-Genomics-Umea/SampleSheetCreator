@@ -29,6 +29,7 @@ class StatusBar(QStatusBar):
         super().__init__(parent)
 
         self.selection_label = SelectionInfo()
+        self.selection_label.setStyleSheet("color: black")
         self.addPermanentWidget(self.selection_label)
 
 
@@ -37,7 +38,7 @@ class StatusBar(QStatusBar):
         self.error_timer.timeout.connect(self.clear_error_message)
 
         self.error_label = QLabel("")
-        self.error_label.setStyleSheet("color: red;")
+        self.error_label.setStyleSheet("color: red;;font-weight: bold;")
         self.addPermanentWidget(self.error_label)
 
     @Slot(object)

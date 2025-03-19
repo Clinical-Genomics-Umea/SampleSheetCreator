@@ -38,7 +38,6 @@ class FileView(QWidget):
 
 
     def _import_worksheet(self):
-        print("import worksheet")
 
         file_path, _ = QFileDialog.getOpenFileName(
             None,
@@ -48,7 +47,5 @@ class FileView(QWidget):
         )
 
         if file_path:
-
-            print(file_path)
 
             self.worksheet_filepath_ready.emit(file_path)

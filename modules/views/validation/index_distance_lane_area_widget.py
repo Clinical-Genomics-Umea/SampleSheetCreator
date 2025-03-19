@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import QScrollArea, QWidget, QFrame, QVBoxLayout, QLabel
 
-from modules.views.validation.index_distance_widget import IndexDistanceWidget
+from modules.views.validation.index_distance_lane_widget import IndexDistanceLaneWidget
 
 
-class LaneIndexDistanceWidget(QScrollArea):
+class IndexDistanceLaneAreaWidget(QScrollArea):
 
     def __init__(self, lane_index_distances):
         super().__init__()
@@ -18,7 +18,7 @@ class LaneIndexDistanceWidget(QScrollArea):
         ):
             self.layout.addWidget(QLabel(f"{heatmap_name} distances "))
 
-            heatmap_table = IndexDistanceWidget(lane_index_distances[index_dataset])
+            heatmap_table = IndexDistanceLaneWidget(lane_index_distances[index_dataset])
             self.layout.addWidget(heatmap_table)
 
         self.layout.addStretch()

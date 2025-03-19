@@ -36,6 +36,8 @@ class DataSetValidationWidget(QTabWidget):
 
     def populate(self, samples_dfs):
 
+        self.clear()
+
         # Add main data tab
         self.addTab(self.get_widget_table(samples_dfs["no_explode"]), "all data")
 

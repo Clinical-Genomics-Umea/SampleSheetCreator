@@ -25,7 +25,7 @@ class IndexDefinitionConverter(QWidget, Ui_Form):
         self.table_widget_container = IndexTableContainer()
         self.tablewidget = self.table_widget_container.tablewidget
 
-        self.csv_page_widget.layout().addWidget(self.table_widget_container)
+        self.csv_page_widget._layout().addWidget(self.table_widget_container)
 
         self.csv_radioButton.toggled.connect(self.change_view)
         self.csv_radioButton.toggled.connect(self.change_view)

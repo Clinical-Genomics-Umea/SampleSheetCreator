@@ -8,19 +8,31 @@ from PySide6.QtWidgets import (
     QPushButton,
 )
 
-from modules.views.validation.color_balance_container_widget import ColorBalanceContainerWidget
+from modules.views.validation.color_balance_widget import ColorBalanceValidationWidget
 from modules.views.validation.dataset_validation_widget import DataSetValidationWidget
-from modules.views.validation.index_distance_container import (
-    IndexDistanceValidationContainerWidget,
+from modules.views.validation.index_distance_validation_widget import (
+    IndexDistanceValidationWidget,
 )
 from modules.views.validation.prevalidation_widget import PreValidationWidget
 
 
 class MainValidationWidget(QWidget):
-    def __init__(self, dataset_mgr):
+    def __init__(self,
+                 prevalidation_widget,
+                 dataset_validation_widget,
+                 index_distance_validation_widget,
+                 color_balance_validation_container_widget,
+                 main_validator):
         super().__init__()
 
-        self.dataset_mgr = dataset_mgr
+
+        self._main_validator = main_validator
+
+        self._prevalidation_widget = prevalidation_widget
+        self._dataset_validation_widget = dataset_validation_widget
+        self._index_distance_validation_widget = index_distance_validation_widget
+        self._color_balance_validation_container_widget = color_balance_validation_container_widget
+
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -28,19 +40,10 @@ class MainValidationWidget(QWidget):
 
         self.tab_widget = QTabWidget()
 
-        self.pre_validation_widget = PreValidationWidget()
-        self.dataset_validation_widget = DataSetValidationWidget()
-        self.main_index_validation_widget = IndexDistanceValidationContainerWidget()
-        self.color_balance_validation_container_widget = ColorBalanceContainerWidget(
-            self.dataset_mgr
-        )
-
-        self.tab_widget.addTab(self.pre_validation_widget, "pre-validation")
-        self.tab_widget.addTab(self.dataset_validation_widget, "dataset validation")
-        self.tab_widget.addTab(self.main_index_validation_widget, "index distance")
-        self.tab_widget.addTab(
-            self.color_balance_validation_container_widget, "color balance"
-        )
+        self.tab_widget.addTab(self._prevalidation_widget, "pre-validation")
+        self.tab_widget.addTab(self._dataset_validation_widget, "dataset validation")
+        self.tab_widget.addTab(self._index_distance_validation_widget, "index distance")
+        self.tab_widget.addTab(self._color_balance_validation_container_widget, "color balance")
 
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
@@ -52,14 +55,8 @@ class MainValidationWidget(QWidget):
         self.layout.addWidget(self.tab_widget)
 
     def clear_validation_widgets(self):
-        self.pre_validation_widget.clear()
-        self.dataset_validation_widget.clear()
-        self.main_index_validation_widget.clear()
-        self.color_balance_validation_container_widget.clear()
+        self._prevalidation_widget.clear()
+        self._dataset_validation_widget.clear()
+        self._index_distance_validation_widget.clear()
+        self._color_balance_validation_container_widget.clear()
 
-
-#
-# class NonEditableDelegate(QItemDelegate):
-#     def createEditor(self, parent, option, index):
-#         # Return None to make the item non-editable
-#         return None

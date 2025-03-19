@@ -35,11 +35,7 @@ class MethodManager(QObject):
                 app_profile = app_profile_obj.get("ApplicationProfile")
                 app_profile_version = app_profile_obj.get("ApplicationProfileVersion")
 
-                print(f"method: {method}, method app profile: {method_app_profile}, method app profile version: {method_app_profile_version}")
-                print(f"app profile: {app_profile}, app profile version: {app_profile_version}")
-
                 if method_app_profile != app_profile:
-                    print(f"in method {method}, application profile {app_profile} does not match")
                     continue
 
                 if method_app_profile_version == app_profile_version:

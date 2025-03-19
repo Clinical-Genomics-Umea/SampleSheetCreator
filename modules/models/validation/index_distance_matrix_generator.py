@@ -5,15 +5,16 @@ from PySide6.QtCore import QObject, Signal, QThread, Slot
 from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.sample.sample_model import SampleModel
 from modules.models.validation.index_distance_matrices_worker import IndexDistanceMatricesWorker
+from modules.views.validation.index_distance_validation_widget import IndexDistanceValidationWidget
 
 
-class IndexDistanceMatrixGenerator(QObject):
-    data_ready = Signal(object)
+class IndexDistanceValidator(QObject):
 
     def __init__(
         self,
         sample_model: SampleModel,
         dataset_manager: DataSetManager,
+        index_distance_validation_widget: IndexDistanceValidationWidget,
         logger: Logger
     ):
         super().__init__()
@@ -23,6 +24,7 @@ class IndexDistanceMatrixGenerator(QObject):
 
         self._sample_model = sample_model
         self._dataset_manager = dataset_manager
+        self._index_distance_validation_widget = index_distance_validation_widget
         self._logger = logger
 
         self.thread = None
@@ -50,4 +52,4 @@ class IndexDistanceMatrixGenerator(QObject):
         self.worker.deleteLater()
         self.thread.deleteLater()
 
-        self.data_ready.emit(results)
+        self._index_distance_validation_widget.populate(results)

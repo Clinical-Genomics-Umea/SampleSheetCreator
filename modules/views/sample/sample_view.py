@@ -813,18 +813,14 @@ class SampleTableView(QTableView):
 
         :param pattern: The pattern to set
         """
-        print("Setting override pattern to", pattern)
         selection_model = self.selectionModel()
         if not selection_model:
-            print("No selection model")
             return
 
         selected_rows = [index.row() for index in selection_model.selectedRows()]
-        print("Selected rows:", selected_rows)
 
         source_model = self.model()
         if not source_model:
-            print("No source model")
             return
 
         header_labels = [
@@ -832,12 +828,10 @@ class SampleTableView(QTableView):
             for col in range(source_model.columnCount())
         ]
         override_col = header_labels.index("OverrideCyclesPattern")
-        print("Override column index:", override_col)
 
         for row in selected_rows:
             index = source_model.index(row, override_col)
             if index.isValid():
-                print("Setting pattern for row", row)
                 source_model.setData(index, pattern, Qt.EditRole)
 
     def get_override_pattern(self) -> None:

@@ -133,9 +133,7 @@ class DataSetManager:
     @property
     def read_cycles_dict(self) -> dict:
 
-        read_cycles_dict = self._rundata_model.read_cycles_dict
-
-        return read_cycles_dict
+        return self._rundata_model.read_cycles_dict
 
     def set_data_obj(self):
 
@@ -143,7 +141,7 @@ class DataSetManager:
 
         obj = {
             "Header": self._header_data(),
-            "Reads": self.read_cycles_dict(),
+            "Reads": self.read_cycles_dict,
             "Applications": [],
             "SampleSheetConfig": {},
         }
