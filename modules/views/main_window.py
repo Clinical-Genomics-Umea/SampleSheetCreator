@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from PySide6.QtGui import QAction, QActionGroup, QIcon
-from PySide6.QtCore import Qt, QSize, Signal
+from PySide6.QtCore import Qt, QSize, Signal, Slot
 
 from modules.models.application.application_manager import ApplicationManager
 from modules.models.configuration.configuration_manager import ConfigurationManager
@@ -19,13 +19,13 @@ from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.indexes.index_kit_manager import IndexKitManager
 from modules.views.config.configuration_widget import ConfigurationWidget
 from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
-from modules.views.leftmenu.file.file import FileView
-from modules.views.leftmenu.index.index_kit_toolbox import IndexKitToolbox
-from modules.views.leftmenu.lane.lane import LanesWidget
-from modules.views.leftmenu.override.override import OverrideCyclesWidget
-from modules.views.leftmenu.application.application_container import ApplicationContainerWidget
+from modules.views.drawer_tools.file.file import FileView
+from modules.views.drawer_tools.index.index_kit_toolbox import IndexKitToolbox
+from modules.views.drawer_tools.lane.lane import LanesWidget
+from modules.views.drawer_tools.override.override import OverrideCyclesWidget
+from modules.views.drawer_tools.application.application_container import ApplicationContainerWidget
 from modules.views.run.run_info_view import RunInfoView
-from modules.views.leftmenu.run_setup.run_setup import RunSetupWidget
+from modules.views.drawer_tools.run_setup.run_setup import RunSetupWidget
 from modules.views.export.export import ExportWidget
 from modules.views.validation.main_validation_widget import (
     MainValidationWidget,
@@ -87,8 +87,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._export_widget = export_widget
 
         self.setMinimumWidth(1000)
-        self.left_toolBar.setMovable(False)
-        self.left_toolBar.setIconSize(QSize(40, 40))
+        # self.left_toolBar.setMovable(False)
+        # self.left_toolBar.setIconSize(QSize(40, 40))
 
         self.spinner = WaitingSpinner(self)
 
@@ -115,8 +115,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # self.override_widget = OverrideCyclesWidget()
 
-        self.leftmenu_stackedWidget.setFixedWidth(300)
-        self.leftmenu_stackedWidget.hide()
+        self.drawer_stackedWidget.setFixedWidth(300)
+        self.drawer_stackedWidget.hide()
         self._setup()
 
 
@@ -125,13 +125,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def _setup(self):
         self._setup_override()
         self._setup_lane()
-        self._setup_left_toolbar_actions()
-        self._setup_leftmenu_file()
+        # self._setup_left_toolbar_actions()
+        self._setup_drawer_file()
         self._setup_samples_widget()
         self._setup_run_view()
         self._setup_validation_widget()
-        self._setup_left_menu_indexes()
-        self._setup_left_menu_applications()
+        self._setup_drawer_indexes()
+        self._setup_drawer_applications()
         self._setup_config()
         self._setup_export_widget()
 
@@ -159,18 +159,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def update_validate_action_state(self, is_enabled):
         self.validate_action.setEnabled(is_enabled)
 
-    def _setup_leftmenu_file(self):
-        layout = self.leftmenu_file.layout()
+    def _setup_drawer_file(self):
+        layout = self.drawer_file.layout()
         layout.addWidget(self._file_widget)
 
     def _setup_override(self):
-        layout = self.leftmenu_override.layout()
+        layout = self.drawer_override.layout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self._override_widget)
         self.update_override_action_state(False)
 
     def _setup_lane(self):
-        layout = self.leftmenu_lane.layout()
+        layout = self.drawer_lane.layout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self._lane_widget)
         self.lane_action.setEnabled(False)
@@ -195,26 +195,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.main_stackedWidget.setCurrentWidget(self.main_data)
 
     def _setup_run_view(self):
-        self.leftmenu_runsetup.layout().addWidget(self._run_setup_widget)
+        self.drawer_runsetup.layout().addWidget(self._run_setup_widget)
         main_data_layout = self.main_data.layout()
         main_data_layout.insertWidget(0, self._run_info_widget)
 
-    def _setup_left_menu_indexes(self):
-        layout = self.leftmenu_indexes.layout()
+    def _setup_drawer_indexes(self):
+        layout = self.drawer_indexes.layout()
         layout.addWidget(self._index_toolbox_widget)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
-    def _setup_left_menu_applications(self):
-        layout = self.leftmenu_apps.layout()
+    def _setup_drawer_applications(self):
+        layout = self.drawer_apps.layout()
         layout.addWidget(self._applications_widget)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
 
-    def handle_left_toolbar_action(self):
+    @Slot(str, bool)
+    def toolbar_action_handler(self, action_id: str, is_checked: bool):
         """Handle main view actions"""
 
-        known_actions = {
+        valid_action_ids = {
             "file",
             "run",
             "apps",
@@ -226,93 +227,97 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             "export",
         }
 
-        main_data_actions = {"file", "run", "apps", "indexes", "override", "lane"}
+        drawer_action_ids = {
+            "file",
+            "run",
+            "apps",
+            "indexes",
+            "override",
+            "lane",
+        }
 
-        action = self.sender()
-        action_id = action.data()
-        is_checked = action.isChecked()
-
-        if action_id not in known_actions:
+        if action_id not in valid_action_ids:
             return
 
         if is_checked:
-            self.leftmenu_stackedWidget.hide()
-            if action_id in main_data_actions:
-                self.main_stackedWidget.setCurrentWidget(self.main_data)
-            elif action_id == "validate":
-                self.main_stackedWidget.setCurrentWidget(self.main_validation)
-                self.run_validate.emit()
-            elif action_id == "export":
-                self.main_stackedWidget.setCurrentWidget(self.main_export)
-                self._export_widget.del_data_tree()
-            elif action_id == "config":
-                self.main_stackedWidget.setCurrentWidget(self.main_settings)
+            self.main_stackedWidget.setCurrentWidget(self._get_main_widget(action_id))
 
-        if is_checked:
-            if action_id == "file":
-                self.leftmenu_stackedWidget.show()
-                self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_file)
-            elif action_id == "run":
-                self.leftmenu_stackedWidget.show()
-                self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_runsetup)
-            elif action_id == "apps":
-                self.leftmenu_stackedWidget.show()
-                self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_apps)
-            elif action_id == "indexes":
-                self.leftmenu_stackedWidget.show()
-                self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_indexes)
-            elif action_id == "override":
-                self.leftmenu_stackedWidget.show()
-                self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_override)
-            elif action_id == "lane":
-                self.leftmenu_stackedWidget.show()
-                self.leftmenu_stackedWidget.setCurrentWidget(self.leftmenu_lane)
+            if action_id in drawer_action_ids:
+                self.drawer_stackedWidget.setCurrentWidget(self._get_drawer_widget(action_id))
+                self.drawer_stackedWidget.show()
             else:
-                return
-
-        if not is_checked:
-            self.leftmenu_stackedWidget.hide()
+                self.drawer_stackedWidget.hide()
+        else:
             self.main_stackedWidget.setCurrentWidget(self.main_data)
+            self.drawer_stackedWidget.hide()
 
-    def _setup_left_toolbar_actions(self):
-        """Set up the tool actions for the application."""
+    def _get_main_widget(self, action_id: str) -> QWidget:
+        """Return the main widget associated with the given action ID"""
 
-        self.left_toolBar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-        self.left_toolBar.setFixedWidth(50)
+        if action_id == "validate":
+            return self.main_validation
+        elif action_id == "export":
+            return self.main_export
+        elif action_id == "config":
+            return self.main_settings
+        else:
+            return self.main_data
 
-        actions = [
-            (self.file_action, "msc.files", "file", "file"),
-            (self.run_action, "msc.symbol-misc", "run", "run"),
-            (self.indexes_action, "mdi6.barcode", "indexes", "index"),
-            (self.apps_action, "msc.symbol-method", "apps", "apps"),
-            (self.override_action, "msc.sync", "override", "o-ride "),
-            (self.lane_action, "mdi6.road", "lane", "lane"),
-            (self.validate_action, "msc.check-all", "validate", "valid"),
-            (self.export_action, "msc.coffee", "export", "export"),
-            (self.settings_action, "msc.settings-gear", "config", "config"),
-        ]
+    def _get_drawer_widget(self, action_id: str) -> QWidget:
+        """Return the drawer widget associated with the given action ID"""
 
-        spacer = QWidget()
-        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        if action_id == "file":
+            return self.drawer_file
+        elif action_id == "run":
+            return self.drawer_runsetup
+        elif action_id == "apps":
+            return self.drawer_apps
+        elif action_id == "indexes":
+            return self.drawer_indexes
+        elif action_id == "override":
+            return self.drawer_override
+        elif action_id == "lane":
+            return self.drawer_lane
 
-        action_group = QActionGroup(self)
-        action_group.setExclusionPolicy(QActionGroup.ExclusionPolicy.ExclusiveOptional)
-
-        for action, action_icon, action_id, action_name in actions:
-            action.setCheckable(True)
-            action.setChecked(False)
-            action.setText(action_name)
-            action.setData(action_id)
-            action.setIcon(qta.icon(action_icon, options=[{"draw": "image"}]))
-            action_group.addAction(action)
-
-        self.left_toolBar.addAction(action_group.actions()[0])
-        self.left_toolBar.addAction(action_group.actions()[1])
-        self.left_toolBar.addAction(action_group.actions()[2])
-        self.left_toolBar.addAction(action_group.actions()[3])
-        self.left_toolBar.addAction(action_group.actions()[4])
-        self.left_toolBar.addAction(action_group.actions()[5])
-        self.left_toolBar.addAction(action_group.actions()[6])
-        self.left_toolBar.addAction(action_group.actions()[7])
-        self.left_toolBar.addWidget(spacer)
-        self.left_toolBar.addAction(action_group.actions()[8])
+    # def _setup_left_toolbar_actions(self):
+    #     """Set up the tool actions for the application."""
+    #
+    #     self.left_toolBar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+    #     self.left_toolBar.setFixedWidth(50)
+    #
+    #     actions = [
+    #         (self.file_action, "msc.files", "file", "file"),
+    #         (self.run_action, "msc.symbol-misc", "run", "run"),
+    #         (self.indexes_action, "mdi6.barcode", "indexes", "index"),
+    #         (self.apps_action, "msc.symbol-method", "apps", "apps"),
+    #         (self.override_action, "msc.sync", "override", "o-ride "),
+    #         (self.lane_action, "mdi6.road", "lane", "lane"),
+    #         (self.validate_action, "msc.check-all", "validate", "valid"),
+    #         (self.export_action, "msc.coffee", "export", "export"),
+    #         (self.settings_action, "msc.settings-gear", "config", "config"),
+    #     ]
+    #
+    #     spacer = QWidget()
+    #     spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+    #
+    #     action_group = QActionGroup(self)
+    #     action_group.setExclusionPolicy(QActionGroup.ExclusionPolicy.ExclusiveOptional)
+    #
+    #     for action, action_icon, action_id, action_name in actions:
+    #         action.setCheckable(True)
+    #         action.setChecked(False)
+    #         action.setText(action_name)
+    #         action.setData(action_id)
+    #         action.setIcon(qta.icon(action_icon, options=[{"draw": "image"}]))
+    #         action_group.addAction(action)
+    #
+    #     self.left_toolBar.addAction(action_group.actions()[0])
+    #     self.left_toolBar.addAction(action_group.actions()[1])
+    #     self.left_toolBar.addAction(action_group.actions()[2])
+    #     self.left_toolBar.addAction(action_group.actions()[3])
+    #     self.left_toolBar.addAction(action_group.actions()[4])
+    #     self.left_toolBar.addAction(action_group.actions()[5])
+    #     self.left_toolBar.addAction(action_group.actions()[6])
+    #     self.left_toolBar.addAction(action_group.actions()[7])
+    #     self.left_toolBar.addWidget(spacer)
+    #     self.left_toolBar.addAction(action_group.actions()[8])

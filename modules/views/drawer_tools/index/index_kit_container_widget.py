@@ -3,7 +3,7 @@ from pprint import pprint
 from PySide6.QtWidgets import QWidget, QHBoxLayout
 
 from modules.models.indexes.index_kit_object import IndexKitObject
-from modules.views.leftmenu.index.index_kit_widget import IndexKitWidget
+from modules.views.drawer_tools.index.index_kit_widget import IndexKitWidget
 
 
 class IndexKitContainerWidget(QWidget):

@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSpacerItem, QSizePo
 
 from modules.models.application.application_manager import ApplicationManager
 from modules.models.dataset.dataset_manager import DataSetManager
-from modules.views.leftmenu.application.application_widget import ApplicationWidget
+from modules.views.drawer_tools.application.application_widget import ApplicationWidget
 from modules.views.ui_components import HorizontalLine
 
 

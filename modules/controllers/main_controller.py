@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Qt
 
 from modules.models.application.application_manager import ApplicationManager
 from modules.models.configuration.configuration_manager import ConfigurationManager
@@ -22,16 +22,17 @@ from modules.models.validation.prevalidator import PreValidator
 from modules.models.worksheet.import_worksheet import WorkSheetImporter
 from modules.views.config.configuration_widget import ConfigurationWidget
 from modules.views.export.export import ExportWidget
-from modules.views.leftmenu.application.application_container import ApplicationContainerWidget
-from modules.views.leftmenu.file.file import FileView
-from modules.views.leftmenu.index.index_kit_toolbox import IndexKitToolbox
-from modules.views.leftmenu.lane.lane import LanesWidget
-from modules.views.leftmenu.override.override import OverrideCyclesWidget
-from modules.views.leftmenu.run_setup.run_setup import RunSetupWidget
+from modules.views.drawer_tools.application.application_container import ApplicationContainerWidget
+from modules.views.drawer_tools.file.file import FileView
+from modules.views.drawer_tools.index.index_kit_toolbox import IndexKitToolbox
+from modules.views.drawer_tools.lane.lane import LanesWidget
+from modules.views.drawer_tools.override.override import OverrideCyclesWidget
+from modules.views.drawer_tools.run_setup.run_setup import RunSetupWidget
 from modules.views.run.run_info_view import RunInfoView
 from modules.views.sample.sample_view import SamplesWidget
 from modules.views.status.status import StatusBar
 from modules.views.main_window import MainWindow
+from modules.views.toolbar.toolbar import ToolBar
 from modules.views.validation.color_balance_widget import ColorBalanceValidationWidget
 from modules.views.validation.dataset_validation_widget import DataSetValidationWidget
 from modules.views.validation.index_distance_validation_widget import IndexDistanceValidationWidget
@@ -49,6 +50,7 @@ class MainController(QObject):
         self._config_manager = ConfigurationManager()
         self._logger = logging.getLogger(__name__)
         self._status_bar = StatusBar()
+        self._toolbar = ToolBar()
 
         self._file_handler = logging.FileHandler(Path("log/log.txt"))
         self._status_handler = StatusBarLogHandler(self._status_bar)
@@ -174,6 +176,8 @@ class MainController(QObject):
             self._export_widget,
         )
         self.main_window.setStatusBar(self._status_bar)
+        self.main_window.addToolBar(Qt.LeftToolBarArea, self._toolbar)
+
         # self.main_window.samples_widget.set_model(self._sample_proxy_model)
 
         self._compatibility_checker = DataCompatibilityTest(
@@ -194,7 +198,7 @@ class MainController(QObject):
         """
         self._connect_notifications()
         self._connect_validation_signals()
-        self._connect_left_tool_action_signals()
+        self._connect_toolbar_signal()
         self._connect_run_signals()
         self._connect_file_signals()
         self._connect_override_pattern_signals()
@@ -209,7 +213,7 @@ class MainController(QObject):
         )
 
     def _connect_sample_model_signals(self):
-        self._sample_model.dataChanged.connect(
+        self._datastate_model.validated_changed.connect(
             self.main_window.set_export_action_disabled
         )
 
@@ -242,26 +246,10 @@ class MainController(QObject):
         )
 
 
-    def _connect_left_tool_action_signals(self):
+    def _connect_toolbar_signal(self):
         """Connect UI signals to controller slots"""
-        # Connect menu actions to handler
-
-        action_handler = self.main_window.handle_left_toolbar_action
-
-        actions = [
-            self.main_window.file_action,
-            self.main_window.run_action,
-            self.main_window.apps_action,
-            self.main_window.indexes_action,
-            self.main_window.override_action,
-            self.main_window.lane_action,
-            self.main_window.settings_action,
-            self.main_window.validate_action,
-            self.main_window.export_action,
-        ]
-
-        for action in actions:
-            action.triggered.connect(action_handler)
+        # Connect toolbar signal to handler
+        self._toolbar.action_triggered.connect(self.main_window.toolbar_action_handler)
 
     def _connect_validation_signals(self):
         """Connect UI signals to validation slots"""

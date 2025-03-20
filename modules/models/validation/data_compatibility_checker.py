@@ -45,13 +45,13 @@ class DataCompatibilityTest(QObject):
         max_index_i5_len = df["IndexI5"].str.len().max() if "IndexI5" in df.columns else None
 
         if max_index_i7_len and max_index_i5_len:
-            if (max_index_i7_len <= self._datastate_model.rundata_model.index_1_cycles and
-                    max_index_i5_len <= self._datastate_model.rundata_model.index_1_cycles):
+            if (max_index_i7_len <= self._datastate_model._rundata_model.index_1_cycles and
+                    max_index_i5_len <= self._datastate_model._rundata_model.index_1_cycles):
                 self.drop_ok.emit(dropped_data)
                 return
 
         elif max_index_i7_len:
-            if max_index_i7_len <= self._datastate_model.rundata_model.index_1_cycles:
+            if max_index_i7_len <= self._datastate_model._rundata_model.index_1_cycles:
                 self.drop_ok.emit(dropped_data)
                 return
 

@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QComboBox,
 )
 
-from modules.views.leftmenu.run_setup.pattern_validator import PatternValidator
+from modules.views.drawer_tools.run_setup.pattern_validator import PatternValidator
 from modules.views.ui_components import HorizontalLine
 
 

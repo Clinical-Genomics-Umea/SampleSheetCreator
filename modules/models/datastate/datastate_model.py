@@ -1,7 +1,7 @@
 from logging import Logger
 from pprint import pprint
 
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Signal
 
 from modules.models.application.application_manager import ApplicationManager
 from modules.models.rundata.rundata_model import RunDataModel
@@ -10,6 +10,9 @@ from modules.utils.utils import json_to_obj
 
 
 class DataStateModel(QObject):
+
+    validated_changed = Signal(bool)
+
     def __init__(self,
                  sample_model: SampleModel,
                  rundata_model: RunDataModel,
@@ -18,31 +21,37 @@ class DataStateModel(QObject):
 
         super().__init__()
 
-        self.logger = logger
-        self.sample_model = sample_model
-        self.rundata_model = rundata_model
-        self.application_manager = application_manager
+        self._logger = logger
+        self._sample_model = sample_model
+        self._rundata_model = rundata_model
+        self._application_manager = application_manager
 
         self._validated = False
 
+        self._sample_model.itemChanged.connect(self._validated_false)
+        self._rundata_model.run_data_changed.connect(self._validated_false)
+
+    def _validated_false(self):
+        self._validated = False
+
+    def _validated_true(self):
+        self._validated = True
+
     @property
-    def validated(self):
+    def validated(self) -> bool:
         return self._validated
 
-
-
-
     def run_read1_cycles(self):
-        return self.rundata_model.read_1_cycles
+        return self._rundata_model.read_1_cycles
 
     def run_read2_cycles(self):
-        return self.rundata_model.read_2_cycles
+        return self._rundata_model.read_2_cycles
 
     def run_index1_cycles(self):
-        return self.rundata_model.index_1_cycles
+        return self._rundata_model.index_1_cycles
 
     def run_index2_cycles(self):
-        return self.rundata_model.index_2_cycles
+        return self._rundata_model.index_2_cycles
 
     def sample_minlen_index_i7(self):
         return self._sample_min_strlen_in_column("IndexI7")
@@ -58,21 +67,21 @@ class DataStateModel(QObject):
 
     def application_compatibility(self, application_profile: str):
 
-        application_obj = self.application_manager.app_profile_to_app_prof_obj(application_profile)
+        application_obj = self._application_manager.app_profile_to_app_prof_obj(application_profile)
 
         application_type = application_obj['ApplicationType']
         software_version = application_obj['Settings']['SoftwareVersion']
 
         column_index = -1
-        for col in range(self.sample_model.columnCount()):
-            header_item = self.sample_model.horizontalHeaderItem(col)
+        for col in range(self._sample_model.columnCount()):
+            header_item = self._sample_model.horizontalHeaderItem(col)
             if header_item and header_item.text() == "ApplicationProfile":
                 column_index = col
                 break
 
         set_application_profiles = []
-        for row in range(self.sample_model.rowCount()):
-            item = self.sample_model.item(row, column_index)
+        for row in range(self._sample_model.rowCount()):
+            item = self._sample_model.item(row, column_index)
             if item:
                 text = item.text().strip()
                 if text:  # Ensure it's non-empty
@@ -83,14 +92,14 @@ class DataStateModel(QObject):
 
         for set_application_profile in set_application_profiles:
 
-            set_application_obj = self.application_manager.app_profile_to_app_prof_obj(set_application_profile)
+            set_application_obj = self._application_manager.app_profile_to_app_prof_obj(set_application_profile)
 
             set_application_type = set_application_obj['ApplicationType']
             set_software_version = set_application_obj['Settings']['SoftwareVersion']
 
             if set_application_type == application_type:
                 if not set_software_version == software_version:
-                    self.logger.error("Incompatible software version")
+                    self._logger.error("Incompatible software version")
                     return False
 
             return True
@@ -100,15 +109,15 @@ class DataStateModel(QObject):
     def index_i7_compatibility(self) -> bool:
         """Check if the sample index i7 lengths are compatible with the run data."""
         max_samples_index_i7_len = self._sample__max_strlen_in_column("IndexI7")
-        if self.rundata_model.index_1_cycles and max_samples_index_i7_len:
-            return max_samples_index_i7_len <= self.rundata_model.index_1_cycles
+        if self._rundata_model.index_1_cycles and max_samples_index_i7_len:
+            return max_samples_index_i7_len <= self._rundata_model.index_1_cycles
         return False
 
     def index_i5_compatibility(self) -> bool:
         """Check if the sample index i5 lengths are compatible with the run data."""
         max_samples_index_i7_len = self._sample__max_strlen_in_column("IndexI5")
-        if self.rundata_model.index_1_cycles and max_samples_index_i7_len:
-            return max_samples_index_i7_len <= self.rundata_model.index_1_cycles
+        if self._rundata_model.index_1_cycles and max_samples_index_i7_len:
+            return max_samples_index_i7_len <= self._rundata_model.index_1_cycles
         return False
 
 
@@ -116,8 +125,8 @@ class DataStateModel(QObject):
         """Returns the maximum string length for non-empty values in the specified column."""
         # Find the column index by matching the header text
         column_index = -1
-        for col in range(self.sample_model.columnCount()):
-            header_item = self.sample_model.horizontalHeaderItem(col)
+        for col in range(self._sample_model.columnCount()):
+            header_item = self._sample_model.horizontalHeaderItem(col)
             if header_item and header_item.text() == column_name:
                 column_index = col
                 break
@@ -126,8 +135,8 @@ class DataStateModel(QObject):
             raise ValueError(f"Column '{column_name}' not found in the model.")
 
         max_length = 0
-        for row in range(self.sample_model.rowCount()):
-            item = self.sample_model.item(row, column_index)
+        for row in range(self._sample_model.rowCount()):
+            item = self._sample_model.item(row, column_index)
             if item:
                 text = item.text().strip()
                 if text:  # Ensure it's non-empty
@@ -139,8 +148,8 @@ class DataStateModel(QObject):
         """Returns the minimum string length for non-empty values in the specified column."""
         # Find the column index by matching the header text
         column_index = -1
-        for col in range(self.sample_model.columnCount()):
-            header_item = self.sample_model.horizontalHeaderItem(col)
+        for col in range(self._sample_model.columnCount()):
+            header_item = self._sample_model.horizontalHeaderItem(col)
             if header_item and header_item.text() == column_name:
                 column_index = col
                 break
@@ -149,8 +158,8 @@ class DataStateModel(QObject):
             raise ValueError(f"Column '{column_name}' not found in the model.")
 
         min_length = 0
-        for row in range(self.sample_model.rowCount()):
-            item = self.sample_model.item(row, column_index)
+        for row in range(self._sample_model.rowCount()):
+            item = self._sample_model.item(row, column_index)
             if item:
                 text = item.text().strip()
                 if text:  # Ensure it's non-empty

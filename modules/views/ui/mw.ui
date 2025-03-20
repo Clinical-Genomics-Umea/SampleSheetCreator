@@ -55,7 +55,7 @@
      <number>5</number>
     </property>
     <item>
-     <widget class="QStackedWidget" name="leftmenu_stackedWidget">
+     <widget class="QStackedWidget" name="drawer_stackedWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -69,9 +69,9 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>6</number>
       </property>
-      <widget class="QWidget" name="leftmenu_config">
+      <widget class="QWidget" name="drawer_config">
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <property name="spacing">
          <number>6</number>
@@ -90,7 +90,7 @@
         </property>
        </layout>
       </widget>
-      <widget class="QWidget" name="leftmenu_file">
+      <widget class="QWidget" name="drawer_file">
        <layout class="QVBoxLayout" name="verticalLayout_8">
         <property name="spacing">
          <number>6</number>
@@ -109,7 +109,7 @@
         </property>
        </layout>
       </widget>
-      <widget class="QWidget" name="leftmenu_indexes">
+      <widget class="QWidget" name="drawer_indexes">
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <property name="spacing">
          <number>6</number>
@@ -128,7 +128,7 @@
         </property>
        </layout>
       </widget>
-      <widget class="QWidget" name="leftmenu_apps">
+      <widget class="QWidget" name="drawer_apps">
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <property name="spacing">
          <number>6</number>
@@ -147,10 +147,10 @@
         </property>
        </layout>
       </widget>
-      <widget class="QWidget" name="leftmenu_lane">
+      <widget class="QWidget" name="drawer_lane">
        <layout class="QVBoxLayout" name="verticalLayout_7"/>
       </widget>
-      <widget class="QWidget" name="leftmenu_runsetup">
+      <widget class="QWidget" name="drawer_runsetup">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <property name="spacing">
          <number>6</number>
@@ -169,7 +169,7 @@
         </property>
        </layout>
       </widget>
-      <widget class="QWidget" name="leftmenu_override">
+      <widget class="QWidget" name="drawer_override">
        <layout class="QVBoxLayout" name="verticalLayout_3"/>
       </widget>
      </widget>
@@ -233,17 +233,6 @@
      </layout>
     </item>
    </layout>
-  </widget>
-  <widget class="QToolBar" name="left_toolBar">
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>LeftToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
   </widget>
  </widget>
  <resources/>
