@@ -215,13 +215,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def toolbar_action_handler(self, action_id: str, is_checked: bool):
         """Handle main view actions"""
 
-        valid_action_ids = {
-            "file",
-            "run",
-            "apps",
-            "indexes",
-            "override",
-            "lane",
+        main_action_ids = {
             "config",
             "validate",
             "export",
@@ -235,6 +229,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             "override",
             "lane",
         }
+
+        valid_action_ids = main_action_ids | drawer_action_ids
 
         if action_id not in valid_action_ids:
             return
