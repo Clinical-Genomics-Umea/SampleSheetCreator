@@ -196,25 +196,26 @@ class MainController(QObject):
         """
         Connect UI signals to controller slots.
         """
-        self._connect_notifications()
+        # self._connect_notifications()
         self._connect_validation_signals()
-        self._connect_toolbar_signal()
-        self._connect_run_signals()
         self._connect_file_signals()
         self._connect_override_pattern_signals()
         self._connect_application_signal()
-        self._connect_sample_model_signals()
         self._connect_drop_paste_signals()
         self._connect_lane_signals()
+        self._connect_toolbar_signal()
+        self._connect_run_signals()
+        self._connect_datastate_signals()
+
+
+    def _connect_datastate_signals(self):
+        self._datastate_model.freeze_state_changed.connect(
+            self._toolbar.set_export_action_state
+        )
 
     def _connect_notifications(self):
         self._samples_widget.selection_data.connect(
             self._status_bar.display_selection_data
-        )
-
-    def _connect_sample_model_signals(self):
-        self._datastate_model.validated_changed.connect(
-            self.main_window.set_export_action_disabled
         )
 
     def _connect_application_signal(self):
@@ -228,7 +229,6 @@ class MainController(QObject):
             self._samples_widget.sample_view.remove_application
         )
 
-
     def _connect_drop_paste_signals(self):
         self._sample_model.dropped_data.connect(
             self._compatibility_checker.drop_check
@@ -238,13 +238,9 @@ class MainController(QObject):
         )
 
     def _connect_file_signals(self):
-        # self._file_widget.worksheet_file.connect(
-        #     self._sample_model.set_empty_strings
-        # )
         self._file_widget.worksheet_filepath_ready.connect(
             self._worksheet_importer.load_worksheet
         )
-
 
     def _connect_toolbar_signal(self):
         """Connect UI signals to controller slots"""
@@ -257,24 +253,15 @@ class MainController(QObject):
         self._prevalidator.data_ready.connect(
             self._prevalidation_widget.populate
         )
-        # self._index_distance_validator.data_ready.connect(
-        #     self._index_distance_validation_widget.populate
-        # )
-        # self._color_balance_validator.data_ready.connect(
-        #     self._color_balance_validation_widget.populate
-        # )
-        # self._dataset_validator.data_ready.connect(
-        #     self._dataset_validation_widget.populate
-        # )
         self._validation_widget.validate_button.clicked.connect(
             self._main_validator.validate
         )
         self._main_validator.clear_validator_widgets.connect(
             self._validation_widget.clear_validation_widgets
         )
-        # self._main_validator.pre_validator_status.connect(
-        #     self.main_window.update_export_action_state
-        # )
+        self._main_validator.pre_validator_status.connect(
+            self._datastate_model.freeze_state_changed
+        )
 
     def _connect_override_pattern_signals(self):
         self._samples_widget.sample_view.override_patterns_ready.connect(
@@ -300,20 +287,14 @@ class MainController(QObject):
         self._rundata_model.run_data_ready.connect(
             self._run_info_widget.set_data
         )
-        self._rundata_model.run_data_changed.connect(
-            self.main_window.set_override_action_enabled
-        )
-        self._rundata_model.run_data_changed.connect(
+        self._rundata_model.run_data_ready.connect(
             self._lane_widget.set_lanes
-        )
-        self._rundata_model.run_data_changed.connect(
-            self.main_window.set_lanes_action_enabled
-        )
-        self._rundata_model.run_data_changed.connect(
-            self.main_window.set_index_apps_actions_enabled
         )
         self._rundata_model.index_lens_ready.connect(
             self._index_toolbox_widget.set_index_kit_status
+        )
+        self._rundata_model.run_data_ready.connect(
+            self._toolbar.on_rundata_set
         )
 
     def _connect_lane_signals(self):

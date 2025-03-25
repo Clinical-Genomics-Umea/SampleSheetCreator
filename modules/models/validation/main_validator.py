@@ -43,7 +43,10 @@ class MainValidator(QObject):
         self.clear_validator_widgets.emit()
 
         if not self._prevalidator.validate():
+            self.pre_validator_status.emit(False)
             return
+
+        self.pre_validator_status.emit(True)
 
         self._dataset_manager.set_data_obj()
 

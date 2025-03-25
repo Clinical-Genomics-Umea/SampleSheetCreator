@@ -11,7 +11,7 @@ from modules.utils.utils import json_to_obj
 
 class DataStateModel(QObject):
 
-    validated_changed = Signal(bool)
+    freeze_state_changed = Signal(bool)
 
     def __init__(self,
                  sample_model: SampleModel,
@@ -26,20 +26,27 @@ class DataStateModel(QObject):
         self._rundata_model = rundata_model
         self._application_manager = application_manager
 
-        self._validated = False
+        self._frozen = False
 
-        self._sample_model.itemChanged.connect(self._validated_false)
-        self._rundata_model.run_data_changed.connect(self._validated_false)
+        self._sample_model.itemChanged.connect(self._unfreeze)
+        self._rundata_model.run_data_ready.connect(self._unfreeze)
 
-    def _validated_false(self):
-        self._validated = False
+    def set_freeze_state(self, freeze_state: bool):
+        if self._frozen != freeze_state:
+            self._frozen = freeze_state
+            self.freeze_state_changed.emit(self._frozen)
 
-    def _validated_true(self):
-        self._validated = True
+    def _unfreeze(self):
+        self._frozen = False
+        self.freeze_state_changed.emit(self._frozen)
+
+    # def _freeze(self):
+    #     self._frozen = True
+    #     self.freeze_state_changed.emit(self._frozen)
 
     @property
-    def validated(self) -> bool:
-        return self._validated
+    def freeze_state(self) -> bool:
+        return self._frozen
 
     def run_read1_cycles(self):
         return self._rundata_model.read_1_cycles

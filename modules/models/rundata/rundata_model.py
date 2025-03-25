@@ -1,10 +1,12 @@
+from pprint import pprint
+
 from PySide6.QtCore import QObject, Slot, Signal
 from modules.models.configuration.configuration_manager import ConfigurationManager
 
 
 class RunDataModel(QObject):
 
-    run_data_changed = Signal()
+    # run_data_changed = Signal()
     run_data_ready = Signal(dict)
     index_lens_ready = Signal(int, int)
 
@@ -141,6 +143,7 @@ class RunDataModel(QObject):
 
     @Slot(dict)
     def set_run_data(self, run_data: dict):
+
         """
         Set the run data configuration and validate it.
 
@@ -150,6 +153,8 @@ class RunDataModel(QObject):
         Otherwise, update the configuration and emit the
         run_setup_changed signal.
         """
+        print("Setting run data...")
+        pprint(run_data)
 
         # Initialize the run data with default values
         for key in self._cfg_mgr.run_data_fields:
@@ -183,7 +188,7 @@ class RunDataModel(QObject):
         # Emit the run data changed signal
         self._has_rundata = True
 
-        self.run_data_changed.emit()
+        # self.run_data_changed.emit()
         self.run_data_ready.emit(self._rundata)
         self.index_lens_ready.emit(
             self._read_cycles_dict["Index1Cycles"],

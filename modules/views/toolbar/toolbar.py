@@ -1,4 +1,4 @@
-from PySide6.QtCore import QSize, Signal
+from PySide6.QtCore import QSize, Signal, Slot
 from PySide6.QtGui import QAction, QActionGroup, Qt
 from PySide6.QtWidgets import QToolBar, QWidget, QSizePolicy
 import qtawesome as qta
@@ -39,9 +39,9 @@ class ToolBar(QToolBar):
             (self.file_action, "msc.files", "file", "file"),
             (self.run_action, "msc.symbol-misc", "run", "run"),
             (self.indexes_action, "mdi6.barcode", "indexes", "index"),
+            (self.lane_action, "mdi6.road", "lane", "lane"),
             (self.apps_action, "msc.symbol-method", "apps", "apps"),
             (self.override_action, "msc.sync", "override", "o-ride "),
-            (self.lane_action, "mdi6.road", "lane", "lane"),
             (self.validate_action, "msc.check-all", "validate", "valid"),
             (self.export_action, "msc.coffee", "export", "export"),
             (self.settings_action, "msc.settings-gear", "config", "config"),
@@ -64,13 +64,20 @@ class ToolBar(QToolBar):
         self.addAction(self.file_action)
         self.addAction(self.run_action)
         self.addAction(self.indexes_action)
+        self.addAction(self.lane_action)
         self.addAction(self.apps_action)
         self.addAction(self.override_action)
-        self.addAction(self.lane_action)
         self.addAction(self.validate_action)
         self.addAction(self.export_action)
         self.addWidget(spacer)
         self.addAction(self.settings_action)
+
+        self.indexes_action.setEnabled(False)
+        self.lane_action.setEnabled(False)
+        self.apps_action.setEnabled(False)
+        self.override_action.setEnabled(False)
+        self.validate_action.setEnabled(False)
+        self.export_action.setEnabled(False)
 
     def _action_triggered(self):
 
@@ -79,3 +86,17 @@ class ToolBar(QToolBar):
         is_checked = action.isChecked()
 
         self.action_triggered.emit(action_id, is_checked)
+
+    @Slot(bool)
+    def set_export_action_state(self, state: bool = True):
+        self.export_action.setEnabled(state)
+
+    def on_rundata_set(self):
+
+        print("on rundata set")
+
+        self.indexes_action.setEnabled(True)
+        self.lane_action.setEnabled(True)
+        self.apps_action.setEnabled(True)
+        self.override_action.setEnabled(True)
+        self.validate_action.setEnabled(True)

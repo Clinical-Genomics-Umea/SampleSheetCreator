@@ -10,13 +10,9 @@ from PySide6.QtWidgets import (
     QPushButton,
 )
 
-from PySide6.QtGui import QAction, QActionGroup, QIcon
-from PySide6.QtCore import Qt, QSize, Signal, Slot
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import Signal, Slot
 
-from modules.models.application.application_manager import ApplicationManager
-from modules.models.configuration.configuration_manager import ConfigurationManager
-from modules.models.dataset.dataset_manager import DataSetManager
-from modules.models.indexes.index_kit_manager import IndexKitManager
 from modules.views.config.configuration_widget import ConfigurationWidget
 from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
 from modules.views.drawer_tools.file.file import FileView
@@ -93,22 +89,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.spinner = WaitingSpinner(self)
 
         # left toolbar actions
-        self.left_tool_action_group = QActionGroup(self)
-        self.action_group_main_view = QActionGroup(self)
+        # self.left_tool_action_group = QActionGroup(self)
+        # self.action_group_main_view = QActionGroup(self)
 
-        self.file_action = QAction("File", self)
-        self.run_action = QAction("Run", self)
-        self.apps_action = QAction("Apps", self)
-        self.indexes_action = QAction("Indexes", self)
-        self.override_action = QAction("Override", self)
-        self.lane_action = QAction("Lane", self)
-        self.validate_action = QAction("Validate", self)
-        self.export_action = QAction("Export", self)
-        self.settings_action = QAction("Settings", self)
-
-        self.export_action.setEnabled(False)
-        self.apps_action.setEnabled(False)
-        self.indexes_action.setEnabled(False)
+        # self.file_action = QAction("File", self)
+        # self.run_action = QAction("Run", self)
+        # self.apps_action = QAction("Apps", self)
+        # self.indexes_action = QAction("Indexes", self)
+        # self.override_action = QAction("Override", self)
+        # self.lane_action = QAction("Lane", self)
+        # self.validate_action = QAction("Validate", self)
+        # self.export_action = QAction("Export", self)
+        # self.settings_action = QAction("Settings", self)
+        #
+        # self.export_action.setEnabled(False)
+        # self.apps_action.setEnabled(False)
+        # self.indexes_action.setEnabled(False)
 
         self.columns_settings_button = QPushButton("Columns")
         self.columns_settings_button.setObjectName("columns_settings")
@@ -118,8 +114,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.drawer_stackedWidget.setFixedWidth(300)
         self.drawer_stackedWidget.hide()
         self._setup()
-
-
 
 
     def _setup(self):
@@ -135,29 +129,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._setup_config()
         self._setup_export_widget()
 
-    def set_index_apps_actions_enabled(self):
-        self.apps_action.setEnabled(True)
-        self.indexes_action.setEnabled(True)
-        self.validate_action.setEnabled(True)
-        self.export_action.setEnabled(True)
-
-    def set_lanes_action_enabled(self):
-        self.lane_action.setEnabled(True)
-
-    def set_export_action_disabled(self):
-        self.export_action.setEnabled(False)
-
-    def set_override_action_enabled(self):
-        self.override_action.setEnabled(True)
-
-    def update_export_action_state(self, is_enabled):
-        self.export_action.setEnabled(is_enabled)
-
-    def update_override_action_state(self, is_enabled):
-        self.override_action.setEnabled(is_enabled)
-
-    def update_validate_action_state(self, is_enabled):
-        self.validate_action.setEnabled(is_enabled)
+    # def set_index_apps_actions_enabled(self):
+    #     self.apps_action.setEnabled(True)
+    #     self.indexes_action.setEnabled(True)
+    #     self.validate_action.setEnabled(True)
+    #     self.export_action.setEnabled(True)
+    #
+    # def set_lanes_action_enabled(self):
+    #     self.lane_action.setEnabled(True)
+    #
+    # def set_export_action_disabled(self):
+    #     self.export_action.setEnabled(False)
+    #
+    # def set_override_action_enabled(self):
+    #     self.override_action.setEnabled(True)
+    #
+    # def update_export_action_state(self, is_enabled):
+    #     self.export_action.setEnabled(is_enabled)
+    #
+    # def update_override_action_state(self, is_enabled):
+    #     self.override_action.setEnabled(is_enabled)
+    #
+    # def update_validate_action_state(self, is_enabled):
+    #     self.validate_action.setEnabled(is_enabled)
 
     def _setup_drawer_file(self):
         layout = self.drawer_file.layout()
@@ -167,13 +161,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout = self.drawer_override.layout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self._override_widget)
-        self.update_override_action_state(False)
+        # self.update_override_action_state(False)
 
     def _setup_lane(self):
         layout = self.drawer_lane.layout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self._lane_widget)
-        self.lane_action.setEnabled(False)
+        # self.lane_action.setEnabled(False)
 
     def _setup_export_widget(self):
         layout = self.main_export.layout()
@@ -183,7 +177,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def _setup_validation_widget(self):
         layout = self.main_validation.layout()
         layout.addWidget(self._validation_widget)
-        self.update_validate_action_state(False)
+        # self.update_validate_action_state(False)
 
     def _setup_config(self):
         layout = self.main_settings.layout()

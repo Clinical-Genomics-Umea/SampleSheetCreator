@@ -28,7 +28,7 @@ def samplesheet_v2(data_obj, fastq_extraction_tool):
 
         app = app_obj["Application"]
 
-        if app_obj["ApplicationGroupName"] == "dragen":
+        if app_obj["ApplicationType"] == "Dragen":
             applications.append(f"[{app}_Settings]")
 
             for k, v in app_obj["Settings"].items():

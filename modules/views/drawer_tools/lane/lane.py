@@ -70,6 +70,9 @@ class LanesWidget(QWidget):
 
     @Slot()
     def set_lanes(self):
+
+        print("set lanes")
+
         self.clear_form()
         self.lanes_checkboxes = {}
 
