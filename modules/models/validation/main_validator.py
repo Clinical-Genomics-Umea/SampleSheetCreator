@@ -51,6 +51,6 @@ class MainValidator(QObject):
 
         self._index_distance_validator.generate()
         #
-        # if self._dataset_manager.assess_balance:
-        #     self._color_balance_validator.validate()
+        if self._dataset_manager.assess_balance:
+            self._color_balance_validator.validate()
 
