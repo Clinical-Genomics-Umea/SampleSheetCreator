@@ -59,7 +59,7 @@ class IndexKitTableModel(QAbstractTableModel):
                 return str(self.dataframe.columns[section])
 
             if orientation == Qt.Vertical:
-                return str(self.dataframe.index[section])
+                return str(self.dataframe.index[section] + 1)
 
     def flags(self, index):
         """

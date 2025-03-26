@@ -3,6 +3,7 @@ import pandas as pd
 from PySide6.QtCore import Qt, QSortFilterProxyModel, Signal
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 
+from modules.models.configuration.configuration_manager import ConfigurationManager
 from modules.models.sample.samplesheet_fns import to_json
 from modules.utils.utils import decode_bytes_json
 
@@ -22,15 +23,17 @@ class SampleModel(QStandardItemModel):
 
     dropped_data = Signal(object)
 
-    def __init__(self, sample_settings: dict):
+    def __init__(self, configuration_manager: ConfigurationManager):
         super(SampleModel, self).__init__()
+        self._configuration_manager = configuration_manager
 
-        self.sections_fields = sample_settings["fields"]
+        self.sections_fields = self._configuration_manager.samples_settings["fields"]
+        self.row_count = self._configuration_manager.samples_settings["row_count"]
         self.fields = get_column_headers(self.sections_fields)
 
         self.setColumnCount(len(self.fields))
         self.setHorizontalHeaderLabels(self.fields)
-        self.setRowCount(sample_settings["row_count"])
+        self.setRowCount(self.row_count)
         self.set_empty_strings()
 
         self.select_samples = False
@@ -75,14 +78,9 @@ class SampleModel(QStandardItemModel):
             bool: True if the mime data has the format "application/json", False otherwise.
         """
 
-        print(data)
-        print(data.hasFormat("application/json"))
-
         return bool(data.hasFormat("application/json"))
 
     def set_dropped_data(self, data):
-        print("Setting dropped data")
-        print(data)
         start_row = data["start_row"]
 
         self.blockSignals(True)

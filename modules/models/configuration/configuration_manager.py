@@ -184,9 +184,9 @@ class ConfigurationManager(QObject):
     def instruments(self):
         return self._instruments_flowcell_obj.keys()
 
-    @property
-    def instrument_flowcells(self):
-        return self._instruments_flowcell_obj
+    # @property
+    # def instrument_flowcells(self):
+    #     return self._instruments_flowcell_obj
 
     @property
     def run_setup_widgets_config(self):
@@ -332,49 +332,3 @@ class ConfigurationManager(QObject):
             return json.loads(json_string)  # Convert back to list
         else:
             return []
-
-    # def _app_config_merge(self, app_config, app_path):
-    #
-    #     # Ensure 'BaseApplicationPath' key exists
-    #     base_app_path = app_config["BaseApplicationPath"]
-    #
-    #     if not base_app_path:
-    #         raise ValueError(
-    #             f"The override file '{app_config}' must specify a 'BaseApplicationPath'."
-    #         )
-    #
-    #     # Resolve base configuration path
-    #     base_app_path = Path(base_app_path)
-    #     if not base_app_path.is_absolute():
-    #         # Resolve relative to the override file's location
-    #         base_app_path = app_path.parent / base_app_path
-    #
-    #     base_app_path = base_app_path.resolve()  # Get the absolute path
-    #
-    #     if not base_app_path.exists():
-    #         raise FileNotFoundError(
-    #             f"Base configuration file '{base_app_path}' not found."
-    #         )
-    #
-    #     # Load base configuration
-    #     with base_app_path.open("r") as base_file:
-    #         base_config = yaml.safe_load(base_file)
-    #
-    #     # Merge configurations
-    #     return self._merge_configs(base_config, app_config)
-    #
-    # def _merge_configs(self, base_config, app_config):
-    #     """
-    #     Recursively merges two dictionaries.
-    #     Modifies the `base_config` dictionary in place with values from `app_config`.
-    #     """
-    #     for key, value in app_config.items():
-    #         if (
-    #             isinstance(value, dict)
-    #             and key in base_config
-    #             and isinstance(base_config[key], dict)
-    #         ):
-    #             self._merge_configs(base_config[key], value)
-    #         else:
-    #             base_config[key] = value
-    #     return base_config

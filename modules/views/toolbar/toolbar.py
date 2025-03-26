@@ -35,12 +35,13 @@ class ToolBar(QToolBar):
 
 
     def _setup(self):
+
         #    action_obj      icon_name     action_id    action_name
         actions = [
             (self.file_action, "msc.files", "file", "file"),
             (self.run_action, "msc.symbol-misc", "run", "run"),
             (self.indexes_action, "mdi6.barcode", "indexes", "index"),
-            (self.lane_action, "mdi6.road", "lane", "lane"),
+            (self.lane_action, "fa.road", "lane", "lane"),
             (self.apps_action, "msc.symbol-method", "apps", "apps"),
             (self.override_action, "msc.sync", "override", "o-ride "),
             (self.validate_action, "msc.check-all", "validate", "valid"),

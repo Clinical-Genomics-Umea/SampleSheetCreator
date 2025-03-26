@@ -34,9 +34,9 @@ class StatusBar(QStatusBar):
 
         self.color_map = {
             "DEBUG": "#808080",  # Gray
-            "INFO": "#000000",  # Black
-            "WARNING": "#E68A00",  # Orange
-            "ERROR": "#CC0000",  # Red
+            "INFO": "#008000",  # Black
+            "WARNING": "#CC0000",  # Red
+            "ERROR": "#8B0000",  # Dark Red
             "CRITICAL": "#8B0000"  # Dark Red
         }
 

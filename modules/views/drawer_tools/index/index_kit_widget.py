@@ -10,10 +10,10 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QSizePolicy,
     QSpacerItem,
-    QAbstractItemView,
+    QAbstractItemView, QStyleOptionHeader, QStyle, QStyledItemDelegate,
 )
 
-from PySide6.QtCore import QSortFilterProxyModel, Qt
+from PySide6.QtCore import QSortFilterProxyModel, Qt, QModelIndex
 
 from modules.models.indexes.index_kit_table_model import IndexKitTableModel
 
@@ -81,12 +81,15 @@ class IndexKitWidget(QWidget):
         # create model and chained proxies
 
         self.model = IndexKitTableModel(self.index_df)
+
         self.chained_proxies = create_chained_sfproxies(self.shown_fields)
 
         # setup tableview
+
         self.tableview = QTableView()
+
         self.tableview.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        self.tableview.verticalHeader().hide()
+        # self.tableview.verticalHeader().hide()
         self.tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableview.setDragEnabled(True)
         self.tableview.setDragDropMode(QAbstractItemView.DragOnly)
@@ -146,3 +149,6 @@ class IndexKitWidget(QWidget):
         name = sender.objectName()
 
         self.chained_proxies[name].setFilterFixedString(filter_text)
+
+
+

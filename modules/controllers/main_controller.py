@@ -32,7 +32,7 @@ from modules.views.drawer_tools.run_setup.run_setup import RunSetupWidget
 from modules.views.log.log_widget import LogWidget
 from modules.views.run.run_info_view import RunInfoView
 from modules.views.sample.sample_view import SamplesWidget
-from modules.views.status.status import StatusBar
+from modules.views.statusbar.status import StatusBar
 from modules.views.main_window import MainWindow
 from modules.views.toolbar.toolbar import ToolBar
 from modules.views.validation.color_balance_widget import ColorBalanceValidationWidget
@@ -71,11 +71,11 @@ class MainController(QObject):
             self._config_manager, self._logger
         )
 
-        self._sample_model = SampleModel(self._config_manager.samples_settings)
+        self._rundata_model = RunDataModel(self._config_manager)
+
+        self._sample_model = SampleModel(self._config_manager)
         self._sample_proxy_model = CustomProxyModel()
         self._sample_proxy_model.setSourceModel(self._sample_model)
-
-        self._rundata_model = RunDataModel(self._config_manager)
 
         self._dataset_manager = DataSetManager(
             self._sample_model,
