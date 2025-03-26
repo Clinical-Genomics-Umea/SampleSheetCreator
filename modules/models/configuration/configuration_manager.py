@@ -1,7 +1,7 @@
 import json
 import re
 from datetime import datetime
-
+from logging import Logger
 
 import yaml
 from PySide6.QtCore import QSettings, QObject, Signal, Slot
@@ -17,12 +17,14 @@ class ConfigurationManager(QObject):
     users_changed = Signal()
     run_data_error = Signal(list)
 
-    def __init__(self):
+    def __init__(self, logger: Logger):
         """Initialize the configuration manager."""
         super().__init__()
 
         self.qt_settings = QSettings("Region Västerbotten", "samplecheater")
         self._run_data_is_set = False
+
+        self._logger = logger
 
         self.read_cycle_pattern = re.compile(r"^\d+(-\d+)*$")
 

@@ -20,6 +20,7 @@ from modules.views.drawer_tools.index.index_kit_toolbox import IndexKitToolbox
 from modules.views.drawer_tools.lane.lane import LanesWidget
 from modules.views.drawer_tools.override.override import OverrideCyclesWidget
 from modules.views.drawer_tools.application.application_container import ApplicationContainerWidget
+from modules.views.log.log_widget import LogWidget
 from modules.views.run.run_info_view import RunInfoView
 from modules.views.drawer_tools.run_setup.run_setup import RunSetupWidget
 from modules.views.export.export import ExportWidget
@@ -33,7 +34,7 @@ import qtawesome as qta
 
 sys.argv += ["-platform", "windows:darkmode=2"]
 __author__ = "Pär Larsson"
-__version__ = "2.0.0.a"
+__version__ = "2.0.0.a2"
 
 # os.environ['QT_API'] = 'pyside6'
 
@@ -59,6 +60,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         applications_widget: ApplicationContainerWidget,
         config_widget: ConfigurationWidget,
         export_widget: ExportWidget,
+        log_widget: LogWidget
     ):
         """
         Initialize the main window
@@ -81,35 +83,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._applications_widget = applications_widget
         self._config_widget = config_widget
         self._export_widget = export_widget
+        self._log_widget = log_widget
 
         self.setMinimumWidth(1000)
-        # self.left_toolBar.setMovable(False)
-        # self.left_toolBar.setIconSize(QSize(40, 40))
 
         self.spinner = WaitingSpinner(self)
 
-        # left toolbar actions
-        # self.left_tool_action_group = QActionGroup(self)
-        # self.action_group_main_view = QActionGroup(self)
-
-        # self.file_action = QAction("File", self)
-        # self.run_action = QAction("Run", self)
-        # self.apps_action = QAction("Apps", self)
-        # self.indexes_action = QAction("Indexes", self)
-        # self.override_action = QAction("Override", self)
-        # self.lane_action = QAction("Lane", self)
-        # self.validate_action = QAction("Validate", self)
-        # self.export_action = QAction("Export", self)
-        # self.settings_action = QAction("Settings", self)
-        #
-        # self.export_action.setEnabled(False)
-        # self.apps_action.setEnabled(False)
-        # self.indexes_action.setEnabled(False)
-
         self.columns_settings_button = QPushButton("Columns")
         self.columns_settings_button.setObjectName("columns_settings")
-
-        # self.override_widget = OverrideCyclesWidget()
 
         self.drawer_stackedWidget.setFixedWidth(300)
         self.drawer_stackedWidget.hide()
@@ -119,7 +100,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def _setup(self):
         self._setup_override()
         self._setup_lane()
-        # self._setup_left_toolbar_actions()
         self._setup_drawer_file()
         self._setup_samples_widget()
         self._setup_run_view()
@@ -128,30 +108,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._setup_drawer_applications()
         self._setup_config()
         self._setup_export_widget()
-
-    # def set_index_apps_actions_enabled(self):
-    #     self.apps_action.setEnabled(True)
-    #     self.indexes_action.setEnabled(True)
-    #     self.validate_action.setEnabled(True)
-    #     self.export_action.setEnabled(True)
-    #
-    # def set_lanes_action_enabled(self):
-    #     self.lane_action.setEnabled(True)
-    #
-    # def set_export_action_disabled(self):
-    #     self.export_action.setEnabled(False)
-    #
-    # def set_override_action_enabled(self):
-    #     self.override_action.setEnabled(True)
-    #
-    # def update_export_action_state(self, is_enabled):
-    #     self.export_action.setEnabled(is_enabled)
-    #
-    # def update_override_action_state(self, is_enabled):
-    #     self.override_action.setEnabled(is_enabled)
-    #
-    # def update_validate_action_state(self, is_enabled):
-    #     self.validate_action.setEnabled(is_enabled)
+        self._setup_log_widget()
 
     def _setup_drawer_file(self):
         layout = self.drawer_file.layout()
@@ -183,6 +140,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout = self.main_settings.layout()
         layout.addWidget(self._config_widget)
 
+    def _setup_log_widget(self):
+        layout = self.main_log.layout()
+        layout.addWidget(self._log_widget)
+
     def _setup_samples_widget(self):
         layout = self.main_data.layout()
         layout.addWidget(self._samples_widget)
@@ -213,6 +174,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             "config",
             "validate",
             "export",
+            "log",
         }
 
         drawer_action_ids = {
@@ -250,6 +212,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return self.main_export
         elif action_id == "config":
             return self.main_settings
+        elif action_id == "log":
+            return self.main_log
         else:
             return self.main_data
 

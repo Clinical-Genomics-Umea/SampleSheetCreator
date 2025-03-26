@@ -89,7 +89,37 @@ class DataSetManager:
         return json.dumps(s_obj)
 
     def data_obj(self):
-        return self._data_obj
+
+        app_settings_data = self.app_settings_data()
+
+        obj = {
+            "Header": self._header_data(),
+            "Reads": self.read_cycles_dict,
+            "Applications": [],
+            "SampleSheetConfig": {},
+        }
+
+        for item in app_settings_data:
+            item_obj = {
+                "ApplicationType": item["ApplicationType"],
+                "Application": item["Application"],
+                "Data": item["Data"].to_dict(orient="records"),
+                "Settings": item["Settings"],
+            }
+
+            obj["Applications"].append(item_obj)
+
+        sample_sheet_config = {
+            "InstrumentType": obj["Header"]["InstrumentType"],
+            "I5SeqOrientation": self._rundata_model.i5_seq_orientation,
+            "I5SampleSheetOrientation": self._rundata_model.i5_samplesheet_orientation,
+        }
+
+        obj["SampleSheetConfig"] = sample_sheet_config
+
+        return obj
+
+        # return self._data_obj
 
     def _bclconvert_adapters(self, data_df):
         application_names = data_df["ApplicationProfile"].explode().tolist()

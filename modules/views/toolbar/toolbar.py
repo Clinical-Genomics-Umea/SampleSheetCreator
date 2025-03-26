@@ -25,6 +25,7 @@ class ToolBar(QToolBar):
         self.lane_action = QAction("Lane", self)
         self.validate_action = QAction("Validate", self)
         self.export_action = QAction("Export", self)
+        self.log_action = QAction("Log", self)
         self.settings_action = QAction("Settings", self)
 
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
@@ -44,6 +45,7 @@ class ToolBar(QToolBar):
             (self.override_action, "msc.sync", "override", "o-ride "),
             (self.validate_action, "msc.check-all", "validate", "valid"),
             (self.export_action, "msc.coffee", "export", "export"),
+            (self.log_action, "mdi6.text", "log", "log"),
             (self.settings_action, "msc.settings-gear", "config", "config"),
         ]
 
@@ -70,6 +72,7 @@ class ToolBar(QToolBar):
         self.addAction(self.validate_action)
         self.addAction(self.export_action)
         self.addWidget(spacer)
+        self.addAction(self.log_action)
         self.addAction(self.settings_action)
 
         self.indexes_action.setEnabled(False)

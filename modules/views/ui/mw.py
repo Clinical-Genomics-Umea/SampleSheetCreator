@@ -23,7 +23,7 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(1319, 610)
+        MainWindow.resize(1319, 849)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -121,6 +121,11 @@ class Ui_MainWindow(object):
         self.verticalLayout_10.addLayout(self.horizontalLayout)
 
         self.main_stackedWidget.addWidget(self.main_validation)
+        self.main_log = QWidget()
+        self.main_log.setObjectName(u"main_log")
+        self.verticalLayout_12 = QVBoxLayout(self.main_log)
+        self.verticalLayout_12.setObjectName(u"verticalLayout_12")
+        self.main_stackedWidget.addWidget(self.main_log)
         self.main_settings = QWidget()
         self.main_settings.setObjectName(u"main_settings")
         self.verticalLayout_11 = QVBoxLayout(self.main_settings)
@@ -142,7 +147,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.drawer_stackedWidget.setCurrentIndex(6)
-        self.main_stackedWidget.setCurrentIndex(3)
+        self.main_stackedWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)

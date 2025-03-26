@@ -32,26 +32,41 @@ class StatusBar(QStatusBar):
         self.selection_label.setStyleSheet("color: black")
         self.addPermanentWidget(self.selection_label)
 
+        self.color_map = {
+            "DEBUG": "#808080",  # Gray
+            "INFO": "#000000",  # Black
+            "WARNING": "#E68A00",  # Orange
+            "ERROR": "#CC0000",  # Red
+            "CRITICAL": "#8B0000"  # Dark Red
+        }
 
-        self.error_timer = QTimer()
-        self.error_timer.setSingleShot(True)
-        self.error_timer.timeout.connect(self.clear_error_message)
+        self.spacer = QWidget()
+        self.spacer.setFixedWidth(15)
 
-        self.error_label = QLabel("")
-        self.error_label.setStyleSheet("color: red;;font-weight: bold;")
-        self.addPermanentWidget(self.error_label)
+
+        self.label = QLabel()
+        self.label.setTextFormat(Qt.TextFormat.RichText)  # Enable HTML formatting
+        self.addWidget(self.spacer)
+        self.addWidget(self.label)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.clear_message)
+
+    def display_message(self, level: str, message: str, timeout: int = 5000):
+        """Show a colored message for a given time (in milliseconds)."""
+        color = self.color_map.get(level, "#000000")  # Default to black
+        self.label.setText(f'<span style="color:{color};">{message}</span>')
+
+        # Restart the timer with the new timeout
+        self.timer.stop()
+        self.timer.start(timeout)
+
+    def clear_message(self):
+        """Clears the message when the timer expires."""
+        self.label.clear()
 
     @Slot(object)
     def display_selection_data(self, selection_data):
         rows = selection_data.get("rows", 0)
         cols = selection_data.get("cols", 0)
         self.selection_label.set_selection_data(rows, cols)
-
-    @Slot(str)
-    def display_error_msg(self, msg):
-        self.error_label.setText(f"Error: {msg}")
-        self.error_timer.start(5000)
-
-    def clear_error_message(self):
-        self.error_label.setText("")
-

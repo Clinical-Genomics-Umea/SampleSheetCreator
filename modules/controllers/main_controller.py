@@ -8,17 +8,18 @@ from modules.models.configuration.configuration_manager import ConfigurationMana
 from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.datastate.datastate_model import DataStateModel
 from modules.models.indexes.index_kit_manager import IndexKitManager
+from modules.models.logging.log_widget_handler import LogWidgetHandler
 from modules.models.logging.statusbar_handler import StatusBarLogHandler
 from modules.models.methods.method_manager import MethodManager
 from modules.models.override_cycles.OverrideCyclesModel import OverrideCyclesModel
 from modules.models.rundata.rundata_model import RunDataModel
 from modules.models.sample.sample_model import SampleModel, CustomProxyModel
-from modules.models.validation.color_balance_validator import ColorBalanceValidator
+from modules.models.validation.color_balance.color_balance_validator import ColorBalanceValidator
 from modules.models.validation.data_compatibility_checker import DataCompatibilityTest
-from modules.models.validation.dataset_validator import DataSetValidator
-from modules.models.validation.index_distance_matrix_generator import IndexDistanceValidator
+from modules.models.validation.dataset.dataset_validator import DataSetValidator
+from modules.models.validation.index_distance.index_distance_matrix_generator import IndexDistanceValidator
 from modules.models.validation.main_validator import MainValidator
-from modules.models.validation.prevalidator import PreValidator
+from modules.models.validation.prevalidator.prevalidator import PreValidator
 from modules.models.worksheet.import_worksheet import WorkSheetImporter
 from modules.views.config.configuration_widget import ConfigurationWidget
 from modules.views.export.export import ExportWidget
@@ -28,6 +29,7 @@ from modules.views.drawer_tools.index.index_kit_toolbox import IndexKitToolbox
 from modules.views.drawer_tools.lane.lane import LanesWidget
 from modules.views.drawer_tools.override.override import OverrideCyclesWidget
 from modules.views.drawer_tools.run_setup.run_setup import RunSetupWidget
+from modules.views.log.log_widget import LogWidget
 from modules.views.run.run_info_view import RunInfoView
 from modules.views.sample.sample_view import SamplesWidget
 from modules.views.status.status import StatusBar
@@ -47,15 +49,21 @@ class MainController(QObject):
         """
         super().__init__()
 
-        self._config_manager = ConfigurationManager()
         self._logger = logging.getLogger(__name__)
+        self._logger.setLevel(logging.DEBUG)
+
         self._status_bar = StatusBar()
-        self._toolbar = ToolBar()
+        self._log_widget = LogWidget()
 
         self._file_handler = logging.FileHandler(Path("log/log.txt"))
         self._status_handler = StatusBarLogHandler(self._status_bar)
+        self._log_widget_handler = LogWidgetHandler(self._log_widget)
         self._logger.addHandler(self._file_handler)
         self._logger.addHandler(self._status_handler)
+        self._logger.addHandler(self._log_widget_handler)
+
+        self._toolbar = ToolBar()
+        self._config_manager = ConfigurationManager(self._logger)
 
         self._application_manager = ApplicationManager(self._config_manager)
 
@@ -174,6 +182,7 @@ class MainController(QObject):
             self._applications_widget,
             self._config_widget,
             self._export_widget,
+            self._log_widget,
         )
         self.main_window.setStatusBar(self._status_bar)
         self.main_window.addToolBar(Qt.LeftToolBarArea, self._toolbar)
@@ -192,11 +201,15 @@ class MainController(QObject):
 
         self._connect_signals()
 
+        self._logger.info("This is an info message")
+        self._logger.warning("This is a warning message")
+        self._logger.error("This is an error message")
+
+
     def _connect_signals(self):
         """
         Connect UI signals to controller slots.
         """
-        # self._connect_notifications()
         self._connect_validation_signals()
         self._connect_file_signals()
         self._connect_override_pattern_signals()
@@ -211,11 +224,6 @@ class MainController(QObject):
     def _connect_datastate_signals(self):
         self._datastate_model.freeze_state_changed.connect(
             self._toolbar.set_export_action_state
-        )
-
-    def _connect_notifications(self):
-        self._samples_widget.selection_data.connect(
-            self._status_bar.display_selection_data
         )
 
     def _connect_application_signal(self):

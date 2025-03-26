@@ -1,10 +1,10 @@
 from logging import Logger
 
-from PySide6.QtCore import QObject, Signal, QThread, Slot
+from PySide6.QtCore import QObject, QThread, Slot
 
 from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.sample.sample_model import SampleModel
-from modules.models.validation.index_distance_matrices_worker import IndexDistanceMatricesWorker
+from modules.models.validation.index_distance.index_distance_matrices_worker import IndexDistanceMatricesWorker
 from modules.views.validation.index_distance_validation_widget import IndexDistanceValidationWidget
 
 
@@ -32,6 +32,9 @@ class IndexDistanceValidator(QObject):
 
     def generate(self):
 
+        if self.thread is not None or self.worker is not None:
+            return
+
         i5_seq_orientation = self._dataset_manager.i5_seq_orientation
         i5_seq_rc = i5_seq_orientation == "rc"
 
@@ -51,5 +54,7 @@ class IndexDistanceValidator(QObject):
         self.thread.quit()
         self.worker.deleteLater()
         self.thread.deleteLater()
+        self.thread = None
+        self.worker = None
 
         self._index_distance_validation_widget.populate(results)

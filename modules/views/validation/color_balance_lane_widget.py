@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItem, QPainter, QPen, QColor
 from PySide6.QtWidgets import QTableView, QSizePolicy, QAbstractScrollArea, QHeaderView
 
-from modules.models.validation.index_color_balance_model import IndexColorBalanceModel
+from modules.models.validation.color_balance.index_color_balance_model import IndexColorBalanceModel
 from modules.views.validation.color_balance_delegates import ColorBalanceRowDelegate
 
 

@@ -6,19 +6,16 @@ class StatusBarLogHandler(logging.Handler):
     def __init__(self, status_bar):
         super().__init__()
         self.status_bar = status_bar
-        self.status_bar.setStyleSheet(f"color: red;")
-
-        self.setLevel(logging.INFO)  # Only log warnings and above
         formatter = logging.Formatter("%(levelname)s: %(message)s")
         self.setFormatter(formatter)
 
     def emit(self, record):
-        # Only show warnings and above
+
+        print(record)
+
         msg = self.format(record)
+        level = record.levelname
 
-        if "WARNING" in msg:
-            self.status_bar.showMessage(msg, 7000)
-
-        elif "ERROR" in msg:
-            self.status_bar.showMessage(msg, 7000)
+        print(msg, level)
+        self.status_bar.display_message(level, msg)
 
