@@ -184,16 +184,24 @@ class PreValidator(QObject):
         df_tmp = self.dataframe.copy(deep=True)
         df_tmp["sample_lane"] = df_tmp["Sample_ID"] + "_" + df_tmp["Lane"].astype(str)
 
-        if df_tmp["sample_lane"].duplicated().any():
-            duplicates = df_tmp.loc[
-                df_tmp["sample_lane"].duplicated(), "sample_lane"
-            ].tolist()
+        try:
+            if df_tmp["sample_lane"].duplicated().any():
+                duplicates = df_tmp.loc[
+                    df_tmp["sample_lane"].duplicated(), "sample_lane"
+                ].tolist()
+                return PreValidationResult(
+                    name="unique sample lane validation",
+                    status=False,
+                    message=f"Duplicates of Sample_ID and Lane exists: {', '.join(duplicates)}",
+                )
+            return PreValidationResult(name="unique sample lane validation", status=True)
+        except Exception as e:
             return PreValidationResult(
                 name="unique sample lane validation",
                 status=False,
-                message=f"Duplicates of Sample_ID and Lane exists: {', '.join(duplicates)}",
+                message=f"Error: {e}",
             )
-        return PreValidationResult(name="unique sample lane validation", status=True)
+
 
     def allowed_lanes_validation(self) -> PreValidationResult:
         """Validate used lanes are within allowed lanes"""

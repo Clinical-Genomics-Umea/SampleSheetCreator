@@ -44,30 +44,28 @@ class SampleModel(QStandardItemModel):
         self.dataChanged.connect(self._index_minmax_sender)
 
     def _index_minmax_sender(self):
-        # TODO: Get the maximum and minimum str len for columns IndexI5 and IndexI7
-        ## and send using the index_minmax_ready signal
 
-        index_i5_maxlen = 0
-        index_i5_minlen = float('inf')
-        index_i7_maxlen = 0
-        index_i7_minlen = float('inf')
+        index_i7_col = self.fields.index("IndexI7")
+        index_i5_col = self.fields.index("IndexI5")
 
-        for row in range(self.rowCount()):
-            index_i7_item = self.item(row, self.fields.index("IndexI7"))
-            index_i5_item = self.item(row, self.fields.index("IndexI5"))
+        index_i7_lengths = [len(self.item(row, index_i7_col).text())
+                            for row in range(self.rowCount()) if self.item(row, index_i7_col)]
+        index_i5_lengths = [len(self.item(row, index_i5_col).text())
+                            for row in range(self.rowCount()) if self.item(row, index_i5_col)]
 
-            if index_i7_item:
-                index_i7_text = index_i7_item.text()
-                index_i7_maxlen = max(index_i7_maxlen, len(index_i7_text))
-                index_i7_minlen = min(index_i7_minlen, len(index_i7_text))
+        if index_i7_lengths:
+            index_i7_minlen, index_i7_maxlen = min(index_i7_lengths), max(index_i7_lengths)
+        else:
+            index_i7_minlen, index_i7_maxlen = 0, 0  # or some other default values
 
-            if index_i5_item:
-                index_i5_text = index_i5_item.text()
-                index_i5_maxlen = max(index_i5_maxlen, len(index_i5_text))
-                index_i5_minlen = min(index_i5_minlen, len(index_i5_text))
+        if index_i5_lengths:
+            index_i5_minlen, index_i5_maxlen = min(index_i5_lengths), max(index_i5_lengths)
+        else:
+            index_i5_minlen, index_i5_maxlen = 0, 0  # or some other default values
 
-        # Send the maximum and minimum lengths using the index_minmax_ready signal
         self.index_minmax_ready.emit(index_i7_minlen, index_i7_maxlen, index_i5_minlen, index_i5_maxlen)
+
+
 
     def refresh_view(self):
 
