@@ -52,9 +52,3 @@ if __name__ == "__main__":
 
     schema = generate_schema(json_data)
 
-
-    # schema_file_path = "schema.json"
-    # with open(schema_file_path, "w") as f:
-    #     json.dump(schema, f, indent=4)
-    #
-    # print(f"JSON Schema saved to {schema_file_path}")

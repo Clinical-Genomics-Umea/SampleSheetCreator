@@ -6,7 +6,6 @@ from PySide6.QtCore import QObject, Qt
 from modules.models.application.application_manager import ApplicationManager
 from modules.models.configuration.configuration_manager import ConfigurationManager
 from modules.models.dataset.dataset_manager import DataSetManager
-from modules.models.datastate.datastate_model import DataStateModel
 from modules.models.indexes.index_kit_manager import IndexKitManager
 from modules.models.logging.log_widget_handler import LogWidgetHandler
 from modules.models.logging.statusbar_handler import StatusBarLogHandler
@@ -14,8 +13,9 @@ from modules.models.methods.method_manager import MethodManager
 from modules.models.override_cycles.OverrideCyclesModel import OverrideCyclesModel
 from modules.models.rundata.rundata_model import RunDataModel
 from modules.models.sample.sample_model import SampleModel, CustomProxyModel
+from modules.models.state.state_model import StateModel
 from modules.models.validation.color_balance.color_balance_validator import ColorBalanceValidator
-from modules.models.validation.data_compatibility_checker import DataCompatibilityTest
+from modules.models.validation.compatibility_tester import CompatibilityTester
 from modules.models.validation.dataset.dataset_validator import DataSetValidator
 from modules.models.validation.index_distance.index_distance_matrix_generator import IndexDistanceValidator
 from modules.models.validation.main_validator import MainValidator
@@ -71,6 +71,8 @@ class MainController(QObject):
             self._config_manager, self._logger
         )
 
+        self._state_model = StateModel()
+
         self._rundata_model = RunDataModel(self._config_manager)
 
         self._sample_model = SampleModel(self._config_manager)
@@ -83,15 +85,8 @@ class MainController(QObject):
             self._rundata_model,
         )
 
-        self._datastate_model = DataStateModel(
-            self._sample_model,
-            self._rundata_model,
-            self._application_manager,
-            self._logger
-        )
-
         self._override_cycles_model = OverrideCyclesModel(
-            self._datastate_model, self._dataset_manager, self._logger
+            self._state_model, self._dataset_manager, self._logger
         )
 
         # validation widgets
@@ -100,7 +95,6 @@ class MainController(QObject):
         self._dataset_validation_widget = DataSetValidationWidget()
         self._index_distance_validation_widget = IndexDistanceValidationWidget()
         self._color_balance_validation_widget = ColorBalanceValidationWidget(self._dataset_manager)
-
 
         # validation models
 
@@ -144,10 +138,7 @@ class MainController(QObject):
             self._logger
         )
 
-
         # widgets
-
-        ## validation widgets
 
         self._validation_widget = MainValidationWidget(self._prevalidation_widget,
                                                        self._dataset_validation_widget,
@@ -162,7 +153,7 @@ class MainController(QObject):
         self._run_setup_widget = RunSetupWidget(self._config_manager, self._dataset_manager)
         self._run_info_widget = RunInfoView(self._config_manager)
         self._index_toolbox_widget = IndexKitToolbox(self._index_kit_manager)
-        self._applications_widget = ApplicationContainerWidget(
+        self._applications_container_widget = ApplicationContainerWidget(
             self._application_manager, self._dataset_manager
         )
         self._config_widget = ConfigurationWidget(self._config_manager)
@@ -179,7 +170,7 @@ class MainController(QObject):
             self._run_info_widget,
             self._validation_widget,
             self._index_toolbox_widget,
-            self._applications_widget,
+            self._applications_container_widget,
             self._config_widget,
             self._export_widget,
             self._log_widget,
@@ -189,8 +180,8 @@ class MainController(QObject):
 
         # self.main_window.samples_widget.set_model(self._sample_proxy_model)
 
-        self._compatibility_checker = DataCompatibilityTest(
-            self._datastate_model,
+        self._compatibility_tester = CompatibilityTester(
+            self._state_model,
             self._dataset_manager,
             self._logger
         )
@@ -201,10 +192,7 @@ class MainController(QObject):
 
         self._connect_signals()
 
-        self._logger.info("This is an info message")
-        self._logger.warning("This is a warning message")
-        self._logger.error("This is an error message")
-
+        self._logger.info("Init done!")
 
     def _connect_signals(self):
         """
@@ -219,30 +207,30 @@ class MainController(QObject):
         self._connect_toolbar_signal()
         self._connect_run_signals()
         self._connect_datastate_signals()
-
+        self._connect_state_model_signals()
 
     def _connect_datastate_signals(self):
-        self._datastate_model.freeze_state_changed.connect(
+        self._state_model.freeze_state_changed.connect(
             self._toolbar.set_export_action_state
         )
 
     def _connect_application_signal(self):
-        self._applications_widget.add_signal.connect(
-            self._compatibility_checker.app_check
+        self._applications_container_widget.add_application_profile_data.connect(
+            self._compatibility_tester.verify_dragen_ver_compatibility
         )
-        self._compatibility_checker.app_ok.connect(
+        self._compatibility_tester.application_profile_ok.connect(
             self._samples_widget.sample_view.set_application
         )
-        self._applications_widget.remove_signal.connect(
+        self._applications_container_widget.remove_application_profile.connect(
             self._samples_widget.sample_view.remove_application
         )
 
     def _connect_drop_paste_signals(self):
         self._sample_model.dropped_data.connect(
-            self._compatibility_checker.drop_check
+            self._compatibility_tester.index_drop_check
         )
-        self._compatibility_checker.drop_ok.connect(
-            self._sample_model.set_dropped_data
+        self._compatibility_tester.index_drop_ok.connect(
+            self._sample_model.set_dropped_index_data
         )
 
     def _connect_file_signals(self):
@@ -267,9 +255,17 @@ class MainController(QObject):
         self._main_validator.clear_validator_widgets.connect(
             self._validation_widget.clear_validation_widgets
         )
-        self._main_validator.pre_validator_status.connect(
-            self._datastate_model.freeze_state_changed
+        self._main_validator.prevalidation_failed.connect(
+            self._state_model.unfreeze
         )
+        self._main_validator.prevalidation_success.connect(
+            self._state_model.freeze
+        )
+
+    def _connect_state_model_signals(self):
+        self._state_model.freeze_state_changed.connect(self._toolbar.set_export_action_state)
+        self._rundata_model.index_lens_ready.connect(self._state_model.set_runcycles_index_data)
+        self._sample_model.index_minmax_ready.connect(self._state_model.set_sample_index_len_minmax)
 
     def _connect_override_pattern_signals(self):
         self._samples_widget.sample_view.override_patterns_ready.connect(

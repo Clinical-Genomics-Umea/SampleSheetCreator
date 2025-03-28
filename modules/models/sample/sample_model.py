@@ -22,6 +22,7 @@ def field_count(fields):
 class SampleModel(QStandardItemModel):
 
     dropped_data = Signal(object)
+    index_minmax_ready = Signal(int, int, int, int)
 
     def __init__(self, configuration_manager: ConfigurationManager):
         super(SampleModel, self).__init__()
@@ -39,6 +40,34 @@ class SampleModel(QStandardItemModel):
         self.select_samples = False
 
         self.refresh_view()
+
+        self.dataChanged.connect(self._index_minmax_sender)
+
+    def _index_minmax_sender(self):
+        # TODO: Get the maximum and minimum str len for columns IndexI5 and IndexI7
+        ## and send using the index_minmax_ready signal
+
+        index_i5_maxlen = 0
+        index_i5_minlen = float('inf')
+        index_i7_maxlen = 0
+        index_i7_minlen = float('inf')
+
+        for row in range(self.rowCount()):
+            index_i7_item = self.item(row, self.fields.index("IndexI7"))
+            index_i5_item = self.item(row, self.fields.index("IndexI5"))
+
+            if index_i7_item:
+                index_i7_text = index_i7_item.text()
+                index_i7_maxlen = max(index_i7_maxlen, len(index_i7_text))
+                index_i7_minlen = min(index_i7_minlen, len(index_i7_text))
+
+            if index_i5_item:
+                index_i5_text = index_i5_item.text()
+                index_i5_maxlen = max(index_i5_maxlen, len(index_i5_text))
+                index_i5_minlen = min(index_i5_minlen, len(index_i5_text))
+
+        # Send the maximum and minimum lengths using the index_minmax_ready signal
+        self.index_minmax_ready.emit(index_i7_minlen, index_i7_maxlen, index_i5_minlen, index_i5_maxlen)
 
     def refresh_view(self):
 
@@ -80,26 +109,36 @@ class SampleModel(QStandardItemModel):
 
         return bool(data.hasFormat("application/json"))
 
-    def set_dropped_data(self, data):
+    def set_dropped_index_data(self, data):
         start_row = data["start_row"]
+
+        print(f"set_dropped_index_data: start_row={start_row}")
+        print(f"set_dropped_index_data: decoded_data={data['decoded_data']}")
 
         self.blockSignals(True)
 
         for i, row_data in enumerate(data["decoded_data"]):
-            print(f"Setting row {start_row + i}")
             for key, value in row_data.items():
                 if key in self.fields:
                     column = self.fields.index(key)
+                    print(f"set_dropped_index_data: setting {key} to {value} at row {i+start_row}, column {column}")
                     self.setData(self.index(start_row + i, column), value)
 
         self.blockSignals(False)
+
+        topLeft = self.index(0, 0)
+        bottomRight = self.index(self.rowCount() - 1, self.columnCount() - 1)
+
+        print(f"before data changed")
+
         self.dataChanged.emit(
-            self.index(0, 0),
-            self.index(self.rowCount() - 1, self.columnCount() - 1),
+            topLeft,
+            bottomRight,
             Qt.DisplayRole,
         )
 
-        print("Data set")
+        print(f"after data changed")
+
         return True
 
     def _find_first_empty_row(self):
@@ -153,39 +192,31 @@ class SampleModel(QStandardItemModel):
         Returns:
             bool: True if the drop was successful, False otherwise.
         """
-        print("Attempting to drop mime data...")
 
         json_data_qba = data.data("application/json")
         decoded_data = decode_bytes_json(json_data_qba)
 
-        print("Decoded data:", decoded_data)
 
         data = {"start_row": parent.row(), "decoded_data": decoded_data}
         self.dropped_data.emit(data)
 
-        print("Dropped data emitted with starting row:", parent.row())
-
-        self.blockSignals(True)
-        print("Signals blocked.")
-
-        for i, row_data in enumerate(decoded_data):
-            for key, value in row_data.items():
-                row = parent.row() + i
-                if key in self.fields:
-                    column = self.fields.index(key)
-                    self.setData(self.index(row, column), value)
-                    print(f"Set data at row {row}, column {column}: {value}")
-
-        self.blockSignals(False)
-        print("Signals unblocked.")
-
-        self.dataChanged.emit(
-            self.index(0, 0),
-            self.index(self.rowCount() - 1, self.columnCount() - 1),
-            Qt.DisplayRole,
-        )
-        print("Data changed signal emitted.")
-
+        # self.blockSignals(True)
+        #
+        # for i, row_data in enumerate(decoded_data):
+        #     for key, value in row_data.items():
+        #         row = parent.row() + i
+        #         if key in self.fields:
+        #             column = self.fields.index(key)
+        #             self.setData(self.index(row, column), value)
+        #
+        # self.blockSignals(False)
+        #
+        # self.dataChanged.emit(
+        #     self.index(0, 0),
+        #     self.index(self.rowCount() - 1, self.columnCount() - 1),
+        #     Qt.DisplayRole,
+        # )
+        #
         return True
 
     def flags(self, index):

@@ -1,6 +1,4 @@
 from logging import Logger
-from pprint import pprint
-
 from PySide6.QtCore import QObject, Signal
 
 from modules.models.application.application_manager import ApplicationManager

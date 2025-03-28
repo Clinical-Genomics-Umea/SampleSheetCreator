@@ -14,7 +14,8 @@ from modules.models.validation.prevalidator.prevalidator import PreValidator
 class MainValidator(QObject):
 
     clear_validator_widgets = Signal()
-    pre_validator_status = Signal(bool)
+    prevalidation_failed = Signal()
+    prevalidation_success = Signal()
 
     def __init__(self,
                  prevalidator: PreValidator,
@@ -40,10 +41,10 @@ class MainValidator(QObject):
         self.clear_validator_widgets.emit()
 
         if not self._prevalidator.validate():
-            self.pre_validator_status.emit(False)
+            self.prevalidation_failed.emit()
             return
 
-        self.pre_validator_status.emit(True)
+        self.prevalidation_success.emit()
         self._dataset_validator.validate()
         self._index_distance_validator.generate()
         #

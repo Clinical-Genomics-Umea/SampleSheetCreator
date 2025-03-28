@@ -4,18 +4,18 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSpacerItem, QSizePo
 
 from modules.models.application.application_manager import ApplicationManager
 from modules.models.dataset.dataset_manager import DataSetManager
+from modules.models.state.state_model import StateModel
 from modules.views.drawer_tools.application.application_widget import ApplicationWidget
 from modules.views.ui_components import HorizontalLine
 
 
 class ApplicationContainerWidget(QWidget):
 
-    add_signal = Signal(dict)
-    remove_signal = Signal(dict)
+    add_application_profile_data = Signal(dict)
+    remove_application_profile = Signal(dict)
 
     def __init__(
-        self, application_manager: ApplicationManager, dataset_manager: DataSetManager
-    ):
+        self, application_manager: ApplicationManager, dataset_manager: DataSetManager):
         super().__init__()
 
         self._application_manager = application_manager
@@ -67,9 +67,9 @@ class ApplicationContainerWidget(QWidget):
         )
 
     @Slot(object)
-    def _handle_add_click(self, data):
-        self.add_signal.emit(data)
+    def _handle_add_click(self, data: object):
+        self.add_application_profile_data.emit(data)
 
     @Slot(object)
     def _handle_remove_click(self, data):
-        self.remove_signal.emit(data)
+        self.remove_application_profile.emit(data)

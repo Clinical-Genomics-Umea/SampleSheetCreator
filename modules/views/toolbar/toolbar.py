@@ -93,11 +93,11 @@ class ToolBar(QToolBar):
 
     @Slot(bool)
     def set_export_action_state(self, state: bool = True):
+        print(state)
+
         self.export_action.setEnabled(state)
 
     def on_rundata_set(self):
-
-        print("on rundata set")
 
         self.indexes_action.setEnabled(True)
         self.lane_action.setEnabled(True)

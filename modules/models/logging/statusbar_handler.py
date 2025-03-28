@@ -11,11 +11,8 @@ class StatusBarLogHandler(logging.Handler):
 
     def emit(self, record):
 
-        print(record)
-
         msg = self.format(record)
         level = record.levelname
 
-        print(msg, level)
         self.status_bar.display_message(level, msg)
 

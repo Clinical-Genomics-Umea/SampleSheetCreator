@@ -1,4 +1,3 @@
-from pprint import pprint
 
 from PySide6.QtCore import QObject, Slot, Signal
 from modules.models.configuration.configuration_manager import ConfigurationManager
@@ -153,8 +152,6 @@ class RunDataModel(QObject):
         Otherwise, update the configuration and emit the
         run_setup_changed signal.
         """
-        print("Setting run data...")
-        pprint(run_data)
 
         # Initialize the run data with default values
         for key in self._cfg_mgr.run_data_fields:

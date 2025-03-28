@@ -4,18 +4,20 @@ from logging import Logger
 from PySide6.QtCore import Signal, QObject, Slot
 from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.datastate.datastate_model import DataStateModel
+from modules.models.state.state_model import StateModel
+
 
 class OverrideCyclesModel(QObject):
     override_cycles_ok = Signal(object)
 
     def __init__(self,
-                 datastate_model: DataStateModel,
+                 state_model: StateModel,
                  dataset_manager: DataSetManager,
                  logger: Logger):
         super().__init__()
         self._logger = logger
         self._dataset_manager = dataset_manager
-        self._datastate_model = datastate_model
+        self._state_model = state_model
 
         self._oc_validate_pattern = {
             "Read1Cycles": r"^(Y\d+|N\d+|U\d+)*(Y{r})(Y\d+|N\d+|U\d+)*$",
@@ -78,8 +80,6 @@ class OverrideCyclesModel(QObject):
 
     def _nonvariable_oc_len(self, oc_part_key, oc_part_str):
         matches = re.findall(self._oc_parts_re[oc_part_key], oc_part_str)
-
-        print(matches)
 
         preset_oc_len = 0
         for m in matches:

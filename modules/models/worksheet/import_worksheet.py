@@ -1,6 +1,5 @@
 from logging import Logger
 from pathlib import Path
-from pprint import pprint
 
 import pandas as pd
 from PySide6.QtCore import QObject, Slot

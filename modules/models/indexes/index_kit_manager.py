@@ -1,7 +1,5 @@
 from logging import Logger
-from pathlib import Path
 import json
-from pprint import pprint
 
 import jsonschema
 from jsonschema import validate

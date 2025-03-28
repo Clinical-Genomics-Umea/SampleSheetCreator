@@ -100,8 +100,6 @@ def check_combination_uniqueness(df: pd.DataFrame) -> pd.Series:
         pandas.Series: A Series of boolean values indicating if each combination is unique.
     """
 
-    # print(df.groupby(['Lane', 'Sample_ID']).size().eq(1))
-
     return df.groupby(["Lane", "Sample_ID"]).size().eq(1)
 
 
