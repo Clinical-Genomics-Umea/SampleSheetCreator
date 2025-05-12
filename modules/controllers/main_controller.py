@@ -49,6 +49,7 @@ class MainController(QObject):
         """
         super().__init__()
 
+
         self._logger = logging.getLogger(__name__)
         self._logger.setLevel(logging.DEBUG)
 

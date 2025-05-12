@@ -10,7 +10,7 @@
     },
     "Layout": "fixed",
     "OverrideCyclesPattern": "Y{r}-I{i}-I{i}-Y{r}",
-    "Type": "UDI",
+    "IndexStrategy": "UDI",
     "IndexI7Len": 10,
     "IndexI5Len": 10,
     "IndexSets": {

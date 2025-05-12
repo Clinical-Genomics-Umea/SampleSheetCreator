@@ -10,7 +10,7 @@
     },
     "Layout": "standard",
     "OverrideCyclesPattern": "Y{r}-I{i}-I{i}-Y{r}",
-    "Type": "CDI",
+    "IndexStrategy": "CDI",
     "IndexI7Len": 10,
     "IndexI5Len": 10,
     "IndexSets": {
