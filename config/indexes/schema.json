@@ -1,0 +1,146 @@
+{
+  "properties": {
+    "Adapters": {
+      "properties": {
+        "AdapterRead1": {
+          "type": "string"
+        },
+        "AdapterRead2": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "Description": {
+      "type": "string"
+    },
+    "DisplayName": {
+      "type": "string"
+    },
+    "FixedLayout": {
+      "type": "string"
+    },
+    "FixedName": {
+      "type": "string"
+    },
+    "IlmnChecksum": {
+      "type": "string"
+    },
+    "IndexSets": {
+      "properties": {
+        "DualFixedSet": {
+          "items": {
+            "properties": {
+              "FixedPos": {
+                "type": "string"
+              },
+              "IndexI5": {
+                "type": "string"
+              },
+              "IndexI5Name": {
+                "type": "string"
+              },
+              "IndexI7": {
+                "type": "string"
+              },
+              "IndexI7Name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "FixedPos",
+              "IndexI7Name",
+              "IndexI5Name",
+              "IndexI7",
+              "IndexI5"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "IndexI5Set": {
+          "items": {
+            "properties": {
+              "IndexI5": {
+                "type": "string"
+              },
+              "IndexI5Name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "IndexI5Name",
+              "IndexI5"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "IndexI7Set": {
+          "items": {
+            "properties": {
+              "IndexI7": {
+                "type": "string"
+              },
+              "IndexI7Name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "IndexI7Name",
+              "IndexI7"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "IndexI7Set",
+        "IndexI5Set",
+        "DualFixedSet"
+      ],
+      "type": "object"
+    },
+    "IndexStrategy": {
+      "type": "string"
+    },
+    "IndexKitName": {
+      "type": "string"
+    },
+    "OverrideCyclesPattern": {
+      "type": "string"
+    },
+    "SupportedLibraryKits": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "UsedIndexSets": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "Version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "IlmnChecksum",
+    "IndexKitName",
+    "DisplayName",
+    "Version",
+    "Description",
+    "Adapters",
+    "FixedLayout",
+    "FixedName",
+    "OverrideCyclesPattern",
+    "IndexStrategy",
+    "UsedIndexSets",
+    "SupportedLibraryKits",
+    "IndexSets"
+  ],
+  "type": "object"
+}
