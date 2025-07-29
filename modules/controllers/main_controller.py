@@ -63,19 +63,14 @@ class MainController(QObject):
         self._logger.addHandler(self._log_widget_handler)
 
         self._toolbar = ToolBar()
-        self._config_manager = ConfigurationManager(self._logger)
+        self._configuration_manager = ConfigurationManager(self._logger)
 
-        self._application_manager = ApplicationManager(self._config_manager)
+        self._application_manager = ApplicationManager(self._configuration_manager, self._logger)
+        self._index_kit_manager = IndexKitManager(self._configuration_manager, self._logger)
 
-        self._index_kit_manager = IndexKitManager(
-            self._config_manager, self._logger
-        )
+        self._rundata_model = RunDataModel(self._configuration_manager, self._logger)
 
-        self._state_model = StateModel()
-
-        self._rundata_model = RunDataModel(self._config_manager)
-
-        self._sample_model = SampleModel(self._config_manager)
+        self._sample_model = SampleModel(self._configuration_manager)
         self._sample_proxy_model = CustomProxyModel()
         self._sample_proxy_model.setSourceModel(self._sample_model)
 
@@ -83,7 +78,10 @@ class MainController(QObject):
             self._sample_model,
             self._application_manager,
             self._rundata_model,
+            self._logger
         )
+
+        self._state_model = StateModel(self._logger)
 
         self._override_cycles_model = OverrideCyclesModel(
             self._state_model, self._dataset_manager, self._logger
@@ -100,7 +98,7 @@ class MainController(QObject):
 
         self._prevalidator = PreValidator(
             self._sample_model,
-            self._config_manager,
+            self._configuration_manager,
             self._application_manager,
             self._dataset_manager,
             self._prevalidation_widget,
@@ -109,7 +107,7 @@ class MainController(QObject):
 
         self._dataset_validator = DataSetValidator(
             self._sample_model,
-            self._config_manager,
+            self._configuration_manager,
             self._dataset_manager,
             self._dataset_validation_widget,
             self._logger
@@ -149,15 +147,15 @@ class MainController(QObject):
         self._override_widget = OverrideCyclesWidget(self._override_cycles_model)
         self._lane_widget = LanesWidget(self._dataset_manager)
         self._file_widget = FileView()
-        self._samples_widget = SamplesWidget(self._config_manager.samples_settings)
-        self._run_setup_widget = RunSetupWidget(self._config_manager, self._dataset_manager)
-        self._run_info_widget = RunInfoView(self._config_manager)
+        self._samples_widget = SamplesWidget(self._configuration_manager.samples_settings)
+        self._run_setup_widget = RunSetupWidget(self._configuration_manager, self._dataset_manager)
+        self._run_info_widget = RunInfoView(self._configuration_manager)
         self._index_toolbox_widget = IndexKitToolbox(self._index_kit_manager)
         self._applications_container_widget = ApplicationContainerWidget(
             self._application_manager, self._dataset_manager
         )
-        self._config_widget = ConfigurationWidget(self._config_manager)
-        self._export_widget = ExportWidget(self._dataset_manager, self._config_manager)
+        self._config_widget = ConfigurationWidget(self._configuration_manager)
+        self._export_widget = ExportWidget(self._dataset_manager, self._configuration_manager)
 
         self._samples_widget.set_model(self._sample_proxy_model)
 
@@ -186,7 +184,7 @@ class MainController(QObject):
             self._logger
         )
 
-        self._method_manager = MethodManager(self._config_manager, self._application_manager, self._logger)
+        self._method_manager = MethodManager(self._configuration_manager, self._application_manager, self._logger)
         self._worksheet_importer = WorkSheetImporter(self._sample_model, self._method_manager,
                                                      self._application_manager, self._logger)
 
@@ -279,10 +277,10 @@ class MainController(QObject):
         )
 
     def _connect_run_signals(self):
-        self._config_manager.users_changed.connect(
+        self._configuration_manager.users_changed.connect(
             self._run_setup_widget.populate_investigators
         )
-        self._config_manager.run_data_error.connect(
+        self._configuration_manager.run_data_error.connect(
             self._run_setup_widget.show_error
         )
         self._run_setup_widget.setup_commited.connect(

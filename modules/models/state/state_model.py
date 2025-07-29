@@ -1,3 +1,5 @@
+from logging import Logger
+
 from PySide6.QtCore import QObject, Signal, Slot
 from modules.utils.utils import json_to_obj
 
@@ -5,10 +7,11 @@ from modules.utils.utils import json_to_obj
 class StateModel(QObject):
     freeze_state_changed = Signal(bool)
 
-    def __init__(self):
+    def __init__(self, logger: Logger):
 
         super().__init__()
 
+        self._logger = logger
         self._frozen = False
 
         self._sample_index1_maxlen = 0

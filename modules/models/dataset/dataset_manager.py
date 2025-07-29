@@ -1,4 +1,5 @@
 import re
+from logging import Logger
 
 from modules.models.application.application_manager import ApplicationManager
 from modules.models.rundata.rundata_model import RunDataModel
@@ -9,7 +10,12 @@ import pandas as pd
 
 
 class DataSetManager:
-    def __init__(self, sample_model: SampleModel, application_manager: ApplicationManager, rundata_model: RunDataModel):
+    def __init__(self, sample_model: SampleModel,
+                 application_manager: ApplicationManager,
+                 rundata_model: RunDataModel,
+                 logger: Logger):
+
+        self._logger = logger
 
         self._rundata_model = rundata_model
         self._sample_model = sample_model

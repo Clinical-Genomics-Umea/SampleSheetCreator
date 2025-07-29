@@ -1,12 +1,15 @@
+from logging import Logger
+
 from modules.models.configuration.configuration_manager import ConfigurationManager
 
 
 class ApplicationManager:
 
-    def __init__(self, config_manager: ConfigurationManager) -> None:
+    def __init__(self, config_manager: ConfigurationManager, logger: Logger) -> None:
         """Initialize the application manager."""
 
         self._app_objects = config_manager.application_configs
+        self._logger = logger
 
         for app_object in self._app_objects:
             app_profile_ver = app_object.get("ApplicationProfileVersion")
