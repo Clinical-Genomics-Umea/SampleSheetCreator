@@ -1,0 +1,321 @@
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+validation of config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json failed
+incompatible app profile BCLConvertNextera
+incompatible app profile BCLConvertNextera
+incompatible app profile BCLConvertNextera
+incompatible app profile BCLConvertNextera
+incompatible app profile BCLConvertNextera
+duplicate Sample_ID values exist in samplesheet.
+worksheet data could not be imported.
+duplicate Sample_ID values exist in samplesheet.
+worksheet data could not be imported.
+duplicate Sample_ID values exist in samplesheet.
+worksheet data could not be imported.
+duplicate Sample_ID values exist in samplesheet.
+worksheet data could not be imported.
+duplicate Sample_ID values exist in samplesheet.
+worksheet data could not be imported.
+duplicate Sample_ID values exist in samplesheet.
+worksheet data could not be imported.
+Dropped indexes are not compatible with run cycles.
+override cycles len validation failed for key: Index2Cycles
+override cycles len validation failed for : Index1Cycles
+override cycles len validation failed for : Index2Cycles
+override cycles len validation failed for : Index1Cycles
+override cycles len validation failed for : Index1Cycles
+override cycles len validation failed for : Index1Cycles
+override cycles len validation failed for : Index1Cycles
+override cycles len validation failed for : Index1Cycles
+override cycles pattern validation failed for : Read2Cycles
+override cycles validation failed for key: Read2Cycles
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+This is a warning message
+This is an error message
+This is a warning message
+This is an error message
+This is a warning message
+This is an error message
+This is a warning message
+This is an error message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+Dropped indexes are not compatible with run cycles.
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+Dropped indexes are not compatible with run cycles.
+Dropped indexes are not compatible with run cycles.
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+This is an info message
+This is a warning message
+This is an error message
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Dropped application profile not compatible with previous profiles.
+Init done!
+Dropped application profile not compatible with previous profiles.
+Init done!
+Init done!
+Init done!
+Prevalidation failed
+Prevalidation failed
+Init done!
+Prevalidation failed
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+schema schemas\index\UDI_fixed.json has not a layout property
+No schema found for kit_type: None, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+No schema found for kit_type: None, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+No schema found for kit_type: None, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+No schema found for kit_type: None, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+No schema found for kit_type: None, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+No schema found for kit_type: None, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+No schema found for kit_type: None, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+No schema found for kit_type: None, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+No schema found for index_strategy: CDI, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+schema schemas\index\CDI_standard.json has not a type property
+schema schemas\index\UDI_fixed.json has not a type property
+No schema found for index_strategy: CDI, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+No schema found for index_strategy: CDI, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+No schema found for index_strategy: CDI, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+No schema found for index_strategy: CDI, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+No schema found for index_strategy: CDI, layout: standard
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Init done!
+Dropped indexes not compatible with run cycles.
+Dropped indexes not compatible with run cycles.
+Init done!
+Dropped indexes not compatible with run cycles.
+Init done!
+Dropped indexes not compatible with run cycles.
+Dropped indexes not compatible with run cycles.
+Dropped indexes not compatible with run cycles.
+Init done!
+Dropped indexes not compatible with run cycles.
+Dropped indexes not compatible with run cycles.
+Init done!
+Dropped indexes not compatible with run cycles.
+Init done!
+Dropped indexes not compatible with run cycles.
+Init done!
