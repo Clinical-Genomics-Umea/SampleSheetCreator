@@ -35,15 +35,13 @@
       ]
     },
     "Layout": {
-      "type": "string",
-      "const": "Standard"
+      "type": "string"
     },
     "OverrideCyclesPattern": {
       "type": "string"
     },
-    "IndexStrategy": {
-      "type": "string",
-      "const": "CDI"
+    "Type": {
+      "type": "string"
     },
     "IndexI7Len": {
       "type": "integer"
@@ -110,7 +108,7 @@
     "Adapters",
     "Layout",
     "OverrideCyclesPattern",
-    "IndexStrategy",
+    "Type",
     "IndexI7Len",
     "IndexI5Len",
     "IndexSets"

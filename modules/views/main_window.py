@@ -14,6 +14,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Signal, Slot
 
 from modules.views.config.configuration_widget import ConfigurationWidget
+from modules.WaitingSpinner.spinner.spinner import WaitingSpinner
 from modules.views.drawer_tools.file.file import FileView
 from modules.views.drawer_tools.index.index_kit_toolbox import IndexKitToolbox
 from modules.views.drawer_tools.lane.lane import LanesWidget
@@ -85,6 +86,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._log_widget = log_widget
 
         self.setMinimumWidth(1000)
+
+        self.spinner = WaitingSpinner(self)
 
         self.columns_settings_button = QPushButton("Columns")
         self.columns_settings_button.setObjectName("columns_settings")

@@ -28,7 +28,7 @@ class ConfigurationManager(QObject):
 
         self.read_cycle_pattern = re.compile(r"^\d+(-\d+)*$")
 
-        self._index_data_root = Path("config/indexes/data")
+        self._index_def_root = Path("config/indexes/data")
         self._application_def_root = Path("config/applications")
         self._method_def_root = Path("config/methods")
 
@@ -55,8 +55,7 @@ class ConfigurationManager(QObject):
         )
 
         self._paths = {
-            "index_data_root": self._index_data_root,
-            "index_schema_root": self._index_schema_root,
+            "index_def_root": self._index_def_root,
             "application_def_root": self._application_def_root,
             "methods_def_root": self._method_def_root,
             "run_settings_path": self._run_settings_path,
@@ -64,6 +63,7 @@ class ConfigurationManager(QObject):
             "samples_settings_path": self._samples_settings_path,
             "validation_settings_path": self._validation_settings_path,
             "samplesheet_v1_template_path": self._samplesheet_v1_template_path,
+            "index_schema_root": self._index_schema_root,
         }
 
         self._application_configs = []
@@ -104,8 +104,8 @@ class ConfigurationManager(QObject):
         return self._run_settings["FastqExtractTool"]
 
     @property
-    def index_data_root(self):
-        return self._index_data_root
+    def index_kits_root(self):
+        return self._index_def_root
 
     @property
     def index_schema_root(self):

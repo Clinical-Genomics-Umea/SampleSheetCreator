@@ -1,11 +1,11 @@
 from PySide6.QtWidgets import QWidget, QHBoxLayout
 
-from modules.models.indexes.index_kit import IndexKit
+from modules.models.indexes.index_kit_object import IndexKitObject
 from modules.views.drawer_tools.index.index_kit_widget import IndexKitWidget
 
 
 class IndexKitContainerWidget(QWidget):
-    def __init__(self, iko: IndexKit) -> None:
+    def __init__(self, iko: IndexKitObject) -> None:
         super().__init__()
 
         self.layout = QHBoxLayout()

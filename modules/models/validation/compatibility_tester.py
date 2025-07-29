@@ -40,8 +40,13 @@ class CompatibilityTester(QObject):
 
         df = pd.DataFrame(dropped_data["decoded_data"])
 
+        print(df.to_string())
+
         max_index_i7_len = df["IndexI7"].str.len().max() if "IndexI7" in df.columns else None
         max_index_i5_len = df["IndexI5"].str.len().max() if "IndexI5" in df.columns else None
+
+        print(max_index_i7_len)
+        print(max_index_i5_len)
 
         if max_index_i7_len and max_index_i5_len:
             if (max_index_i7_len <= self._state_model.runcycles_index1 and
@@ -51,6 +56,11 @@ class CompatibilityTester(QObject):
 
         elif max_index_i7_len:
             if max_index_i7_len <= self._state_model.runcycles_index1:
+                self.index_drop_ok.emit(dropped_data)
+                return
+
+        elif max_index_i5_len:
+            if max_index_i5_len <= self._state_model.runcycles_index2:
                 self.index_drop_ok.emit(dropped_data)
                 return
 

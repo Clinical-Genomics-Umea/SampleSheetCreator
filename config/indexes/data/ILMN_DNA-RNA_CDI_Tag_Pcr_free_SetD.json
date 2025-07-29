@@ -8,9 +8,9 @@
         "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
         "AdapterRead2": "CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA"
     },
-    "Layout": "Standard",
+    "Layout": "standard",
     "OverrideCyclesPattern": "Y{r}-I{i}-I{i}-Y{r}",
-    "IndexStrategy": "CDI",
+    "Type": "CDI",
     "IndexI7Len": 10,
     "IndexI5Len": 10,
     "IndexSets": {
