@@ -1,7 +1,8 @@
 from logging import Logger
 
 from PySide6.QtCore import QObject, Signal, Slot
-from modules.utils.utils import json_to_obj
+
+from modules.models.sample.sample_model import SampleModel
 
 
 class StateModel(QObject):
@@ -28,11 +29,15 @@ class StateModel(QObject):
     sample_index2_minlen_changed = Signal(int)
     runcycles_index1_changed = Signal(int)
 
-    def __init__(self, logger: Logger):
+    dragen_app_version_changed = Signal(str)
+
+    def __init__(self, sample_model: SampleModel, logger: Logger):
 
         super().__init__()
 
         self._logger = logger
+        self._sample_model = sample_model
+
         self._frozen = False
 
         self._sample_index1_maxlen = 0
@@ -71,6 +76,10 @@ class StateModel(QObject):
         self._has_rundata = False
 
     def set_date(self, date: str):
+
+        if self._date == date:
+            return
+
         self._date = date
         self.date_changed.emit(date)
 
@@ -79,6 +88,10 @@ class StateModel(QObject):
         return self._date
 
     def set_investigator(self, investigator: str):
+
+        if self._investigator == investigator:
+            return
+
         self._investigator = investigator
         self.investigator_changed.emit(investigator)
 
@@ -87,6 +100,10 @@ class StateModel(QObject):
         return self._investigator
 
     def set_run_name(self, run_name: str):
+
+        if self._run_name == run_name:
+            return
+
         self._run_name = run_name
         self.run_name_changed.emit(run_name)
 
@@ -94,8 +111,11 @@ class StateModel(QObject):
     def run_name(self):
         return self._run_name
 
-
     def set_run_desc(self, run_desc: str):
+
+        if self._run_desc == run_desc:
+            return
+
         self._run_desc = run_desc
         self.run_desc_changed.emit(run_desc)
 
@@ -104,6 +124,10 @@ class StateModel(QObject):
         return self._run_desc
 
     def set_lanes(self, lanes: list[int]):
+
+        if self._lanes == lanes:
+            return
+
         self._lanes = lanes
         self.lanes_changed.emit(lanes)
 
@@ -112,6 +136,10 @@ class StateModel(QObject):
         return self._lanes
 
     def set_run_read1_cycles(self, run_read1_cycles: int):
+
+        if self._run_read1_cycles == run_read1_cycles:
+            return
+
         self._run_read1_cycles = run_read1_cycles
         self.run_read1_cycles_changed.emit(run_read1_cycles)
 
@@ -120,6 +148,10 @@ class StateModel(QObject):
         return self._run_read1_cycles
 
     def set_run_index1_cycles(self, run_index1_cycles: int):
+
+        if self._run_index1_cycles == run_index1_cycles:
+            return
+
         self._run_index1_cycles = run_index1_cycles
         self.run_index1_cycles_changed.emit(run_index1_cycles)
 
@@ -128,6 +160,10 @@ class StateModel(QObject):
         return self._run_index1_cycles
 
     def set_run_index2_cycles(self, run_index2_cycles: int):
+
+        if self._run_index2_cycles == run_index2_cycles:
+            return
+
         self._run_index2_cycles = run_index2_cycles
         self.run_index2_cycles_changed.emit(run_index2_cycles)
 
@@ -136,6 +172,10 @@ class StateModel(QObject):
         return self._run_index2_cycles
 
     def set_run_read2_cycles(self, run_read2_cycles: int):
+
+        if self._run_read2_cycles == run_read2_cycles:
+            return
+
         self._run_read2_cycles = run_read2_cycles
         self.run_read2_cycles_changed.emit(run_read2_cycles)
 
@@ -151,9 +191,13 @@ class StateModel(QObject):
     def i5_seq_orientation(self):
         return self._i5_seq_orientation
 
-
     def set_dragen_app_version(self, dragen_app_version):
+
+        if self._dragen_app_version == dragen_app_version:
+            return
+
         self._dragen_app_version = dragen_app_version
+        self.dragen_app_version_changed.emit(dragen_app_version)
 
     @property
     def dragen_app_version(self):
@@ -177,12 +221,45 @@ class StateModel(QObject):
     def set_sample_index_len_minmax(self, sample_index1_minlen, sample_index1_maxlen,
                                     sample_index2_minlen, sample_index2_maxlen):
 
+
         self._sample_index1_minlen = sample_index1_minlen
         self._sample_index1_maxlen = sample_index1_maxlen
 
         self._sample_index2_minlen = sample_index2_minlen
         self._sample_index2_maxlen = sample_index2_maxlen
 
+        self.unfreeze()
+
+    def set_sample_index1_minlen(self, sample_index1_minlen):
+        if self._sample_index1_minlen == sample_index1_minlen:
+            return
+
+        self._sample_index1_minlen = sample_index1_minlen
+        self.sample_index1_minlen_changed.emit(self._sample_index1_minlen)
+        self.unfreeze()
+
+    def set_sample_index2_minlen(self, sample_index2_minlen):
+        if self._sample_index2_minlen == sample_index2_minlen:
+            return
+
+        self._sample_index2_minlen = sample_index2_minlen
+        self.sample_index2_minlen_changed.emit(self._sample_index2_minlen)
+        self.unfreeze()
+
+    def set_sample_index1_maxlen(self, sample_index1_maxlen):
+        if self._sample_index1_minlen == sample_index1_maxlen:
+            return
+
+        self._sample_index1_maxlen = sample_index1_maxlen
+        self.sample_index1_maxlen_changed.emit(self._sample_index1_maxlen)
+        self.unfreeze()
+
+    def set_sample_index2_maxlen(self, sample_index2_maxlen):
+        if self._sample_index2_maxlen == sample_index2_maxlen:
+            return
+
+        self._sample_index2_maxlen = sample_index2_maxlen
+        self.sample_index2_maxlen_changed.emit(self._sample_index2_maxlen)
         self.unfreeze()
 
     @property
