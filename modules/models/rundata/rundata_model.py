@@ -1,3 +1,4 @@
+from logging import Logger
 
 from PySide6.QtCore import QObject, Slot, Signal
 from modules.models.configuration.configuration_manager import ConfigurationManager
