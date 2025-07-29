@@ -5,7 +5,7 @@ import jsonschema
 from jsonschema import validate
 
 from modules.models.configuration.configuration_manager import ConfigurationManager
-from modules.models.indexes.index_kit_object import IndexKitObject
+from modules.models.indexes.index_kit import IndexKit
 
 
 class IndexKitManager(object):
@@ -20,7 +20,7 @@ class IndexKitManager(object):
 
     @staticmethod
     def _get_index_kit_objects(index_kit_data):
-        return [IndexKitObject(ik) for ik in index_kit_data]
+        return [IndexKit(ik) for ik in index_kit_data]
 
     def _load_schemas(self):
 

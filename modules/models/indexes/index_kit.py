@@ -2,7 +2,7 @@
 import pandas as pd
 
 
-class IndexKitObject:
+class IndexKit:
 
     def __init__(self, index_kit_data):
         self.index_set = {}

@@ -4,7 +4,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QToolBox, QLabel
 
 from modules.models.indexes.index_kit_manager import IndexKitManager
-from modules.models.indexes.index_kit_object import IndexKitObject
+from modules.models.indexes.index_kit import IndexKit
 from modules.views.drawer_tools.index.index_kit_container_widget import IndexKitContainerWidget
 from modules.views.ui_components import HorizontalLine
 
@@ -65,4 +65,4 @@ class IndexKitToolbox(QWidget):
 
         index_files = [f for f in index_dir_root.glob("*.json")]
 
-        return [IndexKitObject(f, index_schema_path) for f in index_files]
+        return [IndexKit(f, index_schema_path) for f in index_files]
