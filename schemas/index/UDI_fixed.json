@@ -31,14 +31,16 @@
         "AdapterRead1"
       ]
     },
-    "FixedLayout": {
-      "type": "string"
+    "Layout": {
+      "type": "string",
+      "const": "Fixed"
     },
     "OverrideCyclesPattern": {
       "type": "string"
     },
-    "Type": {
-      "type": "string"
+    "IndexStrategy": {
+      "type": "string",
+      "const": "UDI"
     },
     "IndexI7Len": {
       "type": "integer"
@@ -84,7 +86,7 @@
     "Adapters",
     "Layout",
     "OverrideCyclesPattern",
-    "Type",
+    "IndexStrategy",
     "IndexI7Len",
     "IndexI5Len",
     "IndexSets"

@@ -64,21 +64,17 @@ class MainController(QObject):
         self._logger.addHandler(self._log_widget_handler)
 
         self._toolbar = ToolBar()
+
         self._config_manager = ConfigurationManager(self._logger)
+        self._application_manager = ApplicationManager(self._config_manager, self._logger)
+        self._index_kit_manager = IndexKitManager(self._config_manager, self._logger)
+        self._rundata_model = RunDataModel(self._config_manager, self._logger)
+        self._sample_model = SampleModel(self._config_manager, self._logger)
 
-        self._application_manager = ApplicationManager(self._config_manager)
-
-        self._index_kit_manager = IndexKitManager(
-            self._config_manager, self._logger
-        )
-
-        self._state_model = StateModel()
-
-        self._rundata_model = RunDataModel(self._config_manager)
-
-        self._sample_model = SampleModel(self._config_manager)
         self._sample_proxy_model = CustomProxyModel()
         self._sample_proxy_model.setSourceModel(self._sample_model)
+
+        self._state_model = StateModel()
 
         self._dataset_manager = DataSetManager(
             self._sample_model,

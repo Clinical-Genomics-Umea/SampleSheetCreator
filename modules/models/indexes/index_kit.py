@@ -2,9 +2,12 @@
 import pandas as pd
 
 
-class IndexKitObject:
+class IndexKit:
 
     def __init__(self, index_kit_data):
+
+        print("index_kit_data", index_kit_data)
+
         self.index_set = {}
         self._index_kit_name = index_kit_data["IndexKitName"]
         self._override_cycles_pattern = index_kit_data["OverrideCyclesPattern"] or None

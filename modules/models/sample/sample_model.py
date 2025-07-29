@@ -1,3 +1,4 @@
+from logging import Logger
 
 import pandas as pd
 from PySide6.QtCore import Qt, QSortFilterProxyModel, Signal
@@ -24,9 +25,10 @@ class SampleModel(QStandardItemModel):
     dropped_data = Signal(object)
     index_minmax_ready = Signal(int, int, int, int)
 
-    def __init__(self, configuration_manager: ConfigurationManager):
+    def __init__(self, configuration_manager: ConfigurationManager, logger: Logger):
         super(SampleModel, self).__init__()
         self._configuration_manager = configuration_manager
+        self._logger = logger
 
         self.sections_fields = self._configuration_manager.samples_settings["fields"]
         self.row_count = self._configuration_manager.samples_settings["row_count"]

@@ -1,3 +1,4 @@
+from logging import Logger
 
 from PySide6.QtCore import QObject, Slot, Signal
 from modules.models.configuration.configuration_manager import ConfigurationManager
@@ -9,25 +10,27 @@ class RunDataModel(QObject):
     run_data_ready = Signal(dict)
     index_lens_ready = Signal(int, int)
 
-    def __init__(self, cfg_mgr: ConfigurationManager):
+    def __init__(self, configuration_manager: ConfigurationManager, logger: Logger):
         super().__init__()
-        self._cfg_mgr = cfg_mgr
+        self._configuration_manager = configuration_manager
+        self._logger = logger
+
         self._rundata = {}
         self._read_cycles_dict = {}
         self._read_cycles_fields = []
         self._read_cycles_list = []
-        self._instr_flowcell_obj = self._cfg_mgr.instrument_flowcells
+        self._instr_flowcell_obj = self._configuration_manager.instrument_flowcells
         self._has_rundata = False
 
         self._setup()
 
     def _setup(self):
-        for field in self._cfg_mgr.run_data_fields:
+        for field in self._configuration_manager.run_data_fields:
             self._rundata[field] = None
 
-        self._read_cycles_fields = self._cfg_mgr.read_cycles_fields
+        self._read_cycles_fields = self._configuration_manager.read_cycles_fields
 
-        for field in self._cfg_mgr.read_cycles_fields:
+        for field in self._configuration_manager.read_cycles_fields:
             self._read_cycles_dict[field] = None
 
     def _set_i5_seq_orientation(self):
@@ -154,7 +157,7 @@ class RunDataModel(QObject):
         """
 
         # Initialize the run data with default values
-        for key in self._cfg_mgr.run_data_fields:
+        for key in self._configuration_manager.run_data_fields:
             self._rundata[key] = None
 
         # Update the run data with user input values
