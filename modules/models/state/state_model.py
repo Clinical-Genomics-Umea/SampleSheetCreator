@@ -35,6 +35,8 @@ class StateModel(QObject):
     sample_index1_minlen_changed = Signal(int)
     sample_index2_minlen_changed = Signal(int)
 
+    run_info_complete = Signal(bool)
+
     dragen_app_version_changed = Signal(str)
 
     def __init__(self, sample_model: SampleModel, configuration_manager: ConfigurationManager, logger: Logger):
@@ -85,9 +87,6 @@ class StateModel(QObject):
 
         self._assess_color_balance = False
 
-        self._runcycles_index1 = None
-        self._runcycles_index2 = None
-
         self._dragen_app_version = None
 
         self._has_rundata = False
@@ -136,13 +135,95 @@ class StateModel(QObject):
         self.set_color_g(color_g)
         self.set_color_c(color_c)
 
-    def set_lanes(self, lanes: list[int]):
+        self._test_runinfo_complete()
 
-        if self._lanes == lanes:
+    def _test_runinfo_complete(self):
+        if not self._date:
+            self.run_info_complete.emit(False)
             return
 
-        self._lanes = lanes
-        self.lanes_changed.emit(lanes)
+        if not self._investigator:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._run_name:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._run_description:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._lanes:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._instrument:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._flowcell:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._reagent_kit:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._chemistry:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._read1_cycles:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._index1_cycles:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._index2_cycles:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._read2_cycles:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._i5_seq_orientation:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._i5_samplesheet_orientation_bcl2fastq:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._i5_samplesheet_orientation_bclconvert:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._color_a:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._color_t:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._color_g:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._color_c:
+            self.run_info_complete.emit(False)
+            return
+
+        if not self._assess_color_balance:
+            self.run_info_complete.emit(False)
+            return
+
+        self.run_info_complete.emit(True)
+
 
     def set_assess_color_balance(self, assess_color_balance: bool):
 
@@ -389,25 +470,6 @@ class StateModel(QObject):
     def unfreeze(self):
         self._frozen = False
         self.freeze_state_changed.emit(self._frozen)
-
-    @Slot(int, int)
-    def set_runcycles_index_data(self, runcycles_index1, runcycles_index2):
-        self._runcycles_index1 = runcycles_index1
-        self._runcycles_index2 = runcycles_index2
-        self.unfreeze()
-
-    @Slot(int, int, int, int)
-    def set_sample_index_len_minmax(self, sample_index1_minlen, sample_index1_maxlen,
-                                    sample_index2_minlen, sample_index2_maxlen):
-
-
-        self._sample_index1_minlen = sample_index1_minlen
-        self._sample_index1_maxlen = sample_index1_maxlen
-
-        self._sample_index2_minlen = sample_index2_minlen
-        self._sample_index2_maxlen = sample_index2_maxlen
-
-        self.unfreeze()
 
     def set_sample_index1_minlen(self, sample_index1_minlen):
         if self._sample_index1_minlen == sample_index1_minlen:
