@@ -9,6 +9,8 @@ from PySide6.QtWidgets import (
     QComboBox,
 )
 
+from modules.models.configuration.configuration_manager import ConfigurationManager
+from modules.models.state.state_model import StateModel
 from modules.views.drawer_tools.run_setup.pattern_validator import PatternValidator
 from modules.views.ui_components import HorizontalLine
 
@@ -17,11 +19,23 @@ class RunSetupWidget(QWidget):
 
     setup_commited = Signal(dict)
 
-    def __init__(self, cfg_mgr, dataset_mgr):
+    def __init__(self, configuration_manager: ConfigurationManager, state_model: StateModel):
         super().__init__()
 
-        self.cfg_mgr = cfg_mgr
-        self.dataset_mgr = dataset_mgr
+        self._configuration_manager = configuration_manager
+        self._state_model = state_model
+
+        self._investigator_cb = QComboBox()  # combobox
+        self._run_name_le = QLineEdit()  # RunName: lineedit
+        self._run_description_le = QLineEdit()  # RunDescription: lineedit
+        self._instrument_cb = QComboBox()  # Instrument: combobox
+        self._flowcell_cb = QComboBox()  # Flowcell: combobox
+        self._reagent_kit_cb = QComboBox()  # ReagentKit: combobox
+        self._read_cycles_cb = QComboBox()  # ReadCycles: combobox
+        self._custom_read_cycles_le = QLineEdit()  # CustomReadCycles: lineedit
+
+
+        self._commit_btn = QPushButton("Commit")
 
         layout = QVBoxLayout()
         layout.setSpacing(5)
@@ -30,203 +44,168 @@ class RunSetupWidget(QWidget):
         top_label = QLabel("Run Setup")
         top_label.setStyleSheet("font-weight: bold")
 
-        self.commit_btn = QPushButton("Commit")
-
         layout.addWidget(top_label)
         layout.addWidget(HorizontalLine())
-        layout.addWidget(self.commit_btn)
+        layout.addWidget(self._commit_btn)
 
-        self.form = QFormLayout()
+        self._form = QFormLayout()
 
         self.setLayout(layout)
-        layout.addLayout(self.form)
+        layout.addLayout(self._form)
 
-        self.input_widgets = {}
-        self._create_run_widgets()
-
-        self.populate_investigators()
+        self._populate_investigators()
         self._populate_instruments()
         self._populate_flowcells()
-        # self._populate_samplesheet_version()
         self._populate_reagent_kits()
         self._populate_read_cycles()
-        self._populate_fastq_extract_tool()
 
-        self.input_widgets["Instrument"].currentTextChanged.connect(
+        self._instrument_cb.currentTextChanged.connect(
             self._populate_flowcells
         )
-        # self.input_widgets["Instrument"].currentTextChanged.connect(
-        #     self._populate_samplesheet_version
-        # )
-        self.input_widgets["Instrument"].currentTextChanged.connect(
-            self._populate_fastq_extract_tool
-        )
-        self.input_widgets["Flowcell"].currentTextChanged.connect(
+        self._flowcell_cb.currentTextChanged.connect(
             self._populate_reagent_kits
         )
-        self.input_widgets["Flowcell"].currentTextChanged.connect(
+        self._flowcell_cb.currentTextChanged.connect(
             self._populate_read_cycles
         )
-
-        self.input_widgets["ReagentKit"].currentTextChanged.connect(
+        self._reagent_kit_cb.currentTextChanged.connect(
             self._populate_read_cycles
         )
-
-        self.input_widgets["ReadCycles"].currentTextChanged.connect(
+        self._read_cycles_cb.currentTextChanged.connect(
             self._set_custom_read_cycle_validator
         )
 
+        self._setup_ui()
+
         layout.addStretch()
 
-        self.commit_btn.clicked.connect(self.commit)
+        self._commit_btn.clicked.connect(self._commit)
 
-    @Slot(list)
-    def show_error(self, fields):
-        for field in fields:
-            self.flash_widget(self.input_widgets[field])
-
-    @staticmethod
-    def flash_widget(widget):
-        original_style = widget.styleSheet()
-        widget.setStyleSheet("border: 1px solid red;")
-        QTimer.singleShot(500, lambda: widget.setStyleSheet(original_style))
+    def _setup_ui(self):
+        self._form.addRow(QLabel("General"))
+        self._form.addRow("Investigator", self._investigator_cb)
+        self._form.addRow("Run Name", self._run_name_le)
+        self._form.addRow("Run Description", self._run_description_le)
+        self._form.addRow(QLabel("Sequencing"))
+        self._form.addRow("Instrument", self._instrument_cb)
+        self._form.addRow("Flowcell", self._flowcell_cb)
+        self._form.addRow("Reagent Kit", self._reagent_kit_cb)
+        self._form.addRow("Read Cycles", self._read_cycles_cb)
+        self._form.addRow("Custom Read Cycles", self._custom_read_cycles_le)
 
     def _populate_instruments(self):
-        instruments = self.cfg_mgr.instruments
-        self.input_widgets["Instrument"].clear()
-        self.input_widgets["Instrument"].addItems(instruments)
+        instruments = self._configuration_manager.instruments
+        self._instrument_cb.clear()
+        self._instrument_cb.addItems(instruments)
 
     def _populate_flowcells(self):
-        current_instrument = self.input_widgets["Instrument"].currentText()
-        flowcells = self.cfg_mgr.instrument_flowcells[current_instrument][
+        current_instrument = self._instrument_cb.currentText()
+        flowcells = self._configuration_manager.instrument_flowcells[current_instrument][
             "Flowcell"
         ].keys()
-        self.input_widgets["Flowcell"].clear()
-        self.input_widgets["Flowcell"].addItems(flowcells)
-
-    # def _populate_samplesheet_version(self):
-    #     current_instrument = self.input_widgets["Instrument"].currentText()
-    #     samplesheet_version = self.cfg_mgr.instrument_flowcells[current_instrument][
-    #         "SampleSheetVersion"
-    #     ]
-    #     self.input_widgets["SampleSheetVersion"].clear()
-    #     self.input_widgets["SampleSheetVersion"].setText(str(samplesheet_version))
+        self._flowcell_cb.clear()
+        self._flowcell_cb.addItems(flowcells)
 
     def _populate_reagent_kits(self):
-        current_instrument = self.input_widgets["Instrument"].currentText()
+        current_instrument = self._instrument_cb.currentText()
 
         if not len(current_instrument) > 0:
             return
 
-        current_flowcell = self.input_widgets["Flowcell"].currentText()
+        current_flowcell = self._flowcell_cb.currentText()
 
         if not len(current_flowcell) > 0:
             return
 
         reagent_kits = list(
-            self.cfg_mgr.instrument_flowcells[current_instrument]["Flowcell"][
+            self._configuration_manager.instrument_flowcells[current_instrument]["Flowcell"][
                 current_flowcell
             ]["ReagentKit"].keys()
         )
 
-        self.input_widgets["ReagentKit"].clear()
-        self.input_widgets["ReagentKit"].addItems(reagent_kits)
+        self._reagent_kit_cb.clear()
+        self._reagent_kit_cb.addItems(reagent_kits)
 
     def _populate_read_cycles(self):
-        current_instrument = self.input_widgets["Instrument"].currentText()
+        current_instrument = self._instrument_cb.currentText()
 
         if not len(current_instrument) > 0:
             return
 
-        current_flowcell = self.input_widgets["Flowcell"].currentText()
+        current_flowcell = self._flowcell_cb.currentText()
 
         if not len(current_flowcell) > 0:
             return
 
-        current_reagent_kit = self.input_widgets["ReagentKit"].currentText()
+        current_reagent_kit = self._reagent_kit_cb.currentText()
 
         if not len(current_reagent_kit) > 0:
             return
 
-        read_cycles = self.cfg_mgr.instrument_flowcells[current_instrument]["Flowcell"][
+        read_cycles = self._configuration_manager.instrument_flowcells[current_instrument]["Flowcell"][
             current_flowcell
         ]["ReagentKit"][current_reagent_kit]
-        self.input_widgets["ReadCycles"].clear()
-        self.input_widgets["ReadCycles"].addItems(read_cycles)
+        self._read_cycles_cb.clear()
+        self._read_cycles_cb.addItems(read_cycles)
 
-        self.input_widgets["CustomReadCycles"].clear()
-        template = self.input_widgets["ReadCycles"].currentText()
-        self.input_widgets["CustomReadCycles"].setValidator(PatternValidator(template))
-
-    def _populate_fastq_extract_tool(self):
-        current_instrument = self.input_widgets["Instrument"].currentText()
-
-        if not len(current_instrument) > 0:
-            return
-
-        fastq_extract_tools = self.cfg_mgr.instrument_flowcells[current_instrument][
-            "FastqExtractTool"
-        ]
-
-        self.input_widgets["FastqExtractTool"].clear()
-        self.input_widgets["FastqExtractTool"].addItems(fastq_extract_tools)
-
-    def _create_run_widgets(self):
-        for (
-            section_name,
-            section_config,
-        ) in self.cfg_mgr.run_setup_widgets_config.items():
-            self.form.addRow(QLabel(section_name))
-            for widget_name, widget_type in section_config.items():
-                if widget_type == "lineedit":
-                    widget_class = QLineEdit
-                elif widget_type == "combobox":
-                    widget_class = QComboBox
-                else:
-                    raise ValueError(f"Unknown widget type: {widget_type}")
-
-                widget = widget_class()
-                self.input_widgets[widget_name] = widget
-                self.form.addRow(QLabel(widget_name), widget)
-
-            self.form.addRow(QLabel(""))
+        self._custom_read_cycles_le.clear()
+        template = self._read_cycles_cb.currentText()
+        self._custom_read_cycles_le.setValidator(PatternValidator(template))  # self.input_widgets["CustomReadCycles"].setValidator(PatternValidator(template))
 
     @Slot()
-    def populate_investigators(self):
-        users = self.cfg_mgr.users
-        self.input_widgets["Investigator"].clear()
-        self.input_widgets["Investigator"].addItems(users)
+    def _populate_investigators(self):
+        users = self._configuration_manager.users
+        self._investigator_cb.clear()
+        self._investigator_cb.addItems(users)
 
     def _set_custom_read_cycle_validator(self):
-        self.input_widgets["CustomReadCycles"].clear()
-        template = self.input_widgets["ReadCycles"].currentText()
-        self.input_widgets["CustomReadCycles"].setValidator(PatternValidator(template))
+        self._custom_read_cycles_le.clear()
+        template = self._read_cycles_cb.currentText()  # self.input_widgets["ReadCycles"].currentText()
+        self._custom_read_cycles_le.setValidator(PatternValidator(template))
 
-    @staticmethod
-    def _validate_readcycles(index_maxlens, data):
-        readcycles = map(int, data["ReadCycles"].split("-"))
+    # @staticmethod
+    # def _validate_readcycles(index_maxlens, data):
+    #     read_cycles = map(int, data["ReadCycles"].split("-"))
+    #
+    #     for i, value in enumerate(read_cycles):
+    #         if i == 1:
+    #             if index_maxlens["IndexI7_maxlen"] > value:
+    #                 return False
+    #         if i == 2:
+    #             if index_maxlens["IndexI5_maxlen"] > value:
+    #                 return False
+    #
+    #     return True
 
-        for i, value in enumerate(readcycles):
-            if i == 1:
-                if index_maxlens["IndexI7_maxlen"] > value:
-                    return False
-            if i == 2:
-                if index_maxlens["IndexI5_maxlen"] > value:
-                    return False
-
-        return True
-
-    def commit(self):
+    def _commit(self):
         """Commit the data from the input widgets."""
-        data = {}
-        for field, widget in self.input_widgets.items():
-            data[field] = self.extract_data(widget)
 
-        if not self.validate_readcycles(data):
-            self.flash_widget(self.input_widgets["ReadCycles"])
-            return
+        self._state_model.set_investigator(self._investigator_cb.currentText())
+        self._state_model.set_run_name(self._run_name_le.text())
+        self._state_model.set_run_description(self._run_description_le.text())
+        self._state_model.set_instrument(self._instrument_cb.currentText())
+        self._state_model.set_flowcell(self._flowcell_cb.currentText())
+        self._state_model.set_reagent_kit(self._reagent_kit_cb.currentText())
 
-        self.setup_commited.emit(data)
+        read_cycles = self._read_cycles_cb.currentText()
+        read1_cycles, index1_cycles, index2_cycles, read2_cycles = read_cycles.split("-")
+
+        self._state_model.set_read1_cycles(int(read1_cycles))
+        self._state_model.set_read2_cycles(int(read2_cycles))
+        self._state_model.set_index1_cycles(int(index1_cycles))
+        self._state_model.set_index2_cycles(int(index2_cycles))
+
+        self._state_model.set_lookup_data()
+
+        # self._investigator_cb = QComboBox()  # Investigator: combobox
+        # self._run_name_le = QLineEdit()  # RunName: lineedit
+        # self._run_description_le = QLineEdit()  # RunDescription: lineedit
+        # self._instrument_cb = QComboBox()  # Instrument: combobox
+        # self._flowcell_cb = QComboBox()  # Flowcell: combobox
+        # self._reagent_kit_cb = QComboBox()  # ReagentKit: combobox
+        # self._read_cycles_cb = QComboBox()  # ReadCycles: combobox
+        # self._custom_read_cycles_le = QLineEdit()
+
 
     @staticmethod
     def extract_data(widget):
@@ -236,12 +215,12 @@ class RunSetupWidget(QWidget):
         elif isinstance(widget, QLineEdit):
             return widget.text()
 
-    def validate_readcycles(self, data):
+    def _validate_read_cycles(self, data):
         """Validate the readcycles field."""
-        readcycles = list(map(int, data["ReadCycles"].split("-")))
+        read_cycles = list(map(int, data["ReadCycles"].split("-")))
         index_maxlens = self.dataset_mgr.index_maxlens()
 
-        for i, value in enumerate(readcycles):
+        for i, value in enumerate(read_cycles):
             if index_maxlens is not None:
                 if i == 1 and index_maxlens["IndexI7_maxlen"] > value:
                     return False
@@ -249,12 +228,3 @@ class RunSetupWidget(QWidget):
                     return False
 
         return True
-
-    @staticmethod
-    def _extract(widget):
-        if isinstance(widget, QComboBox):
-            return widget.currentText()
-        elif isinstance(widget, QLineEdit):
-            return widget.text()
-
-        return None

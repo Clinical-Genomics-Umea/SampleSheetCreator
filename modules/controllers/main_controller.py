@@ -81,7 +81,7 @@ class MainController(QObject):
             self._logger
         )
 
-        self._state_model = StateModel(self._logger)
+        self._state_model = StateModel(self._sample_model, self._configuration_manager, self._logger)
 
         self._override_cycles_model = OverrideCyclesModel(
             self._state_model, self._dataset_manager, self._logger
@@ -148,8 +148,8 @@ class MainController(QObject):
         self._lane_widget = LanesWidget(self._dataset_manager)
         self._file_widget = FileView()
         self._samples_widget = SamplesWidget(self._configuration_manager.samples_settings)
-        self._run_setup_widget = RunSetupWidget(self._configuration_manager, self._dataset_manager)
-        self._run_info_widget = RunInfoView(self._configuration_manager)
+        self._run_setup_widget = RunSetupWidget(self._configuration_manager, self._state_model)
+        self._run_info_view = RunInfoView()
         self._index_toolbox_widget = IndexKitToolbox(self._index_kit_manager)
         self._applications_container_widget = ApplicationContainerWidget(
             self._application_manager, self._dataset_manager
@@ -165,7 +165,7 @@ class MainController(QObject):
             self._file_widget,
             self._samples_widget,
             self._run_setup_widget,
-            self._run_info_widget,
+            self._run_info_view,
             self._validation_widget,
             self._index_toolbox_widget,
             self._applications_container_widget,
@@ -203,7 +203,7 @@ class MainController(QObject):
         self._connect_drop_paste_signals()
         self._connect_lane_signals()
         self._connect_toolbar_signal()
-        self._connect_run_signals()
+        # self._connect_run_signals()
         self._connect_datastate_signals()
         self._connect_state_model_signals()
 
@@ -211,6 +211,32 @@ class MainController(QObject):
         self._state_model.freeze_state_changed.connect(
             self._toolbar.set_export_action_state
         )
+
+        self._state_model.date_changed.connect(self._run_info_view.set_date_label)
+        self._state_model.investigator_changed.connect(self._run_info_view.set_investigator_label)
+        self._state_model.run_name_changed.connect(self._run_info_view.set_run_name_label)
+        self._state_model.run_description_changed.connect(self._run_info_view.set_run_desc_label)
+        self._state_model.lanes_changed.connect(self._run_info_view.set_lanes_label)
+        self._state_model.instrument_changed.connect(self._run_info_view.set_instrument_label)
+        self._state_model.flowcell_changed.connect(self._run_info_view.set_flowcell_label)
+        self._state_model.chemistry_changed.connect(self._run_info_view.set_chemistry_label)
+        self._state_model.reagent_kit_changed.connect(self._run_info_view.set_reagent_kit_label)
+        self._state_model.i5_seq_orientation_changed.connect(self._run_info_view.set_i5_seq_orientation_label)
+        self._state_model.i5_samplesheet_orientation_bcl2fastq_changed.connect(self._run_info_view.set_bcl2fastq_ss_i5_orient_lbl)
+        self._state_model.i5_samplesheet_orientation_bclconvert_changed.connect(self._run_info_view.set_bclconvert_ss_i5_orient_lbl)
+        self._state_model.run_read1_cycles_changed.connect(self._run_info_view.set_read1_cycles_label)
+        self._state_model.run_index1_cycles_changed.connect(self._run_info_view.set_index1_cycles_label)
+        self._state_model.run_index2_cycles_changed.connect(self._run_info_view.set_index2_cycles_label)
+        self._state_model.run_read2_cycles_changed.connect(self._run_info_view.set_read2_cycles_label)
+        self._state_model.color_a_changed.connect(self._run_info_view.set_a_label)
+        self._state_model.color_t_changed.connect(self._run_info_view.set_t_label)
+        self._state_model.color_g_changed.connect(self._run_info_view.set_g_label)
+        self._state_model.color_c_changed.connect(self._run_info_view.set_c_label)
+        self._state_model.assess_color_balance_changed.connect(self._run_info_view.set_assess_color_balance_label)
+        self._state_model.sample_index1_maxlen_changed.connect(self._run_info_view.set_current_index1_minlen_label)
+        self._state_model.sample_index2_maxlen_changed.connect(self._run_info_view.set_current_index2_minlen_label)
+        self._state_model.sample_index1_minlen_changed.connect(self._run_info_view.set_current_index1_maxlen_label)
+        self._state_model.sample_index2_minlen_changed.connect(self._run_info_view. set_current_index2_maxlen_label)
 
     def _connect_application_signal(self):
         self._applications_container_widget.add_application_profile_data.connect(
@@ -276,28 +302,28 @@ class MainController(QObject):
             self._samples_widget.sample_view.set_override_pattern
         )
 
-    def _connect_run_signals(self):
-        self._configuration_manager.users_changed.connect(
-            self._run_setup_widget.populate_investigators
-        )
-        self._configuration_manager.run_data_error.connect(
-            self._run_setup_widget.show_error
-        )
-        self._run_setup_widget.setup_commited.connect(
-            self._rundata_model.set_run_data
-        )
-        self._rundata_model.run_data_ready.connect(
-            self._run_info_widget.set_data
-        )
-        self._rundata_model.run_data_ready.connect(
-            self._lane_widget.set_lanes
-        )
-        self._rundata_model.index_lens_ready.connect(
-            self._index_toolbox_widget.set_index_kit_status
-        )
-        self._rundata_model.run_data_ready.connect(
-            self._toolbar.on_rundata_set
-        )
+    # def _connect_run_signals(self):
+        # self._configuration_manager.users_changed.connect(
+        #     self._run_setup_widget._populate_investigators
+        # )
+        # self._configuration_manager.run_data_error.connect(
+        #     self._run_setup_widget.show_error
+        # )
+        # self._run_setup_widget.setup_commited.connect(
+        #     self._rundata_model.set_run_data
+        # )
+        # self._rundata_model.run_data_ready.connect(
+        #     self._run_info_widget.set_data
+        # )
+        # self._rundata_model.run_data_ready.connect(
+        #     self._lane_widget.set_lanes
+        # )
+        # self._rundata_model.index_lens_ready.connect(
+        #     self._index_toolbox_widget.set_index_kit_status
+        # )
+        # self._rundata_model.run_data_ready.connect(
+        #     self._toolbar.on_rundata_set
+        # )
 
     def _connect_lane_signals(self):
         self._lane_widget.lanes_ready.connect(

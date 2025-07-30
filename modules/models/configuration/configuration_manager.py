@@ -33,14 +33,14 @@ class ConfigurationManager(QObject):
         self._method_def_root = Path("config/methods")
 
         self._run_settings_path = Path("config/run/run_settings.yaml")
-        self._instrument_flowcells_path = Path("config/run/instrument_flowcells.yaml")
+        self._instrument_data_path = Path("config/run/instrument_data.yaml")
         self._samples_settings_path = Path("config/sample_settings.yaml")
         self._validation_settings_path = Path("config/validation/validation_settings.yaml")
         self._samplesheet_v1_template_path = Path("config/samplesheet_v1.yaml")
 
         self._index_schema_root = Path("schemas/index")
 
-        self._instruments_flowcell_obj = read_yaml_file(self._instrument_flowcells_path)
+        self._instruments_flowcell_obj = read_yaml_file(self._instrument_data_path)
 
         self._run_settings = read_yaml_file(self._run_settings_path)
         self._run_view_widgets_config = self._run_settings["RunViewFields"]
@@ -49,7 +49,13 @@ class ConfigurationManager(QObject):
         self._run_data_fields = self._run_settings["RunDataFields"]
         self._read_cycles_fields = self._run_settings["ReadCyclesFields"]
 
+        self._instrument_data = read_yaml_file(self._instrument_data_path)
+
+        print("instrument_data", self._instrument_data)
+
+
         self._samples_settings = read_yaml_file(self._samples_settings_path)
+
         self._samplesheet_v1_template = read_yaml_file(
             self._samplesheet_v1_template_path
         )
@@ -59,7 +65,7 @@ class ConfigurationManager(QObject):
             "application_def_root": self._application_def_root,
             "methods_def_root": self._method_def_root,
             "run_settings_path": self._run_settings_path,
-            "instrument_flowcells_path": self._instrument_flowcells_path,
+            "instrument_flowcells_path": self._instrument_data_path,
             "samples_settings_path": self._samples_settings_path,
             "validation_settings_path": self._validation_settings_path,
             "samplesheet_v1_template_path": self._samplesheet_v1_template_path,
@@ -71,6 +77,13 @@ class ConfigurationManager(QObject):
 
         self._method_configs = []
         self._set_method_configs()
+        #
+        # self._users = self._samples_settings["Users"]
+        #
+
+    @property
+    def instrument_data(self):
+        return self._instrument_data
 
     def _set_application_configs(self):
         paths = self._application_def_root.glob("**/*.yaml")
