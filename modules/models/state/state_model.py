@@ -25,10 +25,10 @@ class StateModel(QObject):
     i5_seq_orientation_changed = Signal(str)
     i5_samplesheet_orientation_bcl2fastq_changed = Signal(str)
     i5_samplesheet_orientation_bclconvert_changed = Signal(str)
-    color_a_changed = Signal(str)
-    color_t_changed = Signal(str)
-    color_g_changed = Signal(str)
-    color_c_changed = Signal(str)
+    color_a_changed = Signal(object)
+    color_t_changed = Signal(object)
+    color_g_changed = Signal(object)
+    color_c_changed = Signal(object)
     assess_color_balance_changed = Signal(bool)
     sample_index1_maxlen_changed = Signal(int)
     sample_index2_maxlen_changed = Signal(int)
@@ -92,7 +92,8 @@ class StateModel(QObject):
 
         self._has_rundata = False
 
-    def _current_date_as_string(self):
+    @staticmethod
+    def _current_date_as_string():
         return datetime.now().strftime("%Y-%m-%d")
 
     def set_lookup_data(self):
@@ -154,28 +155,29 @@ class StateModel(QObject):
         self.assess_color_balance_changed.emit(assess_color_balance)
 
 
-    def set_color_a(self, color_a: str):
+    def set_color_a(self, color_a: object):
+
         if self._color_t == color_a:
             return
 
         self._color_a = color_a
-        self.color_t_changed.emit(color_a)
+        self.color_a_changed.emit(color_a)
 
-    def set_color_t(self, color_t: str):
+    def set_color_t(self, color_t: object):
         if self._color_t == color_t:
             return
 
         self._color_t = color_t
         self.color_t_changed.emit(color_t)
 
-    def set_color_g(self, color_g: str):
+    def set_color_g(self, color_g: object):
         if self._color_g == color_g:
             return
 
         self._color_g = color_g
         self.color_g_changed.emit(color_g)
 
-    def set_color_c(self, color_c: str):
+    def set_color_c(self, color_c: object):
         if self._color_c == color_c:
             return
 

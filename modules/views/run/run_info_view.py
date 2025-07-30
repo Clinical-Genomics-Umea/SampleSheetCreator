@@ -253,17 +253,20 @@ class RunInfoView(QGroupBox):
         self._assess_color_balance_lbl.setText(str(assess_color_balance))
 
     def set_a_label(self, a: str):
-        print(a)
-        self._a_lbl.setText(a)
+        a_str = str(a)
+        self._a_lbl.setText(a_str)
 
     def set_t_label(self, t: str):
-        self._t_lbl.setText(t)
+        t_str = str(t)
+        self._t_lbl.setText(t_str)
 
     def set_g_label(self, g: str):
-        self._g_lbl.setText(g)
+        g_str = str(g)
+        self._g_lbl.setText(g_str)
 
     def set_c_label(self, c: str):
-        self._c_lbl.setText(c)
+        c_str = str(c)
+        self._c_lbl.setText(c_str)
 
     def set_current_index1_minlen_label(self, current_index1_minlen: str):
         self._current_index1_minlen_lbl.setText(current_index1_minlen)
