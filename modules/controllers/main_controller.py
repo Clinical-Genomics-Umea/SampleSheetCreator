@@ -19,7 +19,7 @@ from modules.models.validation.compatibility_tester import CompatibilityTester
 from modules.models.validation.dataset.dataset_validator import DataSetValidator
 from modules.models.validation.index_distance.index_distance_matrix_generator import IndexDistanceValidator
 from modules.models.validation.main_validator import MainValidator
-from modules.models.validation.prevalidator.prevalidator import PreValidator
+from modules.models.validation.prevalidation.prevalidator import PreValidator
 from modules.models.worksheet.import_worksheet import WorkSheetImporter
 from modules.views.config.configuration_widget import ConfigurationWidget
 from modules.views.export.export import ExportWidget
@@ -30,7 +30,7 @@ from modules.views.drawer_tools.lane.lane import LanesWidget
 from modules.views.drawer_tools.override.override import OverrideCyclesWidget
 from modules.views.drawer_tools.run_setup.run_setup import RunSetupWidget
 from modules.views.log.log_widget import LogWidget
-from modules.views.run.run_info_view import RunInfoView
+from modules.views.run_info.run_info_view import RunInfoView
 from modules.views.sample.sample_view import SamplesWidget
 from modules.views.statusbar.status import StatusBar
 from modules.views.main_window import MainWindow
@@ -100,7 +100,7 @@ class MainController(QObject):
             self._sample_model,
             self._configuration_manager,
             self._application_manager,
-            self._dataset_manager,
+            self._state_model,
             self._prevalidation_widget,
             self._logger
         )
@@ -242,8 +242,9 @@ class MainController(QObject):
         self._state_model.sample_index2_maxlen_changed.connect(self._run_info_view.set_current_index2_minlen_label)
         self._state_model.sample_index1_minlen_changed.connect(self._run_info_view.set_current_index1_maxlen_label)
         self._state_model.sample_index2_minlen_changed.connect(self._run_info_view. set_current_index2_maxlen_label)
+        # self._state_model.runinfo_changed.connect(self._toolbar.set_run_info_label)
 
-        self._state_model.freeze_state_changed.connect(self._toolbar.set_export_action_state)
+        self._state_model.run_info_complete.connect(self._toolbar.enable_sample_data_actions)
 
     def _connect_application_signal(self):
         self._applications_container_widget.add_application_profile_data.connect(

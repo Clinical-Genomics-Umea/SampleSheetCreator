@@ -268,17 +268,17 @@ class RunInfoView(QGroupBox):
         c_str = str(c)
         self._c_lbl.setText(c_str)
 
-    def set_current_index1_minlen_label(self, current_index1_minlen: str):
-        self._current_index1_minlen_lbl.setText(current_index1_minlen)
+    def set_current_index1_minlen_label(self, current_index1_minlen: int):
+        self._current_index1_minlen_lbl.setText(str(current_index1_minlen))
 
-    def set_current_index1_maxlen_label(self, current_index1_maxlen: str):
-        self._current_index1_maxlen_lbl.setText(current_index1_maxlen)
+    def set_current_index1_maxlen_label(self, current_index1_maxlen: int):
+        self._current_index1_maxlen_lbl.setText(str(current_index1_maxlen))
 
-    def set_current_index2_minlen_label(self, current_index2_minlen: str):
-        self._current_index2_minlen_lbl.setText(current_index2_minlen)
+    def set_current_index2_minlen_label(self, current_index2_minlen: int):
+        self._current_index2_minlen_lbl.setText(str(current_index2_minlen))
 
-    def set_current_index2_maxlen_label(self, current_index2_maxlen: str):
-        self._current_index2_maxlen_lbl.setText(current_index2_maxlen)
+    def set_current_index2_maxlen_label(self, current_index2_maxlen: int):
+        self._current_index2_maxlen_lbl.setText(str(current_index2_maxlen))
 
     def set_bcl2fastq_ss_i5_orient_label(self, bcl2fastq: str):
         self._bcl2fastq_ss_i5_orient_lbl.setText(bcl2fastq)

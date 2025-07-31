@@ -58,7 +58,7 @@ def header_to_index_map(model: QSortFilterProxyModel) -> dict:
     return header_index_map
 
 
-def explode_lane_column(dataframe: pd.DataFrame) -> pd.DataFrame:
+def explode_df_lane_column(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
     Explode a list-like column into separate rows.
 

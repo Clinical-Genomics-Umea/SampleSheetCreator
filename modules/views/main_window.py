@@ -20,7 +20,7 @@ from modules.views.drawer_tools.lane.lane import LanesWidget
 from modules.views.drawer_tools.override.override import OverrideCyclesWidget
 from modules.views.drawer_tools.application.application_container import ApplicationContainerWidget
 from modules.views.log.log_widget import LogWidget
-from modules.views.run.run_info_view import RunInfoView
+from modules.views.run_info.run_info_view import RunInfoView
 from modules.views.drawer_tools.run_setup.run_setup import RunSetupWidget
 from modules.views.export.export import ExportWidget
 from modules.views.validation.main_validation_widget import (
@@ -33,7 +33,7 @@ import qtawesome as qta
 
 sys.argv += ["-platform", "windows:darkmode=2"]
 __author__ = "Pär Larsson"
-__version__ = "2.0.0.a2"
+__version__ = "2.0.0.a3"
 
 # os.environ['QT_API'] = 'pyside6'
 
@@ -229,46 +229,3 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return self.drawer_override
         elif action_id == "lane":
             return self.drawer_lane
-
-    # def _setup_left_toolbar_actions(self):
-    #     """Set up the tool actions for the application."""
-    #
-    #     self.left_toolBar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    #     self.left_toolBar.setFixedWidth(50)
-    #
-    #     actions = [
-    #         (self.file_action, "msc.files", "file", "file"),
-    #         (self.run_action, "msc.symbol-misc", "run", "run"),
-    #         (self.indexes_action, "mdi6.barcode", "indexes", "index"),
-    #         (self.apps_action, "msc.symbol-method", "apps", "apps"),
-    #         (self.override_action, "msc.sync", "override", "o-ride "),
-    #         (self.lane_action, "mdi6.road", "lane", "lane"),
-    #         (self.validate_action, "msc.check-all", "validate", "valid"),
-    #         (self.export_action, "msc.coffee", "export", "export"),
-    #         (self.settings_action, "msc.settings-gear", "config", "config"),
-    #     ]
-    #
-    #     spacer = QWidget()
-    #     spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-    #
-    #     action_group = QActionGroup(self)
-    #     action_group.setExclusionPolicy(QActionGroup.ExclusionPolicy.ExclusiveOptional)
-    #
-    #     for action, action_icon, action_id, action_name in actions:
-    #         action.setCheckable(True)
-    #         action.setChecked(False)
-    #         action.setText(action_name)
-    #         action.setData(action_id)
-    #         action.setIcon(qta.icon(action_icon, options=[{"draw": "image"}]))
-    #         action_group.addAction(action)
-    #
-    #     self.left_toolBar.addAction(action_group.actions()[0])
-    #     self.left_toolBar.addAction(action_group.actions()[1])
-    #     self.left_toolBar.addAction(action_group.actions()[2])
-    #     self.left_toolBar.addAction(action_group.actions()[3])
-    #     self.left_toolBar.addAction(action_group.actions()[4])
-    #     self.left_toolBar.addAction(action_group.actions()[5])
-    #     self.left_toolBar.addAction(action_group.actions()[6])
-    #     self.left_toolBar.addAction(action_group.actions()[7])
-    #     self.left_toolBar.addWidget(spacer)
-    #     self.left_toolBar.addAction(action_group.actions()[8])

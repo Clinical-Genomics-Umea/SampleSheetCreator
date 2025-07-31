@@ -9,6 +9,8 @@ from modules.models.application.application_manager import ApplicationManager
 from modules.models.configuration.configuration_manager import ConfigurationManager
 from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.sample.sample_model import SampleModel
+from modules.models.state.state_model import StateModel
+from modules.utils.utils import explode_df_lane_column
 from modules.views.validation.prevalidation_widget import PreValidationWidget
 
 
@@ -27,7 +29,7 @@ class PreValidator(QObject):
         sample_model: SampleModel,
         configuration_manager: ConfigurationManager,
         application_manager: ApplicationManager,
-        dataset_manager: DataSetManager,
+        state_model: StateModel,
         prevalidation_widget: PreValidationWidget,
         logger: Logger,
     ):
@@ -35,7 +37,7 @@ class PreValidator(QObject):
         self._sample_model = sample_model
         self._configuration_manager = configuration_manager
         self._application_manager = application_manager
-        self._dataset_manager = dataset_manager
+        self._state_model = state_model
         self._logger = logger
 
         self._prevalidation_widget = prevalidation_widget
@@ -56,8 +58,7 @@ class PreValidator(QObject):
 
     def validate(self):
         """Run comprehensive validations on the dataset"""
-        self.dataframe = self._dataset_manager.sample_dataframe_lane_explode()
-        self.rundata = self._dataset_manager.rundata
+        self.dataframe = self._state_model.sample_df
 
         validators = [
             self.rundata_is_set,
@@ -84,7 +85,7 @@ class PreValidator(QObject):
 
     def rundata_is_set(self) -> PreValidationResult:
         """Validate if run data is set"""
-        if not self._dataset_manager.has_rundata:
+        if not self._state_model.has_run_info:
             return PreValidationResult(
                 name="Run data set validator",
                 status=False,
@@ -92,13 +93,14 @@ class PreValidator(QObject):
             )
         return PreValidationResult(name="Run data set validator", status=True)
 
+
     def required_cols_populated(self) -> PreValidationResult:
         """Validate that required columns are populated"""
         required_columns = self._configuration_manager.required_sample_fields
-        dataframe = self._dataset_manager.sample_dataframe_lane_explode()
+        df = self._state_model.sample_df
 
         missing_columns = [
-            column for column in required_columns if dataframe[column].isnull().any()
+            column for column in required_columns if df[column].isnull().any()
         ]
 
         if missing_columns:
@@ -205,7 +207,7 @@ class PreValidator(QObject):
 
     def allowed_lanes_validation(self) -> PreValidationResult:
         """Validate used lanes are within allowed lanes"""
-        allowed_lanes = set(self.rundata["Lanes"])
+        allowed_lanes = set(self._state_model.lanes)
         used_lanes = set(self.dataframe["Lane"])
 
         disallowed_lanes = used_lanes.difference(allowed_lanes)

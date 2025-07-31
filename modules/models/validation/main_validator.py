@@ -8,7 +8,7 @@ from modules.models.validation.dataset.dataset_validator import DataSetValidator
 from modules.models.validation.index_distance.index_distance_matrix_generator import (
     IndexDistanceValidator,
 )
-from modules.models.validation.prevalidator.prevalidator import PreValidator
+from modules.models.validation.prevalidation.prevalidator import PreValidator
 
 
 class MainValidator(QObject):

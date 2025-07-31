@@ -163,20 +163,6 @@ class RunSetupWidget(QWidget):
         template = self._read_cycles_cb.currentText()  # self.input_widgets["ReadCycles"].currentText()
         self._custom_read_cycles_le.setValidator(PatternValidator(template))
 
-    # @staticmethod
-    # def _validate_readcycles(index_maxlens, data):
-    #     read_cycles = map(int, data["ReadCycles"].split("-"))
-    #
-    #     for i, value in enumerate(read_cycles):
-    #         if i == 1:
-    #             if index_maxlens["IndexI7_maxlen"] > value:
-    #                 return False
-    #         if i == 2:
-    #             if index_maxlens["IndexI5_maxlen"] > value:
-    #                 return False
-    #
-    #     return True
-
     def _commit(self):
         """Commit the data from the input widgets."""
 
@@ -196,16 +182,6 @@ class RunSetupWidget(QWidget):
         self._state_model.set_index2_cycles(int(index2_cycles))
 
         self._state_model.set_lookup_data()
-
-        # self._investigator_cb = QComboBox()  # Investigator: combobox
-        # self._run_name_le = QLineEdit()  # RunName: lineedit
-        # self._run_description_le = QLineEdit()  # RunDescription: lineedit
-        # self._instrument_cb = QComboBox()  # Instrument: combobox
-        # self._flowcell_cb = QComboBox()  # Flowcell: combobox
-        # self._reagent_kit_cb = QComboBox()  # ReagentKit: combobox
-        # self._read_cycles_cb = QComboBox()  # ReadCycles: combobox
-        # self._custom_read_cycles_le = QLineEdit()
-
 
     @staticmethod
     def extract_data(widget):

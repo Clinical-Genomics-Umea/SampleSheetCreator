@@ -92,7 +92,7 @@ class StateModel(QObject):
 
         self._dragen_app_version = None
 
-        self._has_rundata = False
+        self._has_run_info = False
 
     @staticmethod
     def _current_date_as_string():
@@ -143,88 +143,110 @@ class StateModel(QObject):
     def _test_runinfo_complete(self):
         if not self._date:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._investigator:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._run_name:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._run_description:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._lanes:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._instrument:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._flowcell:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._reagent_kit:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._chemistry:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._read1_cycles:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._index1_cycles:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._index2_cycles:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._read2_cycles:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._i5_seq_orientation:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._i5_samplesheet_orientation_bcl2fastq:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._i5_samplesheet_orientation_bclconvert:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._color_a:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._color_t:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._color_g:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._color_c:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
         if not self._assess_color_balance:
             self.run_info_complete.emit(False)
+            self._has_run_info = False
             return
 
+        self._has_run_info = True
         self.run_info_complete.emit(True)
 
     @staticmethod
@@ -236,10 +258,7 @@ class StateModel(QObject):
             return 0, 0
         return lengths.min(), lengths.max()
 
-
     def update_index_lengths(self):
-        df = self._sample_model.to_dataframe()
-
         """Update the minimum and maximum lengths of index sequences from the sample model."""
         df = self._sample_model.to_dataframe()
 
@@ -539,6 +558,10 @@ class StateModel(QObject):
         self.unfreeze()
 
     @property
+    def sample_df(self) -> pd.DataFrame:
+        return self._sample_model.to_dataframe()
+
+    @property
     def sample_index1_maxlen(self) -> int:
         return self._sample_index1_maxlen
 
@@ -565,3 +588,7 @@ class StateModel(QObject):
     @property
     def frozen(self) -> bool:
         return self._frozen
+
+    @property
+    def has_run_info(self) -> bool:
+        return self._has_run_info

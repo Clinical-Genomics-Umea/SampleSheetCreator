@@ -97,10 +97,18 @@ class ToolBar(QToolBar):
 
         self.export_action.setEnabled(state)
 
-    def on_rundata_set(self):
+    def enable_sample_data_actions(self):
 
         self.indexes_action.setEnabled(True)
         self.lane_action.setEnabled(True)
         self.apps_action.setEnabled(True)
         self.override_action.setEnabled(True)
         self.validate_action.setEnabled(True)
+
+    def disable_sample_data_actions(self):
+        self.indexes_action.setEnabled(False)
+        self.lane_action.setEnabled(False)
+        self.apps_action.setEnabled(False)
+        self.override_action.setEnabled(False)
+        self.validate_action.setEnabled(False)
+
