@@ -356,12 +356,11 @@ class StateModel(QObject):
         color_g = self._instrument_data[instrument]["Fluorophores"]["G"]
         color_c = self._instrument_data[instrument]["Fluorophores"]["C"]
 
-
-        self.set_lanes(lanes)
-        self.set_chemistry(chemistry)
-        self.set_i5_seq_orientation(i5_seq_orientation)
-        self.set_i5_samplesheet_orientation_bcl2fastq(i5_samplesheet_orientation_bcl2fastq)
-        self.set_i5_samplesheet_orientation_bclconvert(i5_samplesheet_orientation_bclconvert)
+        self.lanes(lanes)
+        self.chemistry(chemistry)
+        self.i5_seq_orientation(i5_seq_orientation)
+        self.i5_samplesheet_orientation_bcl2fastq(i5_samplesheet_orientation_bcl2fastq)
+        self.i5_samplesheet_orientation_bclconvert(i5_samplesheet_orientation_bclconvert)
         self.set_assess_color_balance(assess_color_balance)
 
         self.set_date(self._current_date_as_string())
@@ -442,44 +441,64 @@ class StateModel(QObject):
         self.sample_index2_maxlen_changed.emit(self._run_info.sample_index2_maxlen)
 
 
-    def set_assess_color_balance(self, assess_color_balance: bool):
+    def assess_color_balance(self):
+        return self._run_info.assess_color_balance
 
-        print(assess_color_balance)
+    @assess_color_balance.setter
+    def assess_color_balance(self, assess_color_balance: bool):
 
-        if self._assess_color_balance == assess_color_balance:
+        if self._run_info.assess_color_balance == assess_color_balance:
             return
 
-        self._assess_color_balance = assess_color_balance
+        self._run_info.assess_color_balance = assess_color_balance
         self.assess_color_balance_changed.emit(assess_color_balance)
 
+    @property
+    def color_a(self):
+        return self._run_info.color_a
 
-    def set_color_a(self, color_a: object):
+    @color_a.setter
+    def color_a(self, color_a: object):
 
-        if self._color_t == color_a:
+        if self._run_info.color_t == color_a:
             return
 
-        self._color_a = color_a
+        self._run_info.color_a = color_a
         self.color_a_changed.emit(color_a)
 
-    def set_color_t(self, color_t: object):
-        if self._color_t == color_t:
+    def color_t(self):
+        return self._run_info.color_t
+
+    @color_t.setter
+    def color_t(self, color_t: object):
+        if self._run_info.color_t == color_t:
             return
 
-        self._color_t = color_t
+        self._run_info.color_t = color_t
         self.color_t_changed.emit(color_t)
 
-    def set_color_g(self, color_g: object):
-        if self._color_g == color_g:
+    @property
+    def color_g(self):
+        return self._run_info.color_g
+
+    @color_g.setter
+    def color_g(self, color_g: object):
+        if self._run_info.color_g == color_g:
             return
 
-        self._color_g = color_g
+        self._run_info.color_g = color_g
         self.color_g_changed.emit(color_g)
 
-    def set_color_c(self, color_c: object):
-        if self._color_c == color_c:
+    @property
+    def color_c(self):
+        return self._run_info.color_c
+
+    @color_c.setter
+    def color_c(self, color_c: object):
+        if self._run_info.color_c == color_c:
             return
 
-        self._color_c = color_c
+        self._run_info.color_c = color_c
         self.color_c_changed.emit(color_c)
 
     @property
