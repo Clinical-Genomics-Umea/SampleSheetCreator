@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QCheckBox,
 )
 
-from modules.models.dataset.dataset_manager import DataSetManager
+from modules.models.state.state_model import StateModel
 from modules.views.ui_components import HorizontalLine
 
 
@@ -17,11 +17,11 @@ class LanesWidget(QWidget):
 
     lanes_ready = Signal(list)
 
-    def __init__(self, dataset_manager: DataSetManager):
+    def __init__(self, state_model: StateModel):
         super().__init__()
         self.setContentsMargins(0, 0, 0, 0)
 
-        self.dataset_mgr = dataset_manager
+        self._state_model = state_model
 
         profiles_label = QLabel("Lanes")
         profiles_label.setStyleSheet("font-weight: bold")
@@ -74,7 +74,7 @@ class LanesWidget(QWidget):
         self.clear_form()
         self.lanes_checkboxes = {}
 
-        lanes = self.dataset_mgr.run_lanes
+        lanes = self._state_model.lanes
         self.checkboxes_layout.addRow("Lane designation", QLabel("Usage"))
         for lane in lanes:
             checkbox = QCheckBox()

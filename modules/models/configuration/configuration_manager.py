@@ -38,7 +38,7 @@ class ConfigurationManager(QObject):
         self._validation_settings_path = Path("config/validation/validation_settings.yaml")
         self._samplesheet_v1_template_path = Path("config/samplesheet_v1.yaml")
 
-        self._index_schema_root = Path("schemas/index")
+        self._index_schema_root = Path("json_schemas/index")
 
         self._instruments_flowcell_obj = read_yaml_file(self._instrument_data_path)
 

@@ -382,3 +382,62 @@ Init done!
 config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
 config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
 Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json does not have a schema
+config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json does not have a schema
+Init done!
+Init done!
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!

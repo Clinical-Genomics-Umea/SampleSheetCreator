@@ -145,7 +145,7 @@ class MainController(QObject):
                                                        self._main_validator)
 
         self._override_widget = OverrideCyclesWidget(self._override_cycles_model)
-        self._lane_widget = LanesWidget(self._dataset_manager)
+        self._lane_widget = LanesWidget(self._state_model)
         self._file_widget = FileView()
         self._samples_widget = SamplesWidget(self._configuration_manager.samples_settings)
         self._run_setup_widget = RunSetupWidget(self._configuration_manager, self._state_model)
