@@ -1,5 +1,8 @@
 from logging import Logger
 from datetime import datetime
+from typing import Tuple
+
+import pandas as pd
 from PySide6.QtCore import QObject, Signal, Slot
 
 from modules.models.configuration.configuration_manager import ConfigurationManager
@@ -223,6 +226,38 @@ class StateModel(QObject):
             return
 
         self.run_info_complete.emit(True)
+
+    @staticmethod
+    def _get_str_lengths_in_df_col(pandas_col: pd.Series) -> Tuple[int, int]:
+
+        # Filter out empty/None values and get string lengths
+        lengths = pandas_col.dropna().astype(str).str.len()
+        if len(lengths) == 0:
+            return 0, 0
+        return lengths.min(), lengths.max()
+
+
+    def update_index_lengths(self):
+        df = self._sample_model.to_dataframe()
+
+        """Update the minimum and maximum lengths of index sequences from the sample model."""
+        df = self._sample_model.to_dataframe()
+
+        # Get lengths for both index columns
+        i7_min, i7_max = self._get_str_lengths_in_df_col(df["IndexI7"])
+        i5_min, i5_max = self._get_str_lengths_in_df_col(df["IndexI5"])
+
+        # Update the state model
+        self._sample_index1_minlen = int(i7_min)
+        self._sample_index1_maxlen = int(i7_max)
+        self._sample_index2_minlen = int(i5_min)
+        self._sample_index2_maxlen = int(i5_max)
+
+        # Emit signals for any UI updates
+        self.sample_index1_minlen_changed.emit(self._sample_index1_minlen)
+        self.sample_index1_maxlen_changed.emit(self._sample_index1_maxlen)
+        self.sample_index2_minlen_changed.emit(self._sample_index2_minlen)
+        self.sample_index2_maxlen_changed.emit(self._sample_index2_maxlen)
 
 
     def set_assess_color_balance(self, assess_color_balance: bool):

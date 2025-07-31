@@ -205,7 +205,12 @@ class MainController(QObject):
         self._connect_toolbar_signal()
         # self._connect_run_signals()
         self._connect_datastate_signals()
-        self._connect_state_model_signals()
+        # self._connect_state_model_signals()
+
+        self._connect_sample_model_signals()
+
+    def _connect_sample_model_signals(self):
+        self._sample_model.dataChanged.connect(self._state_model.update_index_lengths)
 
     def _connect_datastate_signals(self):
         self._state_model.freeze_state_changed.connect(
@@ -237,6 +242,8 @@ class MainController(QObject):
         self._state_model.sample_index2_maxlen_changed.connect(self._run_info_view.set_current_index2_minlen_label)
         self._state_model.sample_index1_minlen_changed.connect(self._run_info_view.set_current_index1_maxlen_label)
         self._state_model.sample_index2_minlen_changed.connect(self._run_info_view. set_current_index2_maxlen_label)
+
+        self._state_model.freeze_state_changed.connect(self._toolbar.set_export_action_state)
 
     def _connect_application_signal(self):
         self._applications_container_widget.add_application_profile_data.connect(
@@ -285,11 +292,6 @@ class MainController(QObject):
         self._main_validator.prevalidation_success.connect(
             self._state_model.freeze
         )
-
-    def _connect_state_model_signals(self):
-        self._state_model.freeze_state_changed.connect(self._toolbar.set_export_action_state)
-        self._rundata_model.index_lens_ready.connect(self._state_model.set_runcycles_index_data)
-        self._sample_model.index_minmax_ready.connect(self._state_model.set_sample_index_len_minmax)
 
     def _connect_override_pattern_signals(self):
         self._samples_widget.sample_view.override_patterns_ready.connect(
