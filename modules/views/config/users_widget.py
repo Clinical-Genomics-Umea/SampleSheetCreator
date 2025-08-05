@@ -15,9 +15,9 @@ from modules.models.configuration.configuration_manager import ConfigurationMana
 
 
 class UsersWidget(QWidget):
-    def __init__(self, cfg_mgr: ConfigurationManager):
+    def __init__(self, configuration_manager: ConfigurationManager):
         super().__init__()
-        self.cfg_mgr = cfg_mgr
+        self._configuration_manager = configuration_manager
 
         self.setFixedSize(500, 300)
 
@@ -58,7 +58,7 @@ class UsersWidget(QWidget):
         self._setup()
 
     def _setup(self):
-        users = self.cfg_mgr.users
+        users = self._configuration_manager.users
         self.user_list_widget.clear()
         for user in users:
             self.user_list_widget.addItem(user)
@@ -67,11 +67,11 @@ class UsersWidget(QWidget):
     def add_user(self):
         user = self.user_input_field.text().strip()
         if user:
-            self.cfg_mgr.add_user(user)
+            self._configuration_manager.add_user(user)
             self._setup()
 
     @Slot()
     def _remove_user(self):
         user = self.user_list_widget.currentItem().text()
-        self.cfg_mgr.remove_user(user)
+        self._configuration_manager.remove_user(user)
         self._setup()

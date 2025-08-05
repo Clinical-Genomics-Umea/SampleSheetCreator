@@ -6,6 +6,8 @@ from PySide6.QtCore import QObject, Signal
 
 from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.sample.sample_model import SampleModel
+from modules.models.state.state_model import StateModel
+from modules.utils.utils import explode_df_lane_column
 from modules.views.validation.color_balance_widget import ColorBalanceValidationWidget
 
 
@@ -13,24 +15,22 @@ class ColorBalanceValidator(QObject):
 
     def __init__(
         self,
-        sample_model: SampleModel,
-        dataset_manager: DataSetManager,
+        state_model: StateModel,
         color_balance_widget: ColorBalanceValidationWidget,
         logger: Logger
     ):
         super().__init__()
 
-        self._sample_model = sample_model
-        self._dataset_manager = dataset_manager
+        self._state_model = state_model
         self._color_balance_widget = color_balance_widget
         self._logger = logger
 
 
     def validate(self):
-        i5_orientation = self._dataset_manager.i5_seq_orientation
+        i5_orientation = self._state_model.i5_seq_orientation
         i5_seq_rc = i5_orientation == "rc"
 
-        df = self._dataset_manager.sample_dataframe_lane_explode()
+        df = explode_df_lane_column(self._state_model.sample_df)
 
         if df.empty:
             return

@@ -93,8 +93,6 @@ class ToolBar(QToolBar):
 
     @Slot(bool)
     def set_export_action_state(self, state: bool = True):
-        print(state)
-
         self.export_action.setEnabled(state)
 
     def enable_sample_data_actions(self):

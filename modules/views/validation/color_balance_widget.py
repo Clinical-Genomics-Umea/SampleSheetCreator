@@ -1,13 +1,15 @@
 from PySide6.QtWidgets import QTabWidget, QVBoxLayout, QSizePolicy, QScrollArea, QFrame
+
+from modules.models.state.state_model import StateModel
 from modules.views.validation.color_balance_lane_widget import ColorBalanceLaneWidget
 
 
 class ColorBalanceValidationWidget(QTabWidget):
 
-    def __init__(self, dataset_manager):
+    def __init__(self, state_model: StateModel):
         super().__init__()
 
-        self._dataset_manager = dataset_manager
+        self._state_model = state_model
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QVBoxLayout()
@@ -32,7 +34,7 @@ class ColorBalanceValidationWidget(QTabWidget):
             tab_scroll_area.setFrameShape(QFrame.NoFrame)
 
             color_balance_table = ColorBalanceLaneWidget(
-                results[lane], self._dataset_manager.base_colors
+                results[lane], self._state_model.base_colors
             )
 
             self.addTab(color_balance_table, f"lane {lane}")

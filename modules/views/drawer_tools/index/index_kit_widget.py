@@ -1,154 +1,36 @@
-import pandas as pd
+from PySide6.QtWidgets import QWidget, QHBoxLayout
 
-
-from PySide6.QtWidgets import (
-    QVBoxLayout,
-    QWidget,
-    QLineEdit,
-    QTableView,
-    QHeaderView,
-    QHBoxLayout,
-    QSizePolicy,
-    QSpacerItem,
-    QAbstractItemView, QStyleOptionHeader, QStyle, QStyledItemDelegate,
-)
-
-from PySide6.QtCore import QSortFilterProxyModel, Qt, QModelIndex
-
-from modules.models.indexes.index_kit_table_model import IndexKitTableModel
-
-
-def create_chained_sfproxies(model_names: list) -> dict:
-    """
-    Creates chained QSortFilterProxyModels from a list, where each model is chained to the next one.
-
-    Args:
-        model_names (list): The list of models to be chained.
-
-    Returns:
-        dict: A dictionary mapping each model to its chained QSortFilterProxyModel.
-
-    """
-
-    chained_models = {}
-
-    for i in range(len(model_names)):
-        model_name = model_names[i]
-        chained_models[model_name] = QSortFilterProxyModel()
-        chained_models[model_name].setFilterKeyColumn(i)
-
-        if i > 0:
-            chained_keys = list(chained_models.keys())
-            previous_model_name = chained_keys[i - 1]
-            chained_models[model_name].setSourceModel(
-                chained_models[previous_model_name]
-            )
-
-    return chained_models
+from modules.models.indexes.index_kit_model import IndexKitModel
+from modules.views.drawer_tools.index.index_table_column_widget import SingleIndexWidget
 
 
 class IndexKitWidget(QWidget):
-    def __init__(self, index_df: pd.DataFrame) -> None:
-
+    def __init__(self, index_kit_dataset: dict) -> None:
         super().__init__()
 
-        self.index_df = index_df
-
-        self.shown_fields = self.get_shown_fields()
-
-        self.sfproxy = {field: QSortFilterProxyModel() for field in self.shown_fields}
-
-        # create filter lineedits
-
-        self.filter_editlines_layout = QHBoxLayout()
-        self.filter_editlines = {field: QLineEdit() for field in self.shown_fields}
-
-        # Add lineedits to filter layout
-        for field, editline in self.filter_editlines.items():
-            editline.setObjectName(field)
-            self.filter_editlines_layout.addWidget(editline)
-
-        self.filter_editlines_layout.addItem(
-            QSpacerItem(16, 16, QSizePolicy.Fixed, QSizePolicy.Fixed)
-        )
-
-        # setup main layout
-        self.layout = QVBoxLayout()
+        self.layout = QHBoxLayout()
         self.layout.setSpacing(5)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.addLayout(self.filter_editlines_layout)
-
-        # create model and chained proxies
-
-        self.model = IndexKitTableModel(self.index_df)
-
-        self.chained_proxies = create_chained_sfproxies(self.shown_fields)
-
-        # setup tableview
-
-        self.tableview = QTableView()
-
-        self.tableview.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        # self.tableview.verticalHeader().hide()
-        self.tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableview.setDragEnabled(True)
-        self.tableview.setDragDropMode(QAbstractItemView.DragOnly)
-        self.tableview.setSelectionBehavior(QAbstractItemView.SelectRows)
-
-        # link tableview to model via chained proxies
-        self.chained_proxies[self.shown_fields[0]].setSourceModel(self.model)
-        self.tableview.setModel(self.chained_proxies[self.shown_fields[-1]])
-
-        self.set_shown_columns()
-
-        self.layout.addWidget(self.tableview)
         self.setLayout(self.layout)
-
-        for editline in self.filter_editlines.values():
-            editline.textChanged.connect(self.filter)
-
-    def get_shown_fields(self):
-
-        possible_fields = ["IndexI7Name", "IndexI5Name", "Pos"]
-
-        shown_fields = [f for f in self.index_df.columns if f in possible_fields]
-
-        return shown_fields
-
-    def set_shown_columns(self):
-        """
-        Hides columns in a QTableView that have names not present in the list of fields.
-
-        Args:
-            table_view (QTableView): The QTableView object.
-            shown_fields (list): The list of field names to be checked against.
-
-        """
-        model = self.tableview.model()
-        header = self.tableview.horizontalHeader()
-
-        for column in range(model.columnCount()):
-            header_item = header.model().headerData(
-                column, Qt.Horizontal, Qt.DisplayRole
-            )
-
-            if header_item not in self.shown_fields:
-                self.tableview.setColumnHidden(column, True)
-            else:
-                self.tableview.setColumnHidden(column, False)
-
-    def filter(self, filter_text):
-        """
-        Filters the data based on the given filter text.
-        Parameters:
-            filter_text (str): The text to filter the data with.
-        Returns:
-            None
-        """
-        sender = self.sender()
-        name = sender.objectName()
-
-        self.chained_proxies[name].setFilterFixedString(filter_text)
+        self._index_i7_len = index_kit_dataset.get("IndexI7Len")
+        self._index_i5_len = index_kit_dataset.get("IndexI5Len")
+        self._name = index_kit_dataset.get("IndexKitName")
+        self._type = index_kit_dataset.get("Type")
+        self._layout = index_kit_dataset.get("Layout")
 
 
+        for index_set_name, index_set in index_kit_dataset["IndexSets"].items():
+            index_widget = SingleIndexWidget(index_set_name, index_set)
+            self.layout.addWidget(index_widget)
 
+    @property
+    def index_i7_len(self):
+        return self._index_i7_len
+
+    @property
+    def index_i5_len(self):
+        return self._index_i5_len
+
+    @property
+    def name(self):
+        return self._name

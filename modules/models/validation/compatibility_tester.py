@@ -14,10 +14,9 @@ class CompatibilityTester(QObject):
     index_drop_ok = Signal(object)
     override_pat_ok = Signal(object)
 
-    def __init__(self, state_model: StateModel, dataset_manager: DataSetManager, logger: Logger):
+    def __init__(self, state_model: StateModel, logger: Logger):
         super().__init__()
         self._logger = logger
-        self._dataset_manager = dataset_manager
         self._state_model = state_model
 
         self._oc_validate_pattern = {

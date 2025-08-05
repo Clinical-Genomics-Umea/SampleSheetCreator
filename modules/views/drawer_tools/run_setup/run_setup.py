@@ -53,7 +53,7 @@ class RunSetupWidget(QWidget):
         self.setLayout(layout)
         layout.addLayout(self._form)
 
-        self._populate_investigators()
+        self.populate_investigators()
         self._populate_instruments()
         self._populate_flowcells()
         self._populate_reagent_kits()
@@ -153,8 +153,9 @@ class RunSetupWidget(QWidget):
         self._custom_read_cycles_le.setValidator(PatternValidator(template))  # self.input_widgets["CustomReadCycles"].setValidator(PatternValidator(template))
 
     @Slot()
-    def _populate_investigators(self):
+    def populate_investigators(self):
         users = self._configuration_manager.users
+
         self._investigator_cb.clear()
         self._investigator_cb.addItems(users)
 
@@ -166,20 +167,17 @@ class RunSetupWidget(QWidget):
     def _commit(self):
         """Commit the data from the input widgets."""
 
-        self._state_model.set_investigator(self._investigator_cb.currentText())
-        self._state_model.set_run_name(self._run_name_le.text())
-        self._state_model.set_run_description(self._run_description_le.text())
-        self._state_model.set_instrument(self._instrument_cb.currentText())
-        self._state_model.set_flowcell(self._flowcell_cb.currentText())
-        self._state_model.set_reagent_kit(self._reagent_kit_cb.currentText())
+        self._state_model.investigator = self._investigator_cb.currentText()
+        self._state_model.run_name = self._run_name_le.text()
+        self._state_model.run_description = self._run_description_le.text()
+        self._state_model.instrument = self._instrument_cb.currentText()
+        self._state_model.flowcell = self._flowcell_cb.currentText()
+        self._state_model.reagent_kit = self._reagent_kit_cb.currentText()
 
         read_cycles = self._read_cycles_cb.currentText()
         read1_cycles, index1_cycles, index2_cycles, read2_cycles = read_cycles.split("-")
 
-        self._state_model.set_read1_cycles(int(read1_cycles))
-        self._state_model.set_read2_cycles(int(read2_cycles))
-        self._state_model.set_index1_cycles(int(index1_cycles))
-        self._state_model.set_index2_cycles(int(index2_cycles))
+        self._state_model.run_cycles = (int(read1_cycles), int(index1_cycles), int(index2_cycles), int(read1_cycles))
 
         self._state_model.set_lookup_data()
 
@@ -191,16 +189,16 @@ class RunSetupWidget(QWidget):
         elif isinstance(widget, QLineEdit):
             return widget.text()
 
-    def _validate_read_cycles(self, data):
-        """Validate the readcycles field."""
-        read_cycles = list(map(int, data["ReadCycles"].split("-")))
-        index_maxlens = self.dataset_mgr.index_maxlens()
-
-        for i, value in enumerate(read_cycles):
-            if index_maxlens is not None:
-                if i == 1 and index_maxlens["IndexI7_maxlen"] > value:
-                    return False
-                if i == 2 and index_maxlens["IndexI5_maxlen"] > value:
-                    return False
-
-        return True
+    # def _validate_read_cycles(self, data):
+    #     """Validate the readcycles field."""
+    #     read_cycles = list(map(int, data["ReadCycles"].split("-")))
+    #     index_maxlens = self.dataset_mgr.index_maxlens()
+    #
+    #     for i, value in enumerate(read_cycles):
+    #         if index_maxlens is not None:
+    #             if i == 1 and index_maxlens["IndexI7_maxlen"] > value:
+    #                 return False
+    #             if i == 2 and index_maxlens["IndexI5_maxlen"] > value:
+    #                 return False
+    #
+    #     return True

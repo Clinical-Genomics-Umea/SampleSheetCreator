@@ -3,6 +3,7 @@ from logging import Logger
 from PySide6.QtCore import QObject, Signal
 
 from modules.models.dataset.dataset_manager import DataSetManager
+from modules.models.state.state_model import StateModel
 from modules.models.validation.color_balance.color_balance_validator import ColorBalanceValidator
 from modules.models.validation.dataset.dataset_validator import DataSetValidator
 from modules.models.validation.index_distance.index_distance_matrix_generator import (
@@ -22,7 +23,7 @@ class MainValidator(QObject):
                  dataset_validator: DataSetValidator,
                  index_distance_validator: IndexDistanceValidator,
                  color_balance_validator: ColorBalanceValidator,
-                 dataset_manager: DataSetManager,
+                 state_model: StateModel,
                  logger: Logger
                  ):
 
@@ -32,7 +33,7 @@ class MainValidator(QObject):
         self._dataset_validator = dataset_validator
         self._index_distance_validator = index_distance_validator
         self._color_balance_validator = color_balance_validator
-        self._dataset_manager = dataset_manager
+        self._state_model = state_model
         self._logger = logger
 
 
@@ -48,6 +49,6 @@ class MainValidator(QObject):
         self._dataset_validator.validate()
         self._index_distance_validator.generate()
         #
-        if self._dataset_manager.assess_balance:
+        if self._state_model.assess_color_balance:
             self._color_balance_validator.validate()
 

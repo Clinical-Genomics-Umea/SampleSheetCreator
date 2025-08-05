@@ -441,3 +441,2529 @@ Successfully loaded schema: UDI_fixed
 Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
 Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
 Init done!
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Failed to initialize configuration: 'instrument_data'
+Failed to initialize configuration: 'application_def'
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Failed to initialize configuration paths: name 'os' is not defined
+Unexpected error during initialization: name '_logger' is not defined
+Traceback (most recent call last):
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 21, in log_duration
+    yield
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 173, in __init__
+    self._paths = self._init_paths(config_paths or {})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 241, in _init_paths
+    if not os.access(path, os.R_OK | os.W_OK):
+           ^^
+NameError: name 'os' is not defined. Did you forget to import 'os'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 171, in __init__
+    with log_duration("configuration initialization"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pela09\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 24, in log_duration
+    log = logger or _logger
+                    ^^^^^^^
+NameError: name '_logger' is not defined. Did you mean: 'logger'?
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Unexpected error during initialization: 'NoneType' object has no attribute 'debug'
+Traceback (most recent call last):
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 31, in log_duration
+    yield
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 177, in __init__
+    self._load_configurations()
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 294, in _load_configurations
+    self._samples_settings = self._load_config_file(
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 338, in _load_config_file
+    raise ConfigError(
+modules.models.configuration.configuration_manager.ConfigError: Missing required keys in sample settings: RequiredFields
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 172, in __init__
+    with log_duration("configuration initialization"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pela09\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 35, in log_duration
+    log.debug(f"{description} completed in {elapsed:.2f} seconds")
+    ^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'debug'
+Initializing ConfigurationManager
+Unexpected error during initialization: log_duration() missing 1 required positional argument: 'logger'
+Traceback (most recent call last):
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 172, in __init__
+    with log_duration("configuration initialization"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pela09\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 301, in helper
+    return _GeneratorContextManager(func, args, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pela09\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 105, in __init__
+    self.gen = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+TypeError: log_duration() missing 1 required positional argument: 'logger'
+Initializing ConfigurationManager
+Unexpected error during initialization: log_duration() missing 1 required positional argument: 'logger'
+Traceback (most recent call last):
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 172, in __init__
+    with log_duration("configuration initialization"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pela09\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 301, in helper
+    return _GeneratorContextManager(func, args, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pela09\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 105, in __init__
+    self.gen = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+TypeError: log_duration() missing 1 required positional argument: 'logger'
+Initializing ConfigurationManager
+Unexpected error during initialization: log_duration() missing 1 required positional argument: 'logger'
+Traceback (most recent call last):
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 172, in __init__
+    with log_duration("configuration initialization"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pela09\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 301, in helper
+    return _GeneratorContextManager(func, args, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pela09\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 105, in __init__
+    self.gen = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+TypeError: log_duration() missing 1 required positional argument: 'logger'
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+configuration initialization completed in 0.01 seconds
+Unexpected error during initialization: Missing required keys in sample settings: RequiredFields
+Traceback (most recent call last):
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 177, in __init__
+    self._load_configurations()
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 294, in _load_configurations
+    self._samples_settings = self._load_config_file(
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 338, in _load_config_file
+    raise ConfigError(
+modules.models.configuration.configuration_manager.ConfigError: Missing required keys in sample settings: RequiredFields
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+configuration initialization completed in 0.01 seconds
+Unexpected error during initialization: log_duration() missing 1 required positional argument: 'logger'
+Traceback (most recent call last):
+  File "C:\Dev\PythonProjects\SampleSheetCreator\modules\models\configuration\configuration_manager.py", line 184, in __init__
+    with log_duration("loading application and method configs"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pela09\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 301, in helper
+    return _GeneratorContextManager(func, args, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pela09\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 105, in __init__
+    self.gen = func(*args, **kwds)
+               ^^^^^^^^^^^^^^^^^^^
+TypeError: log_duration() missing 1 required positional argument: 'logger'
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.01 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.04 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.01 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Added user: test
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Added user: test2
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Added user: asdf
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Added user: sdfg
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Added user: qwer
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.01 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.05 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.03 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.01 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.07 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.01 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.03 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.03 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.01 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.12 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.13 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.05 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.01 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.16 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.08 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.25 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!

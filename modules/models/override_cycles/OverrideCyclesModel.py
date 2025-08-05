@@ -12,11 +12,9 @@ class OverrideCyclesModel(QObject):
 
     def __init__(self,
                  state_model: StateModel,
-                 dataset_manager: DataSetManager,
                  logger: Logger):
         super().__init__()
         self._logger = logger
-        self._dataset_manager = dataset_manager
         self._state_model = state_model
 
         self._oc_validate_pattern = {
@@ -73,8 +71,8 @@ class OverrideCyclesModel(QObject):
     def _validate_override_len(self, oc_part_key, oc_part_string):
         nonvariable_oc_len = self._nonvariable_oc_len(oc_part_key, oc_part_string)
 
-        if self._dataset_manager.read_cycles_dict[oc_part_key] < nonvariable_oc_len:
-            self._logger.error("override cycles len validation failed for : " + oc_part_key)
+        # if self._state_model.read_cycles_dict[oc_part_key] < nonvariable_oc_len:
+        #     self._logger.error("override cycles len validation failed for : " + oc_part_key)
 
         return True
 

@@ -6,7 +6,7 @@ from PySide6.QtCore import QAbstractTableModel, Qt, QMimeData, QModelIndex, QObj
 from PySide6.QtCore import QPersistentModelIndex
 
 
-class IndexKitTableModel(QAbstractTableModel):
+class IndexTableModel(QAbstractTableModel):
     """A table model for displaying and interacting with index kit data.
     
     This model provides a Qt-compatible interface for displaying pandas DataFrames
@@ -179,5 +179,4 @@ class IndexKitTableModel(QAbstractTableModel):
             return mime_data
             
         except Exception as e:
-            print(f"Error creating MIME data: {e}")
             return None

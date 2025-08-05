@@ -110,18 +110,12 @@ class SampleModel(QStandardItemModel):
     def set_dropped_index_data(self, data):
         start_row = data["start_row"]
 
-        print(data)
-
-        print(f"set_dropped_index_data: start_row={start_row}")
-        print(f"set_dropped_index_data: decoded_data={data['decoded_data']}")
-
         self.blockSignals(True)
 
         for i, row_data in enumerate(data["decoded_data"]):
             for key, value in row_data.items():
                 if key in self.fields:
                     column = self.fields.index(key)
-                    print(f"set_dropped_index_data: setting {key} to {value} at row {i+start_row}, column {column}")
                     self.setData(self.index(start_row + i, column), value)
 
         self.blockSignals(False)

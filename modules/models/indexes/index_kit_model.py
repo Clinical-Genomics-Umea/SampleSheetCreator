@@ -8,7 +8,7 @@ import pandas as pd
 DataFrameT = TypeVar('DataFrameT', bound=pd.DataFrame)
 
 
-class IndexKit:
+class IndexKitModel:
     """A class representing an index kit with associated metadata and index sets.
     
     This class encapsulates the data and functionality related to a specific index kit,

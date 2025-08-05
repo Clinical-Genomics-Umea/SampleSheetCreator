@@ -64,7 +64,6 @@ class PreValidator(QObject):
     
     def __init__(
         self,
-        sample_model: SampleModel,
         configuration_manager: ConfigurationManager,
         application_manager: ApplicationManager,
         state_model: StateModel,
@@ -82,7 +81,6 @@ class PreValidator(QObject):
             logger: Logger instance for logging validation messages
         """
         super().__init__()
-        self._sample_model = sample_model
         self._configuration_manager = configuration_manager
         self._application_manager = application_manager
         self._state_model = state_model

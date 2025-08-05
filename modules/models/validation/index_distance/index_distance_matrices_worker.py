@@ -3,17 +3,19 @@ import pandas as pd
 from PySide6.QtCore import QObject, Signal
 
 from modules.models.dataset.dataset_manager import DataSetManager
+from modules.models.state.state_model import StateModel
+from modules.utils.utils import explode_df_lane_column
 
 
 class IndexDistanceMatricesWorker(QObject):
     results_ready = Signal(object)
     error = Signal(str)
 
-    def __init__(self, dataset_mgr: DataSetManager, i5_seq_rc: bool):
+    def __init__(self, state_model: StateModel, i5_seq_rc: bool):
         super().__init__()
-        self.dataset_mgr = dataset_mgr
-        self.df = self.dataset_mgr.sample_dataframe_lane_explode()
-        self.i5_seq_rc = i5_seq_rc
+        self._state_model = state_model
+        self._df_lane_explode = explode_df_lane_column(self._state_model.sample_df)
+        self._i5_seq_rc = i5_seq_rc
 
     def run(self):
         """
@@ -29,16 +31,16 @@ class IndexDistanceMatricesWorker(QObject):
         """
         try:
             validation_data = {}
-            for lane in self.dataset_mgr.used_lanes:
+            for lane in self._state_model.lanes:
 
-                index_lane_df = self.df[self.df["Lane"] == lane]
+                index_lane_df = self._df_lane_explode[self._df_lane_explode["Lane"] == lane]
 
                 i7_index_pos_df = self._padded_index_pos_df(
                     index_lane_df, "IndexI7", "Sample_ID"
                 )
                 i5_index_pos_df = self._padded_index_pos_df(
                     index_lane_df,
-                    "IndexI5RC" if self.i5_seq_rc else "IndexI5",
+                    "IndexI5RC" if self._i5_seq_rc else "IndexI5",
                     "Sample_ID",
                 )
 

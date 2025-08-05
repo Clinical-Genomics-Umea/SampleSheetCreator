@@ -200,6 +200,13 @@ class RunInfoView(QGroupBox):
 
                 self.run_info_data[key].setText(value)
 
+
+    def set_run_cycles_labels(self, read1_cycles: int, index1_cycles: int, index2_cycles: int, read2_cycles: int):
+        self._read1_cycles_lbl.setText(str(read1_cycles))
+        self._index1_cycles_lbl.setText(str(index1_cycles))
+        self._index2_cycles_lbl.setText(str(index2_cycles))
+        self._read2_cycles_lbl.setText(str(read2_cycles))
+
     def set_date_label(self, date: str):
         self._date_lbl.setText(date)
 

@@ -65,39 +65,26 @@ class MainController(QObject):
         self._toolbar = ToolBar()
         self._configuration_manager = ConfigurationManager(self._logger)
 
-        self._application_manager = ApplicationManager(self._configuration_manager, self._logger)
-        self._index_kit_manager = IndexKitManager(self._configuration_manager, self._logger)
-
-        self._rundata_model = RunDataModel(self._configuration_manager, self._logger)
-
         self._sample_model = SampleModel(self._configuration_manager)
         self._sample_proxy_model = CustomProxyModel()
         self._sample_proxy_model.setSourceModel(self._sample_model)
 
-        self._dataset_manager = DataSetManager(
-            self._sample_model,
-            self._application_manager,
-            self._rundata_model,
-            self._logger
-        )
-
         self._state_model = StateModel(self._sample_model, self._configuration_manager, self._logger)
+        self._index_kit_manager = IndexKitManager(self._configuration_manager, self._state_model, self._logger)
+        self._application_manager = ApplicationManager(self._configuration_manager, self._logger)
 
-        self._override_cycles_model = OverrideCyclesModel(
-            self._state_model, self._dataset_manager, self._logger
-        )
+        self._override_cycles_model = OverrideCyclesModel(self._state_model, self._logger)
 
         # validation widgets
 
         self._prevalidation_widget = PreValidationWidget()
         self._dataset_validation_widget = DataSetValidationWidget()
         self._index_distance_validation_widget = IndexDistanceValidationWidget()
-        self._color_balance_validation_widget = ColorBalanceValidationWidget(self._dataset_manager)
+        self._color_balance_validation_widget = ColorBalanceValidationWidget(self._state_model)
 
         # validation models
 
         self._prevalidator = PreValidator(
-            self._sample_model,
             self._configuration_manager,
             self._application_manager,
             self._state_model,
@@ -106,23 +93,19 @@ class MainController(QObject):
         )
 
         self._dataset_validator = DataSetValidator(
-            self._sample_model,
-            self._configuration_manager,
-            self._dataset_manager,
+            self._state_model,
             self._dataset_validation_widget,
             self._logger
         )
 
         self._index_distance_validator = IndexDistanceValidator(
-            self._sample_model,
-            self._dataset_manager,
+            self._state_model,
             self._index_distance_validation_widget,
             self._logger
         )
 
         self._color_balance_validator = ColorBalanceValidator(
-            self._sample_model,
-            self._dataset_manager,
+            self._state_model,
             self._color_balance_validation_widget,
             self._logger
         )
@@ -132,7 +115,7 @@ class MainController(QObject):
             self._dataset_validator,
             self._index_distance_validator,
             self._color_balance_validator,
-            self._dataset_manager,
+            self._state_model,
             self._logger
         )
 
@@ -152,10 +135,10 @@ class MainController(QObject):
         self._run_info_view = RunInfoView()
         self._index_toolbox_widget = IndexKitToolbox(self._index_kit_manager)
         self._applications_container_widget = ApplicationContainerWidget(
-            self._application_manager, self._dataset_manager
+            self._application_manager, self._state_model
         )
         self._config_widget = ConfigurationWidget(self._configuration_manager)
-        self._export_widget = ExportWidget(self._dataset_manager, self._configuration_manager)
+        self._export_widget = ExportWidget(self._state_model, self._configuration_manager)
 
         self._samples_widget.set_model(self._sample_proxy_model)
 
@@ -176,20 +159,12 @@ class MainController(QObject):
         self.main_window.setStatusBar(self._status_bar)
         self.main_window.addToolBar(Qt.LeftToolBarArea, self._toolbar)
 
-        # self.main_window.samples_widget.set_model(self._sample_proxy_model)
-
         self._compatibility_tester = CompatibilityTester(
             self._state_model,
-            self._dataset_manager,
             self._logger
         )
 
-        self._method_manager = MethodManager(self._configuration_manager, self._application_manager, self._logger)
-        self._worksheet_importer = WorkSheetImporter(self._sample_model, self._method_manager,
-                                                     self._application_manager, self._logger)
-
         self._connect_signals()
-
         self._logger.info("Init done!")
 
     def _connect_signals(self):
@@ -197,17 +172,21 @@ class MainController(QObject):
         Connect UI signals to controller slots.
         """
         self._connect_validation_signals()
-        self._connect_file_signals()
         self._connect_override_pattern_signals()
         self._connect_application_signal()
         self._connect_drop_paste_signals()
         self._connect_lane_signals()
         self._connect_toolbar_signal()
-        # self._connect_run_signals()
         self._connect_datastate_signals()
-        # self._connect_state_model_signals()
+        self._connect_configuration_signals()
+        self._connect_index_kit_signals()
 
         self._connect_sample_model_signals()
+
+    def _connect_configuration_signals(self):
+        self._configuration_manager.users_changed.connect(
+            self._run_setup_widget.populate_investigators
+        )
 
     def _connect_sample_model_signals(self):
         self._sample_model.dataChanged.connect(self._state_model.update_index_lengths)
@@ -222,6 +201,7 @@ class MainController(QObject):
         self._state_model.run_name_changed.connect(self._run_info_view.set_run_name_label)
         self._state_model.run_description_changed.connect(self._run_info_view.set_run_desc_label)
         self._state_model.lanes_changed.connect(self._run_info_view.set_lanes_label)
+        self._state_model.lanes_changed.connect(self._lane_widget.set_lanes)
         self._state_model.instrument_changed.connect(self._run_info_view.set_instrument_label)
         self._state_model.flowcell_changed.connect(self._run_info_view.set_flowcell_label)
         self._state_model.chemistry_changed.connect(self._run_info_view.set_chemistry_label)
@@ -229,10 +209,9 @@ class MainController(QObject):
         self._state_model.i5_seq_orientation_changed.connect(self._run_info_view.set_i5_seq_orientation_label)
         self._state_model.i5_samplesheet_orientation_bcl2fastq_changed.connect(self._run_info_view.set_bcl2fastq_ss_i5_orient_lbl)
         self._state_model.i5_samplesheet_orientation_bclconvert_changed.connect(self._run_info_view.set_bclconvert_ss_i5_orient_lbl)
-        self._state_model.run_read1_cycles_changed.connect(self._run_info_view.set_read1_cycles_label)
-        self._state_model.run_index1_cycles_changed.connect(self._run_info_view.set_index1_cycles_label)
-        self._state_model.run_index2_cycles_changed.connect(self._run_info_view.set_index2_cycles_label)
-        self._state_model.run_read2_cycles_changed.connect(self._run_info_view.set_read2_cycles_label)
+        self._state_model.run_cycles_changed.connect(self._index_kit_manager.on_run_cycles_changed)
+        self._state_model.run_cycles_changed.connect(self._run_info_view.set_run_cycles_labels)
+
         self._state_model.color_a_changed.connect(self._run_info_view.set_a_label)
         self._state_model.color_t_changed.connect(self._run_info_view.set_t_label)
         self._state_model.color_g_changed.connect(self._run_info_view.set_g_label)
@@ -242,9 +221,14 @@ class MainController(QObject):
         self._state_model.sample_index2_maxlen_changed.connect(self._run_info_view.set_current_index2_minlen_label)
         self._state_model.sample_index1_minlen_changed.connect(self._run_info_view.set_current_index1_maxlen_label)
         self._state_model.sample_index2_minlen_changed.connect(self._run_info_view. set_current_index2_maxlen_label)
-        # self._state_model.runinfo_changed.connect(self._toolbar.set_run_info_label)
 
         self._state_model.run_info_complete.connect(self._toolbar.enable_sample_data_actions)
+        self._state_model.run_info_complete.connect(self._index_toolbox_widget.set_index_kits)
+
+    def _connect_index_kit_signals(self):
+        self._index_kit_manager.index_kits_changed.connect(
+            self._index_toolbox_widget.set_index_kits
+        )
 
     def _connect_application_signal(self):
         self._applications_container_widget.add_application_profile_data.connect(
@@ -265,10 +249,10 @@ class MainController(QObject):
             self._sample_model.set_dropped_index_data
         )
 
-    def _connect_file_signals(self):
-        self._file_widget.worksheet_filepath_ready.connect(
-            self._worksheet_importer.load_worksheet
-        )
+    # def _connect_file_signals(self):
+    #     self._file_widget.worksheet_filepath_ready.connect(
+    #         self._worksheet_importer.load_worksheet
+    #     )
 
     def _connect_toolbar_signal(self):
         """Connect UI signals to controller slots"""

@@ -15,11 +15,11 @@ class ApplicationContainerWidget(QWidget):
     remove_application_profile = Signal(dict)
 
     def __init__(
-        self, application_manager: ApplicationManager, dataset_manager: DataSetManager):
+        self, application_manager: ApplicationManager, state_model: StateModel):
         super().__init__()
 
         self._application_manager = application_manager
-        self._dataset_manager = dataset_manager
+        self._dataset_manager = state_model
 
         self._main_layout = QVBoxLayout()
         self.setLayout(self._main_layout)

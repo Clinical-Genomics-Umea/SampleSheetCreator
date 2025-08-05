@@ -17,13 +17,14 @@ class MethodManager(QObject):
 
         self._methods = {}
 
-        self._method_objects = self._configuration_manager.method_configs
+        self._method_data = self._configuration_manager.method_configs
 
         self._setup()
 
     def _setup(self):
 
-        for method_object in self._method_objects:
+        for method_object in self._method_data:
+
             method = method_object.get("Method")
 
             for method_app_profile_obj in method_object['ApplicationProfiles']:

@@ -85,19 +85,22 @@ class StateModel(QObject):
     lanes_changed = Signal(list)  # More specific type hint
     chemistry_changed = Signal(str)
     reagent_kit_changed = Signal(str)
-    run_read1_cycles_changed = Signal(int)
-    run_index1_cycles_changed = Signal(int)
-    run_index2_cycles_changed = Signal(int)
-    run_read2_cycles_changed = Signal(int)
+    run_cycles_changed = Signal(int, int, int, int) # read1_cycles, index1_cycles, index2_cycles, read2_cycles
+    # run_read1_cycles_changed = Signal(int)
+    # run_index1_cycles_changed = Signal(int)
+    # run_index2_cycles_changed = Signal(int)
+    # run_read2_cycles_changed = Signal(int)
     i5_seq_orientation_changed = Signal(str)
     i5_samplesheet_orientation_bcl2fastq_changed = Signal(str)
     i5_samplesheet_orientation_bclconvert_changed = Signal(str)
     
-    # Color balance signals
+    # Color signals
     color_a_changed = Signal(object)
     color_t_changed = Signal(object)
     color_g_changed = Signal(object)
     color_c_changed = Signal(object)
+
+    # Color balance signals
     assess_color_balance_changed = Signal(bool)
     
     # Index length signals
@@ -332,11 +335,11 @@ class StateModel(QObject):
         return datetime.now().strftime("%Y-%m-%d")
 
     def set_lookup_data(self):
-        instrument = self._instrument
+        instrument = self._run_info.instrument
         if not instrument in self._instrument_data:
             return
 
-        flowcell = self._flowcell
+        flowcell = self._run_info.flowcell
         if not flowcell in self._instrument_data[instrument]["Flowcell"]:
             return
 
@@ -356,19 +359,19 @@ class StateModel(QObject):
         color_g = self._instrument_data[instrument]["Fluorophores"]["G"]
         color_c = self._instrument_data[instrument]["Fluorophores"]["C"]
 
-        self.lanes(lanes)
-        self.chemistry(chemistry)
-        self.i5_seq_orientation(i5_seq_orientation)
-        self.i5_samplesheet_orientation_bcl2fastq(i5_samplesheet_orientation_bcl2fastq)
-        self.i5_samplesheet_orientation_bclconvert(i5_samplesheet_orientation_bclconvert)
-        self.set_assess_color_balance(assess_color_balance)
+        self.lanes = lanes
+        self.chemistry = chemistry
+        self.i5_seq_orientation = i5_seq_orientation
+        self.i5_samplesheet_orientation_bcl2fastq = i5_samplesheet_orientation_bcl2fastq
+        self.i5_samplesheet_orientation_bclconvert = i5_samplesheet_orientation_bclconvert
+        self.assess_color_balance = assess_color_balance
 
-        self.set_date(self._current_date_as_string())
+        self.date = self._current_date_as_string()
 
-        self.set_color_a(color_a)
-        self.set_color_t(color_t)
-        self.set_color_g(color_g)
-        self.set_color_c(color_c)
+        self.color_a = color_a
+        self.color_t = color_t
+        self.color_g = color_g
+        self.color_c = color_c
 
         self._check_run_info_complete()
 
@@ -440,7 +443,7 @@ class StateModel(QObject):
         self.sample_index2_minlen_changed.emit(self._run_info.sample_index2_minlen)
         self.sample_index2_maxlen_changed.emit(self._run_info.sample_index2_maxlen)
 
-
+    @property
     def assess_color_balance(self):
         return self._run_info.assess_color_balance
 
@@ -466,6 +469,7 @@ class StateModel(QObject):
         self._run_info.color_a = color_a
         self.color_a_changed.emit(color_a)
 
+    @property
     def color_t(self):
         return self._run_info.color_t
 
@@ -509,7 +513,6 @@ class StateModel(QObject):
     def chemistry(self, chemistry: str):
 
         if self._run_info.chemistry == chemistry:
-            print("Same")
             return
 
         self._run_info.chemistry = chemistry
@@ -646,57 +649,33 @@ class StateModel(QObject):
         self.lanes_changed.emit(lanes)
 
     @property
-    def read1_cycles(self) -> int:
-        return self._run_info.read1_cycles
+    def run_cycles(self) -> tuple[int, int, int, int]: # read1_cycles, index1_cycles, index2_cycles, read2_cycles
+        return (self._run_info.read1_cycles,
+                self._run_info.index1_cycles,
+                self._run_info.index2_cycles,
+                self._run_info.read1_cycles)
 
-    @read1_cycles.setter
-    def read1_cycles(self, run_read1_cycles: int):
+    @run_cycles.setter
+    def run_cycles(self, run_cycle_values: tuple[int, int, int, int]): # read1_cycles, index1_cycles, index2_cycles, read2_cycles
 
-        if self._run_info.read1_cycles == run_read1_cycles:
-            return
+        read1_cycles, index1_cycles, index2_cycles, read2_cycles = run_cycle_values
 
-        self._run_info.read1_cycles = run_read1_cycles
-        self.run_read1_cycles_changed.emit(run_read1_cycles)
+        if (self._run_info.read1_cycles != read1_cycles and
+                   self._run_info.index1_cycles != index1_cycles and
+                   self._run_info.index2_cycles != index2_cycles and
+                   self._run_info.read2_cycles != read2_cycles
+                   ):
+
+            self._run_info.read1_cycles = read1_cycles
+            self._run_info.index1_cycles = index1_cycles
+            self._run_info.index2_cycles = index2_cycles
+            self._run_info.read2_cycles = read2_cycles
+            self.run_cycles_changed.emit(read1_cycles, index1_cycles, index2_cycles, read2_cycles)
 
 
     @property
     def index1_cycles(self) -> int:
         return self._run_info.index1_cycles
-
-    @index1_cycles.setter
-    def index1_cycles(self, run_index1_cycles: int):
-
-        if self._run_info.index1_cycles == run_index1_cycles:
-            return
-
-        self._run_info.index1_cycles = run_index1_cycles
-        self.run_index1_cycles_changed.emit(run_index1_cycles)
-
-    @property
-    def index2_cycles(self) -> int:
-        return self._run_info.index2_cycles
-
-    @index2_cycles.setter
-    def index2_cycles(self, run_index2_cycles: int):
-
-        if self._run_info.index2_cycles == run_index2_cycles:
-            return
-
-        self._run_info.index2_cycles = run_index2_cycles
-        self.run_index2_cycles_changed.emit(run_index2_cycles)
-
-    @property
-    def read2_cycles(self) -> int:
-        return self._run_info.read2_cycles
-
-    @read2_cycles.setter
-    def read2_cycles(self, run_read2_cycles: int):
-
-        if self._run_info.read2_cycles == run_read2_cycles:
-            return
-
-        self._run_info.read2_cycles = run_read2_cycles
-        self.run_read2_cycles_changed.emit(run_read2_cycles)
 
     @property
     def i5_seq_orientation(self) -> str:
