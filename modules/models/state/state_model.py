@@ -45,6 +45,7 @@ class RunInfo:
     index1_cycles: int = 0
     index2_cycles: int = 0
     read2_cycles: int = 0
+    custom_cycles: bool = False
 
     sample_index1_maxlen: int = 0
     sample_index2_maxlen: int = 0
@@ -90,6 +91,7 @@ class StateModel(QObject):
     index1_cycles_changed = Signal(int)
     index2_cycles_changed = Signal(int)
     read2_cycles_changed = Signal(int)
+    custom_cycles_changed = Signal(bool)
     i5_seq_orientation_changed = Signal(str)
     i5_samplesheet_orientation_bcl2fastq_changed = Signal(str)
     i5_samplesheet_orientation_bclconvert_changed = Signal(str)
@@ -110,8 +112,11 @@ class StateModel(QObject):
     sample_index2_minlen_changed = Signal(int)
     
     # Application state signals
-    run_info_complete = Signal(bool)
     dragen_app_version_changed = Signal(str)
+
+    run_info_ready = Signal()
+    run_info_not_ready = Signal()
+
 
     def __init__(self, sample_model: SampleModel, configuration_manager: ConfigurationManager, logger: Logger):
         """Initialize the StateModel with required dependencies.
@@ -132,7 +137,7 @@ class StateModel(QObject):
         # State tracking
         self._state = RunState.UNINITIALIZED
         self._frozen = False
-        self._has_run_info = False
+        self._run_info_complete = False
         
         # Initialize run info with default values
         self._run_info = RunInfo()
@@ -173,7 +178,7 @@ class StateModel(QObject):
         if self._frozen:
             self._frozen = False
             self.freeze_state_changed.emit(False)
-            self.state = RunState.READY if self._has_run_info else RunState.CONFIGURING
+            self.state = RunState.READY if self._run_info_complete else RunState.CONFIGURING
     
     # --- Run Info Management ---
     
@@ -217,16 +222,7 @@ class StateModel(QObject):
                     getattr(self, signal_name).emit(value)
 
         self._set_dependent_data_from_config()
-
-        # If anything changed, validate the run info
-        if changed:
-            self._logger.debug(f"Run info changed: {run_setpup_data}")
-        else:
-            self._logger.debug("No changes detected in _update_run_info")
-
-        # validation_results = self._validate_run_info()
-        # return changed, validation_results
-
+        self._validate_run_info()
 
     def _validate_run_info(self) -> None:
         """Validate all run info fields and update completion status.
@@ -286,16 +282,14 @@ class StateModel(QObject):
                     self._logger.warning(f"Missing color values: {', '.join(failed)}")
         
         # Update state if changed
-        if all_valid != self._has_run_info:
-            self._has_run_info = all_valid
-            self.run_info_complete.emit(all_valid)
-            
-            # Update application state based on run info completion
-            if all_valid and not self._frozen:
-                self.state = RunState.READY
-                
-        return all_valid, validations
-    
+        if all_valid != self._run_info_complete:
+            self._run_info_complete = True
+            self.run_info_ready.emit()
+
+        self._run_info_complete = False
+        self.run_info_not_ready.emit()
+
+
     # --- Index Length Management ---
     
     def _update_index_lengths(self) -> None:
@@ -428,15 +422,15 @@ class StateModel(QObject):
         for field_name in required_fields:
             field_value = getattr(self._run_info, field_name, None)
             if not field_value:
-                if self._has_run_info:  # Only emit if state is changing
-                    self.run_info_complete.emit(False)
-                self._has_run_info = False
+                if self._run_info_complete:  # Only emit if state is changing
+                    self.run_info_ready.emit(False)
+                self._run_info_complete = False
                 return
         
         # All fields are valid
-        if not self._has_run_info:  # Only emit if state is changing
-            self.run_info_complete.emit(True)
-        self._has_run_info = True
+        if not self._run_info_complete:  # Only emit if state is changing
+            self.run_info_ready.emit(True)
+        self._run_info_complete = True
 
     @staticmethod
     def _get_str_lengths_in_df_col(pandas_col: pd.Series) -> Tuple[int, int]:
@@ -695,6 +689,66 @@ class StateModel(QObject):
     def index1_cycles(self) -> int:
         return self._run_info.index1_cycles
 
+    @index1_cycles.setter
+    def index1_cycles(self, index1_cycles: int):
+
+        if self._run_info.index1_cycles == index1_cycles:
+            return
+
+        self._run_info.index1_cycles = index1_cycles
+        self.index1_cycles_changed.emit(index1_cycles)
+
+    @property
+    def index2_cycles(self) -> int:
+        return self._run_info.index2_cycles
+
+    @index2_cycles.setter
+    def index2_cycles(self, index2_cycles: int):
+
+        if self._run_info.index2_cycles == index2_cycles:
+            return
+
+        self._run_info.index2_cycles = index2_cycles
+        self.index2_cycles_changed.emit(index2_cycles)
+
+    @property
+    def read1_cycles(self) -> int:
+        return self._run_info.read1_cycles
+
+    @read1_cycles.setter
+    def read1_cycles(self, read1_cycles: int):
+
+        if self._run_info.read1_cycles == read1_cycles:
+            return
+
+        self._run_info.read1_cycles = read1_cycles
+        self.read1_cycles_changed.emit(read1_cycles)
+
+    @property
+    def read2_cycles(self) -> int:
+        return self._run_info.read2_cycles
+
+    @read2_cycles.setter
+    def read2_cycles(self, read2_cycles: int):
+
+        if self._run_info.read2_cycles == read2_cycles:
+            return
+
+        self._run_info.read2_cycles = read2_cycles
+        self.read2_cycles_changed.emit(read2_cycles)
+
+    @property
+    def custom_cycles(self) -> bool:
+        return self._run_info.custom_cycles
+
+    @custom_cycles.setter
+    def custom_cycles(self, custom_cycles: bool):
+        if self._run_info.custom_cycles == custom_cycles:
+            return
+
+        self._run_info.custom_cycles = custom_cycles
+        self.custom_cycles_changed.emit(custom_cycles)
+
     @property
     def i5_seq_orientation(self) -> str:
         return self._run_info.i5_seq_orientation
@@ -776,4 +830,4 @@ class StateModel(QObject):
 
     @property
     def has_run_info(self) -> bool:
-        return self._has_run_info
+        return self._run_info_complete

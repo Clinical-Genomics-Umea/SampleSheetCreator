@@ -68,6 +68,7 @@ class RunInfoView(QGroupBox):
         self._index1_cycles_lbl = QLabel("None")
         self._index2_cycles_lbl = QLabel("None")
         self._read2_cycles_lbl = QLabel("None")
+        self._custom_cycles_lbl = QLabel("False")
 
         self._assess_color_balance_lbl = QLabel("None")
 
@@ -118,6 +119,7 @@ class RunInfoView(QGroupBox):
         form_read_cycles.addRow(QLabel("Index1Cycles:"), self._index1_cycles_lbl)
         form_read_cycles.addRow(QLabel("Index2Cycles:"), self._index2_cycles_lbl)
         form_read_cycles.addRow(QLabel("Read2Cycles:"), self._read2_cycles_lbl)
+        form_read_cycles.addRow(QLabel("CustomCycles:"), self._custom_cycles_lbl)
         self.content_layout.addLayout(form_read_cycles)
 
         # I5SampleSheetOrientation
@@ -255,6 +257,9 @@ class RunInfoView(QGroupBox):
 
     def set_read2_cycles_label(self, read2_cycles: int):
         self._read2_cycles_lbl.setText(str(read2_cycles))
+
+    def set_custom_cycles_label(self, custom_cycles: bool):
+        self._custom_cycles_lbl.setText(str(custom_cycles))
 
     def set_assess_color_balance_label(self, assess_color_balance: bool):
         self._assess_color_balance_lbl.setText(str(assess_color_balance))

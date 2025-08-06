@@ -1,6 +1,7 @@
 from pprint import pprint
 
 from PySide6.QtCore import Signal, Slot, QTimer
+from PySide6.QtGui import QValidator
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -27,6 +28,8 @@ class RunSetupWidget(QWidget):
         self._configuration_manager = configuration_manager
         self._state_model = state_model
 
+        self._pattern_validator = PatternValidator()
+
         self._investigator_cb = QComboBox()  # combobox
         self._run_name_le = QLineEdit()  # RunName: lineedit
         self._run_description_le = QLineEdit()  # RunDescription: lineedit
@@ -34,8 +37,8 @@ class RunSetupWidget(QWidget):
         self._flowcell_cb = QComboBox()  # Flowcell: combobox
         self._reagent_kit_cb = QComboBox()  # ReagentKit: combobox
         self._read_cycles_cb = QComboBox()  # ReadCycles: combobox
-        self._custom_read_cycles_le = QLineEdit()  # CustomReadCycles: lineedit
-
+        self._custom_cycles_le = QLineEdit()  # CustomReadCycles: lineedit
+        self._custom_cycles_le.setValidator(self._pattern_validator)
 
         self._commit_btn = QPushButton("Commit")
 
@@ -80,8 +83,21 @@ class RunSetupWidget(QWidget):
         self._setup_ui()
 
         layout.addStretch()
-
+        self._custom_cycles_le.textChanged.connect(self._set_commit_btn_status)
         self._commit_btn.clicked.connect(self._commit)
+
+    def _set_commit_btn_status(self):
+
+        if not self._custom_cycles_le.text():
+            self._commit_btn.setEnabled(True)
+            return
+
+        state = self._pattern_validator.validate(self._custom_cycles_le.text(), 0)
+
+        print(state)
+
+        self._commit_btn.setEnabled(state == QValidator.Acceptable)
+
 
     def _setup_ui(self):
         self._form.addRow(QLabel("General"))
@@ -93,7 +109,7 @@ class RunSetupWidget(QWidget):
         self._form.addRow("Flowcell", self._flowcell_cb)
         self._form.addRow("Reagent Kit", self._reagent_kit_cb)
         self._form.addRow("Read Cycles", self._read_cycles_cb)
-        self._form.addRow("Custom Read Cycles", self._custom_read_cycles_le)
+        self._form.addRow("Custom Read Cycles", self._custom_cycles_le)
 
     def _populate_instruments(self):
         instruments = self._configuration_manager.instruments
@@ -144,15 +160,22 @@ class RunSetupWidget(QWidget):
         if not len(current_reagent_kit) > 0:
             return
 
-        read_cycles = self._configuration_manager.instrument_flowcells[current_instrument]["Flowcell"][
-            current_flowcell
-        ]["ReagentKit"][current_reagent_kit]
+        read_cycles = (self._configuration_manager.instrument_flowcells
+                       .get(current_instrument, {})
+                       .get("Flowcell", {})
+                       .get(current_flowcell, {})
+                       .get("ReagentKit", {})
+                       .get(current_reagent_kit)
+        )
+        if not len(read_cycles) > 0:
+            return
+
         self._read_cycles_cb.clear()
         self._read_cycles_cb.addItems(read_cycles)
 
-        self._custom_read_cycles_le.clear()
+        self._custom_cycles_le.clear()
         template = self._read_cycles_cb.currentText()
-        self._custom_read_cycles_le.setValidator(PatternValidator(template))  # self.input_widgets["CustomReadCycles"].setValidator(PatternValidator(template))
+        self._pattern_validator.set_template(template)
 
     @Slot()
     def populate_investigators(self):
@@ -162,15 +185,24 @@ class RunSetupWidget(QWidget):
         self._investigator_cb.addItems(users)
 
     def _set_custom_read_cycle_validator(self):
-        self._custom_read_cycles_le.clear()
-        template = self._read_cycles_cb.currentText()  # self.input_widgets["ReadCycles"].currentText()
-        self._custom_read_cycles_le.setValidator(PatternValidator(template))
+        self._custom_cycles_le.clear()
+        template = self._read_cycles_cb.currentText()
+        self._pattern_validator.set_template(template)
+        self._custom_cycles_le.setValidator(self._pattern_validator)
 
     def _commit(self):
         """Commit the data from the input widgets."""
 
         read_cycles = self._read_cycles_cb.currentText()
-        read1_cycles, index1_cycles, index2_cycles, read2_cycles = read_cycles.split("-")
+        custom_read_cycles = self._custom_cycles_le.text()
+        custom_cycles_used = False
+
+        if custom_read_cycles:
+            read1_cycles, index1_cycles, index2_cycles, read2_cycles = custom_read_cycles.split("-")
+            custom_cycles_used = True
+
+        else:
+            read1_cycles, index1_cycles, index2_cycles, read2_cycles = read_cycles.split("-")
 
         run_setup_data = {
             "investigator": self._investigator_cb.currentText(),
@@ -179,12 +211,11 @@ class RunSetupWidget(QWidget):
             "instrument": self._instrument_cb.currentText(),
             "flowcell": self._flowcell_cb.currentText(),
             "reagent_kit": self._reagent_kit_cb.currentText(),
-            "read_cycles": self._read_cycles_cb.currentText(),
-            "custom_read_cycles": self._custom_read_cycles_le.text(),
             "read1_cycles": int(read1_cycles), #"read1_cycles": read1_cycles,
+            "index1_cycles": int(index1_cycles),  # "index1_cycles": index1_cycles
             "index2_cycles": int(index2_cycles), #"index2_cycles": index2_cycles,
             "read2_cycles": int(read2_cycles), #"read2_cycles": read2_cycles,
-            "index1_cycles": int(index1_cycles), #"index1_cycles": index1_cycles
+            "custom_cycles": custom_cycles_used,
         }
 
         self.run_setup_data_ready.emit(run_setup_data)

@@ -1,53 +1,106 @@
+import re
 from PySide6.QtGui import QValidator
 
 
 class PatternValidator(QValidator):
-    def __init__(self, pattern, parent=None):
+    def __init__(self, template=None, parent=None):
         super().__init__(parent)
-        self.pattern = pattern
-        if pattern == "":
-            self.pattern_parts = []
-        else:
-            self.pattern_parts = [int(part) for part in pattern.split("-")]
+        self.template = None
+        self.template_values = []
+        if template:
+            self.set_template(template)
 
-    def validate(self, input_text, pos):
-        # Allow empty input as an intermediate state
-        if input_text == "":
-            return QValidator.Intermediate, input_text, pos
+    def set_template(self, template):
+        """Set a new template dynamically."""
+        self.template = template
+        self.template_values = self._parse_template(template)
 
-        # Check for multiple consecutive dashes
-        if "--" in input_text:
-            return QValidator.Invalid, input_text, pos
+    def get_template(self):
+        """Get the current template."""
+        return self.template
 
-        # Split the input text into parts
-        input_parts = input_text.split("-")
+    def _parse_template(self, template):
+        """Parse the template string into a list of integers."""
+        try:
+            parts = template.split('-')
+            if len(parts) != 4:
+                raise ValueError("Template must have exactly 4 parts separated by dashes")
+            return [int(part) for part in parts]
+        except (ValueError, AttributeError):
+            raise ValueError(f"Invalid template format: {template}")
 
-        # Check if the number of parts exceeds the pattern
-        if len(input_parts) > len(self.pattern_parts):
-            return QValidator.Invalid, input_text, pos
+    def validate(self, input_str, pos):
+        """
+        Validate the input string.
+        Returns just the State:
+        - QValidator.Invalid: Input is invalid and should be rejected
+        - QValidator.Intermediate: Input is incomplete but could become valid
+        - QValidator.Acceptable: Input is fully valid
+        """
+        # If no template is set, only allow intermediate state
+        if not self.template_values:
+            if not input_str:
+                return QValidator.State.Intermediate
+            return QValidator.State.Invalid
 
-        for i, part in enumerate(input_parts):
-            # Allow incomplete trailing dashes (e.g., "51-")
-            if part == "":
-                # Invalid if it's not the last part and it's empty
-                if i < len(input_parts) - 1:
-                    return QValidator.Invalid, input_text, pos
+        if not input_str:
+            return QValidator.State.Intermediate
+
+        # Check for invalid characters (only digits and dashes allowed)
+        if not re.match(r'^[0-9-]*$', input_str):
+            return QValidator.State.Invalid
+
+        # Split by dashes and analyze
+        parts = input_str.split('-')
+
+        # Check for too many parts (more than 4)
+        if len(parts) > 4:
+            return QValidator.State.Invalid
+
+        # Check for consecutive dashes
+        if '--' in input_str:
+            return QValidator.State.Invalid
+
+        # Don't allow starting with dash, but ending with dash is OK for intermediate input
+        if input_str.startswith('-'):
+            return QValidator.State.Invalid
+
+        # Validate each part
+        for i, part in enumerate(parts):
+            if part == '':  # Empty part means we're in the middle of typing
                 continue
 
-            # Ensure each part is numeric
-            if not part.isdigit():
-                return QValidator.Invalid, input_text, pos
+            # Check if part is a valid integer
+            try:
+                value = int(part)
+                # Check if value exceeds template limit
+                if i < len(self.template_values) and value > self.template_values[i]:
+                    return QValidator.State.Invalid
+            except ValueError:
+                return QValidator.State.Invalid
 
-            # Check if the part exceeds the corresponding pattern value
-            if i < len(self.pattern_parts) and int(part) > self.pattern_parts[i]:
-                return QValidator.Invalid, input_text, pos
+        # Check if we have exactly 4 complete parts
+        if len(parts) == 4 and all(part.isdigit() for part in parts):
+            # All parts are complete integers
+            return QValidator.State.Acceptable
+        elif len(parts) <= 4:
+            # Incomplete but potentially valid
+            return QValidator.State.Intermediate
+        else:
+            return QValidator.State.Invalid
 
-        # Allow trailing dashes as valid intermediate states
-        if input_text[-1] == "-" and len(input_parts) <= len(self.pattern_parts):
-            return QValidator.Intermediate, input_text, pos
+    def fixup(self, input_str):
+        """
+        Optional: Attempt to fix the input string.
+        This method can be used to automatically correct common mistakes.
+        """
+        # Remove any invalid characters
+        fixed = re.sub(r'[^0-9-]', '', input_str)
 
-        return QValidator.Acceptable, input_text, pos
+        # Remove multiple consecutive dashes
+        fixed = re.sub(r'-+', '-', fixed)
 
-    def fixup(self, input_text):
-        # If invalid, return an empty string
-        return ""
+        # Remove leading/trailing dashes
+        fixed = fixed.strip('-')
+
+        return fixed

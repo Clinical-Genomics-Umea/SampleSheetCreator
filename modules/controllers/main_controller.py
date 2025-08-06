@@ -218,6 +218,7 @@ class MainController(QObject):
         self._state_model.read2_cycles_changed.connect(self._run_info_view.set_read2_cycles_label)
         self._state_model.index1_cycles_changed.connect(self._run_info_view.set_index1_cycles_label)
         self._state_model.index2_cycles_changed.connect(self._run_info_view.set_index2_cycles_label)
+        self._state_model.custom_cycles_changed.connect(self._run_info_view.set_custom_cycles_label)
         # self._state_model.index_kit_changed.connect(self._run_info_view.set_index_kit_label)
         # self._state_model.run_cycles_changed.connect(self._run_info_view.set_run_cycles_label)
         # self._state_model.run_cycles_changed.connect(self._run_info_view.set_run_cycles_label)
@@ -235,9 +236,9 @@ class MainController(QObject):
         self._state_model.sample_index1_minlen_changed.connect(self._run_info_view.set_sample_index1_maxlen_label)
         self._state_model.sample_index2_minlen_changed.connect(self._run_info_view. set_sample_index2_maxlen_label)
 
-        self._state_model.run_info_complete.connect(self._toolbar.enable_sample_data_actions)
-        self._state_model.run_info_complete.connect(self._index_toolbox_widget.set_index_kits)
-        self._state_model.run_info_complete.connect(self._samples_widget.enable)
+        self._state_model.run_info_ready.connect(self._toolbar.enable_sample_data_actions)
+        self._state_model.run_info_ready.connect(self._samples_widget.enable)
+        self._state_model.run_info_ready.connect(self._index_kit_manager.on_run_cycles_changed)
 
     def _connect_index_kit_signals(self):
         self._index_kit_manager.index_kits_changed.connect(
