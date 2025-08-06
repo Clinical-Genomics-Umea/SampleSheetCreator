@@ -194,14 +194,12 @@ class StateModel(QObject):
                 - validation_results: Results from _validate_run_info() if validation was performed
         """
 
-        print(run_setpup_data)
         if not run_setpup_data:
             self._logger.debug("No fields to update in update_run_info")
             return
 
         changed = False
 
-        
         # Apply updates and track changes
         for key, value in run_setpup_data.items():
             if not hasattr(self._run_info, key):
@@ -309,22 +307,17 @@ class StateModel(QObject):
         i5_min, i5_max = self._get_str_lengths_in_df_col(df["IndexI5"])
         
         # Update the state model
-        self._sample_index1_minlen = int(i7_min)
-        self._sample_index1_maxlen = int(i7_max)
-        self._sample_index2_minlen = int(i5_min)
-        self._sample_index2_maxlen = int(i5_max)
-        
-        # Emit signals for any UI updates
-        self.sample_index1_minlen_changed.emit(self._sample_index1_minlen)
-        self.sample_index1_maxlen_changed.emit(self._sample_index1_maxlen)
-        self.sample_index2_minlen_changed.emit(self._sample_index2_minlen)
-        self.sample_index2_maxlen_changed.emit(self._sample_index2_maxlen)
+        self.sample_index1_minlen = int(i7_min)
+        self.sample_index1_maxlen = int(i7_max)
+        self.sample_index2_minlen = int(i5_min)
+        self.sample_index2_maxlen = int(i5_max)
 
     @staticmethod
     def _current_date_as_string():
         return datetime.now().strftime("%Y-%m-%d")
 
     def _set_dependent_data_from_config(self):
+
         instrument = self._run_info.instrument
         if not instrument in self._instrument_data:
             return
@@ -398,12 +391,12 @@ class StateModel(QObject):
         self.color_g = color_g
         self.color_c = color_c
 
-        self._sample_index1_minlen = 0
-        self._sample_index1_maxlen = 0
-        self._sample_index2_minlen = 0
-        self._sample_index2_maxlen = 0
+        self.sample_index1_minlen = 0
+        self.sample_index1_maxlen = 0
+        self.sample_index2_minlen = 0
+        self.sample_index2_maxlen = 0
 
-        self._check_run_info_complete()
+        # self._check_run_info_complete()
 
 
     def _check_run_info_complete(self) -> None:
@@ -463,16 +456,10 @@ class StateModel(QObject):
         i5_min, i5_max = self._get_str_lengths_in_df_col(df["IndexI5"])
 
         # Update the state model
-        self._run_info.sample_index1_minlen = int(i7_min)
-        self._run_info.sample_index1_maxlen = int(i7_max)
-        self._run_info.sample_index2_minlen = int(i5_min)
-        self._run_info.sample_index2_maxlen = int(i5_max)
-
-        # Emit signals for any UI updates
-        self.sample_index1_minlen_changed.emit(self._run_info.sample_index1_minlen)
-        self.sample_index1_maxlen_changed.emit(self._run_info.sample_index1_maxlen)
-        self.sample_index2_minlen_changed.emit(self._run_info.sample_index2_minlen)
-        self.sample_index2_maxlen_changed.emit(self._run_info.sample_index2_maxlen)
+        self.sample_index1_minlen = int(i7_min)
+        self.sample_index1_maxlen = int(i7_max)
+        self.sample_index2_minlen = int(i5_min)
+        self.sample_index2_maxlen = int(i5_max)
 
     @property
     def assess_color_balance(self):
@@ -736,11 +723,15 @@ class StateModel(QObject):
 
     @sample_index1_minlen.setter
     def sample_index1_minlen(self, sample_index1_minlen):
+        print("sample_index1_minlen_changed")
+        print(sample_index1_minlen)
+        print(self._run_info.sample_index1_minlen)
+
         if self._run_info.sample_index1_minlen == sample_index1_minlen:
             return
 
         self._run_info.sample_index1_minlen = sample_index1_minlen
-        self.sample_index1_minlen_changed.emit(self._sample_index1_minlen)
+        self.sample_index1_minlen_changed.emit(sample_index1_minlen)
 
     @property
     def sample_index2_minlen(self) -> int:

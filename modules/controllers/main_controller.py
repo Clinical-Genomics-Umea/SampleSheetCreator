@@ -230,13 +230,14 @@ class MainController(QObject):
         self._state_model.color_g_changed.connect(self._run_info_view.set_g_label)
         self._state_model.color_c_changed.connect(self._run_info_view.set_c_label)
         self._state_model.assess_color_balance_changed.connect(self._run_info_view.set_assess_color_balance_label)
-        self._state_model.sample_index1_maxlen_changed.connect(self._run_info_view.set_current_index1_minlen_label)
-        self._state_model.sample_index2_maxlen_changed.connect(self._run_info_view.set_current_index2_minlen_label)
-        self._state_model.sample_index1_minlen_changed.connect(self._run_info_view.set_current_index1_maxlen_label)
-        self._state_model.sample_index2_minlen_changed.connect(self._run_info_view. set_current_index2_maxlen_label)
+        self._state_model.sample_index1_maxlen_changed.connect(self._run_info_view.set_sample_index1_minlen_label)
+        self._state_model.sample_index2_maxlen_changed.connect(self._run_info_view.set_sample_index2_minlen_label)
+        self._state_model.sample_index1_minlen_changed.connect(self._run_info_view.set_sample_index1_maxlen_label)
+        self._state_model.sample_index2_minlen_changed.connect(self._run_info_view. set_sample_index2_maxlen_label)
 
         self._state_model.run_info_complete.connect(self._toolbar.enable_sample_data_actions)
         self._state_model.run_info_complete.connect(self._index_toolbox_widget.set_index_kits)
+        self._state_model.run_info_complete.connect(self._samples_widget.enable)
 
     def _connect_index_kit_signals(self):
         self._index_kit_manager.index_kits_changed.connect(

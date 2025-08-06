@@ -116,6 +116,8 @@ class SamplesWidget(QWidget):
         vbox = QVBoxLayout()
         vbox.setContentsMargins(0, 0, 0, 0)
 
+        self.setEnabled(False)
+
         self.samples_settings = samples_settings
 
         self.filter_edit = QLineEdit()
@@ -178,6 +180,12 @@ class SamplesWidget(QWidget):
         )
         self.column_visibility_btn.clicked.connect(self._toggle_column_visibility_ctrl)
         self.delete_rows_btn.clicked.connect(self.sample_view.del_selected_rows)
+
+    def enable(self):
+        self.setEnabled(True)
+
+    def disable(self):
+        self.setEnabled(False)
 
     def flash_table(self):
         self.sample_view.flash_error()

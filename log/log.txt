@@ -3348,3 +3348,501 @@ Init done!
 Attempted to set unknown run info field: custom_read_cycles
 Attempted to set unknown run info field: read_cycles
 Run info changed: {'custom_read_cycles': '', 'flowcell': '1.5B', 'index1_cycles': 10, 'index2_cycles': 10, 'instrument': 'NovaSeqX', 'investigator': 'test', 'read1_cycles': 51, 'read2_cycles': 51, 'read_cycles': '51-10-10-51', 'reagent_kit': '2x50', 'run_description': 'asdf', 'run_name': 'asdf'}
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Attempted to set unknown run info field: custom_read_cycles
+Attempted to set unknown run info field: read_cycles
+Run info changed: {'custom_read_cycles': '', 'flowcell': '1.5B', 'index1_cycles': 10, 'index2_cycles': 10, 'instrument': 'NovaSeqX', 'investigator': 'test', 'read1_cycles': 51, 'read2_cycles': 51, 'read_cycles': '51-10-10-51', 'reagent_kit': '2x50', 'run_description': 'asdf', 'run_name': 'asdf'}
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Attempted to set unknown run info field: custom_read_cycles
+Attempted to set unknown run info field: read_cycles
+Run info changed: {'custom_read_cycles': '', 'flowcell': '1.5B', 'index1_cycles': 8, 'index2_cycles': 8, 'instrument': 'NovaSeqX', 'investigator': 'test', 'read1_cycles': 51, 'read2_cycles': 51, 'read_cycles': '51-8-8-51', 'reagent_kit': '2x50', 'run_description': 'asdf', 'run_name': 'sadf'}
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Attempted to set unknown run info field: custom_read_cycles
+Attempted to set unknown run info field: read_cycles
+Run info changed: {'custom_read_cycles': '', 'flowcell': '1.5B', 'index1_cycles': 10, 'index2_cycles': 10, 'instrument': 'NovaSeqX', 'investigator': 'test', 'read1_cycles': 51, 'read2_cycles': 51, 'read_cycles': '51-10-10-51', 'reagent_kit': '2x50', 'run_description': 'asdf', 'run_name': 'asdf'}
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Attempted to set unknown run info field: custom_read_cycles
+Attempted to set unknown run info field: read_cycles
+Run info changed: {'custom_read_cycles': '', 'flowcell': '1.5B', 'index1_cycles': 10, 'index2_cycles': 10, 'instrument': 'NovaSeqX', 'investigator': 'test', 'read1_cycles': 51, 'read2_cycles': 51, 'read_cycles': '51-10-10-51', 'reagent_kit': '2x50', 'run_description': 'asdf', 'run_name': 'asdf'}
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Attempted to set unknown run info field: custom_read_cycles
+Attempted to set unknown run info field: read_cycles
+Run info changed: {'custom_read_cycles': '', 'flowcell': '1.5B', 'index1_cycles': 10, 'index2_cycles': 10, 'instrument': 'NovaSeqX', 'investigator': 'test', 'read1_cycles': 51, 'read2_cycles': 51, 'read_cycles': '51-10-10-51', 'reagent_kit': '2x50', 'run_description': 'asdf', 'run_name': 'asdf'}
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Attempted to set unknown run info field: custom_read_cycles
+Attempted to set unknown run info field: read_cycles
+Run info changed: {'custom_read_cycles': '', 'flowcell': '1.5B', 'index1_cycles': 10, 'index2_cycles': 10, 'instrument': 'NovaSeqX', 'investigator': 'test', 'read1_cycles': 51, 'read2_cycles': 51, 'read_cycles': '51-10-10-51', 'reagent_kit': '2x50', 'run_description': 'asdf', 'run_name': 'asdf'}
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.02 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Attempted to set unknown run info field: custom_read_cycles
+Attempted to set unknown run info field: read_cycles
+Run info changed: {'custom_read_cycles': '', 'flowcell': '1.5B', 'index1_cycles': 10, 'index2_cycles': 10, 'instrument': 'NovaSeqX', 'investigator': 'test', 'read1_cycles': 51, 'read2_cycles': 51, 'read_cycles': '51-10-10-51', 'reagent_kit': '2x50', 'run_description': 'asdf', 'run_name': 'asdf'}
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Attempted to set unknown run info field: custom_read_cycles
+Attempted to set unknown run info field: read_cycles
+Run info changed: {'custom_read_cycles': '', 'flowcell': '1.5B', 'index1_cycles': 10, 'index2_cycles': 10, 'instrument': 'NovaSeqX', 'investigator': 'test', 'read1_cycles': 51, 'read2_cycles': 51, 'read_cycles': '51-10-10-51', 'reagent_kit': '2x50', 'run_description': 'asdf', 'run_name': 'asdf'}
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Attempted to set unknown run info field: custom_read_cycles
+Attempted to set unknown run info field: read_cycles
+Run info changed: {'custom_read_cycles': '', 'flowcell': '1.5B', 'index1_cycles': 10, 'index2_cycles': 10, 'instrument': 'NovaSeqX', 'investigator': 'test', 'read1_cycles': 51, 'read2_cycles': 51, 'read_cycles': '51-10-10-51', 'reagent_kit': '2x50', 'run_description': 'asdf', 'run_name': 'asdf'}
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Attempted to set unknown run info field: custom_read_cycles
+Attempted to set unknown run info field: read_cycles
+Run info changed: {'custom_read_cycles': '', 'flowcell': '1.5B', 'index1_cycles': 10, 'index2_cycles': 10, 'instrument': 'NovaSeqX', 'investigator': 'test', 'read1_cycles': 51, 'read2_cycles': 51, 'read_cycles': '51-10-10-51', 'reagent_kit': '2x50', 'run_description': 'asdf', 'run_name': 'asfd'}
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Attempted to set unknown run info field: custom_read_cycles
+Attempted to set unknown run info field: read_cycles
+Run info changed: {'custom_read_cycles': '', 'flowcell': '1.5B', 'index1_cycles': 10, 'index2_cycles': 10, 'instrument': 'NovaSeqX', 'investigator': 'test', 'read1_cycles': 51, 'read2_cycles': 51, 'read_cycles': '51-10-10-51', 'reagent_kit': '2x50', 'run_description': 'ASDF', 'run_name': 'ASD'}
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.03 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Attempted to set unknown run info field: custom_read_cycles
+Attempted to set unknown run info field: read_cycles
+Run info changed: {'custom_read_cycles': '', 'flowcell': '1.5B', 'index1_cycles': 10, 'index2_cycles': 10, 'instrument': 'NovaSeqX', 'investigator': 'test', 'read1_cycles': 51, 'read2_cycles': 51, 'read_cycles': '51-10-10-51', 'reagent_kit': '2x50', 'run_description': 'asdf', 'run_name': 'asdf'}
+Initializing ConfigurationManager
+Initializing configuration paths
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\json_schemas\index
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Ensuring directory exists: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+No YAML files found in directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+loading application and method configs completed in 0.00 seconds
+ConfigurationManager initialized successfully
+configuration initialization completed in 0.01 seconds
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!

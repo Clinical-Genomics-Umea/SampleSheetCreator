@@ -187,8 +187,6 @@ class RunSetupWidget(QWidget):
             "index1_cycles": int(index1_cycles), #"index1_cycles": index1_cycles
         }
 
-        pprint(run_setup_data)
-
         self.run_setup_data_ready.emit(run_setup_data)
 
 

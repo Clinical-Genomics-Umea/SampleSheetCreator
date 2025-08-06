@@ -79,10 +79,10 @@ class RunInfoView(QGroupBox):
         self._g_lbl = QLabel("None")
         self._c_lbl = QLabel("None")
 
-        self._current_index1_minlen_lbl = QLabel("None")
-        self._current_index1_maxlen_lbl = QLabel("None")
-        self._current_index2_minlen_lbl = QLabel("None")
-        self._current_index2_maxlen_lbl = QLabel("None")
+        self._index1_minlen_lbl = QLabel("0")
+        self._index1_maxlen_lbl = QLabel("0")
+        self._index2_minlen_lbl = QLabel("0")
+        self._index2_maxlen_lbl = QLabel("0")
 
         self._setup()
 
@@ -91,10 +91,10 @@ class RunInfoView(QGroupBox):
         form_general = QFormLayout()
         form_general.setContentsMargins(0, 0, 0, 0)
         form_general.addRow(QLabel("General"))
-        form_general.addRow(QLabel("Date"), self._date_lbl)
-        form_general.addRow(QLabel("Investigator"), self._investigator_lbl)
-        form_general.addRow(QLabel("RunName"), self._run_name_lbl)
-        form_general.addRow(QLabel("RunDescription"), self._run_desc_lbl)
+        form_general.addRow(QLabel("Date:"), self._date_lbl)
+        form_general.addRow(QLabel("Investigator:"), self._investigator_lbl)
+        form_general.addRow(QLabel("RunName:"), self._run_name_lbl)
+        form_general.addRow(QLabel("RunDescription:"), self._run_desc_lbl)
         self.content_layout.addLayout(form_general)
 
 
@@ -102,11 +102,11 @@ class RunInfoView(QGroupBox):
         form_sequencing = QFormLayout()
         form_sequencing.setContentsMargins(0, 0, 0, 0)
         form_sequencing.addRow(QLabel("Sequencing"))
-        form_sequencing.addRow(QLabel("Instrument"), self._instrument_lbl)
-        form_sequencing.addRow(QLabel("Flowcell"), self._flowcell_lbl)
-        form_sequencing.addRow(QLabel("Lanes"), self._lanes_lbl)
+        form_sequencing.addRow(QLabel("Instrument:"), self._instrument_lbl)
+        form_sequencing.addRow(QLabel("Flowcell:"), self._flowcell_lbl)
+        form_sequencing.addRow(QLabel("Lanes:"), self._lanes_lbl)
         form_sequencing.addRow(QLabel("ReagentKit"), self._reagent_kit_lbl)
-        form_sequencing.addRow(QLabel("Chemistry"), self._chemistry_lbl)
+        form_sequencing.addRow(QLabel("Chemistry:"), self._chemistry_lbl)
         self.content_layout.addLayout(form_sequencing)
 
         # Read cycles
@@ -114,25 +114,25 @@ class RunInfoView(QGroupBox):
         form_read_cycles.setContentsMargins(0, 0, 0, 0)
         form_read_cycles.addRow(QLabel("ReadCycles"))
 
-        form_read_cycles.addRow(QLabel("Read1Cycles"), self._read1_cycles_lbl)
-        form_read_cycles.addRow(QLabel("Index1Cycles"), self._index1_cycles_lbl)
-        form_read_cycles.addRow(QLabel("Index2Cycles"), self._index2_cycles_lbl)
-        form_read_cycles.addRow(QLabel("Read2Cycles"), self._read2_cycles_lbl)
+        form_read_cycles.addRow(QLabel("Read1Cycles:"), self._read1_cycles_lbl)
+        form_read_cycles.addRow(QLabel("Index1Cycles:"), self._index1_cycles_lbl)
+        form_read_cycles.addRow(QLabel("Index2Cycles:"), self._index2_cycles_lbl)
+        form_read_cycles.addRow(QLabel("Read2Cycles:"), self._read2_cycles_lbl)
         self.content_layout.addLayout(form_read_cycles)
 
         # I5SampleSheetOrientation
         form_i5_sheet_orient = QFormLayout()
         form_i5_sheet_orient.setContentsMargins(0, 0, 0, 0)
         form_i5_sheet_orient.addRow(QLabel("I5SampleSheetOrientation"))
-        form_i5_sheet_orient.addRow(QLabel("BCL2Fastq"), self._bcl2fastq_ss_i5_orient_lbl)
-        form_i5_sheet_orient.addRow(QLabel("BCLConvert"), self._bclconvert_ss_i5_orient_lbl)
+        form_i5_sheet_orient.addRow(QLabel("BCL2Fastq:"), self._bcl2fastq_ss_i5_orient_lbl)
+        form_i5_sheet_orient.addRow(QLabel("BCLConvert:"), self._bclconvert_ss_i5_orient_lbl)
         self.content_layout.addLayout(form_i5_sheet_orient)
 
         # Validation
         form_validation = QFormLayout()
         form_validation.setContentsMargins(0, 0, 0, 0)
         form_validation.addRow(QLabel("Validation"))
-        form_validation.addRow(QLabel("AssessColorBalance"), self._assess_color_balance_lbl)
+        form_validation.addRow(QLabel("AssessColorBalance:"), self._assess_color_balance_lbl)
         self.content_layout.addLayout(form_validation)
 
         # Colors
@@ -140,21 +140,21 @@ class RunInfoView(QGroupBox):
         form_colors.setContentsMargins(0, 0, 0, 0)
         form_colors.addRow(QLabel("Colors"))
 
-        form_colors.addRow(QLabel("A"), self._a_lbl)
-        form_colors.addRow(QLabel("T"), self._t_lbl)
-        form_colors.addRow(QLabel("G"), self._g_lbl)
-        form_colors.addRow(QLabel("C"), self._c_lbl)
+        form_colors.addRow(QLabel("A:"), self._a_lbl)
+        form_colors.addRow(QLabel("T:"), self._t_lbl)
+        form_colors.addRow(QLabel("G:"), self._g_lbl)
+        form_colors.addRow(QLabel("C:"), self._c_lbl)
         self.content_layout.addLayout(form_colors)
 
         # Sample Index lengths
         form_colors = QFormLayout()
         form_colors.setContentsMargins(0, 0, 0, 0)
-        form_colors.addRow(QLabel("Set index min max lengths"))
+        form_colors.addRow(QLabel("Sample index lengths"))
 
-        form_colors.addRow(QLabel("Index1Minlen"), self._current_index1_minlen_lbl)
-        form_colors.addRow(QLabel("Index1Maxlen"), self._current_index1_maxlen_lbl)
-        form_colors.addRow(QLabel("Index2Minlen"), self._current_index2_minlen_lbl)
-        form_colors.addRow(QLabel("Index2Maxlen"), self._current_index2_maxlen_lbl)
+        form_colors.addRow(QLabel("Index1 min:"), self._index1_minlen_lbl)
+        form_colors.addRow(QLabel("Index1 max:"), self._index1_maxlen_lbl)
+        form_colors.addRow(QLabel("Index2 min:"), self._index2_minlen_lbl)
+        form_colors.addRow(QLabel("Index2 max:"), self._index2_maxlen_lbl)
         self.content_layout.addLayout(form_colors)
 
         self.content_layout.addStretch()
@@ -275,17 +275,17 @@ class RunInfoView(QGroupBox):
         c_str = str(c)
         self._c_lbl.setText(c_str)
 
-    def set_current_index1_minlen_label(self, current_index1_minlen: int):
-        self._current_index1_minlen_lbl.setText(str(current_index1_minlen))
+    def set_sample_index1_minlen_label(self, current_index1_minlen: int):
+        self._index1_minlen_lbl.setText(str(current_index1_minlen))
 
-    def set_current_index1_maxlen_label(self, current_index1_maxlen: int):
-        self._current_index1_maxlen_lbl.setText(str(current_index1_maxlen))
+    def set_sample_index1_maxlen_label(self, current_index1_maxlen: int):
+        self._index1_maxlen_lbl.setText(str(current_index1_maxlen))
 
-    def set_current_index2_minlen_label(self, current_index2_minlen: int):
-        self._current_index2_minlen_lbl.setText(str(current_index2_minlen))
+    def set_sample_index2_minlen_label(self, current_index2_minlen: int):
+        self._index2_minlen_lbl.setText(str(current_index2_minlen))
 
-    def set_current_index2_maxlen_label(self, current_index2_maxlen: int):
-        self._current_index2_maxlen_lbl.setText(str(current_index2_maxlen))
+    def set_sample_index2_maxlen_label(self, current_index2_maxlen: int):
+        self._index2_maxlen_lbl.setText(str(current_index2_maxlen))
 
     def set_bcl2fastq_ss_i5_orient_label(self, bcl2fastq: str):
         self._bcl2fastq_ss_i5_orient_lbl.setText(bcl2fastq)
