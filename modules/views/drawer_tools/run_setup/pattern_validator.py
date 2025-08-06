@@ -12,6 +12,10 @@ class PatternValidator(QValidator):
 
     def set_template(self, template):
         """Set a new template dynamically."""
+
+        if not template:
+            return
+
         self.template = template
         self.template_values = self._parse_template(template)
 
@@ -21,6 +25,9 @@ class PatternValidator(QValidator):
 
     def _parse_template(self, template):
         """Parse the template string into a list of integers."""
+
+        print("template", template)
+
         try:
             parts = template.split('-')
             if len(parts) != 4:

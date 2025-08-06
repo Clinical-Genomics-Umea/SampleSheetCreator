@@ -41,6 +41,7 @@ class RunSetupWidget(QWidget):
         self._custom_cycles_le.setValidator(self._pattern_validator)
 
         self._commit_btn = QPushButton("Commit")
+        self._commit_btn.setEnabled(False)
 
         layout = QVBoxLayout()
         layout.setSpacing(5)
@@ -70,9 +71,6 @@ class RunSetupWidget(QWidget):
         self._flowcell_cb.currentTextChanged.connect(
             self._populate_reagent_kits
         )
-        self._flowcell_cb.currentTextChanged.connect(
-            self._populate_read_cycles
-        )
         self._reagent_kit_cb.currentTextChanged.connect(
             self._populate_read_cycles
         )
@@ -84,19 +82,27 @@ class RunSetupWidget(QWidget):
 
         layout.addStretch()
         self._custom_cycles_le.textChanged.connect(self._set_commit_btn_status)
+        self._run_name_le.textChanged.connect(self._set_commit_btn_status)
+        self._run_description_le.textChanged.connect(self._set_commit_btn_status)
+
         self._commit_btn.clicked.connect(self._commit)
 
     def _set_commit_btn_status(self):
 
+        run_name_status = bool(self._run_name_le.text())
+        run_description_status = bool(self._run_description_le.text())
+
         if not self._custom_cycles_le.text():
+            custom_cycles_status = True
+
+        else:
+            custom_cycles_status = self._pattern_validator.validate(self._custom_cycles_le.text(),
+                                                                    0) == QValidator.Acceptable
+
+        if all([run_name_status, run_description_status, custom_cycles_status]):
             self._commit_btn.setEnabled(True)
-            return
-
-        state = self._pattern_validator.validate(self._custom_cycles_le.text(), 0)
-
-        print(state)
-
-        self._commit_btn.setEnabled(state == QValidator.Acceptable)
+        else:
+            self._commit_btn.setEnabled(False)
 
 
     def _setup_ui(self):
@@ -118,9 +124,13 @@ class RunSetupWidget(QWidget):
 
     def _populate_flowcells(self):
         current_instrument = self._instrument_cb.currentText()
-        flowcells = self._configuration_manager.instrument_flowcells[current_instrument][
-            "Flowcell"
-        ].keys()
+        flowcells = list((self._configuration_manager.instrument_flowcells
+                    .get(current_instrument, {})
+                    .get("Flowcell", {}).keys()
+                    ))
+
+        print(flowcells)
+
         self._flowcell_cb.clear()
         self._flowcell_cb.addItems(flowcells)
 
@@ -135,10 +145,13 @@ class RunSetupWidget(QWidget):
         if not len(current_flowcell) > 0:
             return
 
-        reagent_kits = list(
-            self._configuration_manager.instrument_flowcells[current_instrument]["Flowcell"][
-                current_flowcell
-            ]["ReagentKit"].keys()
+        reagent_kits = (list(
+            self._configuration_manager.instrument_flowcells
+            .get(current_instrument, {})
+            .get("Flowcell", {})
+            .get(current_flowcell, {})
+            .get("ReagentKit", {}).keys()
+            )
         )
 
         self._reagent_kit_cb.clear()
@@ -173,9 +186,11 @@ class RunSetupWidget(QWidget):
         self._read_cycles_cb.clear()
         self._read_cycles_cb.addItems(read_cycles)
 
-        self._custom_cycles_le.clear()
-        template = self._read_cycles_cb.currentText()
-        self._pattern_validator.set_template(template)
+        self._set_custom_read_cycle_validator()
+
+        # self._custom_cycles_le.clear()
+        # template = self._read_cycles_cb.currentText()
+        # self._pattern_validator.set_template(template)
 
     @Slot()
     def populate_investigators(self):
