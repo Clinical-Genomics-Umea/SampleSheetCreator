@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from PySide6.QtCore import Signal, Slot, QTimer
 from PySide6.QtWidgets import (
     QWidget,
@@ -17,7 +19,7 @@ from modules.views.ui_components import HorizontalLine
 
 class RunSetupWidget(QWidget):
 
-    setup_commited = Signal(dict)
+    run_setup_data_ready = Signal(dict)
 
     def __init__(self, configuration_manager: ConfigurationManager, state_model: StateModel):
         super().__init__()
@@ -167,19 +169,28 @@ class RunSetupWidget(QWidget):
     def _commit(self):
         """Commit the data from the input widgets."""
 
-        self._state_model.investigator = self._investigator_cb.currentText()
-        self._state_model.run_name = self._run_name_le.text()
-        self._state_model.run_description = self._run_description_le.text()
-        self._state_model.instrument = self._instrument_cb.currentText()
-        self._state_model.flowcell = self._flowcell_cb.currentText()
-        self._state_model.reagent_kit = self._reagent_kit_cb.currentText()
-
         read_cycles = self._read_cycles_cb.currentText()
         read1_cycles, index1_cycles, index2_cycles, read2_cycles = read_cycles.split("-")
 
-        self._state_model.run_cycles = (int(read1_cycles), int(index1_cycles), int(index2_cycles), int(read1_cycles))
+        run_setup_data = {
+            "investigator": self._investigator_cb.currentText(),
+            "run_name": self._run_name_le.text(),
+            "run_description": self._run_description_le.text(),
+            "instrument": self._instrument_cb.currentText(),
+            "flowcell": self._flowcell_cb.currentText(),
+            "reagent_kit": self._reagent_kit_cb.currentText(),
+            "read_cycles": self._read_cycles_cb.currentText(),
+            "custom_read_cycles": self._custom_read_cycles_le.text(),
+            "read1_cycles": int(read1_cycles), #"read1_cycles": read1_cycles,
+            "index2_cycles": int(index2_cycles), #"index2_cycles": index2_cycles,
+            "read2_cycles": int(read2_cycles), #"read2_cycles": read2_cycles,
+            "index1_cycles": int(index1_cycles), #"index1_cycles": index1_cycles
+        }
 
-        self._state_model.set_lookup_data()
+        pprint(run_setup_data)
+
+        self.run_setup_data_ready.emit(run_setup_data)
+
 
     @staticmethod
     def extract_data(widget):

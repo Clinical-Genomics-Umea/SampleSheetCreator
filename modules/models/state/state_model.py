@@ -86,10 +86,10 @@ class StateModel(QObject):
     chemistry_changed = Signal(str)
     reagent_kit_changed = Signal(str)
     run_cycles_changed = Signal(int, int, int, int) # read1_cycles, index1_cycles, index2_cycles, read2_cycles
-    # run_read1_cycles_changed = Signal(int)
-    # run_index1_cycles_changed = Signal(int)
-    # run_index2_cycles_changed = Signal(int)
-    # run_read2_cycles_changed = Signal(int)
+    read1_cycles_changed = Signal(int)
+    index1_cycles_changed = Signal(int)
+    index2_cycles_changed = Signal(int)
+    read2_cycles_changed = Signal(int)
     i5_seq_orientation_changed = Signal(str)
     i5_samplesheet_orientation_bcl2fastq_changed = Signal(str)
     i5_samplesheet_orientation_bclconvert_changed = Signal(str)
@@ -182,7 +182,7 @@ class StateModel(QObject):
         """Get a copy of the current run information."""
         return RunInfo(**self._run_info.__dict__)
     
-    def _update_run_info(self, **kwargs) -> Tuple[bool, dict]:
+    def set_run_setup_data(self, run_setpup_data: dict) -> None:
         """Update run info and emit appropriate signals.
         
         Args:
@@ -193,53 +193,43 @@ class StateModel(QObject):
                 - success: True if all updates were applied successfully
                 - validation_results: Results from _validate_run_info() if validation was performed
         """
-        if self._frozen:
-            self._logger.warning("Attempted to modify frozen state")
-            return False, {'error': 'State is frozen'}
-            
-        if not kwargs:
-            self._logger.debug("No fields to update in _update_run_info")
-            return False, {'error': 'No fields to update'}
-            
+
+        print(run_setpup_data)
+        if not run_setpup_data:
+            self._logger.debug("No fields to update in update_run_info")
+            return
+
         changed = False
-        validation_results = {}
+
         
         # Apply updates and track changes
-        for key, value in kwargs.items():
+        for key, value in run_setpup_data.items():
             if not hasattr(self._run_info, key):
                 self._logger.warning(f"Attempted to set unknown run info field: {key}")
                 continue
                 
             current_value = getattr(self._run_info, key)
             if current_value != value:
-                # Special handling for numeric fields
-                if key in {'read1_cycles', 'index1_cycles', 'index2_cycles', 'read2_cycles'}:
-                    try:
-                        value = int(value)
-                        if value < 0:
-                            self._logger.warning(f"Value for {key} must be non-negative")
-                            continue
-                    except (ValueError, TypeError):
-                        self._logger.warning(f"Invalid value for {key}: {value}")
-                        continue
-                        
-                # Update the value
                 setattr(self._run_info, key, value)
                 changed = True
-                
+
                 # Emit specific signal for this property
                 signal_name = f"{key}_changed"
                 if hasattr(self, signal_name):
                     getattr(self, signal_name).emit(value)
-        
+
+        self._set_dependent_data_from_config()
+
         # If anything changed, validate the run info
         if changed:
-            self._logger.debug(f"Run info changed, validating: {', '.join(kwargs.keys())}")
-            validation_success, validation_results = self._validate_run_info()
-            return validation_success, validation_results
-            
-        return False, {'info': 'No changes detected'}
-    
+            self._logger.debug(f"Run info changed: {run_setpup_data}")
+        else:
+            self._logger.debug("No changes detected in _update_run_info")
+
+        # validation_results = self._validate_run_info()
+        # return changed, validation_results
+
+
     def _validate_run_info(self) -> None:
         """Validate all run info fields and update completion status.
         
@@ -334,7 +324,7 @@ class StateModel(QObject):
     def _current_date_as_string():
         return datetime.now().strftime("%Y-%m-%d")
 
-    def set_lookup_data(self):
+    def _set_dependent_data_from_config(self):
         instrument = self._run_info.instrument
         if not instrument in self._instrument_data:
             return
@@ -343,21 +333,56 @@ class StateModel(QObject):
         if not flowcell in self._instrument_data[instrument]["Flowcell"]:
             return
 
-        lanes = self._instrument_data[instrument]["Flowcell"][flowcell]["Lanes"]
-        chemistry = self._instrument_data[instrument]["Chemistry"]
+        lanes = (
+            self._instrument_data.get(instrument, {})
+            .get("Flowcell", {})
+            .get(flowcell, {})
+            .get("Lanes")
+        )
 
-        i5_seq_orientation = self._instrument_data[instrument]["I5SampleSheetOrientation"]
-        i5_samplesheet_orientation_bcl2fastq = self._instrument_data[instrument]["I5SampleSheetOrientation"][
-            "BCL2Fastq"]
-        i5_samplesheet_orientation_bclconvert = self._instrument_data[instrument]["I5SampleSheetOrientation"][
-            "BCLConvert"]
+        chemistry = (self._instrument_data.get(instrument, {})
+                     .get("Chemistry", "UNKNOWN")
+        )
 
-        assess_color_balance = self._instrument_data[instrument]["AssessColorBalance"]
+        i5_seq_orientation = (
+            self._instrument_data.get(instrument, {})
+            .get("I5SampleSheetOrientation")
+        )
 
-        color_a = self._instrument_data[instrument]["Fluorophores"]["A"]
-        color_t = self._instrument_data[instrument]["Fluorophores"]["T"]
-        color_g = self._instrument_data[instrument]["Fluorophores"]["G"]
-        color_c = self._instrument_data[instrument]["Fluorophores"]["C"]
+        i5_samplesheet_orientation_bcl2fastq = (
+            self._instrument_data.get(instrument, {})
+            .get("I5SampleSheetOrientation", {})
+            .get("BCL2Fastq")
+        )
+
+        i5_samplesheet_orientation_bclconvert = (
+            self._instrument_data.get(instrument, {})
+            .get("I5SampleSheetOrientation", {})
+            .get("BCLConvert")
+        )
+
+        assess_color_balance = self._instrument_data.get(instrument, {}).get("AssessColorBalance")
+
+        color_a = (
+            self._instrument_data.get(instrument, {})
+            .get("Fluorophores", {})
+            .get("A")
+        )
+        color_t = (
+            self._instrument_data.get(instrument, {})
+            .get("Fluorophores", {})
+            .get("T")
+        )
+        color_g = (
+            self._instrument_data.get(instrument, {})
+            .get("Fluorophores", {})
+            .get("G")
+        )
+        color_c = (
+            self._instrument_data.get(instrument, {})
+            .get("Fluorophores", {})
+            .get("C")
+        )
 
         self.lanes = lanes
         self.chemistry = chemistry
@@ -373,7 +398,13 @@ class StateModel(QObject):
         self.color_g = color_g
         self.color_c = color_c
 
+        self._sample_index1_minlen = 0
+        self._sample_index1_maxlen = 0
+        self._sample_index2_minlen = 0
+        self._sample_index2_maxlen = 0
+
         self._check_run_info_complete()
+
 
     def _check_run_info_complete(self) -> None:
         """Validate that all required run info fields are populated.
@@ -753,41 +784,5 @@ class StateModel(QObject):
         return self._sample_model.to_dataframe()
 
     @property
-    def sample_index1_maxlen(self) -> int:
-        return self._sample_index1_maxlen
-
-    @property
-    def sample_index2_maxlen(self) -> int:
-        return self._sample_index2_maxlen
-
-    @property
-    def sample_index1_minlen(self) -> int:
-        return self._sample_index1_minlen
-
-    @property
-    def sample_index2_minlen(self) -> int:
-        return self._sample_index2_minlen
-
-    @property
-    def runcycles_index1(self) -> int:
-        return self._runcycles_index1
-
-    @property
-    def runcycles_index2(self) -> int:
-        return self._runcycles_index2
-
-    @property
-    def frozen(self) -> bool:
-        return self._frozen
-
-    @property
     def has_run_info(self) -> bool:
         return self._has_run_info
-
-    def freeze(self):
-        self._frozen = True
-        self.freeze_state_changed.emit(self._frozen)
-
-    def unfreeze(self):
-        self._frozen = False
-        self.freeze_state_changed.emit(self._frozen)

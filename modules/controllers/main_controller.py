@@ -171,6 +171,8 @@ class MainController(QObject):
         """
         Connect UI signals to controller slots.
         """
+        self._connect_run_setup_signals()
+
         self._connect_validation_signals()
         self._connect_override_pattern_signals()
         self._connect_application_signal()
@@ -182,6 +184,9 @@ class MainController(QObject):
         self._connect_index_kit_signals()
 
         self._connect_sample_model_signals()
+
+    def _connect_run_setup_signals(self):
+        self._run_setup_widget.run_setup_data_ready.connect(self._state_model.set_run_setup_data)
 
     def _connect_configuration_signals(self):
         self._configuration_manager.users_changed.connect(
@@ -209,8 +214,16 @@ class MainController(QObject):
         self._state_model.i5_seq_orientation_changed.connect(self._run_info_view.set_i5_seq_orientation_label)
         self._state_model.i5_samplesheet_orientation_bcl2fastq_changed.connect(self._run_info_view.set_bcl2fastq_ss_i5_orient_lbl)
         self._state_model.i5_samplesheet_orientation_bclconvert_changed.connect(self._run_info_view.set_bclconvert_ss_i5_orient_lbl)
-        self._state_model.run_cycles_changed.connect(self._index_kit_manager.on_run_cycles_changed)
-        self._state_model.run_cycles_changed.connect(self._run_info_view.set_run_cycles_labels)
+        self._state_model.read1_cycles_changed.connect(self._run_info_view.set_read1_cycles_label)
+        self._state_model.read2_cycles_changed.connect(self._run_info_view.set_read2_cycles_label)
+        self._state_model.index1_cycles_changed.connect(self._run_info_view.set_index1_cycles_label)
+        self._state_model.index2_cycles_changed.connect(self._run_info_view.set_index2_cycles_label)
+        # self._state_model.index_kit_changed.connect(self._run_info_view.set_index_kit_label)
+        # self._state_model.run_cycles_changed.connect(self._run_info_view.set_run_cycles_label)
+        # self._state_model.run_cycles_changed.connect(self._run_info_view.set_run_cycles_label)
+
+        # self._state_model.run_cycles_changed.connect(self._index_kit_manager.on_run_cycles_changed)
+        # self._state_model.run_cycles_changed.connect(self._run_info_view.set_run_cycles_labels)
 
         self._state_model.color_a_changed.connect(self._run_info_view.set_a_label)
         self._state_model.color_t_changed.connect(self._run_info_view.set_t_label)
