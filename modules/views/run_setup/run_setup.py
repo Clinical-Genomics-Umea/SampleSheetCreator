@@ -1,6 +1,4 @@
-from pprint import pprint
-
-from PySide6.QtCore import Signal, Slot, QTimer
+from PySide6.QtCore import Signal, Slot
 from PySide6.QtGui import QValidator
 from PySide6.QtWidgets import (
     QWidget,
@@ -14,7 +12,7 @@ from PySide6.QtWidgets import (
 
 from modules.models.configuration.configuration_manager import ConfigurationManager
 from modules.models.state.state_model import StateModel
-from modules.views.drawer_tools.run_setup.pattern_validator import PatternValidator
+from modules.views.run_setup.pattern_validator import PatternValidator
 from modules.views.ui_components import HorizontalLine
 
 

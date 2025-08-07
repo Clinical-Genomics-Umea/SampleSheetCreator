@@ -3,9 +3,8 @@ from PySide6.QtCore import Signal, Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSpacerItem, QSizePolicy
 
 from modules.models.application.application_manager import ApplicationManager
-from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.state.state_model import StateModel
-from modules.views.drawer_tools.application.application_widget import ApplicationWidget
+from modules.views.application.application_widget import ApplicationWidget
 from modules.views.ui_components import HorizontalLine
 
 

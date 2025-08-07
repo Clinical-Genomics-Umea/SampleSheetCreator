@@ -8,16 +8,15 @@ It handles loading, validating, and querying index kit data from JSON files.
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Optional, Any
 
-import jsonschema
 from PySide6.QtCore import QObject, Signal
 from jsonschema import validate, ValidationError
 
 from modules.models.configuration.configuration_manager import ConfigurationManager
 from modules.models.indexes.index_kit_model import IndexKitModel
 from modules.models.state.state_model import StateModel
-from modules.views.drawer_tools.index.index_kit_widget import IndexKitWidget
+from modules.views.index.index_kit_widget import IndexKitWidget
 
 
 class IndexKitManager(QObject):

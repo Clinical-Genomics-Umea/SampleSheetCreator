@@ -1,11 +1,6 @@
-from pathlib import Path
-
-from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QToolBox, QLabel
 
 from modules.models.indexes.index_kit_manager import IndexKitManager
-from modules.models.indexes.index_kit_model import IndexKitModel
-from modules.views.drawer_tools.index.index_kit_widget import IndexKitWidget
 from modules.views.ui_components import HorizontalLine
 
 

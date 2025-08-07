@@ -1,7 +1,6 @@
 from PySide6.QtWidgets import QWidget, QHBoxLayout
 
-from modules.models.indexes.index_kit_model import IndexKitModel
-from modules.views.drawer_tools.index.index_table_column_widget import SingleIndexWidget
+from modules.views.index.index_table_column_widget import SingleIndexWidget
 
 
 class IndexKitWidget(QWidget):

@@ -4,7 +4,6 @@ import sys
 
 from PySide6.QtWidgets import (
     QMainWindow,
-    QSizePolicy,
     QFileDialog,
     QWidget,
     QPushButton,
@@ -14,14 +13,14 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Signal, Slot
 
 from modules.views.config.configuration_widget import ConfigurationWidget
-from modules.views.drawer_tools.file.file import FileView
-from modules.views.drawer_tools.index.index_kit_toolbox import IndexKitToolbox
-from modules.views.drawer_tools.lane.lane import LanesWidget
-from modules.views.drawer_tools.override.override import OverrideCyclesWidget
-from modules.views.drawer_tools.application.application_container import ApplicationContainerWidget
+from modules.views.file.file import FileView
+from modules.views.index.index_kit_toolbox import IndexKitToolbox
+from modules.views.lane.lane import LanesWidget
+from modules.views.override.override import OverrideCyclesWidget
+from modules.views.application.application_container import ApplicationContainerWidget
 from modules.views.log.log_widget import LogWidget
 from modules.views.run_info.run_info_view import RunInfoView
-from modules.views.drawer_tools.run_setup.run_setup import RunSetupWidget
+from modules.views.run_setup.run_setup import RunSetupWidget
 from modules.views.export.export import ExportWidget
 from modules.views.validation.main_validation_widget import (
     MainValidationWidget,

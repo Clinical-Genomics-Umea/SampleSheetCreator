@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
 )
 
 from PySide6.QtCore import Signal
-from modules.views.drawer_tools.application.clickable_label import ClickableLabel
+from modules.views.application.clickable_label import ClickableLabel
 
 
 class ApplicationWidget(QWidget):
