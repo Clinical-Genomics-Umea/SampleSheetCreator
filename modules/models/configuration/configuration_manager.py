@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-import json
-import os
 import re
-import time
-from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pprint import pprint
 from typing import Optional, Generator
@@ -21,15 +17,15 @@ from modules.utils.utils import read_yaml_file, uuid
 
 # Default configuration paths (relative to application root)
 DEFAULT_CONFIG_PATHS = {
-    'index_conf_root': 'config/indexes/data',
-    'index_schema_root': 'json_schemas/index',
-    'application_conf_root': 'config/applications',
-    'method_conf_root': 'config/methods',
-    'run_settings': 'config/run/run_settings.yaml',
-    'instrument_data_conf': 'config/run/instrument_data.yaml',
-    'sample_settings': 'config/sample_settings.yaml',
-    'validation_settings': 'config/validation/validation_settings.yaml',
-    'samplesheet_template': 'config/samplesheet_v1.yaml',
+    'index_config_root_path': 'config/indexes/data',
+    'index_schema_root_path': 'json_schemas/index',
+    'application_profiles_root_path': 'config/applications/application_profiles',
+    'method_config_root_path': 'config/methods',
+    'run_settings_file_path': 'config/run/run_settings.yaml',
+    'instrument_data_config_file_path': 'config/run/instrument_data.yaml',
+    'sample_settings_file_path': 'config/sample_settings.yaml',
+    'validation_settings_file_path': 'config/validation/validation_settings.yaml',
+    'samplesheet_v1_template_file_path': 'config/samplesheet_v1.yaml',
 }
 
 # Type variables for generic methods
@@ -165,10 +161,10 @@ class ConfigurationManager(QObject):
 
         # Load application and method configs in parallel if possible
         self._application_configs = self._load_configs_from_dir(
-            self._paths['application_conf_root']
+            self._paths['application_profiles_root_path']
         )
         self._method_configs = self._load_configs_from_dir(
-            self._paths['method_conf_root']
+            self._paths['method_config_root_path']
         )
 
         self._logger.info("ConfigurationManager initialized successfully")
@@ -217,7 +213,7 @@ class ConfigurationManager(QObject):
         
         # Load run settings first as it contains configurations needed by other components
         self._run_settings = self._load_config_file(
-            self._paths['run_settings'],
+            self._paths['run_settings_file_path'],
             "run settings",
             required_keys=["RunViewFields", "RunSetupWidgets", "RunDataFields", "ReadCyclesFields"]
         )
@@ -230,24 +226,24 @@ class ConfigurationManager(QObject):
         
         # Load other configurations
         self._instrument_data = self._load_config_file(
-            self._paths['instrument_data_conf'],
+            self._paths['instrument_data_config_file_path'],
             "instrument data"
         )
         
         self._samples_settings = self._load_config_file(
-            self._paths['sample_settings'],
+            self._paths['sample_settings_file_path'],
             "sample settings",
             required_keys=["required_fields"]
         )
         self._required_sample_fields = self._samples_settings["required_fields"]
         
         self._validation_settings = self._load_config_file(
-            self._paths['validation_settings'],
+            self._paths['validation_settings_file_path'],
             "validation settings"
         )
         
         self._samplesheet_v1_template = self._load_config_file(
-            self._paths['samplesheet_template'],
+            self._paths['samplesheet_v1_template_file_path'],
             "sample sheet template"
         )
         
@@ -344,7 +340,7 @@ class ConfigurationManager(QObject):
             return []
             
         configs = []
-        yaml_files = list(config_dir.glob('*.yaml')) + list(config_dir.glob('*.yml'))
+        yaml_files = list(config_dir.glob('**/*.yaml')) + list(config_dir.glob('**/*.yml'))
         
         if not yaml_files:
             self._logger.warning("No YAML files found in directory: %s", config_dir)
@@ -407,16 +403,16 @@ class ConfigurationManager(QObject):
         Returns:
             Path to the index kits directory
         """
-        return self._paths['index_conf_root']
+        return self._paths['index_config_root_path']
 
     @property
-    def index_schema_root(self) -> Path:
+    def index_schema_root_path(self) -> Path:
         """Get the root directory for index schema files.
         
         Returns:
             Path to the index schema directory
         """
-        return self._paths['index_schema_root']
+        return self._paths['index_schema_root_path']
 
     @property
     def instrument_flowcells(self) -> Dict[str, Any]:

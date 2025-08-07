@@ -96,7 +96,7 @@ class IndexKitManager(QObject):
             OSError: If there's an error reading the schema files.
             json.JSONDecodeError: If a schema file contains invalid JSON.
         """
-        root_path = self._configuration_manager.index_schema_root
+        root_path = self._configuration_manager.index_schema_root_path
         schemas: Dict[str, Dict[str, Any]] = {}
         
         if not root_path.exists():
