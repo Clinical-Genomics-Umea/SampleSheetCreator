@@ -21,16 +21,16 @@ from modules.models.indexes.index_table_model import IndexTableModel
 
 
 class SingleIndexWidget(QWidget):
-    def __init__(self, index_set_name: str, index_set: dict) -> None:
+    def __init__(self, index_set_name: str, index_set_df: pd.DataFrame) -> None:
 
         super().__init__()
 
         self._index_set_name = index_set_name
-        self._index_df = pd.DataFrame.from_dict(index_set)
+        self._index_set_df = index_set_df
 
         self._shown_fields = self._get_shown_fields()
 
-        self._index_table_model = IndexTableModel(self._index_df)
+        self._index_table_model = IndexTableModel(self._index_set_df)
 
         self._proxy_model = AllColumnFilterProxyModel()
         self._proxy_model.setSourceModel(self._index_table_model)
@@ -68,7 +68,7 @@ class SingleIndexWidget(QWidget):
     def _get_shown_fields(self):
 
         possible_fields = ["IndexI7Name", "IndexI5Name", "Pos"]
-        return [f for f in self._index_df.columns if f in possible_fields]
+        return [f for f in self._index_set_df.columns if f in possible_fields]
 
     def _set_shown_columns(self):
         """

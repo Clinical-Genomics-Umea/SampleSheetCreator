@@ -31,7 +31,7 @@ class IndexKitModel:
         self.index_set: Dict[str, pd.DataFrame] = {}
         self._index_kit_name: str = index_kit_data["IndexKitName"]
         self._override_cycles_pattern: Optional[str] = index_kit_data.get("OverrideCyclesPattern")
-        
+
         # Handle adapters
         adapters = index_kit_data.get("Adapters", {})
         self._adapter_read_1: Optional[str] = adapters.get("AdapterRead1")
@@ -87,9 +87,9 @@ class IndexKitModel:
                     df["AdapterRead2"] = self._adapter_read_2
                 if self._override_cycles_pattern is not None:
                     df["OverrideCyclesPattern"] = self._override_cycles_pattern
-                
-                self.index_set[name] = df
-                
+
+                print(df.to_string())
+
             except Exception as e:
                 self._logger.error(f"Error initializing index set '{name}': {e}")
                 continue
