@@ -278,10 +278,10 @@ class MainController(QObject):
             self._validation_widget.clear_validation_widgets
         )
         self._main_validator.prevalidation_failed.connect(
-            self._state_model.unfreeze
+            self._state_model.mark_as_unvalidated
         )
         self._main_validator.prevalidation_success.connect(
-            self._state_model.freeze
+            self._state_model.mark_as_validated
         )
 
     def _connect_override_pattern_signals(self):

@@ -24,7 +24,6 @@ class RunState(Enum):
     UNINITIALIZED = auto()
     CONFIGURING = auto()
     READY = auto()
-    FROZEN = auto()
     ERROR = auto()
 
 
@@ -61,6 +60,8 @@ class RunInfo:
     color_c: Any = None
     assess_color_balance: bool = False
     dragen_app_version: str = ""
+
+    is_validated: bool = False
 
 
 class StateModel(QObject):
@@ -147,6 +148,11 @@ class StateModel(QObject):
     
     # --- State Management ---
     
+    def mark_as_unvalidated(self) -> None:
+        """Mark the current state as requiring revalidation."""
+        if self._run_info.is_validated:
+            self._run_info.is_validated = False
+    
     @property
     def state(self) -> RunState:
         """Get the current application state."""
@@ -156,29 +162,11 @@ class StateModel(QObject):
     def state(self, new_state: RunState) -> None:
         """Update the application state and emit appropriate signals."""
         if self._state != new_state:
+            self.mark_as_unvalidated()
             old_state = self._state
             self._state = new_state
             self._logger.debug(f"State changed from {old_state} to {new_state}")
             self.state_changed.emit({"old_state": old_state, "new_state": new_state})
-    
-    @property
-    def frozen(self) -> bool:
-        """Check if the state is frozen (read-only)."""
-        return self._frozen
-    
-    def freeze(self) -> None:
-        """Freeze the state to prevent modifications."""
-        if not self._frozen:
-            self._frozen = True
-            self.freeze_state_changed.emit(True)
-            self.state = RunState.FROZEN
-    
-    def unfreeze(self) -> None:
-        """Unfreeze the state to allow modifications."""
-        if self._frozen:
-            self._frozen = False
-            self.freeze_state_changed.emit(False)
-            self.state = RunState.READY if self._run_info_complete else RunState.CONFIGURING
     
     # --- Run Info Management ---
     
@@ -187,7 +175,7 @@ class StateModel(QObject):
         """Get a copy of the current run information."""
         return RunInfo(**self._run_info.__dict__)
     
-    def set_run_setup_data(self, run_setpup_data: dict) -> None:
+    def set_run_setup_data(self, run_setup_data: dict) -> None:
         """Update run info and emit appropriate signals.
         
         Args:
@@ -199,14 +187,14 @@ class StateModel(QObject):
                 - validation_results: Results from _validate_run_info() if validation was performed
         """
 
-        if not run_setpup_data:
+        if not run_setup_data:
             self._logger.debug("No fields to update in update_run_info")
             return
 
         changed = False
 
         # Apply updates and track changes
-        for key, value in run_setpup_data.items():
+        for key, value in run_setup_data.items():
             if not hasattr(self._run_info, key):
                 self._logger.warning(f"Attempted to set unknown run info field: {key}")
                 continue
@@ -283,28 +271,11 @@ class StateModel(QObject):
         
         # Update state if changed
         if all_valid != self._run_info_complete:
-            self._run_info_complete = True
-            self.run_info_ready.emit()
-
-        self._run_info_complete = False
-        self.run_info_not_ready.emit()
-
-
-    # --- Index Length Management ---
-    
-    # def _update_index_lengths(self) -> None:
-    #     """Update index lengths from the sample model."""
-    #     df = self._sample_model.to_dataframe()
-    #
-    #     # Get lengths for both index columns
-    #     i7_min, i7_max = self._get_str_lengths_in_df_col(df["IndexI7"])
-    #     i5_min, i5_max = self._get_str_lengths_in_df_col(df["IndexI5"])
-    #
-    #     # Update the state model
-    #     self.sample_index1_minlen = int(i7_min)
-    #     self.sample_index1_maxlen = int(i7_max)
-    #     self.sample_index2_minlen = int(i5_min)
-    #     self.sample_index2_maxlen = int(i5_max)
+            self._run_info_complete = all_valid
+            if self._run_info_complete:
+                self.run_info_ready.emit()
+            else:
+                self.run_info_not_ready.emit()
 
     @staticmethod
     def _current_date_as_string():
@@ -443,9 +414,6 @@ class StateModel(QObject):
         if len(lengths) == 0:
             return 0, 0
 
-        print("min", lengths.min())
-        print("max", lengths.max())
-
         return lengths.min(), lengths.max()
 
     def update_index_lengths(self):
@@ -470,6 +438,20 @@ class StateModel(QObject):
         self.sample_index1_maxlen = int(i7_max)
         self.sample_index2_minlen = int(i5_min)
         self.sample_index2_maxlen = int(i5_max)
+
+    @property
+    def is_validated(self):
+        return self._run_info.is_validated
+
+    @is_validated.setter
+    def is_validated(self, is_validated: bool):
+        if self._run_info.is_validated != is_validated:
+            self._run_info.is_validated = is_validated
+            
+    def mark_as_validated(self) -> None:
+        """Mark the current state as validated."""
+        if not self._run_info.is_validated:
+            self._run_info.is_validated = True
 
     @property
     def assess_color_balance(self):
@@ -529,139 +511,84 @@ class StateModel(QObject):
     def color_c(self, color_c: object):
         if self._run_info.color_c == color_c:
             return
-
-        self._run_info.color_c = color_c
         self.color_c_changed.emit(color_c)
 
     @property
-    def chemistry(self):
+    def chemistry(self) -> str:
         return self._run_info.chemistry
-
+    
     @chemistry.setter
-    def chemistry(self, chemistry: str):
-
-        if self._run_info.chemistry == chemistry:
-            return
-
-        self._run_info.chemistry = chemistry
-        self.chemistry_changed.emit(chemistry)
+    def chemistry(self, value: str) -> None:
+        if self._run_info.chemistry != value:
+            self._invalidate_validation()
+            self._run_info.chemistry = value
+            self.chemistry_changed.emit(value)
 
     @property
     def date(self) -> str:
         return self._run_info.date
-
+        
     @date.setter
-    def date(self, date: str) -> None:
-
-        if self._run_info.date == date:
-            return
-
-        self._run_info.date = date
-        self.date_changed.emit(date)
-
-    @property
-    def investigator(self):
-        return self._run_info.investigator
-
-    @investigator.setter
-    def investigator(self, investigator: str):
-
-        if self._run_info == investigator:
-            return
-
-        self._run_info.investigator = investigator
-        self.investigator_changed.emit(investigator)
+    def date(self, value: str) -> None:
+        if self._run_info.date != value:
+            self._invalidate_validation()
+            self._run_info.date = value
+            self.date_changed.emit(value)
 
     @property
     def flowcell(self) -> str:
         return self._run_info.flowcell
-
+    
     @flowcell.setter
-    def flowcell(self, flowcell: str):
-
-        if self._run_info.flowcell == flowcell:
-            return
-
-        self._run_info.flowcell = flowcell
-        self.flowcell_changed.emit(flowcell)
+    def flowcell(self, value: str) -> None:
+        if self._run_info.flowcell != value:
+            self._invalidate_validation()
+            self._run_info.flowcell = value
+            self.flowcell_changed.emit(value)
 
     @property
     def run_name(self) -> str:
         return self._run_info.run_name
-
+        
     @run_name.setter
-    def run_name(self, run_name: str) -> None:
-
-        if self._run_info.run_name == run_name:
-            return
-
-        self._run_info.run_name = run_name
-        self.run_name_changed.emit(run_name)
-
-    @property
-    def run_description(self) -> str:
-        return self._run_info.run_description
-
-    @run_description.setter
-    def run_description(self, run_desc: str):
-
-        if self._run_info.run_description == run_desc:
-            return
-
-        self._run_info.run_description = run_desc
-        self.run_description_changed.emit(run_desc)
-
-    @property
-    def instrument(self) -> str:
-        return self._run_info.instrument
-
-    @instrument.setter
-    def instrument(self, instrument: str):
-
-        if self._run_info.instrument == instrument:
-            return
-
-        self._run_info.instrument = instrument
-        self.instrument_changed.emit(instrument)
-
+    def run_name(self, value: str) -> None:
+        if self._run_info.run_name != value:
+            self._invalidate_validation()
+            self._run_info.run_name = value
+            self.run_name_changed.emit(value)
+    
     @property
     def reagent_kit(self) -> str:
         return self._run_info.reagent_kit
-
+    
     @reagent_kit.setter
-    def reagent_kit(self, reagent_kit: str):
-
-        if self._run_info.reagent_kit == reagent_kit:
-            return
-
-        self._run_info.reagent_kit = reagent_kit
-        self.reagent_kit_changed.emit(reagent_kit)
+    def reagent_kit(self, value: str) -> None:
+        if self._run_info.reagent_kit != value:
+            self._invalidate_validation()
+            self._run_info.reagent_kit = value
+            self.reagent_kit_changed.emit(value)
 
     @property
     def i5_samplesheet_orientation_bcl2fastq(self) -> str:
         return self._run_info.i5_samplesheet_orientation_bcl2fastq
 
     @i5_samplesheet_orientation_bcl2fastq.setter
-    def i5_samplesheet_orientation_bcl2fastq(self, i5_samplesheet_orientation_bcl2fastq: str):
-
-        if self._run_info.i5_samplesheet_orientation_bcl2fastq == i5_samplesheet_orientation_bcl2fastq:
-            return
-
-        self._run_info.i5_samplesheet_orientation_bcl2fastq = i5_samplesheet_orientation_bcl2fastq
-        self.i5_samplesheet_orientation_bcl2fastq_changed.emit(i5_samplesheet_orientation_bcl2fastq)
+    def i5_samplesheet_orientation_bcl2fastq(self, value: str) -> None:
+        if self._run_info.i5_samplesheet_orientation_bcl2fastq != value:
+            self._invalidate_validation()
+            self._run_info.i5_samplesheet_orientation_bcl2fastq = value
+            self.i5_samplesheet_orientation_bcl2fastq_changed.emit(value)
 
     @property
     def i5_samplesheet_orientation_bclconvert(self) -> str:
         return self._run_info.i5_samplesheet_orientation_bclconvert
 
     @i5_samplesheet_orientation_bclconvert.setter
-    def i5_samplesheet_orientation_bclconvert(self, i5_samplesheet_orientation_bclconvert: str):
-
-        if self._run_info.i5_samplesheet_orientation_bclconvert == i5_samplesheet_orientation_bclconvert:
-            return
-
-        self._run_info.i5_samplesheet_orientation_bclconvert = i5_samplesheet_orientation_bclconvert
-        self.i5_samplesheet_orientation_bclconvert_changed.emit(i5_samplesheet_orientation_bclconvert)
+    def i5_samplesheet_orientation_bclconvert(self, value: str) -> None:
+        if self._run_info.i5_samplesheet_orientation_bclconvert != value:
+            self._invalidate_validation()
+            self._run_info.i5_samplesheet_orientation_bclconvert = value
+            self.i5_samplesheet_orientation_bclconvert_changed.emit(value)
 
     @property
     def lanes(self) -> list[int]:
@@ -706,52 +633,44 @@ class StateModel(QObject):
         return self._run_info.index1_cycles
 
     @index1_cycles.setter
-    def index1_cycles(self, index1_cycles: int):
-
-        if self._run_info.index1_cycles == index1_cycles:
-            return
-
-        self._run_info.index1_cycles = index1_cycles
-        self.index1_cycles_changed.emit(index1_cycles)
+    def index1_cycles(self, value: int) -> None:
+        if self._run_info.index1_cycles != value:
+            self._invalidate_validation()
+            self._run_info.index1_cycles = value
+            self.index1_cycles_changed.emit(value)
 
     @property
     def index2_cycles(self) -> int:
         return self._run_info.index2_cycles
 
     @index2_cycles.setter
-    def index2_cycles(self, index2_cycles: int):
-
-        if self._run_info.index2_cycles == index2_cycles:
-            return
-
-        self._run_info.index2_cycles = index2_cycles
-        self.index2_cycles_changed.emit(index2_cycles)
+    def index2_cycles(self, value: int) -> None:
+        if self._run_info.index2_cycles != value:
+            self._invalidate_validation()
+            self._run_info.index2_cycles = value
+            self.index2_cycles_changed.emit(value)
 
     @property
     def read1_cycles(self) -> int:
         return self._run_info.read1_cycles
 
     @read1_cycles.setter
-    def read1_cycles(self, read1_cycles: int):
-
-        if self._run_info.read1_cycles == read1_cycles:
-            return
-
-        self._run_info.read1_cycles = read1_cycles
-        self.read1_cycles_changed.emit(read1_cycles)
+    def read1_cycles(self, value: int) -> None:
+        if self._run_info.read1_cycles != value:
+            self._invalidate_validation()
+            self._run_info.read1_cycles = value
+            self.read1_cycles_changed.emit(value)
 
     @property
     def read2_cycles(self) -> int:
         return self._run_info.read2_cycles
 
     @read2_cycles.setter
-    def read2_cycles(self, read2_cycles: int):
-
-        if self._run_info.read2_cycles == read2_cycles:
-            return
-
-        self._run_info.read2_cycles = read2_cycles
-        self.read2_cycles_changed.emit(read2_cycles)
+    def read2_cycles(self, value: int) -> None:
+        if self._run_info.read2_cycles != value:
+            self._invalidate_validation()
+            self._run_info.read2_cycles = value
+            self.read2_cycles_changed.emit(value)
 
     @property
     def custom_cycles(self) -> bool:
@@ -759,11 +678,10 @@ class StateModel(QObject):
 
     @custom_cycles.setter
     def custom_cycles(self, custom_cycles: bool):
-        if self._run_info.custom_cycles == custom_cycles:
-            return
-
-        self._run_info.custom_cycles = custom_cycles
-        self.custom_cycles_changed.emit(custom_cycles)
+        if self._run_info.custom_cycles != custom_cycles:
+            self._invalidate_validation()
+            self._run_info.custom_cycles = custom_cycles
+            self.custom_cycles_changed.emit(custom_cycles)
 
     @property
     def i5_seq_orientation(self) -> str:
@@ -771,8 +689,10 @@ class StateModel(QObject):
 
     @i5_seq_orientation.setter
     def i5_seq_orientation(self, i5_seq_orientation: str):
-        self._run_info.i5_seq_orientation = i5_seq_orientation
-        self.i5_seq_orientation_changed.emit(i5_seq_orientation)
+        if self._run_info.i5_seq_orientation != i5_seq_orientation:
+            self._invalidate_validation()
+            self._run_info.i5_seq_orientation = i5_seq_orientation
+            self.i5_seq_orientation_changed.emit(i5_seq_orientation)
 
     @property
     def dragen_app_version(self) -> str:
@@ -780,12 +700,10 @@ class StateModel(QObject):
 
     @dragen_app_version.setter
     def dragen_app_version(self, dragen_app_version):
-
-        if self._run_info.dragen_app_version == dragen_app_version:
-            return
-
-        self._run_info.dragen_app_version = dragen_app_version
-        self.dragen_app_version_changed.emit(dragen_app_version)
+        if self._run_info.dragen_app_version != dragen_app_version:
+            self._invalidate_validation()
+            self._run_info.dragen_app_version = dragen_app_version
+            self.dragen_app_version_changed.emit(dragen_app_version)
 
     @property
     def sample_index1_minlen(self) -> int:
@@ -793,13 +711,10 @@ class StateModel(QObject):
 
     @sample_index1_minlen.setter
     def sample_index1_minlen(self, sample_index1_minlen):
-        print("set sample_index1_minlen", sample_index1_minlen)
-        if self._run_info.sample_index1_minlen == sample_index1_minlen:
-            return
-
-        self._run_info.sample_index1_minlen = sample_index1_minlen
-        self.sample_index1_minlen_changed.emit(sample_index1_minlen)
-        print("sample_index1_minlen_changed.emit", sample_index1_minlen)
+        if self._run_info.sample_index1_minlen != sample_index1_minlen:
+            self._invalidate_validation()
+            self._run_info.sample_index1_minlen = sample_index1_minlen
+            self.sample_index1_minlen_changed.emit(sample_index1_minlen)
 
     @property
     def sample_index1_maxlen(self) -> int:
@@ -807,14 +722,10 @@ class StateModel(QObject):
 
     @sample_index1_maxlen.setter
     def sample_index1_maxlen(self, sample_index1_maxlen):
-        print("set sample_index1_maxlen", sample_index1_maxlen)
-        if self._run_info.sample_index1_maxlen == sample_index1_maxlen:
-            return
-
-        self._run_info.sample_index1_maxlen = sample_index1_maxlen
-        self.sample_index1_maxlen_changed.emit(sample_index1_maxlen)
-
-        print("sample_index1_maxlen_changed.emit", sample_index1_maxlen)
+        if self._run_info.sample_index1_maxlen != sample_index1_maxlen:
+            self._invalidate_validation()
+            self._run_info.sample_index1_maxlen = sample_index1_maxlen
+            self.sample_index1_maxlen_changed.emit(sample_index1_maxlen)
 
 
     @property
@@ -823,13 +734,10 @@ class StateModel(QObject):
 
     @sample_index2_minlen.setter
     def sample_index2_minlen(self, sample_index2_minlen):
-        print("set sample_index2_minlen", sample_index2_minlen)
-        if self._run_info.sample_index2_minlen == sample_index2_minlen:
-            return
-
-        self._run_info.sample_index2_minlen = sample_index2_minlen
-        self.sample_index2_minlen_changed.emit(sample_index2_minlen)
-        print("sample_index2_minlen_changed.emit", sample_index2_minlen)
+        if self._run_info.sample_index2_minlen != sample_index2_minlen:
+            self._invalidate_validation()
+            self._run_info.sample_index2_minlen = sample_index2_minlen
+            self.sample_index2_minlen_changed.emit(sample_index2_minlen)
 
     @property
     def sample_index2_maxlen(self) -> int:
@@ -837,13 +745,10 @@ class StateModel(QObject):
 
     @sample_index2_maxlen.setter
     def sample_index2_maxlen(self, sample_index2_maxlen):
-        print("set sample_index2_maxlen", sample_index2_maxlen)
-        if self._run_info.sample_index2_maxlen == sample_index2_maxlen:
-            return
-
-        self._run_info.sample_index2_maxlen = sample_index2_maxlen
-        self.sample_index2_maxlen_changed.emit(sample_index2_maxlen)
-        print("sample_index2_maxlen_changed.emit", sample_index2_maxlen)
+        if self._run_info.sample_index2_maxlen != sample_index2_maxlen:
+            self._invalidate_validation()
+            self._run_info.sample_index2_maxlen = sample_index2_maxlen
+            self.sample_index2_maxlen_changed.emit(sample_index2_maxlen)
 
     @property
     def sample_df(self) -> pd.DataFrame:
