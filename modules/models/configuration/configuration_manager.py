@@ -6,6 +6,7 @@ import re
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+from pprint import pprint
 from typing import Optional, Generator
 from datetime import datetime
 from enum import Enum
@@ -17,22 +18,6 @@ import yaml
 from PySide6.QtCore import QSettings, QObject, Signal, Slot
 
 from modules.utils.utils import read_yaml_file, uuid
-
-@contextmanager
-def log_duration(description: str, logger: Logger) -> Generator[None, None, None]:
-    """Context manager to log the duration of a code block.
-    
-    Args:
-        description: Description of the code block being timed
-        logger: Logger instance to use for logging
-    """
-    start_time = time.time()
-    try:
-        yield
-    finally:
-        elapsed = time.time() - start_time
-        logger.debug(f"{description} completed in {elapsed:.2f} seconds")
-
 
 # Default configuration paths (relative to application root)
 DEFAULT_CONFIG_PATHS = {
@@ -168,49 +153,26 @@ class ConfigurationManager(QObject):
         
         self._logger.info("Initializing ConfigurationManager")
         
-        try:
-            with log_duration("configuration initialization", self._logger):
-                # Initialize paths
-                self._paths = self._init_paths(config_paths or {})
-                
-                # Load all configurations
-                self._load_configurations()
-                
-                # Initialize run data with defaults
-                self._run_data = RunData()
-                self._update_run_data(self._run_settings["RunDataDefaults"])
-                
-                # Load application and method configs in parallel if possible
-                with log_duration("loading application and method configs", self._logger):
-                    self._application_configs = self._load_configs_from_dir(
-                        self._paths['application_conf_root']
-                    )
-                    self._method_configs = self._load_configs_from_dir(
-                        self._paths['method_conf_root']
-                    )
-                
-                self._logger.info("ConfigurationManager initialized successfully")
-                
-        except yaml.YAMLError as e:
-            error_msg = f"YAML parsing error: {str(e)}"
-            self._logger.error(error_msg, exc_info=True)
-            raise ConfigLoadError(Path("<unknown>"), error_msg) from e
-            
-        except KeyError as e:
-            error_msg = f"Missing required configuration key: {str(e)}"
-            self._logger.error(error_msg)
-            raise ConfigError(error_msg, {"missing_key": str(e)}) from e
-            
-        except FileNotFoundError as e:
-            error_msg = f"Configuration file not found: {e.filename}"
-            self._logger.error(error_msg)
-            raise ConfigLoadError(Path(e.filename), error_msg) from e
-            
-        except Exception as e:
-            error_msg = f"Unexpected error during initialization: {str(e)}"
-            self._logger.error(error_msg, exc_info=True)
-            raise ConfigError(error_msg) from e
-            
+        # Initialize paths
+        self._paths = self._init_paths(config_paths or {})
+
+        # Load all configurations
+        self._load_configurations()
+
+        # Initialize run data with defaults
+        self._run_data = RunData()
+        self._update_run_data(self._run_settings["RunDataDefaults"])
+
+        # Load application and method configs in parallel if possible
+        self._application_configs = self._load_configs_from_dir(
+            self._paths['application_conf_root']
+        )
+        self._method_configs = self._load_configs_from_dir(
+            self._paths['method_conf_root']
+        )
+
+        self._logger.info("ConfigurationManager initialized successfully")
+
     def _init_paths(self, custom_paths: Dict[str, str]) -> Dict[str, Path]:
         """Initialize and validate all configuration paths.
         
@@ -226,37 +188,18 @@ class ConfigurationManager(QObject):
         """
         self._logger.debug("Initializing configuration paths")
         paths: Dict[str, Path] = {}
-            
-        try:
-            for key, default_path in self._DEFAULT_PATHS.items():
-                # Get path from custom paths or use default
-                path_str = str(custom_paths.get(key, default_path))
-                path = Path(path_str).resolve()
-                paths[key] = path
-                
-                # For directory paths, ensure they exist and are accessible
-                if key.endswith('_root'):
-                    self._logger.debug("Ensuring directory exists: %s", path)
-                    try:
-                        path.mkdir(parents=True, exist_ok=True)
-                        if not os.access(path, os.R_OK | os.W_OK):
-                            raise ConfigError(
-                                f"Insufficient permissions for directory: {path}",
-                                {"path": str(path), "permissions": oct(os.stat(path).st_mode)[-3:]}
-                            )
-                    except OSError as e:
-                        raise ConfigError(
-                            f"Failed to create directory {path}: {e}",
-                            {"path": str(path), "error": str(e)}
-                        ) from e
-                        
-            self._logger.debug("All configuration paths initialized successfully")
-            return paths
-            
-        except Exception as e:
-            self._logger.error("Failed to initialize configuration paths: %s", str(e))
-            raise
-            
+
+        for key, default_path in self._DEFAULT_PATHS.items():
+            # Get path from custom paths or use default
+            path_str = str(custom_paths.get(key, default_path))
+            path = Path(path_str).resolve()
+            paths[key] = path
+
+        pprint(paths)
+
+        self._logger.debug("All configuration paths initialized successfully")
+        return paths
+
     def _load_configurations(self) -> None:
         """Load and validate all configuration files.
         

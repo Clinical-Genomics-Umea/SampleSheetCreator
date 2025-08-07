@@ -106,10 +106,10 @@ class StateModel(QObject):
     assess_color_balance_changed = Signal(bool)
     
     # Index length signals
-    sample_index1_maxlen_changed = Signal(int)
-    sample_index2_maxlen_changed = Signal(int)
     sample_index1_minlen_changed = Signal(int)
+    sample_index1_maxlen_changed = Signal(int)
     sample_index2_minlen_changed = Signal(int)
+    sample_index2_maxlen_changed = Signal(int)
     
     # Application state signals
     dragen_app_version_changed = Signal(str)
@@ -292,19 +292,19 @@ class StateModel(QObject):
 
     # --- Index Length Management ---
     
-    def _update_index_lengths(self) -> None:
-        """Update index lengths from the sample model."""
-        df = self._sample_model.to_dataframe()
-        
-        # Get lengths for both index columns
-        i7_min, i7_max = self._get_str_lengths_in_df_col(df["IndexI7"])
-        i5_min, i5_max = self._get_str_lengths_in_df_col(df["IndexI5"])
-        
-        # Update the state model
-        self.sample_index1_minlen = int(i7_min)
-        self.sample_index1_maxlen = int(i7_max)
-        self.sample_index2_minlen = int(i5_min)
-        self.sample_index2_maxlen = int(i5_max)
+    # def _update_index_lengths(self) -> None:
+    #     """Update index lengths from the sample model."""
+    #     df = self._sample_model.to_dataframe()
+    #
+    #     # Get lengths for both index columns
+    #     i7_min, i7_max = self._get_str_lengths_in_df_col(df["IndexI7"])
+    #     i5_min, i5_max = self._get_str_lengths_in_df_col(df["IndexI5"])
+    #
+    #     # Update the state model
+    #     self.sample_index1_minlen = int(i7_min)
+    #     self.sample_index1_maxlen = int(i7_max)
+    #     self.sample_index2_minlen = int(i5_min)
+    #     self.sample_index2_maxlen = int(i5_max)
 
     @staticmethod
     def _current_date_as_string():
@@ -433,21 +433,37 @@ class StateModel(QObject):
         self._run_info_complete = True
 
     @staticmethod
-    def _get_str_lengths_in_df_col(pandas_col: pd.Series) -> Tuple[int, int]:
+    def _get_str_lengths_in_df_col(series: pd.Series) -> Tuple[int, int]:
+        print("_get_str_lengths_in_df_col")
 
         # Filter out empty/None values and get string lengths
-        lengths = pandas_col.dropna().astype(str).str.len()
+        lengths = series.dropna().astype(str).str.len()
+        print(lengths)
+
         if len(lengths) == 0:
             return 0, 0
+
+        print("min", lengths.min())
+        print("max", lengths.max())
+
         return lengths.min(), lengths.max()
 
     def update_index_lengths(self):
         """Update the minimum and maximum lengths of index sequences from the sample model."""
         df = self._sample_model.to_dataframe()
 
+        print(df.to_string())
+
         # Get lengths for both index columns
+        print(df["IndexI7"])
         i7_min, i7_max = self._get_str_lengths_in_df_col(df["IndexI7"])
+
+        print(df["IndexI5"])
         i5_min, i5_max = self._get_str_lengths_in_df_col(df["IndexI5"])
+
+        print(type(i7_min), type(i7_max), type(i5_min), type(i5_max))
+
+        print(i7_min, i7_max, i5_min, i5_max)
 
         # Update the state model
         self.sample_index1_minlen = int(i7_min)
@@ -777,27 +793,13 @@ class StateModel(QObject):
 
     @sample_index1_minlen.setter
     def sample_index1_minlen(self, sample_index1_minlen):
-        print("sample_index1_minlen_changed")
-        print(sample_index1_minlen)
-        print(self._run_info.sample_index1_minlen)
-
+        print("set sample_index1_minlen", sample_index1_minlen)
         if self._run_info.sample_index1_minlen == sample_index1_minlen:
             return
 
         self._run_info.sample_index1_minlen = sample_index1_minlen
         self.sample_index1_minlen_changed.emit(sample_index1_minlen)
-
-    @property
-    def sample_index2_minlen(self) -> int:
-        return self._run_info.sample_index2_minlen
-
-    @sample_index2_minlen.setter
-    def sample_index2_minlen(self, sample_index2_minlen):
-        if self._run_info.sample_index1_minlen == sample_index2_minlen:
-            return
-
-        self._run_info.sample_index2_minlen = sample_index2_minlen
-        self.sample_index1_minlen_changed.emit(sample_index2_minlen)
+        print("sample_index1_minlen_changed.emit", sample_index1_minlen)
 
     @property
     def sample_index1_maxlen(self) -> int:
@@ -805,11 +807,29 @@ class StateModel(QObject):
 
     @sample_index1_maxlen.setter
     def sample_index1_maxlen(self, sample_index1_maxlen):
-        if self._run_info.sample_index1_minlen == sample_index1_maxlen:
+        print("set sample_index1_maxlen", sample_index1_maxlen)
+        if self._run_info.sample_index1_maxlen == sample_index1_maxlen:
             return
 
         self._run_info.sample_index1_maxlen = sample_index1_maxlen
         self.sample_index1_maxlen_changed.emit(sample_index1_maxlen)
+
+        print("sample_index1_maxlen_changed.emit", sample_index1_maxlen)
+
+
+    @property
+    def sample_index2_minlen(self) -> int:
+        return self._run_info.sample_index2_minlen
+
+    @sample_index2_minlen.setter
+    def sample_index2_minlen(self, sample_index2_minlen):
+        print("set sample_index2_minlen", sample_index2_minlen)
+        if self._run_info.sample_index2_minlen == sample_index2_minlen:
+            return
+
+        self._run_info.sample_index2_minlen = sample_index2_minlen
+        self.sample_index2_minlen_changed.emit(sample_index2_minlen)
+        print("sample_index2_minlen_changed.emit", sample_index2_minlen)
 
     @property
     def sample_index2_maxlen(self) -> int:
@@ -817,12 +837,13 @@ class StateModel(QObject):
 
     @sample_index2_maxlen.setter
     def sample_index2_maxlen(self, sample_index2_maxlen):
-        if self._run_info.sample_index1_maxlen == sample_index2_maxlen:
+        print("set sample_index2_maxlen", sample_index2_maxlen)
+        if self._run_info.sample_index2_maxlen == sample_index2_maxlen:
             return
 
         self._run_info.sample_index2_maxlen = sample_index2_maxlen
         self.sample_index2_maxlen_changed.emit(sample_index2_maxlen)
-        self.unfreeze()
+        print("sample_index2_maxlen_changed.emit", sample_index2_maxlen)
 
     @property
     def sample_df(self) -> pd.DataFrame:

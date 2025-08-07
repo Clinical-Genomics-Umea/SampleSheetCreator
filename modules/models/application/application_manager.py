@@ -9,6 +9,9 @@ class ApplicationManager:
         """Initialize the application manager."""
 
         self._app_objects = config_manager.application_configs
+
+        print("app objects", self._app_objects)
+
         self._logger = logger
 
         for app_object in self._app_objects:
@@ -25,28 +28,28 @@ class ApplicationManager:
         for app_obj in self._app_objects:
             if app_name == app_obj["ApplicationProfile"]:
                 return app_obj["Application"]
-
         return None
 
     def app_to_app_type(self, app):
         for app_obj in self._app_objects:
             if app == app_obj["Application"]:
                 return app_obj["ApplicationType"]
+        return None
 
     @property
     def app_hierarchy(self):
-        _type_to_profile_to_obj = {}
+        type_to_profile_to_obj = {}
 
         for obj in self._app_objects:
             a_type = obj["ApplicationType"]
             a_profile = obj["ApplicationProfile"]
 
-            if a_type not in _type_to_profile_to_obj:
-                _type_to_profile_to_obj[a_type] = {}
+            if a_type not in type_to_profile_to_obj:
+                type_to_profile_to_obj[a_type] = {}
 
-            _type_to_profile_to_obj[a_type][a_profile] = obj
+            type_to_profile_to_obj[a_type][a_profile] = obj
 
-        return _type_to_profile_to_obj
+        return type_to_profile_to_obj
 
     def app_profile_to_settings(self, app_profile):
         for app_obj in self._app_objects:

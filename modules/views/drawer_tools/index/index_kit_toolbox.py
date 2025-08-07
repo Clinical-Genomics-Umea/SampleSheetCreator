@@ -18,6 +18,8 @@ class IndexKitToolbox(QWidget):
         self._layout = QVBoxLayout()
         self._toolbox = QToolBox()
 
+        self._index_kit_manager.index_kits_changed.connect(self.set_index_kits)
+
         self._layout.setSpacing(5)
         self._layout.setContentsMargins(0, 0, 0, 0)
 
@@ -30,24 +32,39 @@ class IndexKitToolbox(QWidget):
         self.setLayout(self._layout)
 
     def set_index_kits(self):
-
         self._clear_toolbox_index_kits()
-        print("set_index_kits")
-
         index_kit_widgets = self._index_kit_manager.index_kit_widgets
+        
+        print("index_kit_widgets:", index_kit_widgets)
+        
+        if not index_kit_widgets:
+            empty_widget = QWidget()
+            layout = QVBoxLayout()
+            layout.addWidget(QLabel("No index kits match the criteria in run info"))
+            empty_widget.setLayout(layout)
+            self._toolbox.addItem(empty_widget, "No index kits available")
 
-        for index_kit_widget in index_kit_widgets:
-            self._toolbox.addItem(index_kit_widget, index_kit_widget.name)
+        else:
+            for index_kit_widget in index_kit_widgets:
+                if index_kit_widget is not None and hasattr(index_kit_widget, 'name'):
+                    print(f"Adding index kit widget: {index_kit_widget.name}")
+                    # Create a container widget to hold the index kit widget
+                    container = QWidget()
+                    layout = QVBoxLayout()
+                    layout.setContentsMargins(0, 0, 0, 0)
+                    layout.addWidget(index_kit_widget)
+                    container.setLayout(layout)
+                    
+                    # Add the container to the toolbox
+                    self._toolbox.addItem(container, index_kit_widget.name)
+                else:
+                    print(f"Skipping invalid index kit widget: {index_kit_widget}")
 
 
     def _clear_toolbox_index_kits(self) -> None:
         """Clear all items from the toolbox."""
-        while self._toolbox.count() > 0:
-            # Remove the widget from the toolbox
-            widget = self._toolbox.widget(0)
-            self._toolbox.removeItem(0)
-            # Delete the widget to free memory
-            if widget:
-                widget.setParent(None)
-                widget.deleteLater()
+        for i in reversed(range(self._toolbox.count())):
+            widget = self._toolbox.widget(i)
+            self._toolbox.removeItem(i)
+            widget.deleteLater()
 

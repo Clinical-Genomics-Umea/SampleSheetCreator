@@ -68,8 +68,16 @@ class IndexKitManager(QObject):
         index_kit_widgets = []
 
         for index_kit_dataset in self._index_kit_data:
-            if index_kit_dataset["IndexI7Len"] <= run_cycles_index_i7_len and index_kit_dataset["IndexI5Len"] <= run_cycles_index_i5_len:
-                index_kit_widgets.append(IndexKitWidget(index_kit_dataset))
+            # First create the IndexKitModel from the dataset
+            try:
+                index_kit_model = IndexKitModel(index_kit_dataset)
+                # Then create the widget with the model's data
+                if (index_kit_model.index_i7_len <= run_cycles_index_i7_len and 
+                    index_kit_model.index_i5_len <= run_cycles_index_i5_len):
+                    index_kit_widgets.append(IndexKitWidget(index_kit_dataset))
+            except Exception as e:
+                self._logger.error(f"Error creating index kit widget: {e}")
+                continue
 
         return index_kit_widgets
 

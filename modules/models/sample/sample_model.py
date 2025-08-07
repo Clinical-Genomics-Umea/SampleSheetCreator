@@ -131,8 +131,6 @@ class SampleModel(QStandardItemModel):
             Qt.DisplayRole,
         )
 
-        print(f"after data changed")
-
         return True
 
     def _find_first_empty_row(self):
