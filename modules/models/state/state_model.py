@@ -464,6 +464,7 @@ class StateModel(QObject):
             return
 
         self._run_info.assess_color_balance = assess_color_balance
+        self.mark_as_unvalidated()
         self.assess_color_balance_changed.emit(assess_color_balance)
 
     @property
@@ -477,6 +478,7 @@ class StateModel(QObject):
             return
 
         self._run_info.color_a = color_a
+        self.mark_as_unvalidated()
         self.color_a_changed.emit(color_a)
 
     @property
@@ -489,6 +491,7 @@ class StateModel(QObject):
             return
 
         self._run_info.color_t = color_t
+        self.mark_as_unvalidated()
         self.color_t_changed.emit(color_t)
 
     @property
@@ -501,6 +504,7 @@ class StateModel(QObject):
             return
 
         self._run_info.color_g = color_g
+        self.mark_as_unvalidated()
         self.color_g_changed.emit(color_g)
 
     @property
@@ -511,6 +515,9 @@ class StateModel(QObject):
     def color_c(self, color_c: object):
         if self._run_info.color_c == color_c:
             return
+
+        self._run_info.color_c = color_c
+        self.mark_as_unvalidated()
         self.color_c_changed.emit(color_c)
 
     @property
@@ -520,7 +527,7 @@ class StateModel(QObject):
     @chemistry.setter
     def chemistry(self, value: str) -> None:
         if self._run_info.chemistry != value:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.chemistry = value
             self.chemistry_changed.emit(value)
 
@@ -531,7 +538,7 @@ class StateModel(QObject):
     @date.setter
     def date(self, value: str) -> None:
         if self._run_info.date != value:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.date = value
             self.date_changed.emit(value)
 
@@ -542,7 +549,7 @@ class StateModel(QObject):
     @flowcell.setter
     def flowcell(self, value: str) -> None:
         if self._run_info.flowcell != value:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.flowcell = value
             self.flowcell_changed.emit(value)
 
@@ -553,7 +560,7 @@ class StateModel(QObject):
     @run_name.setter
     def run_name(self, value: str) -> None:
         if self._run_info.run_name != value:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.run_name = value
             self.run_name_changed.emit(value)
     
@@ -564,7 +571,7 @@ class StateModel(QObject):
     @reagent_kit.setter
     def reagent_kit(self, value: str) -> None:
         if self._run_info.reagent_kit != value:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.reagent_kit = value
             self.reagent_kit_changed.emit(value)
 
@@ -575,7 +582,7 @@ class StateModel(QObject):
     @i5_samplesheet_orientation_bcl2fastq.setter
     def i5_samplesheet_orientation_bcl2fastq(self, value: str) -> None:
         if self._run_info.i5_samplesheet_orientation_bcl2fastq != value:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.i5_samplesheet_orientation_bcl2fastq = value
             self.i5_samplesheet_orientation_bcl2fastq_changed.emit(value)
 
@@ -586,7 +593,7 @@ class StateModel(QObject):
     @i5_samplesheet_orientation_bclconvert.setter
     def i5_samplesheet_orientation_bclconvert(self, value: str) -> None:
         if self._run_info.i5_samplesheet_orientation_bclconvert != value:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.i5_samplesheet_orientation_bclconvert = value
             self.i5_samplesheet_orientation_bclconvert_changed.emit(value)
 
@@ -635,7 +642,7 @@ class StateModel(QObject):
     @index1_cycles.setter
     def index1_cycles(self, value: int) -> None:
         if self._run_info.index1_cycles != value:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.index1_cycles = value
             self.index1_cycles_changed.emit(value)
 
@@ -646,7 +653,7 @@ class StateModel(QObject):
     @index2_cycles.setter
     def index2_cycles(self, value: int) -> None:
         if self._run_info.index2_cycles != value:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.index2_cycles = value
             self.index2_cycles_changed.emit(value)
 
@@ -657,7 +664,7 @@ class StateModel(QObject):
     @read1_cycles.setter
     def read1_cycles(self, value: int) -> None:
         if self._run_info.read1_cycles != value:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.read1_cycles = value
             self.read1_cycles_changed.emit(value)
 
@@ -668,7 +675,7 @@ class StateModel(QObject):
     @read2_cycles.setter
     def read2_cycles(self, value: int) -> None:
         if self._run_info.read2_cycles != value:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.read2_cycles = value
             self.read2_cycles_changed.emit(value)
 
@@ -679,7 +686,7 @@ class StateModel(QObject):
     @custom_cycles.setter
     def custom_cycles(self, custom_cycles: bool):
         if self._run_info.custom_cycles != custom_cycles:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.custom_cycles = custom_cycles
             self.custom_cycles_changed.emit(custom_cycles)
 
@@ -690,7 +697,7 @@ class StateModel(QObject):
     @i5_seq_orientation.setter
     def i5_seq_orientation(self, i5_seq_orientation: str):
         if self._run_info.i5_seq_orientation != i5_seq_orientation:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.i5_seq_orientation = i5_seq_orientation
             self.i5_seq_orientation_changed.emit(i5_seq_orientation)
 
@@ -701,7 +708,7 @@ class StateModel(QObject):
     @dragen_app_version.setter
     def dragen_app_version(self, dragen_app_version):
         if self._run_info.dragen_app_version != dragen_app_version:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.dragen_app_version = dragen_app_version
             self.dragen_app_version_changed.emit(dragen_app_version)
 
@@ -712,7 +719,7 @@ class StateModel(QObject):
     @sample_index1_minlen.setter
     def sample_index1_minlen(self, sample_index1_minlen):
         if self._run_info.sample_index1_minlen != sample_index1_minlen:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.sample_index1_minlen = sample_index1_minlen
             self.sample_index1_minlen_changed.emit(sample_index1_minlen)
 
@@ -723,7 +730,7 @@ class StateModel(QObject):
     @sample_index1_maxlen.setter
     def sample_index1_maxlen(self, sample_index1_maxlen):
         if self._run_info.sample_index1_maxlen != sample_index1_maxlen:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.sample_index1_maxlen = sample_index1_maxlen
             self.sample_index1_maxlen_changed.emit(sample_index1_maxlen)
 
@@ -735,7 +742,7 @@ class StateModel(QObject):
     @sample_index2_minlen.setter
     def sample_index2_minlen(self, sample_index2_minlen):
         if self._run_info.sample_index2_minlen != sample_index2_minlen:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.sample_index2_minlen = sample_index2_minlen
             self.sample_index2_minlen_changed.emit(sample_index2_minlen)
 
@@ -746,7 +753,7 @@ class StateModel(QObject):
     @sample_index2_maxlen.setter
     def sample_index2_maxlen(self, sample_index2_maxlen):
         if self._run_info.sample_index2_maxlen != sample_index2_maxlen:
-            self._invalidate_validation()
+            self.mark_as_unvalidated()
             self._run_info.sample_index2_maxlen = sample_index2_maxlen
             self.sample_index2_maxlen_changed.emit(sample_index2_maxlen)
 

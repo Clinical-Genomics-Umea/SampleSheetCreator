@@ -2,7 +2,6 @@ from logging import Logger
 
 from PySide6.QtCore import QObject, Signal
 
-from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.state.state_model import StateModel
 from modules.models.validation.color_balance.color_balance_validator import ColorBalanceValidator
 from modules.models.validation.dataset.dataset_validator import DataSetValidator
@@ -38,17 +37,17 @@ class MainValidator(QObject):
 
 
     def validate(self):
-
+        print("validate")
         self.clear_validator_widgets.emit()
 
         if not self._prevalidator.validate():
             self.prevalidation_failed.emit()
             return
 
-        self.prevalidation_success.emit()
-        self._dataset_validator.validate()
-        self._index_distance_validator.generate()
-        #
-        if self._state_model.assess_color_balance:
-            self._color_balance_validator.validate()
+        # self.prevalidation_success.emit()
+        # self._dataset_validator.validate()
+        # self._index_distance_validator.generate()
+        # #
+        # if self._state_model.assess_color_balance:
+        #     self._color_balance_validator.validate()
 

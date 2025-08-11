@@ -84,7 +84,6 @@ class MainController(QObject):
             self._configuration_manager,
             self._application_manager,
             self._state_model,
-            self._prevalidation_widget,
             self._logger
         )
 
@@ -168,7 +167,6 @@ class MainController(QObject):
         Connect UI signals to controller slots.
         """
         self._connect_run_setup_signals()
-
         self._connect_validation_signals()
         self._connect_override_pattern_signals()
         self._connect_application_signal()
@@ -268,21 +266,24 @@ class MainController(QObject):
     def _connect_validation_signals(self):
         """Connect UI signals to validation slots"""
 
-        self._prevalidator.data_ready.connect(
-            self._prevalidation_widget.populate
-        )
         self._validation_widget.validate_button.clicked.connect(
             self._main_validator.validate
         )
-        self._main_validator.clear_validator_widgets.connect(
-            self._validation_widget.clear_validation_widgets
+        self._prevalidator.prevalidation_results_ready.connect(
+            self._prevalidation_widget.populate
         )
-        self._main_validator.prevalidation_failed.connect(
-            self._state_model.mark_as_unvalidated
-        )
-        self._main_validator.prevalidation_success.connect(
-            self._state_model.mark_as_validated
-        )
+        # self._validation_widget.validate_button.clicked.connect(
+        #     self._main_validator.validate
+        # )
+        # self._main_validator.clear_validator_widgets.connect(
+        #     self._validation_widget.clear_validation_widgets
+        # )
+        # self._main_validator.prevalidation_failed.connect(
+        #     self._state_model.mark_as_unvalidated
+        # )
+        # self._main_validator.prevalidation_success.connect(
+        #     self._state_model.mark_as_validated
+        # )
 
     def _connect_override_pattern_signals(self):
         self._samples_widget.sample_view.override_patterns_ready.connect(
