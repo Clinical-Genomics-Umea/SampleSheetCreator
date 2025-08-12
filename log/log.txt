@@ -9330,3 +9330,168 @@ Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\confi
 Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
 dataset manager cannot be None
 Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications\application_profiles
+Loaded configuration from BCLConvertNextera.yaml
+Loaded configuration from DragenEnrichmentIdtGermline.yaml
+Loaded configuration from DragenEnrichmentIdtSomatic.yaml
+Loaded configuration from DragenGermlineIdtWgs.yaml
+Loaded configuration from DragenRnaIdt.yaml
+Loaded configuration from DragenSomaticIdt.yaml
+Loaded 6/6 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\applications\application_profiles
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+ConfigurationManager initialized successfully
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications\application_profiles
+Loaded configuration from BCLConvertNextera.yaml
+Loaded configuration from DragenEnrichmentIdtGermline.yaml
+Loaded configuration from DragenEnrichmentIdtSomatic.yaml
+Loaded configuration from DragenGermlineIdtWgs.yaml
+Loaded configuration from DragenRnaIdt.yaml
+Loaded configuration from DragenSomaticIdt.yaml
+Loaded 6/6 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\applications\application_profiles
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+ConfigurationManager initialized successfully
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications\application_profiles
+Loaded configuration from BCLConvertNextera.yaml
+Loaded configuration from DragenEnrichmentIdtGermline.yaml
+Loaded configuration from DragenEnrichmentIdtSomatic.yaml
+Loaded configuration from DragenGermlineIdtWgs.yaml
+Loaded configuration from DragenRnaIdt.yaml
+Loaded configuration from DragenSomaticIdt.yaml
+Loaded 6/6 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\applications\application_profiles
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+ConfigurationManager initialized successfully
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications\application_profiles
+Loaded configuration from BCLConvertNextera.yaml
+Loaded configuration from DragenEnrichmentIdtGermline.yaml
+Loaded configuration from DragenEnrichmentIdtSomatic.yaml
+Loaded configuration from DragenGermlineIdtWgs.yaml
+Loaded configuration from DragenRnaIdt.yaml
+Loaded configuration from DragenSomaticIdt.yaml
+Loaded 6/6 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\applications\application_profiles
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+ConfigurationManager initialized successfully
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!
+Initializing ConfigurationManager
+Initializing configuration paths
+All configuration paths initialized successfully
+Loading configuration files
+Loading run settings from C:\Dev\PythonProjects\SampleSheetCreator\config\run\run_settings.yaml
+Successfully loaded run settings
+Loading instrument data from C:\Dev\PythonProjects\SampleSheetCreator\config\run\instrument_data.yaml
+Successfully loaded instrument data
+Loading sample settings from C:\Dev\PythonProjects\SampleSheetCreator\config\sample_settings.yaml
+Successfully loaded sample settings
+Loading validation settings from C:\Dev\PythonProjects\SampleSheetCreator\config\validation\validation_settings.yaml
+Successfully loaded validation settings
+Loading sample sheet template from C:\Dev\PythonProjects\SampleSheetCreator\config\samplesheet_v1.yaml
+Successfully loaded sample sheet template
+All configuration files loaded successfully
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\applications\application_profiles
+Loaded configuration from BCLConvertNextera.yaml
+Loaded configuration from DragenEnrichmentIdtGermline.yaml
+Loaded configuration from DragenEnrichmentIdtSomatic.yaml
+Loaded configuration from DragenGermlineIdtWgs.yaml
+Loaded configuration from DragenRnaIdt.yaml
+Loaded configuration from DragenSomaticIdt.yaml
+Loaded 6/6 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\applications\application_profiles
+Loading configurations from directory: C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+Loaded configuration from Wgs.yaml
+Loaded 1/1 configurations from C:\Dev\PythonProjects\SampleSheetCreator\config\methods
+ConfigurationManager initialized successfully
+Successfully loaded schema: CDI_standard
+Successfully loaded schema: UDI_fixed
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_CDI_Tag_Pcr_free_SetD.json
+Successfully loaded and validated C:\Dev\PythonProjects\SampleSheetCreator\config\indexes\data\ILMN_DNA-RNA_UDI_Tag_Pcr_Free_SetD.json
+dataset manager cannot be None
+Init done!

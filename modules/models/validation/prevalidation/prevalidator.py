@@ -10,8 +10,8 @@ from modules.models.configuration.configuration_manager import ConfigurationMana
 from modules.models.application.application_manager import ApplicationManager
 from modules.models.state.state_model import StateModel
 from modules.models.validation.prevalidation.validators import (
-    ValidationResult, check_sample_dataframe_overall_consistency, lanes_check, lane_sample_uniqueness_check,
-    application_settings_check,
+    ValidationResult, check_sample_dataframe_overall_consistency, lanes_general_check, lane_sample_uniqueness_check,
+    application_settings_check, overall_sample_data_validator, override_cycles_pattern_validator,
 )
 
 class PreValidator(QObject):
@@ -36,10 +36,11 @@ class PreValidator(QObject):
     def validate(self) -> None:
         validation_results = [
             check_sample_dataframe_overall_consistency(self._state_model),
-            lanes_check(self._state_model),
+            lanes_general_check(self._state_model),
             lane_sample_uniqueness_check(self._state_model),
-            application_settings_check(self._state_model, self._application_manager)
-
+            application_settings_check(self._state_model, self._application_manager),
+            overall_sample_data_validator(self._state_model),
+            override_cycles_pattern_validator(self._state_model),
         ]
 
         self.prevalidation_results_ready.emit(validation_results)
