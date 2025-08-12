@@ -405,11 +405,9 @@ class StateModel(QObject):
 
     @staticmethod
     def _get_str_lengths_in_df_col(series: pd.Series) -> Tuple[int, int]:
-        print("_get_str_lengths_in_df_col")
 
         # Filter out empty/None values and get string lengths
         lengths = series.dropna().astype(str).str.len()
-        print(lengths)
 
         if len(lengths) == 0:
             return 0, 0
@@ -420,18 +418,11 @@ class StateModel(QObject):
         """Update the minimum and maximum lengths of index sequences from the sample model."""
         df = self._sample_model.to_dataframe()
 
-        print(df.to_string())
-
         # Get lengths for both index columns
-        print(df["IndexI7"])
         i7_min, i7_max = self._get_str_lengths_in_df_col(df["IndexI7"])
 
-        print(df["IndexI5"])
         i5_min, i5_max = self._get_str_lengths_in_df_col(df["IndexI5"])
 
-        print(type(i7_min), type(i7_max), type(i5_min), type(i5_max))
-
-        print(i7_min, i7_max, i5_min, i5_max)
 
         # Update the state model
         self.sample_index1_minlen = int(i7_min)

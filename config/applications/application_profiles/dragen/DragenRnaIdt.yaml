@@ -1,8 +1,8 @@
 ---
-Application: DragenRna
+ApplicationName: DragenRna
 ApplicationType: Dragen
 ApplicationProfileVersion: 1.0
-ApplicationProfile: DragenRna
+ApplicationProfileName: DragenRna
 
 Settings:
   SoftwareVersion: 4.1.23

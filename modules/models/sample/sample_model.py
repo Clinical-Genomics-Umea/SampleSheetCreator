@@ -123,8 +123,6 @@ class SampleModel(QStandardItemModel):
         topLeft = self.index(0, 0)
         bottomRight = self.index(self.rowCount() - 1, self.columnCount() - 1)
 
-        print(f"before data changed")
-
         self.dataChanged.emit(
             topLeft,
             bottomRight,
@@ -185,7 +183,7 @@ class SampleModel(QStandardItemModel):
             bool: True if the drop was successful, False otherwise.
         """
 
-        json_data_qba = data.data("application/json")
+        json_data_qba = data._profile("application/json")
         decoded_data = decode_bytes_json(json_data_qba)
 
 
@@ -231,6 +229,33 @@ class SampleModel(QStandardItemModel):
             flags |= Qt.ItemIsDropEnabled
         return flags
 
+    def _convert_string_to_list(self, value):
+        """Convert string representation of a list to a Python list.
+        
+        Args:
+            value: The value to convert (string, list, or other)
+            
+        Returns:
+            The converted value or original value if not a string list representation
+        """
+        if not isinstance(value, str) or not value.startswith('[') or not value.endswith(']'):
+            return value
+            
+        try:
+            # Try to evaluate as a Python literal (safe for strings, numbers, tuples, lists, dicts, booleans, and None)
+            import ast
+            result = ast.literal_eval(value)
+            return result if isinstance(result, list) else value
+        except (ValueError, SyntaxError):
+            # If evaluation fails, try to parse as a list of strings
+            try:
+                # Remove brackets and split by comma, then strip whitespace
+                items = [item.strip().strip("'\"") for item in value[1:-1].split(',')]
+                # Remove empty strings that might result from splitting
+                return [item for item in items if item]
+            except Exception:
+                return value
+
     def to_dataframe(self) -> pd.DataFrame:
         """
         Convert the data in the model to a DataFrame.
@@ -251,24 +276,28 @@ class SampleModel(QStandardItemModel):
             for column in range(columns):
                 item = self.item(row, column)
                 # If the item is None, use None as the value
-                # Otherwise, use the text of the item
-                row_data.append(item.text() if item is not None else None)
+                # Otherwise, use the text of the item and convert string lists to actual lists
+                cell_value = item.text() if item is not None else None
+                if cell_value is not None:
+                    cell_value = self._convert_string_to_list(cell_value)
+                row_data.append(cell_value)
             data.append(row_data)
 
         # Create a DataFrame from the extracted data
         df = pd.DataFrame(data)
 
-        # Optionally, set the column headers
+        # Set the column headers
         headers = [self.headerData(i, Qt.Horizontal) for i in range(columns)]
         df.columns = headers
 
-        # Calculate the reverse complement of the IndexI5 column
-        df["IndexI5RC"] = df["IndexI5"].apply(self.reverse_complement)
+        # Calculate the reverse complement of the IndexI5 column if it exists
+        if "IndexI5" in df.columns:
+            df["IndexI5RC"] = df["IndexI5"].apply(self.reverse_complement)
 
         # Replace empty strings and whitespace-only strings with NaN
         # and drop any rows that contain only NaN values
         df.replace("", pd.NA, inplace=True)
-        df.replace(r"^\s*$", pd.NA, regex=True)
+        df.replace(r"^\s*$", pd.NA, regex=True, inplace=True)
         df.dropna(how="all", inplace=True)
         return df
 

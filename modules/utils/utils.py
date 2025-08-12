@@ -1,3 +1,5 @@
+import ast
+
 from PySide6.QtCore import Qt, QSortFilterProxyModel, QTimer
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 
@@ -68,6 +70,18 @@ def explode_df_lane_column(dataframe: pd.DataFrame) -> pd.DataFrame:
     # dataframe["Lane"] = dataframe["Lane"].apply(int_str_to_int_list)
     exploded_dataframe = dataframe.explode("Lane", ignore_index=True)
     # exploded_dataframe["Lane"] = exploded_dataframe["Lane"].astype(int)
+    return exploded_dataframe
+
+
+def explode_df_application_profile_column(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Explode a list-like column into separate rows.
+
+    :param dataframe: DataFrame containing the list-like column
+    :return: Exploded DataFrame
+    """
+    # dataframe["Lane"] = dataframe["Lane"].apply(int_str_to_int_list)
+    exploded_dataframe = dataframe.explode("ApplicationProfile", ignore_index=True)
     return exploded_dataframe
 
 
@@ -150,3 +164,12 @@ def decode_bytes_json(data):
         return json.loads(decoded_data)
     except json.JSONDecodeError as e:
         raise ValueError("Error decoding JSON data") from e
+
+def is_list_of_ints_string(s):
+    try:
+        value = ast.literal_eval(s)  # Safely parse string into a Python object
+        return isinstance(value, list) and all(isinstance(x, int) for x in value)
+    except (ValueError, SyntaxError):
+        return False
+
+

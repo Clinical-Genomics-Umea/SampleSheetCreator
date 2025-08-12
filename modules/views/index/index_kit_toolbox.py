@@ -29,9 +29,7 @@ class IndexKitToolbox(QWidget):
     def set_index_kits(self):
         self._clear_toolbox_index_kits()
         index_kit_widgets = self._index_kit_manager.index_kit_widgets
-        
-        print("index_kit_widgets:", index_kit_widgets)
-        
+
         if not index_kit_widgets:
             empty_widget = QWidget()
             layout = QVBoxLayout()
@@ -42,7 +40,6 @@ class IndexKitToolbox(QWidget):
         else:
             for index_kit_widget in index_kit_widgets:
                 if index_kit_widget is not None and hasattr(index_kit_widget, 'name'):
-                    print(f"Adding index kit widget: {index_kit_widget.name}")
                     # Create a container widget to hold the index kit widget
                     container = QWidget()
                     layout = QVBoxLayout()

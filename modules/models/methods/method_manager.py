@@ -31,7 +31,7 @@ class MethodManager(QObject):
                 method_app_profile = method_app_profile_obj['ApplicationProfile']
                 method_app_profile_version = method_app_profile_obj['ApplicationProfileVersion']
 
-                app_profile_obj = self._application_manager.app_profile_to_app_prof_obj(method_app_profile)
+                app_profile_obj = self._application_manager.profile_name_to_profile(method_app_profile)
 
                 app_profile = app_profile_obj.get("ApplicationProfile")
                 app_profile_version = app_profile_obj.get("ApplicationProfileVersion")

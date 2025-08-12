@@ -1,8 +1,8 @@
 ---
 BaseVersion: 1.0
 ApplicationType: Dragen
-Application: DragenSomatic
-ApplicationProfile: DragenSomaticIdt
+ApplicationName: DragenSomatic
+ApplicationProfileName: DragenSomaticIdt
 ApplicationProfileVersion: 1.0
 
 Settings:

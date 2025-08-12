@@ -1,7 +1,7 @@
 ---
 ApplicationType: Dragen
-Application: DragenGermline
-ApplicationProfile: DragenGermlineIdtWgs
+ApplicationName: DragenGermline
+ApplicationProfileName: DragenGermlineIdtWgs
 ApplicationProfileVersion: 1.0
 
 Settings:

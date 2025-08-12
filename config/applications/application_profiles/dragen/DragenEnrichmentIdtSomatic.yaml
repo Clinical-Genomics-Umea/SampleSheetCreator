@@ -1,7 +1,7 @@
 ---
-Application: DragenEnrichment
+ApplicationName: DragenEnrichment
 ApplicationType: Dragen
-ApplicationProfile: DragenEnrichmentSomatic
+ApplicationProfileName: DragenEnrichmentSomatic
 ApplicationProfileVersion: 1.0
 
 Settings:

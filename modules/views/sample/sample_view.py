@@ -538,7 +538,7 @@ class SampleTableView(QTableView):
         array. If the cell is currently empty, it will be initialized with an
         empty list.
         """
-        current_data = model.data(model.index(row, column), Qt.DisplayRole) or "[]"
+        current_data = model._profile(model.index(row, column), Qt.DisplayRole) or "[]"
         data = json_to_obj(current_data)
         if value not in data:
             data.append(value)

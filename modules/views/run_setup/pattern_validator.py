@@ -26,8 +26,6 @@ class PatternValidator(QValidator):
     def _parse_template(self, template):
         """Parse the template string into a list of integers."""
 
-        print("template", template)
-
         try:
             parts = template.split('-')
             if len(parts) != 4:

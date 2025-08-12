@@ -23,8 +23,6 @@ class IndexKitWidget(QWidget):
 
         for index_set_name, index_set in index_kit_dataset["IndexSets"].items():
 
-            pprint(index_kit_dataset)
-
             override_cycles_pattern = index_kit_dataset.get("OverrideCyclesPattern")
             adapter_read_1 = index_kit_dataset.get("Adapters", {}).get("AdapterRead1")
             adapter_read_2 = index_kit_dataset.get("Adapters", {}).get("AdapterRead1")
@@ -35,8 +33,6 @@ class IndexKitWidget(QWidget):
             index_set_df["AdapterRead1"] = adapter_read_1
             index_set_df["AdapterRead2"] = adapter_read_2
             index_set_df["IndexKitName"] = index_kit_dataset.get("IndexKitName")
-
-            print(index_set_df.to_string())
 
             index_widget = SingleIndexWidget(index_set_name, index_set_df)
             self.layout.addWidget(index_widget)

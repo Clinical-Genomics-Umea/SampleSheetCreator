@@ -1,7 +1,7 @@
 ---
 ApplicationProfileVersion: 1.0
-ApplicationProfile: BCLConvertNextera
-Application: BCLConvert
+ApplicationProfileName: BCLConvertNextera
+ApplicationName: BCLConvert
 ApplicationType: Dragen
 
 Settings:

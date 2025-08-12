@@ -127,8 +127,6 @@ class RunSetupWidget(QWidget):
                     .get("Flowcell", {}).keys()
                     ))
 
-        print(flowcells)
-
         self._flowcell_cb.clear()
         self._flowcell_cb.addItems(flowcells)
 

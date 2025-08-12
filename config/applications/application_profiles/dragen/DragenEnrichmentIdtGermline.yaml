@@ -1,7 +1,7 @@
 ---
 ApplicationType: Dragen
-Application: DragenEnrichment
-ApplicationProfile: DragenEnrichmentGermline
+ApplicationName: DragenEnrichment
+ApplicationProfileName: DragenEnrichmentGermline
 ApplicationProfileVersion: 1.0
 
 Settings:

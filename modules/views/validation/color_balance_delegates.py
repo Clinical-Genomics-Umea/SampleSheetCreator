@@ -35,8 +35,8 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
         paint the background of the cell a light red color.
         """
         adjacent_index = index._model().index(index.row(), 3)
-        current_value = index.data(Qt.DisplayRole)
-        adjacent_value = adjacent_index.data(Qt.DisplayRole)
+        current_value = index._profile(Qt.DisplayRole)
+        adjacent_value = adjacent_index._profile(Qt.DisplayRole)
 
         if current_value == adjacent_value == "G":
             painter.save()
@@ -50,8 +50,8 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
 
     def paint_gg_i1_2_row(self, painter, option, index):
         index_other = index._model().index(index.row(), 2)
-        value = index.data(Qt.DisplayRole)
-        value_other = index_other.data(Qt.DisplayRole)
+        value = index._profile(Qt.DisplayRole)
+        value_other = index_other._profile(Qt.DisplayRole)
 
         if value == value_other == "G":
             painter.save()
@@ -62,7 +62,7 @@ class ColorBalanceRowDelegate(QStyledItemDelegate):
             super().paint(painter, option, index)
 
     def paint_color_balance_row(self, painter, option, index):
-        json_data = index.data(Qt.DisplayRole)
+        json_data = index._profile(Qt.DisplayRole)
         if not json_data:
             return
 

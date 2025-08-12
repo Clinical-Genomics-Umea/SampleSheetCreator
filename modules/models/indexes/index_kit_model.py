@@ -88,8 +88,6 @@ class IndexKitModel:
                 if self._override_cycles_pattern is not None:
                     df["OverrideCyclesPattern"] = self._override_cycles_pattern
 
-                print(df.to_string())
-
             except Exception as e:
                 self._logger.error(f"Error initializing index set '{name}': {e}")
                 continue

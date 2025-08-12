@@ -15,16 +15,16 @@ class ApplicationWidget(QWidget):
     add_app = Signal(object)
     rem_app = Signal(object)
 
-    def __init__(self, app_data: dict):
+    def __init__(self, profile: dict):
         super().__init__()
 
-        self._app_data = app_data
+        self._profile = profile
         self._add_button = QPushButton("+")
         self._add_button.setMaximumWidth(50)
         self._remove_button = QPushButton("-")
         self._remove_button.setMaximumWidth(50)
 
-        self.app_label = ClickableLabel(app_data["ApplicationProfile"], app_data)
+        self.app_label = ClickableLabel(profile["ApplicationProfileName"], profile)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -43,7 +43,7 @@ class ApplicationWidget(QWidget):
         self._remove_button.clicked.connect(self._rem_clicked)
 
     def _add_clicked(self) -> None:
-        self.add_app.emit(self._app_data)
+        self.add_app.emit(self._profile)
 
     def _rem_clicked(self) -> None:
-        self.rem_app.emit(self._app_data)
+        self.rem_app.emit(self._profile)

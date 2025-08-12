@@ -72,7 +72,7 @@ class DataStateModel(QObject):
 
     def application_compatibility(self, application_profile: str):
 
-        application_obj = self._application_manager.app_profile_to_app_prof_obj(application_profile)
+        application_obj = self._application_manager.profile_name_to_profile(application_profile)
 
         application_type = application_obj['ApplicationType']
         software_version = application_obj['Settings']['SoftwareVersion']
@@ -97,7 +97,7 @@ class DataStateModel(QObject):
 
         for set_application_profile in set_application_profiles:
 
-            set_application_obj = self._application_manager.app_profile_to_app_prof_obj(set_application_profile)
+            set_application_obj = self._application_manager.profile_name_to_profile(set_application_profile)
 
             set_application_type = set_application_obj['ApplicationType']
             set_software_version = set_application_obj['Settings']['SoftwareVersion']

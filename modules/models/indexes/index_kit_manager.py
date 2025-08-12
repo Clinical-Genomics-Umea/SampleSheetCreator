@@ -52,7 +52,6 @@ class IndexKitManager(QObject):
 
     def on_run_cycles_changed(self) -> None:
         self._index_kit_widgets = self._set_index_kit_widgets_by_run_cycles()
-        print("on_run_cycles_changed")
         self.index_kits_changed.emit()
 
     

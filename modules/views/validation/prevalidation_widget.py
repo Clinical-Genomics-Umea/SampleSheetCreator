@@ -139,14 +139,13 @@ class PreValidationWidget(QWidget):
         layout.addWidget(self.table, 1)  # Allow table to expand
 
     def _add_row(self, name: str, level: StatusLevel, message: str):
-
-        # overall status
-
         # Get the string name of the enum value (e.g., 'INFO', 'WARNING', 'ERROR')
         level_str = level.name if level else "UNKNOWN"
         
-        # Set status based on severity level - SUCCESS only for INFO, FAIL for all others
-        status_str = "SUCCESS" if level and level.name == 'INFO' else "FAIL"
+        # Set status based on severity level
+        # INFO level means validation passed, WARNING or ERROR means it failed
+        # We also check if the message is empty, as some validations might pass with no message
+        status_str = "SUCCESS" if (level and level.name == 'INFO') or not message.strip() else "FAIL"
 
 
         # Insert new row
@@ -172,9 +171,6 @@ class PreValidationWidget(QWidget):
         message_item.setData(Qt.DisplayRole, str(message))
         message_item.setTextAlignment(Qt.AlignCenter)
 
-        print(name, status_str, level, message)
-
-
         # Set items in table
         self.table.setItem(row_count, 0, name_item)
         self.table.setItem(row_count, 1, status_item)
@@ -183,31 +179,32 @@ class PreValidationWidget(QWidget):
 
 
     def _update_summary(self):
-        """Update the summary label with current validation status."""
+        """Update the summary label with current validation status.
+        
+        The summary will report:
+        - All validations passed successfully (if all rows have 'SUCCESS' status)
+        - Validation failed (if any row has 'FAIL' status)
+        """
         if not hasattr(self, 'table') or self.table.rowCount() == 0:
             self.summary_label.setText("No validation results to display.")
+            self.validation_status_changed.emit(True)
             return
         
         total = self.table.rowCount()
-        errors = sum(1 for i in range(total)
-                     if self.table.item(i, 1).data(Qt.UserRole) == StatusLevel.ERROR)
-        warnings = sum(1 for i in range(total)
-                       if self.table.item(i, 1).data(Qt.UserRole) == StatusLevel.WARNING)
+        has_failures = False
         
-        if errors > 0:
+        # Check if any row has 'FAIL' status
+        for i in range(total):
+            status_item = self.table.item(i, 1)
+            if status_item and status_item.text() == "FAIL":
+                has_failures = True
+                break
+        
+        if has_failures:
             self.summary_label.setText(
-                f"<span style='color: #cc0000;'>{errors} errors</span>, "
-                f"<span style='color: #996600;'>{warnings} warnings</span> "
-                f"({total} total validations)"
+                f"<span style='color: #cc0000;'>Validation failed - check validation results below</span>"
             )
             self.validation_status_changed.emit(False)
-        elif warnings > 0:
-            self.summary_label.setText(
-                f"<span style='color: #0066cc;'>All validations passed</span> "
-                f"with <span style='color: #996600;'>{warnings} warnings</span> "
-                f"({total} total validations)"
-            )
-            self.validation_status_changed.emit(True)
         else:
             self.summary_label.setText(
                 f"<span style='color: #009900;'>All {total} validations passed successfully!</span>"

@@ -68,7 +68,7 @@ class WorkSheetImporter(QObject):
         for _, row in dataframe.iterrows():
             application_profiles = row['ApplicationProfile']
             for profile in application_profiles:
-                application_profile_obj = self._application_manager.app_profile_to_app_prof_obj(profile)
+                application_profile_obj = self._application_manager.profile_name_to_profile(profile)
 
                 profile_data_keys.update(application_profile_obj['Data'].keys())
 
@@ -78,7 +78,7 @@ class WorkSheetImporter(QObject):
         for index, row in dataframe.iterrows():
             application_profiles = row['ApplicationProfile']
             for profile in application_profiles:
-                application_profile_obj = self._application_manager.app_profile_to_app_prof_obj(profile)
+                application_profile_obj = self._application_manager.profile_name_to_profile(profile)
                 for key, value in application_profile_obj['Data'].items():
                     dataframe.loc[index, key] = value
 

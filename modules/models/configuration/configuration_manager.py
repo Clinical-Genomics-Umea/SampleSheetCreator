@@ -191,8 +191,6 @@ class ConfigurationManager(QObject):
             path = Path(path_str).resolve()
             paths[key] = path
 
-        pprint(paths)
-
         self._logger.debug("All configuration paths initialized successfully")
         return paths
 

@@ -37,7 +37,6 @@ class MainValidator(QObject):
 
 
     def validate(self):
-        print("validate")
         self.clear_validator_widgets.emit()
 
         if not self._prevalidator.validate():

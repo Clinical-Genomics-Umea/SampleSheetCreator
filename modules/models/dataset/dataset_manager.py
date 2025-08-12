@@ -134,7 +134,7 @@ class DataSetManager:
         adapters_read2 = set()
 
         for name in application_names:
-            app_object = self._application_manager.app_profile_to_app_prof_obj(name)
+            app_object = self._application_manager.profile_name_to_profile(name)
             if app_object.get("Application") == "BCLConvert":
                 adapters_read1.update(
                     app_object.get("Settings", {})
@@ -215,7 +215,7 @@ class DataSetManager:
 
         _tmp = {}
         for app_profile in unique_app_profiles:
-            app = self._application_manager.app_profile_to_app(app_profile)
+            app = self._application_manager.application_profile_to_app(app_profile)
             if app not in _tmp:
                 _tmp[app] = {"Data": [], "Settings": {}, "DataFields": []}
 
@@ -223,16 +223,16 @@ class DataSetManager:
                 all_sample_data_df["ApplicationProfile"] == app_profile
             ].copy(deep=True)
 
-            app_profile_data = self._application_manager.app_profile_to_data(app_profile)
+            app_profile_data = self._application_manager.profile_name_to_data(app_profile)
 
             for k, v in app_profile_data.items():
                 if k not in data_df.columns:
                     data_df[k] = v
 
-            data_df = data_df[self._application_manager.app_profile_to_data_fields(app_profile)]
+            data_df = data_df[self._application_manager.profile_name_to_data_fields(app_profile)]
 
             _tmp[app]["Data"].append(data_df)
-            _tmp[app]["Settings"] = self._application_manager.app_profile_to_settings(app_profile)
+            _tmp[app]["Settings"] = self._application_manager.profile_name_to_settings(app_profile)
 
         for app in _tmp:
             concat_data = pd.concat(_tmp[app]["Data"])
@@ -242,7 +242,7 @@ class DataSetManager:
 
             _app_settings_data.append(
                 {
-                    "ApplicationType": self._application_manager.app_to_app_type(app),
+                    "ApplicationType": self._application_manager.application_name_to_application_type(app),
                     "Application": app,
                     "Data": concat_data,
                     "Settings": _tmp[app]["Settings"],
