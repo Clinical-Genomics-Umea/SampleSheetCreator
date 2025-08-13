@@ -261,45 +261,57 @@ def overall_sample_data_validator(state_model: StateModel) -> ValidationResult:
     dna_pattern_plus = re.compile(r"^[ACGT+]+$", re.IGNORECASE)  # For AdapterRead1 / AdapterRead2
 
     for idx, row in df.iterrows():
+
+
+        lane = row["Lane"] if "Lane" in df.columns and isinstance(row["Lane"], list) else None
+        sample_id = row["Sample_ID"].strip() if "Sample_ID" in df.columns and isinstance(row["Sample_ID"], str) else None
+        index_i7_name = row["IndexI7Name"].strip() if "IndexI7Name" in df.columns and isinstance(row["IndexI7Name"], str) else None
+        index_i7 = row["IndexI7"].strip() if "IndexI7" in df.columns and isinstance(row["IndexI7"], str) else None
+        application_profile = row["ApplicationProfile"] if "ApplicationProfile" in df.columns and isinstance(row["ApplicationProfile"], list) else None
+        index_i5_name = row["IndexI5Name"].strip() if "IndexI5Name" in df.columns and isinstance(row["IndexI5Name"], str) else None
+        index_i5 = row["IndexI5"].strip() if "IndexI5" in df.columns and isinstance(row["IndexI5"], str) else None
+        adapter_read1 = row["AdapterRead1"].strip() if "AdapterRead1" in df.columns and isinstance(row["AdapterRead1"], str) else None
+        adapter_read2 = row["AdapterRead2"].strip() if "AdapterRead2" in df.columns and isinstance(row["AdapterRead2"], str) else None
+
         # Lane: must be list of ints (required)
-        if not isinstance(row["Lane"], list) or not all(isinstance(x, int) for x in row["Lane"]):
-            errors.append(f"Row {idx}: 'Lane' must be a list of ints")
+        if not all(isinstance(x, int) for x in lane):
+            errors.append(f"Row {idx+1}: 'Lane' must be a list of ints")
 
         # Sample_ID: non-empty string (required)
-        if not isinstance(row["Sample_ID"], str) or not row["Sample_ID"].strip():
-            errors.append(f"Row {idx}: 'Sample_ID' must be a non-empty string")
+        if not sample_id:
+            errors.append(f"Row {idx+1}: 'Sample_ID' must be a non-empty string")
 
         # IndexI7: DNA sequence (required, strict)
-        if not isinstance(row["IndexI7"], str) or not dna_pattern_strict.match(row["IndexI7"]):
-            errors.append(f"Row {idx}: 'IndexI7' must be a valid DNA sequence (ACGT)")
+        if not index_i7 or not dna_pattern_strict.match(index_i7):
+            errors.append(f"Row {idx+1}: 'IndexI7' must be a valid DNA sequence (ACGT)")
 
         # ApplicationProfile: list of strings (required)
-        if not isinstance(row["ApplicationProfile"], list) or not all(
-                isinstance(x, str) for x in row["ApplicationProfile"]):
-            errors.append(f"Row {idx}: 'ApplicationProfile' must be a list of strings")
+        if not application_profile or not all(isinstance(x, str) for x in application_profile):
+            errors.append(f"Row {idx+1}: 'ApplicationProfile' must be a list of strings")
 
         # IndexI5 (optional but strict if present)
-        if pd.notna(row["IndexI5"]) and str(row["IndexI5"]).strip():
-            if not isinstance(row["IndexI5"], str) or not dna_pattern_strict.match(row["IndexI5"]):
-                errors.append(f"Row {idx}: 'IndexI5' must be a valid DNA sequence (ACGT)")
+        if index_i5:
+            if not dna_pattern_strict.match(index_i5):
+                errors.append(f"Row {idx+1}: 'IndexI5' must be a valid DNA sequence (ACGT)")
 
-        # AdapterRead1 / AdapterRead2 (optional, plus sign allowed)
-        for field in ["AdapterRead1", "AdapterRead2"]:
-            if pd.notna(row[field]) and str(row[field]).strip():
-                if not isinstance(row[field], str) or not dna_pattern_plus.match(row[field]):
-                    errors.append(f"Row {idx}: '{field}' must be a valid sequence (ACGT or '+')")
+        if index_i5_name:
+            if not dna_pattern_strict.match(index_i5):
+                errors.append(f"Row {idx+1}: 'IndexI5' must be a valid DNA sequence (ACGT) when 'IndexI5Name' is present")
+
+        if adapter_read1:
+            if not dna_pattern_plus.match(adapter_read1):
+                errors.append(f"Row {idx+1}: 'AdapterRead1' if exists must be a valid sequence (ACGT or '+')")
+
+        if adapter_read2:
+            if not dna_pattern_plus.match(adapter_read2):
+                errors.append(f"Row {idx+1}: 'AdapterRead2' if exists must be a valid sequence (ACGT or '+')")
 
         # Conditional check: If IndexI5Name is present, IndexI5 must also be present and valid
-        if pd.notna(row["IndexI5Name"]) and str(row["IndexI5Name"]).strip():
-            if pd.isna(row["IndexI5"]) or not str(row["IndexI5"]).strip():
-                errors.append(f"Row {idx}: 'IndexI5' must be present if 'IndexI5Name' is present")
-            elif not dna_pattern_strict.match(str(row["IndexI5"])):
-                errors.append(f"Row {idx}: 'IndexI5' must be a valid DNA sequence (ACGT) when 'IndexI5Name' is present")
 
-    if not errors:
+    if errors:
         return ValidationResult(
             name=name,
-            message=f"Errors found in sample data: {errors}",
+            message=f"Errors found in sample data:\n {"\n".join(errors)}",
             severity=StatusLevel.ERROR
         )
 
@@ -319,45 +331,57 @@ def override_cycles_pattern_validator(state_model: StateModel) -> ValidationResu
     if "OverrideCyclesPattern" not in df.columns:
         return ValidationResult(
             name=name,
-            message="Column 'OverrideCyclesPattern' not found, skipping validation.",
-            severity=StatusLevel.INFO
+            message="Column 'OverrideCyclesPattern' not found, must be present.",
+            severity=StatusLevel.ERROR
         )
+    #
+    # Read1Cycles = r"(Y\d+|N\d+|U\d+|Y{r})"
+    # Index1Cycles = r"(I\d+|N\d+|U\d+|I{i})"
+    # Index2Cycles = r"(I\d+|N\d+|U\d+|I{i})"
+    # Read2Cycles = r"(Y\d+|N\d+|U\d+|Y{r})"
 
-    pattern_reads = re.compile(r"^(Y\d+|N\d+|U\d+)*(Y+)(Y\d+|N\d+|U\d+)*$")
-    pattern_indexes = re.compile(r"^(I\d+|N\d+|U\d+)*(I+)(I\d+|N\d+|U\d+)*$")
 
-    errors: List[int] = []
+    pattern_reads = re.compile(r"^(Y\d+|N\d+|U\d+|Y{r})$")
+    pattern_indexes = re.compile(r"^(I\d+|N\d+|U\d+|I{i})$")
 
-    def validate(value):
-        if not isinstance(value, str):
-            return False
-        parts = value.split('-')
-        if len(parts) != 4:
-            return False
-        read1_pattern, index1_pattern, index2_pattern, read2_pattern = parts
-        if not pattern_reads.fullmatch(read1_pattern):
-            return False
-        if not pattern_indexes.fullmatch(index1_pattern):
-            return False
-        if not pattern_indexes.fullmatch(index2_pattern):
-            return False
-        if not pattern_reads.fullmatch(read2_pattern):
-            return False
-        return True
+    errors: List[str] = []
+
 
     for idx, val in df["OverrideCyclesPattern"].items():
-        if not validate(val):
-            errors.append(idx)
+
+        if not isinstance(val, str):
+            errors.append(f"Row {idx+1}: 'OverrideCyclesPattern' must be a string")
+            continue
+
+        parts = val.split('-')
+        if len(parts) != 4:
+            errors.append(f"Row {idx+1}: 'OverrideCyclesPattern' must be a string of the form 'R1-I1-I2-R2'")
+            continue
+
+        read1_pattern, index1_pattern, index2_pattern, read2_pattern = parts
+
+        if not pattern_reads.fullmatch(read1_pattern):
+            errors.append(f"Row {idx+1}: 'read1_pattern' must be a valid read pattern")
+
+        if not pattern_indexes.fullmatch(index1_pattern):
+            errors.append(f"Row {idx+1}: 'index1_pattern' must be a valid read pattern")
+
+        if not pattern_indexes.fullmatch(index2_pattern):
+            errors.append(f"Row {idx+1}: 'index2_pattern' must be a valid read pattern")
+
+        if not pattern_reads.fullmatch(read2_pattern):
+            errors.append(f"Row {idx+1}: 'read2_pattern' must be a valid read pattern")
+
 
     if errors:
         return ValidationResult(
             name=name,
-            message=f"Errors found in overridecyclespatterns at rows: {errors}",
+            message=f"Errors found in override cycles patterns at rows: \n{"\n".join(errors)}",
             severity=StatusLevel.ERROR
         )
     else:
         return ValidationResult(
             name=name,
-            message="No errors found in overridecyclespatterns.",
+            message="No errors found in override cycles patterns.",
             severity=StatusLevel.INFO
         )

@@ -13,7 +13,7 @@ from modules.models.sample.sample_model import SampleModel, CustomProxyModel
 from modules.models.state.state_model import StateModel
 from modules.models.validation.color_balance.color_balance_validator import ColorBalanceValidator
 from modules.models.validation.compatibility_tester import CompatibilityTester
-from modules.models.validation.dataset.dataset_validator import DataSetValidator
+from modules.models.validation.sample_data_overview_prepare.sample_data_overview_prepare import SampleDataOverviewPrepare
 from modules.models.validation.index_distance.index_distance_matrix_generator import IndexDistanceValidator
 from modules.models.validation.main_validator import MainValidator
 from modules.models.validation.prevalidation.prevalidator import PreValidator
@@ -32,7 +32,7 @@ from modules.views.statusbar.status import StatusBar
 from modules.views.main_window import MainWindow
 from modules.views.toolbar.toolbar import ToolBar
 from modules.views.validation.color_balance_widget import ColorBalanceValidationWidget
-from modules.views.validation.dataset_validation_widget import DataSetValidationWidget
+from modules.views.validation.sample_data_overview_widget import SampleDataOverviewWidget
 from modules.views.validation.index_distance_validation_widget import IndexDistanceValidationWidget
 from modules.views.validation.main_validation_widget import MainValidationWidget
 from modules.views.validation.prevalidation_widget import PreValidationWidget
@@ -74,7 +74,7 @@ class MainController(QObject):
         # validation widgets
 
         self._prevalidation_widget = PreValidationWidget()
-        self._dataset_validation_widget = DataSetValidationWidget()
+        self._dataset_validation_widget = SampleDataOverviewWidget()
         self._index_distance_validation_widget = IndexDistanceValidationWidget()
         self._color_balance_validation_widget = ColorBalanceValidationWidget(self._state_model)
 
@@ -87,9 +87,8 @@ class MainController(QObject):
             self._logger
         )
 
-        self._dataset_validator = DataSetValidator(
+        self._dataset_processor = SampleDataOverviewPrepare(
             self._state_model,
-            self._dataset_validation_widget,
             self._logger
         )
 
@@ -107,7 +106,7 @@ class MainController(QObject):
 
         self._main_validator = MainValidator(
             self._prevalidator,
-            self._dataset_validator,
+            self._dataset_processor,
             self._index_distance_validator,
             self._color_balance_validator,
             self._state_model,
@@ -267,11 +266,15 @@ class MainController(QObject):
         """Connect UI signals to validation slots"""
 
         self._validation_widget.validate_button.clicked.connect(
-            self._main_validator.validate
+            self._main_validator.pre_validate
         )
         self._prevalidator.prevalidation_results_ready.connect(
             self._prevalidation_widget.populate
         )
+
+        self._prevalidator.success.connect(self._main_validator.populate_manual_validation_widgets)
+        self._dataset_processor.data_ready.connect(self._dataset_validation_widget.populate)
+
         # self._validation_widget.validate_button.clicked.connect(
         #     self._main_validator.validate
         # )

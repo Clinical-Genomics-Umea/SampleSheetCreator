@@ -4,7 +4,7 @@ from PySide6.QtCore import QObject, Signal
 
 from modules.models.state.state_model import StateModel
 from modules.models.validation.color_balance.color_balance_validator import ColorBalanceValidator
-from modules.models.validation.dataset.dataset_validator import DataSetValidator
+from modules.models.validation.sample_data_overview_prepare.sample_data_overview_prepare import SampleDataOverviewPrepare
 from modules.models.validation.index_distance.index_distance_matrix_generator import (
     IndexDistanceValidator,
 )
@@ -19,7 +19,7 @@ class MainValidator(QObject):
 
     def __init__(self,
                  prevalidator: PreValidator,
-                 dataset_validator: DataSetValidator,
+                 dataset_validator: SampleDataOverviewPrepare,
                  index_distance_validator: IndexDistanceValidator,
                  color_balance_validator: ColorBalanceValidator,
                  state_model: StateModel,
@@ -36,17 +36,17 @@ class MainValidator(QObject):
         self._logger = logger
 
 
-    def validate(self):
+    def pre_validate(self):
         self.clear_validator_widgets.emit()
+        self._prevalidator.validate()
 
-        if not self._prevalidator.validate():
-            self.prevalidation_failed.emit()
-            return
+    def populate_manual_validation_widgets(self):
 
-        # self.prevalidation_success.emit()
-        # self._dataset_validator.validate()
+        self._dataset_validator.data_to_data_widget()
         # self._index_distance_validator.generate()
-        # #
+
+
+
         # if self._state_model.assess_color_balance:
         #     self._color_balance_validator.validate()
 

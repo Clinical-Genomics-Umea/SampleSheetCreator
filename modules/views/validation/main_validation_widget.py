@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
 )
 
 from modules.views.validation.color_balance_widget import ColorBalanceValidationWidget
-from modules.views.validation.dataset_validation_widget import DataSetValidationWidget
+from modules.views.validation.sample_data_overview_widget import SampleDataOverviewWidget
 from modules.views.validation.index_distance_validation_widget import (
     IndexDistanceValidationWidget,
 )

@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
 import pandas as pd
 
 
-class DataSetValidationWidget(QTabWidget):
+class SampleDataOverviewWidget(QTabWidget):
     """A widget for displaying and validating dataset information in a tabbed interface.
     
     This widget provides different views of the dataset including:
@@ -56,6 +56,7 @@ class DataSetValidationWidget(QTabWidget):
                      - Lane exploded view
         """
         self.clear()
+
         
         if not df_tuple or len(df_tuple) != 3:
             return
