@@ -7,7 +7,7 @@ from modules.models.state.state_model import StateModel
 from modules.utils.utils import explode_df_lane_column
 
 
-class IndexDistanceMatricesWorker(QObject):
+class IndexDistanceDataWorker(QObject):
     results_ready = Signal(object)
     error = Signal(str)
 

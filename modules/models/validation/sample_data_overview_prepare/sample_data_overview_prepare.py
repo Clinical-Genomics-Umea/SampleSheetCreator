@@ -7,7 +7,7 @@ from PySide6.QtCore import Signal, QObject
 from modules.models.state.state_model import StateModel
 
 
-class SampleDataOverviewPrepare(QObject):
+class SampleDataOverviewGenerator(QObject):
     """Prepares sample data for display in the overview widget by exploding application profiles and lanes.
     
     This class takes a pandas DataFrame from the state model and creates multiple views of the data:

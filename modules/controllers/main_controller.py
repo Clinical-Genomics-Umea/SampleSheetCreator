@@ -11,10 +11,10 @@ from modules.models.logging.statusbar_handler import StatusBarLogHandler
 from modules.models.override_cycles.OverrideCyclesModel import OverrideCyclesModel
 from modules.models.sample.sample_model import SampleModel, CustomProxyModel
 from modules.models.state.state_model import StateModel
-from modules.models.validation.color_balance.color_balance_validator import ColorBalanceValidator
+from modules.models.validation.color_balance.color_balance_data_generator import ColorBalanceDataGenerator
 from modules.models.validation.compatibility_tester import CompatibilityTester
-from modules.models.validation.sample_data_overview_prepare.sample_data_overview_prepare import SampleDataOverviewPrepare
-from modules.models.validation.index_distance.index_distance_matrix_generator import IndexDistanceValidator
+from modules.models.validation.sample_data_overview_prepare.sample_data_overview_prepare import SampleDataOverviewGenerator
+from modules.models.validation.index_distance.index_distance_data_generator import IndexDistanceDataGenerator
 from modules.models.validation.main_validator import MainValidator
 from modules.models.validation.prevalidation.prevalidator import PreValidator
 from modules.views.config.configuration_widget import ConfigurationWidget
@@ -33,7 +33,7 @@ from modules.views.main_window import MainWindow
 from modules.views.toolbar.toolbar import ToolBar
 from modules.views.validation.color_balance_widget import ColorBalanceValidationWidget
 from modules.views.validation.sample_data_overview_widget import SampleDataOverviewWidget
-from modules.views.validation.index_distance_validation_widget import IndexDistanceValidationWidget
+from modules.views.validation.index_distance_overview_widget import IndexDistanceOverviewWidget
 from modules.views.validation.main_validation_widget import MainValidationWidget
 from modules.views.validation.prevalidation_widget import PreValidationWidget
 
@@ -74,9 +74,9 @@ class MainController(QObject):
         # validation widgets
 
         self._prevalidation_widget = PreValidationWidget()
-        self._dataset_validation_widget = SampleDataOverviewWidget()
-        self._index_distance_validation_widget = IndexDistanceValidationWidget()
-        self._color_balance_validation_widget = ColorBalanceValidationWidget(self._state_model)
+        self._sample_data_overview_widget = SampleDataOverviewWidget()
+        self._index_distance_overview_widget = IndexDistanceOverviewWidget()
+        self._color_balance_overview_widget = ColorBalanceValidationWidget(self._state_model)
 
         # validation models
 
@@ -87,28 +87,26 @@ class MainController(QObject):
             self._logger
         )
 
-        self._dataset_processor = SampleDataOverviewPrepare(
+        self._sample_data_overview_generator = SampleDataOverviewGenerator(
             self._state_model,
             self._logger
         )
 
-        self._index_distance_validator = IndexDistanceValidator(
+        self._index_distance_data_generator = IndexDistanceDataGenerator(
             self._state_model,
-            self._index_distance_validation_widget,
             self._logger
         )
 
-        self._color_balance_validator = ColorBalanceValidator(
+        self._color_balance_data_generator = ColorBalanceDataGenerator(
             self._state_model,
-            self._color_balance_validation_widget,
             self._logger
         )
 
         self._main_validator = MainValidator(
             self._prevalidator,
-            self._dataset_processor,
-            self._index_distance_validator,
-            self._color_balance_validator,
+            self._sample_data_overview_generator,
+            self._index_distance_data_generator,
+            self._color_balance_data_generator,
             self._state_model,
             self._logger
         )
@@ -116,9 +114,9 @@ class MainController(QObject):
         # widgets
 
         self._validation_widget = MainValidationWidget(self._prevalidation_widget,
-                                                       self._dataset_validation_widget,
-                                                       self._index_distance_validation_widget,
-                                                       self._color_balance_validation_widget,
+                                                       self._sample_data_overview_widget,
+                                                       self._index_distance_overview_widget,
+                                                       self._color_balance_overview_widget,
                                                        self._main_validator)
 
         self._override_widget = OverrideCyclesWidget(self._override_cycles_model)
@@ -272,8 +270,13 @@ class MainController(QObject):
             self._prevalidation_widget.populate
         )
 
-        self._prevalidator.success.connect(self._main_validator.populate_manual_validation_widgets)
-        self._dataset_processor.data_ready.connect(self._dataset_validation_widget.populate)
+        self._prevalidator.success.connect(self._main_validator.populate_manual_overview_widgets)
+        self._sample_data_overview_generator.data_ready.connect(self._sample_data_overview_widget.populate)
+        self._index_distance_data_generator.data_ready.connect(self._index_distance_overview_widget.populate)
+        self._color_balance_data_generator.data_ready.connect(self._color_balance_overview_widget.populate)
+
+        self._sample_model.dataChanged.connect(self._validation_widget.clear_validation_widgets)
+
 
         # self._validation_widget.validate_button.clicked.connect(
         #     self._main_validator.validate

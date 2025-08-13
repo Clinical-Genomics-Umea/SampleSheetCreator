@@ -459,6 +459,13 @@ class StateModel(QObject):
         self.assess_color_balance_changed.emit(assess_color_balance)
 
     @property
+    def base_colors(self):
+        return {'A': self.color_a,
+                'T': self.color_t,
+                'G': self.color_g,
+                'C': self.color_c}
+
+    @property
     def color_a(self):
         return self._run_info.color_a
 

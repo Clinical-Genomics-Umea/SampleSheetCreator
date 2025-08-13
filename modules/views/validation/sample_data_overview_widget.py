@@ -1,153 +1,162 @@
-from typing import Dict, Any
 from PySide6.QtWidgets import (
-    QTabWidget,
-    QWidget,
-    QVBoxLayout,
-    QSizePolicy,
-    QTableWidget,
-    QTableWidgetItem,
+    QTabWidget, QTableWidget, QTableWidgetItem, QVBoxLayout,
+    QWidget, QHeaderView, QLabel, QAbstractItemView
 )
+from PySide6.QtCore import Qt
 import pandas as pd
+from typing import Optional, Tuple
 
 
-class SampleDataOverviewWidget(QTabWidget):
-    """A widget for displaying and validating dataset information in a tabbed interface.
-    
-    This widget provides different views of the dataset including:
-    - Full dataset view
-    - Application profile-based views
-    - Lane-based views
-    """
-    
-    def __init__(self, parent: QWidget = None):
-        """Initialize the DataSetValidationWidget.
-        
-        Args:
-            parent: The parent widget, if any
-        """
-        super().__init__(parent)
+class SampleDataOverviewWidget(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self._current_df = None
         self._setup_ui()
-    
-    def _setup_ui(self) -> None:
-        """Set up the user interface components."""
-        self.setContentsMargins(0, 0, 0, 0)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        
-        # Main layout
-        self._main_layout = QVBoxLayout()
-        self._main_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(self._main_layout)
+        self._apply_styles()
 
-    def clear(self) -> None:
-        """Clear all tabs and clean up resources."""
-        while self.count() > 0:
-            widget = self.widget(0)
-            self.removeTab(0)
-            if widget:
-                widget.deleteLater()
+    def _setup_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(8, 8, 8, 8)
 
-    def populate(self, df_tuple: tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]) -> None:
-        """Populate the widget with data from the provided dataframes.
-        
-        Args:
-            df_tuple: A tuple containing three dataframes:
-                     - Full dataset
-                     - Application profile exploded view
-                     - Lane exploded view
-        """
-        self.clear()
+        # Status bar
+        self.status_bar = QLabel("Ready")
+        self.status_bar.setStyleSheet("""
+            QLabel {
+                background: #f8f9fa;
+                padding: 4px 8px;
+                border: 1px solid #dee2e6;
+                border-radius: 3px;
+                color: #495057;
+            }
+        """)
+        layout.addWidget(self.status_bar)
 
-        
-        if not df_tuple or len(df_tuple) != 3:
-            return
-            
-        df, df_appname_explode, df_lane_explode = df_tuple
-        
-        # Add main data tab
-        self._add_main_data_tab(df)
-        
-        # Add application profile tabs
-        self._add_application_profile_tabs(df_appname_explode)
-        
-        # Add lane tabs
-        self._add_lane_tabs(df_lane_explode)
-    
-    def _add_main_data_tab(self, df: pd.DataFrame) -> None:
-        """Add the main data tab with the full dataset.
-        
-        Args:
-            df: The full dataset dataframe
-        """
-        self.addTab(self._create_table_widget(df), "All Data")
-    
-    def _add_application_profile_tabs(self, df: pd.DataFrame) -> None:
-        """Add tabs for each application profile.
-        
-        Args:
-            df: The application profile exploded dataframe
-        """
-        if df.empty or "ApplicationProfile" not in df.columns:
-            return
-            
-        profile_tab = QTabWidget()
-        self.addTab(profile_tab, "By Application Profile")
-        
-        for ap_name in df["ApplicationProfile"].unique():
-            ap_df = df[df["ApplicationProfile"] == ap_name].copy(deep=True)
-            if not ap_df.empty:
-                tab = self._create_table_widget(ap_df)
-                profile_tab.addTab(tab, str(ap_name))
-    
-    def _add_lane_tabs(self, df: pd.DataFrame) -> None:
-        """Add tabs for each lane.
-        
-        Args:
-            df: The lane exploded dataframe
-        """
-        if df.empty or "Lane" not in df.columns:
-            return
-            
-        lane_tab = QTabWidget()
-        self.addTab(lane_tab, "By Lane")
-        
-        for lane in sorted(df["Lane"].unique()):
-            lane_df = df[df["Lane"] == lane].copy(deep=True)
-            if not lane_df.empty:
-                tab = self._create_table_widget(lane_df)
-                lane_tab.addTab(tab, f"Lane {lane}")
-    
-    @staticmethod
-    def _create_table_widget(dataframe: pd.DataFrame) -> QWidget:
-        """Create a table widget populated with dataframe data.
-        
-        Args:
-            dataframe: The pandas DataFrame to display
-            
-        Returns:
-            QWidget: A widget containing the table
-        """
-        if dataframe.empty:
-            return QWidget()
-            
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-        
+        # Tab widget
+        self.tab_widget = QTabWidget()
+        self.tab_widget.setDocumentMode(True)
+        layout.addWidget(self.tab_widget)
+
+    def _apply_styles(self):
+        self.setStyleSheet("""
+            QTableWidget {
+                gridline-color: #dee2e6;
+                font-size: 11pt;
+            }
+            QHeaderView::section {
+                background-color: #f8f9fa;
+                padding: 8px;
+                border: 1px solid #dee2e6;
+                font-weight: bold;
+            }
+            QTableWidget::item {
+                padding: 6px;
+            }
+            QTabBar::tab {
+                padding: 8px 16px;
+                margin-right: 2px;
+                background: #f1f3f5;
+                border: 1px solid #dee2e6;
+                border-bottom: none;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+            }
+            QTabBar::tab:selected {
+                background: white;
+                margin-bottom: -1px;
+            }
+            QTabWidget::pane {
+                border: 1px solid #dee2e6;
+                background: white;
+            }
+        """)
+
+    def clear(self):
+        self.tab_widget.clear()
+
+    def _create_table_widget(self, title: str) -> QTableWidget:
         table = QTableWidget()
-        layout.addWidget(table)
+        table.setAlternatingRowColors(True)
+        table.setSortingEnabled(True)
+        table.setEditTriggers(QTableWidget.NoEditTriggers)
+        table.setSelectionBehavior(QTableWidget.SelectRows)
+        table.setSelectionMode(QTableWidget.SingleSelection)
+        table.verticalHeader().setVisible(False)
+
+        # Enable smooth scrolling
+        table.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        table.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+
+        return table
+
+    def _add_tab(self, df: pd.DataFrame, title: str) -> None:
+        if df is None or df.empty:
+            return
+
+        table = self._create_table_widget(title)
+
+        # Make a copy of the dataframe to avoid modifying the original
+        df_display = df.copy()
         
-        # Configure table dimensions
-        rows, cols = dataframe.shape
+        # Convert any array-like columns to strings
+        for col in df_display.columns:
+            if df_display[col].apply(lambda x: isinstance(x, (list, tuple, set))).any():
+                df_display[col] = df_display[col].apply(
+                    lambda x: ', '.join(map(str, x)) if isinstance(x, (list, tuple, set)) else x
+                )
+
+        # Set up table data
+        rows, cols = df_display.shape
         table.setRowCount(rows)
         table.setColumnCount(cols)
-        
-        # Set headers
-        table.setHorizontalHeaderLabels(dataframe.columns)
-        
-        # Populate table
-        for row in range(rows):
-            for col in range(cols):
-                value = str(dataframe.iat[row, col])
-                table.setItem(row, col, QTableWidgetItem(value))
-        
-        return widget
+        table.setHorizontalHeaderLabels(df_display.columns)
+
+        # Fill table with data
+        for i, row in df_display.iterrows():
+            for j, value in enumerate(row):
+                # Handle different types of values safely
+                if pd.isna(value):
+                    display_text = ""
+                elif isinstance(value, (list, tuple, set)):
+                    display_text = ', '.join(map(str, value))
+                else:
+                    display_text = str(value)
+                
+                item = QTableWidgetItem(display_text)
+                item.setToolTip(display_text)
+                item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+                table.setItem(i, j, item)
+
+        # Configure header
+        header = table.horizontalHeader()
+        for i in range(cols):
+            header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
+            header.setSectionResizeMode(i, QHeaderView.Interactive)
+
+        # Add tab
+        container = QWidget()
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.addWidget(table)
+
+        self.tab_widget.addTab(container, title)
+        self.status_bar.setText(f"Showing {rows} rows, {cols} columns")
+
+    def populate(self, data: Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]) -> None:
+        """Update the widget with new data.
+
+        Args:
+            data: A tuple containing (original_df, app_exploded_df, lane_exploded_df)
+        """
+        self.tab_widget.clear()
+
+        if not data or len(data) != 3:
+            return
+
+        original_df, app_exploded_df, lane_exploded_df = data
+
+        if not original_df.empty:
+            self._add_tab(original_df, "All Samples")
+        if not app_exploded_df.empty:
+            self._add_tab(app_exploded_df, "By Application")
+        if not lane_exploded_df.empty:
+            self._add_tab(lane_exploded_df, "By Lane")

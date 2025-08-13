@@ -1,20 +1,21 @@
 from logging import Logger
 
-from PySide6.QtCore import QObject, QThread, Slot
+from PySide6.QtCore import QObject, QThread, Slot, Signal
 
 from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.sample.sample_model import SampleModel
 from modules.models.state.state_model import StateModel
-from modules.models.validation.index_distance.index_distance_matrices_worker import IndexDistanceMatricesWorker
-from modules.views.validation.index_distance_validation_widget import IndexDistanceValidationWidget
+from modules.models.validation.index_distance.index_distance_data_worker import IndexDistanceDataWorker
+from modules.views.validation.index_distance_overview_widget import IndexDistanceOverviewWidget
 
 
-class IndexDistanceValidator(QObject):
+class IndexDistanceDataGenerator(QObject):
+
+    data_ready = Signal(object)
 
     def __init__(
         self,
         state_model: StateModel,
-        index_distance_validation_widget: IndexDistanceValidationWidget,
         logger: Logger
     ):
         super().__init__()
@@ -23,7 +24,6 @@ class IndexDistanceValidator(QObject):
             raise ValueError("model cannot be None")
 
         self._state_model = state_model
-        self._index_distance_validation_widget = index_distance_validation_widget
         self._logger = logger
 
         self.thread = None
@@ -38,7 +38,7 @@ class IndexDistanceValidator(QObject):
         i5_seq_rc = i5_seq_orientation == "rc"
 
         self.thread = QThread()
-        self.worker = IndexDistanceMatricesWorker(self._state_model, i5_seq_rc)
+        self.worker = IndexDistanceDataWorker(self._state_model, i5_seq_rc)
 
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
@@ -56,4 +56,4 @@ class IndexDistanceValidator(QObject):
         self.thread = None
         self.worker = None
 
-        self._index_distance_validation_widget.populate(results)
+        self.data_ready.emit(results)

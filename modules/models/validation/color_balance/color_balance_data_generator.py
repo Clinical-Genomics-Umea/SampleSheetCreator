@@ -11,22 +11,22 @@ from modules.utils.utils import explode_df_lane_column
 from modules.views.validation.color_balance_widget import ColorBalanceValidationWidget
 
 
-class ColorBalanceValidator(QObject):
+class ColorBalanceDataGenerator(QObject):
+
+    data_ready = Signal(object)
 
     def __init__(
         self,
         state_model: StateModel,
-        color_balance_widget: ColorBalanceValidationWidget,
         logger: Logger
     ):
         super().__init__()
 
         self._state_model = state_model
-        self._color_balance_widget = color_balance_widget
         self._logger = logger
 
 
-    def validate(self):
+    def generate(self):
         i5_orientation = self._state_model.i5_seq_orientation
         i5_seq_rc = i5_orientation == "rc"
 
@@ -56,7 +56,7 @@ class ColorBalanceValidator(QObject):
 
             result[lane] = concat_indexes
 
-        self._color_balance_widget.populate(result)
+        self.data_ready.emit(result)
 
     def _index_df_padded(
         self, df: pd.DataFrame, tot_len: int, col_name: str, id_name: str

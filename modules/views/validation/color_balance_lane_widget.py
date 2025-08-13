@@ -24,25 +24,53 @@ class ColorBalanceLaneWidget(QTableView):
         df.iloc[-1, 0] = "Summary"
         df.iloc[-1, 1] = ""
 
-        self.color_balance_model = self._create_color_balance_model(df, base_colors)
-        self.setModel(self.color_balance_model)
-        self.color_balance_model.update_summation()
+        self._color_balance_model = self._create_color_balance_model(df, base_colors)
+        self.setModel(self._color_balance_model)
+        self._color_balance_model.update_summation()
         self.verticalHeader().setVisible(False)
-        self.setup(base_colors)
+        self._setup(base_colors)
 
-    def setup(self, base_colors):
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    def _setup(self, base_colors):
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        last_row = self.color_balance_model.rowCount() - 1
-        self.setRowHeight(last_row, 140)
+        # Set minimum height for regular rows
+        for row in range(self._color_balance_model.rowCount() - 1):
+            self.verticalHeader().setSectionResizeMode(row, QHeaderView.ResizeToContents)
+            self.setRowHeight(row, 24)  # Standard row height
+            
+        # Set larger height for the summary row (last row)
+        last_row = self._color_balance_model.rowCount() - 1
+        self.verticalHeader().setSectionResizeMode(last_row, QHeaderView.Interactive)
+        self.setRowHeight(last_row, 200)  # Increased from 140 to 200
+        
+        # Set the delegate for custom rendering
         self.setItemDelegate(ColorBalanceRowDelegate())
 
-        self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        self.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.setFixedWidth(1500)
+        
+        # Ensure the view updates when data changes
+        self._color_balance_model.dataChanged.connect(self.updateGeometries)
+        
+    def resizeEvent(self, event):
+        """Handle resize events to adjust row heights as needed."""
+        super().resizeEvent(event)
+        # Update the summary row height based on content
+        last_row = self._color_balance_model.rowCount() - 1
+        if last_row >= 0:
+            # Create a style option for the delegate
+            option = self.viewport().style().optionViewItem()
+            option.rect = self.rect()
+            option.rect.setWidth(self.viewport().width())
+            
+            # Get the required height for the summary row
+            index = self.model().index(last_row, 0)
+            size = self.itemDelegate().sizeHint(option, index)
+            self.setRowHeight(last_row, max(200, size.height() + 10))  # Ensure minimum height of 200
 
     @staticmethod
     def _create_color_balance_model(
