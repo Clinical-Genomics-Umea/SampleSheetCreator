@@ -13,7 +13,7 @@ from modules.views.validation.sample_data_overview_widget import SampleDataOverv
 from modules.views.validation.index_distance_overview_widget import (
     IndexDistanceOverviewWidget,
 )
-from modules.views.validation.prevalidation_widget import PreValidationWidget
+from modules.views.validation.prevalidation_widget import GeneralValidationWidget
 
 
 class MainValidationWidget(QWidget):

@@ -13,10 +13,10 @@ from modules.models.sample.sample_model import SampleModel, CustomProxyModel
 from modules.models.state.state_model import StateModel
 from modules.models.validation.color_balance.color_balance_data_generator import ColorBalanceDataGenerator
 from modules.models.validation.compatibility_tester import CompatibilityTester
-from modules.models.validation.sample_data_overview_prepare.sample_data_overview_prepare import SampleDataOverviewGenerator
+from modules.models.validation.sample_data_overview.sample_data_overview import SampleDataOverviewGenerator
 from modules.models.validation.index_distance.index_distance_data_generator import IndexDistanceDataGenerator
 from modules.models.validation.main_validator import MainValidator
-from modules.models.validation.prevalidation.prevalidator import PreValidator
+from modules.models.validation.prevalidation.generalvalidator import GeneralValidator
 from modules.views.config.configuration_widget import ConfigurationWidget
 from modules.views.export.export import ExportWidget
 from modules.views.application.application_container import ApplicationContainerWidget
@@ -35,7 +35,7 @@ from modules.views.validation.color_balance_widget import ColorBalanceValidation
 from modules.views.validation.sample_data_overview_widget import SampleDataOverviewWidget
 from modules.views.validation.index_distance_overview_widget import IndexDistanceOverviewWidget
 from modules.views.validation.main_validation_widget import MainValidationWidget
-from modules.views.validation.prevalidation_widget import PreValidationWidget
+from modules.views.validation.prevalidation_widget import GeneralValidationWidget
 
 
 class MainController(QObject):
@@ -73,14 +73,14 @@ class MainController(QObject):
 
         # validation widgets
 
-        self._prevalidation_widget = PreValidationWidget()
+        self._prevalidation_widget = GeneralValidationWidget()
         self._sample_data_overview_widget = SampleDataOverviewWidget()
         self._index_distance_overview_widget = IndexDistanceOverviewWidget()
         self._color_balance_overview_widget = ColorBalanceValidationWidget(self._state_model)
 
         # validation models
 
-        self._prevalidator = PreValidator(
+        self._prevalidator = GeneralValidator(
             self._configuration_manager,
             self._application_manager,
             self._state_model,

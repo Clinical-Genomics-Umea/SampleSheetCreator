@@ -35,40 +35,40 @@ class IndexDistanceOverviewWidget(QTabWidget):
         self.tabBar().setExpanding(False)
         
         # Apply custom tab bar styling
-        self.setStyleSheet("""
-            QTabBar::tab {
-                background: #f0f0f0;
-                color: #505050;
-                border: 1px solid #d0d0d0;
-                border-bottom: none;
-                padding: 6px 12px;
-                margin-right: 2px;
-                border-top-left-radius: 4px;
-                border-top-right-radius: 4px;
-                min-width: 80px;
-            }
-            QTabBar::tab:selected {
-                background: #ffffff;
-                color: #000000;
-                border-bottom: 2px solid #2196F3;
-                font-weight: bold;
-            }
-            QTabBar::tab:hover:!selected {
-                background: #e0e0e0;
-            }
-            QTabBar::tab:disabled {
-                background: #f8f8f8;
-                color: #a0a0a0;
-            }
-            QTabWidget::pane {
-                border: 1px solid #d0d0d0;
-                background: white;
-                padding: 0px;
-            }
-            QLabel {
-                color: #333333;
-            }
-        """)
+        # self.setStyleSheet("""
+        #     QTabBar::tab {
+        #         background: #f0f0f0;
+        #         color: #505050;
+        #         border: 1px solid #d0d0d0;
+        #         border-bottom: none;
+        #         padding: 6px 12px;
+        #         margin-right: 2px;
+        #         border-top-left-radius: 4px;
+        #         border-top-right-radius: 4px;
+        #         min-width: 80px;
+        #     }
+        #     QTabBar::tab:selected {
+        #         background: #ffffff;
+        #         color: #000000;
+        #         border-bottom: 2px solid #2196F3;
+        #         font-weight: bold;
+        #     }
+        #     QTabBar::tab:hover:!selected {
+        #         background: #e0e0e0;
+        #     }
+        #     QTabBar::tab:disabled {
+        #         background: #f8f8f8;
+        #         color: #a0a0a0;
+        #     }
+        #     QTabWidget::pane {
+        #         border: 1px solid #d0d0d0;
+        #         background: white;
+        #         padding: 0px;
+        #     }
+        #     QLabel {
+        #         color: #333333;
+        #     }
+        # """)
         
     def _apply_styles(self) -> None:
         """Apply additional styles to the widget."""

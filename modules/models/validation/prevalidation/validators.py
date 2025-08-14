@@ -151,6 +151,8 @@ def lanes_general_check(state_model: StateModel) -> ValidationResult:
     # Process lane values
     invalid_rows = []
     allowed_lanes_set = set(allowed_lanes)
+
+    used_lanes = set()
     
     for idx, row in sample_df.iterrows():
         lanes_list = row["Lane"]
@@ -158,6 +160,9 @@ def lanes_general_check(state_model: StateModel) -> ValidationResult:
         # If it's a string, try to evaluate it as a list
         try:
             lanes_set = set(lanes_list)
+
+            used_lanes.update(lanes_set)
+
             if not lanes_set.issubset(allowed_lanes_set):
                 invalid_rows.append(f"Row {row + 1}: Lane values {lanes_list} not in allowed range {sorted(allowed_lanes_set)}")
         except Exception as e:
@@ -174,6 +179,13 @@ def lanes_general_check(state_model: StateModel) -> ValidationResult:
             name=VALIDATION_NAME,
             message=error_msg,
             severity=StatusLevel.ERROR
+        )
+
+    if used_lanes != allowed_lanes_set:
+        return ValidationResult(
+            name=VALIDATION_NAME,
+            message=f"Some flowcell lanes are not used in the sample sheet: {sorted(allowed_lanes_set - used_lanes)}. But no errors were found",
+            severity=StatusLevel.WARNING
         )
 
     # All lanes are valid
@@ -322,7 +334,6 @@ def overall_sample_data_validator(state_model: StateModel) -> ValidationResult:
     )
 
 
-
 def override_cycles_pattern_validator(state_model: StateModel) -> ValidationResult:
     name: str = "override_cycles_pattern_validator"
 
@@ -334,18 +345,11 @@ def override_cycles_pattern_validator(state_model: StateModel) -> ValidationResu
             message="Column 'OverrideCyclesPattern' not found, must be present.",
             severity=StatusLevel.ERROR
         )
-    #
-    # Read1Cycles = r"(Y\d+|N\d+|U\d+|Y{r})"
-    # Index1Cycles = r"(I\d+|N\d+|U\d+|I{i})"
-    # Index2Cycles = r"(I\d+|N\d+|U\d+|I{i})"
-    # Read2Cycles = r"(Y\d+|N\d+|U\d+|Y{r})"
-
 
     pattern_reads = re.compile(r"^(Y\d+|N\d+|U\d+|Y{r})$")
     pattern_indexes = re.compile(r"^(I\d+|N\d+|U\d+|I{i})$")
 
     errors: List[str] = []
-
 
     for idx, val in df["OverrideCyclesPattern"].items():
 

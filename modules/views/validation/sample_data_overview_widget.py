@@ -12,63 +12,63 @@ class SampleDataOverviewWidget(QWidget):
         super().__init__(parent=parent)
         self._current_df = None
         self._setup_ui()
-        self._apply_styles()
+        # self._apply_styles()
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
 
         # Status bar
-        self.status_bar = QLabel("Ready")
-        self.status_bar.setStyleSheet("""
-            QLabel {
-                background: #f8f9fa;
-                padding: 4px 8px;
-                border: 1px solid #dee2e6;
-                border-radius: 3px;
-                color: #495057;
-            }
-        """)
-        layout.addWidget(self.status_bar)
+        # self.status_bar = QLabel("Ready")
+        # self.status_bar.setStyleSheet("""
+        #     QLabel {
+        #         background: #f8f9fa;
+        #         padding: 4px 8px;
+        #         border: 1px solid #dee2e6;
+        #         border-radius: 3px;
+        #         color: #495057;
+        #     }
+        # """)
+        # layout.addWidget(self.status_bar)
 
         # Tab widget
         self.tab_widget = QTabWidget()
         self.tab_widget.setDocumentMode(True)
         layout.addWidget(self.tab_widget)
 
-    def _apply_styles(self):
-        self.setStyleSheet("""
-            QTableWidget {
-                gridline-color: #dee2e6;
-                font-size: 11pt;
-            }
-            QHeaderView::section {
-                background-color: #f8f9fa;
-                padding: 8px;
-                border: 1px solid #dee2e6;
-                font-weight: bold;
-            }
-            QTableWidget::item {
-                padding: 6px;
-            }
-            QTabBar::tab {
-                padding: 8px 16px;
-                margin-right: 2px;
-                background: #f1f3f5;
-                border: 1px solid #dee2e6;
-                border-bottom: none;
-                border-top-left-radius: 4px;
-                border-top-right-radius: 4px;
-            }
-            QTabBar::tab:selected {
-                background: white;
-                margin-bottom: -1px;
-            }
-            QTabWidget::pane {
-                border: 1px solid #dee2e6;
-                background: white;
-            }
-        """)
+    # def _apply_styles(self):
+    #     self.setStyleSheet("""
+    #         QTableWidget {
+    #             gridline-color: #dee2e6;
+    #             font-size: 11pt;
+    #         }
+    #         QHeaderView::section {
+    #             background-color: #f8f9fa;
+    #             padding: 8px;
+    #             border: 1px solid #dee2e6;
+    #             font-weight: bold;
+    #         }
+    #         QTableWidget::item {
+    #             padding: 6px;
+    #         }
+    #         QTabBar::tab {
+    #             padding: 8px 16px;
+    #             margin-right: 2px;
+    #             background: #f1f3f5;
+    #             border: 1px solid #dee2e6;
+    #             border-bottom: none;
+    #             border-top-left-radius: 4px;
+    #             border-top-right-radius: 4px;
+    #         }
+    #         QTabBar::tab:selected {
+    #             background: white;
+    #             margin-bottom: -1px;
+    #         }
+    #         QTabWidget::pane {
+    #             border: 1px solid #dee2e6;
+    #             background: white;
+    #         }
+    #     """)
 
     def clear(self):
         self.tab_widget.clear()
@@ -139,7 +139,7 @@ class SampleDataOverviewWidget(QWidget):
         container_layout.addWidget(table)
 
         self.tab_widget.addTab(container, title)
-        self.status_bar.setText(f"Showing {rows} rows, {cols} columns")
+        # self.status_bar.setText(f"Showing {rows} rows, {cols} columns")
 
     def populate(self, data: Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]) -> None:
         """Update the widget with new data.

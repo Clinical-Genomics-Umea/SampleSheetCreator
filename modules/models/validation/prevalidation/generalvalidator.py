@@ -17,7 +17,7 @@ from modules.models.validation.prevalidation.validators import (
 from modules.models.validation.validation_result import StatusLevel
 
 
-class PreValidator(QObject):
+class GeneralValidator(QObject):
 
     prevalidation_results_ready = Signal(object)
     success = Signal()

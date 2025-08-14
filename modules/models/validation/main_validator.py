@@ -4,11 +4,11 @@ from PySide6.QtCore import QObject, Signal
 
 from modules.models.state.state_model import StateModel
 from modules.models.validation.color_balance.color_balance_data_generator import ColorBalanceDataGenerator
-from modules.models.validation.sample_data_overview_prepare.sample_data_overview_prepare import SampleDataOverviewGenerator
+from modules.models.validation.sample_data_overview.sample_data_overview import SampleDataOverviewGenerator
 from modules.models.validation.index_distance.index_distance_data_generator import (
     IndexDistanceDataGenerator,
 )
-from modules.models.validation.prevalidation.prevalidator import PreValidator
+from modules.models.validation.prevalidation.generalvalidator import GeneralValidator
 
 
 class MainValidator(QObject):
@@ -18,7 +18,7 @@ class MainValidator(QObject):
     prevalidation_success = Signal()
 
     def __init__(self,
-                 prevalidator: PreValidator,
+                 prevalidator: GeneralValidator,
                  sample_data_overview_generator: SampleDataOverviewGenerator,
                  index_distance_data_generator: IndexDistanceDataGenerator,
                  color_balance_data_generator: ColorBalanceDataGenerator,

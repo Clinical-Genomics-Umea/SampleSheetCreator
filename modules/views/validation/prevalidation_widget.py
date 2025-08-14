@@ -65,7 +65,7 @@ class StatusDelegate(QStyledItemDelegate):
             option.palette.setColor(QPalette.Text, self.text_colors[status])
             option.palette.setColor(QPalette.HighlightedText, self.text_colors[status])
 
-class PreValidationWidget(QWidget):
+class GeneralValidationWidget(QWidget):
     """Widget for displaying validation results with filtering and sorting capabilities."""
     
     # Signal emitted when validation status changes
@@ -145,7 +145,7 @@ class PreValidationWidget(QWidget):
         # Set status based on severity level
         # INFO level means validation passed, WARNING or ERROR means it failed
         # We also check if the message is empty, as some validations might pass with no message
-        status_str = "SUCCESS" if (level and level.name == 'INFO') or not message.strip() else "FAIL"
+        status_str = "SUCCESS" if (level and level.name == 'INFO' or level.name == 'WARNING') or not message.strip() else "FAIL"
 
 
         # Insert new row
