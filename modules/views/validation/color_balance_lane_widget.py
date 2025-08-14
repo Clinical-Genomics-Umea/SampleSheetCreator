@@ -1,10 +1,32 @@
 import pandas as pd
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QStandardItem, QPainter, QPen, QColor
+from PySide6.QtCore import Qt, QModelIndex
+from PySide6.QtGui import QStandardItem, QPainter, QPen, QColor, QStandardItemModel
 from PySide6.QtWidgets import QTableView, QSizePolicy, QAbstractScrollArea, QHeaderView
 
 from modules.models.validation.color_balance.index_color_balance_model import IndexColorBalanceModel
 from modules.views.validation.color_balance_delegates import ColorBalanceRowDelegate
+
+
+class EditableIndexColorBalanceModel(IndexColorBalanceModel):
+    """A model that makes only the Proportion column (index 1) editable."""
+    
+    def __init__(self, base_colors, parent=None):
+        super().__init__(base_colors, parent)
+    
+    def flags(self, index):
+        """Return the item flags for the given index.
+        
+        Only the Proportion column (index 1) is editable.
+        """
+        if not index.isValid():
+            return Qt.NoItemFlags
+            
+        # Make only the Proportion column (index 1) editable
+        if index.column() == 1 and index.row() < self.rowCount() - 1:  # Exclude the summary row
+            return super().flags(index) | Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        
+        # All other cells are read-only
+        return super().flags(index) & ~Qt.ItemIsEditable
 
 
 class ColorBalanceLaneWidget(QTableView):
@@ -28,6 +50,14 @@ class ColorBalanceLaneWidget(QTableView):
         self.setModel(self._color_balance_model)
         self._color_balance_model.update_summation()
         self.verticalHeader().setVisible(False)
+        
+        # Set selection behavior to select rows and single selection
+        self.setSelectionBehavior(QTableView.SelectItems)
+        self.setSelectionMode(QTableView.SingleSelection)
+        
+        # Set edit triggers to only allow editing on double click
+        self.setEditTriggers(QTableView.DoubleClicked | QTableView.EditKeyPressed)
+        
         self._setup(base_colors)
 
     def _setup(self, base_colors):
@@ -62,23 +92,32 @@ class ColorBalanceLaneWidget(QTableView):
         # Update the summary row height based on content
         last_row = self._color_balance_model.rowCount() - 1
         if last_row >= 0:
+            from PySide6.QtWidgets import QStyleOptionViewItem
+            
             # Create a style option for the delegate
-            option = self.viewport().style().optionViewItem()
+            option = QStyleOptionViewItem()
+            option.initFrom(self.viewport())
             option.rect = self.rect()
             option.rect.setWidth(self.viewport().width())
             
             # Get the required height for the summary row
             index = self.model().index(last_row, 0)
-            size = self.itemDelegate().sizeHint(option, index)
-            self.setRowHeight(last_row, max(200, size.height() + 10))  # Ensure minimum height of 200
+            delegate = self.itemDelegate()
+            if delegate:
+                size = delegate.sizeHint(option, index)
+                self.setRowHeight(last_row, max(200, size.height() + 10))  # Ensure minimum height of 200
 
     @staticmethod
     def _create_color_balance_model(
         df: pd.DataFrame, base_colors: dict
-    ) -> IndexColorBalanceModel:
-        """Create a color balance model from a dataframe and a set of base colors."""
+    ) -> EditableIndexColorBalanceModel:
+        """Create a color balance model from a dataframe and a set of base colors.
+        
+        Returns:
+            EditableIndexColorBalanceModel: A model with only the Proportion column editable.
+        """
 
-        model = IndexColorBalanceModel(base_colors, parent=None)
+        model = EditableIndexColorBalanceModel(base_colors, parent=None)
 
         # Set the column headers as the model's horizontal headers
         model.setHorizontalHeaderLabels(

@@ -12,6 +12,7 @@ from modules.models.state.state_model import StateModel
 from modules.models.validation.prevalidation.validators import (
     ValidationResult, check_sample_dataframe_overall_consistency, lanes_general_check, lane_sample_uniqueness_check,
     application_settings_check, overall_sample_data_validator, override_cycles_pattern_validator,
+    index_len_run_cycles_check, index_pair_uniqueness_check,
 )
 from modules.models.validation.validation_result import StatusLevel
 
@@ -44,6 +45,8 @@ class PreValidator(QObject):
             application_settings_check(self._state_model, self._application_manager),
             overall_sample_data_validator(self._state_model),
             override_cycles_pattern_validator(self._state_model),
+            index_len_run_cycles_check(self._state_model),
+            index_pair_uniqueness_check(self._state_model),
         ]
 
         self.prevalidation_results_ready.emit(validation_results)

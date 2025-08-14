@@ -385,3 +385,119 @@ def override_cycles_pattern_validator(state_model: StateModel) -> ValidationResu
             message="No errors found in override cycles patterns.",
             severity=StatusLevel.INFO
         )
+
+
+def index_len_run_cycles_check(state_model: StateModel) -> ValidationResult:
+    name: str = "index length run cycles check"
+
+    df = state_model.sample_df
+
+    index1_cycles: int = state_model.index1_cycles
+    index2_cycles: int = state_model.index2_cycles
+
+
+    errors: List[str] = []
+
+
+    for idx, row in df.iterrows():
+        i7 = row["IndexI7"]
+        i5 = row["IndexI5"]
+
+        i7_len = None
+        i5_len = None
+
+        try:
+            i7_len = len(i7.strip())
+        except TypeError:
+            errors.append(f"Row {idx+1}: 'IndexI7' must be a string")
+
+        try:
+            i5_len = len(i5.strip())
+        except TypeError:
+            errors.append(f"Row {idx+1}: 'IndexI5' must be a string")
+
+
+        if i7_len:
+            if index1_cycles < i7_len:
+                errors.append(f"Row {idx+1}: 'IndexI7' length ({i7_len}) longer than 'Index1Cycles' ({index1_cycles})")
+
+        if i5_len:
+            if index2_cycles < i5_len:
+                errors.append(f"Row {idx+1}: 'IndexI5' length ({i5_len}) longer than 'Index2Cycles' ({index2_cycles})")
+
+    if errors:
+        return ValidationResult(
+            name=name,
+            message=f"Index length errors at rows: \n{"\n".join(errors)}",
+            severity=StatusLevel.ERROR
+        )
+    else:
+        return ValidationResult(
+            name=name,
+            message="No errors found for index lengths.",
+            severity=StatusLevel.INFO
+        )
+
+
+def index_pair_uniqueness_check(state_model: StateModel) -> ValidationResult:
+    """
+    Check if index combinations are unique within each lane.
+    Compares indexes up to the shortest common length.
+
+    Parameters:
+    df: pandas DataFrame with columns: Sample_ID, Lane, IndexI7, Index5
+
+    Returns:
+    dict: Results containing conflicts and summary
+    """
+    name = "index pair uniqueness check"
+
+    df = state_model.sample_df
+
+    # First, explode the Lane column to get one row per sample-lane combination
+    df_exploded = df.explode('Lane').reset_index(drop=True)
+
+    lane_conflicts = []
+
+    # Group by lane to check uniqueness within each lane
+    for lane, lane_group in df_exploded.groupby('Lane'):
+
+        # Get all samples in this lane
+        samples = lane_group.to_dict('records')
+
+        # Compare each pair of samples in the lane
+        for i, sample1 in enumerate(samples):
+            for j, sample2 in enumerate(samples):
+                if i >= j:  # Skip duplicate comparisons and self-comparison
+                    continue
+
+                # Get index sequences
+                idx1_i7 = str(sample1['IndexI7']).strip().upper()
+                idx1_i5 = str(sample1['IndexI5']).strip().upper()
+                idx2_i7 = str(sample2['IndexI7']).strip().upper()
+                idx2_i5 = str(sample2['IndexI5']).strip().upper()
+
+                # Compare up to shortest common length for each index
+                min_len_i7 = min(len(idx1_i7), len(idx2_i7))
+                min_len_i5 = min(len(idx1_i5), len(idx2_i5))
+
+                i7_match = idx1_i7[:min_len_i7] == idx2_i7[:min_len_i7] if min_len_i7 > 0 else True
+                i5_match = idx1_i5[:min_len_i5] == idx2_i5[:min_len_i5] if min_len_i5 > 0 else True
+
+                # If both indexes match up to their common length, it's a conflict
+                if i7_match and i5_match:
+                    conflict = f"{sample1["Sample_ID"]} and {sample2["Sample_ID"]} have the same index pair in lane {lane}"
+                    lane_conflicts.append(conflict)
+
+    if lane_conflicts:
+        return ValidationResult(
+            name=name,
+            message=f"Index length errors at rows: \n{"\n".join(lane_conflicts)}",
+            severity=StatusLevel.ERROR
+        )
+
+    return ValidationResult(
+        name=name,
+        message="No errors found for index lengths.",
+        severity=StatusLevel.INFO
+    )
