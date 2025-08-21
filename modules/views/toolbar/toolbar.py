@@ -110,3 +110,6 @@ class ToolBar(QToolBar):
         self.override_action.setEnabled(False)
         self.validate_action.setEnabled(False)
 
+    def set_validation_state(self, state: bool = True):
+        self.export_action.setEnabled(state)
+

@@ -749,40 +749,60 @@ class SampleTableView(QTableView):
         is selected, the entire clipboard content is pasted starting from that cell. If
         multiple cells are selected and the clipboard content is a single cell, it is
         duplicated across the selected cells.
+        
+        The function blocks model signals during the paste operation and emits
+        a single signal when done to improve performance.
 
         Returns:
             bool: True if the paste operation was successful, False otherwise.
         """
         model = self.model()
-
+        
+        # Block signals before making changes
+        model.blockSignals(True)
         source_model = clipboard_text_to_model()
+        source_model.blockSignals(True)
 
         if source_model is not None:
             selected_indexes = self.selectedIndexes()
 
             if not selected_indexes:
+                model.blockSignals(False)  # Unblock signals before returning
                 return False
 
-            elif len(selected_indexes) == 1:
+            try:
+                if len(selected_indexes) == 1:
+                    regular_paste(selected_indexes, source_model, model)
+                    self.selectionModel().clearSelection()
+                    self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+                elif len(selected_indexes) > 1:
+                    if source_model.rowCount() == 1 and source_model.columnCount() == 1:
+                        source_index = source_model.index(0, 0)
+                        for idx in selected_indexes:
+                            model.setData(
+                                idx,
+                                source_model.data(source_index, Qt.DisplayRole),
+                                Qt.EditRole,
+                            )
+                
+                # Emit dataChanged for all affected items after unblocking signals
+                if selected_indexes:
+                    top_left = selected_indexes[0]
+                    bottom_right = selected_indexes[-1]
+                    model.blockSignals(False)
+                    source_model.blockSignals(False)
+                    # Unblock signals
+                    model.dataChanged.emit(top_left, bottom_right)
+                    return True
+                    
+            except Exception as e:
+                model.blockSignals(False)  # Make sure to unblock signals even if error occurs
+                source_model.blockSignals(False)
+                raise e
 
-                regular_paste(selected_indexes, source_model, model)
-                self.selectionModel().clearSelection()
-                self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-                return True
-
-            elif len(selected_indexes) > 1:
-                if source_model.rowCount() == 1 and source_model.columnCount() == 1:
-                    source_index = source_model.index(0, 0)
-
-                    for idx in selected_indexes:
-                        model.setData(
-                            idx,
-                            source_model.data(source_index, Qt.DisplayRole),
-                            Qt.EditRole,
-                        )
-
-                return True
-
+        model.blockSignals(False)
+        source_model.blockSignals(False)
+        # Unblock signals if we get here
         return False
 
     @Slot(str)

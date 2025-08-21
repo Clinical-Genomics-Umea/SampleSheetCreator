@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QCheckBox, QComboBox, QFrame,
                               QTableWidget, QTableWidgetItem, QToolButton, 
                               QVBoxLayout, QWidget)
 
-from modules.models.validation.prevalidation.validators import ValidationResult, StatusLevel
+from modules.models.validation.general_validation.validators import ValidationResult, StatusLevel
 
 
 class StatusLevel(Enum):

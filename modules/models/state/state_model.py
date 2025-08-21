@@ -6,7 +6,7 @@ instrument configuration, and validation states. It provides a reactive interfac
 using Qt signals to notify about state changes.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from enum import Enum, auto
 from logging import Logger
@@ -17,6 +17,9 @@ from PySide6.QtCore import QObject, Signal, Slot
 
 from modules.models.configuration.configuration_manager import ConfigurationManager
 from modules.models.sample.sample_model import SampleModel
+
+
+# from modules.models.sample.sample_model import StateModel
 
 
 class RunState(Enum):
@@ -60,6 +63,7 @@ class RunInfo:
     color_c: Any = None
     assess_color_balance: bool = False
     dragen_app_version: str = ""
+    sample_application_profile_names: List[str] = field(default_factory=list)
 
     is_validated: bool = False
 
@@ -96,6 +100,8 @@ class StateModel(QObject):
     i5_seq_orientation_changed = Signal(str)
     i5_samplesheet_orientation_bcl2fastq_changed = Signal(str)
     i5_samplesheet_orientation_bclconvert_changed = Signal(str)
+
+    sample_application_profile_changed = Signal(list)
     
     # Color signals
     color_a_changed = Signal(object)
@@ -117,6 +123,8 @@ class StateModel(QObject):
 
     run_info_ready = Signal()
     run_info_not_ready = Signal()
+
+    validation_status = Signal(bool)
 
 
     def __init__(self, sample_model: SampleModel, configuration_manager: ConfigurationManager, logger: Logger):
@@ -143,48 +151,21 @@ class StateModel(QObject):
         # Initialize run info with default values
         self._run_info = RunInfo()
         
-        # Initialize index length tracking
 
-    
-    # --- State Management ---
-    
-    def mark_as_unvalidated(self) -> None:
-        """Mark the current state as requiring revalidation."""
-        if self._run_info.is_validated:
-            self._run_info.is_validated = False
-    
     @property
-    def state(self) -> RunState:
-        """Get the current application state."""
-        return self._state
-    
-    @state.setter
-    def state(self, new_state: RunState) -> None:
-        """Update the application state and emit appropriate signals."""
-        if self._state != new_state:
-            self.mark_as_unvalidated()
-            old_state = self._state
-            self._state = new_state
-            self._logger.debug(f"State changed from {old_state} to {new_state}")
-            self.state_changed.emit({"old_state": old_state, "new_state": new_state})
-    
-    # --- Run Info Management ---
-    
-    @property
-    def run_info(self) -> RunInfo:
+    def run_info(self) -> dict:
         """Get a copy of the current run information."""
-        return RunInfo(**self._run_info.__dict__)
+        return asdict(self._run_info)
     
     def set_run_setup_data(self, run_setup_data: dict) -> None:
-        """Update run info and emit appropriate signals.
-        
+        """
+        Update run info and emit appropriate signals.
+
         Args:
-            **kwargs: Key-value pairs of run info fields to update
-            
+            run_setup_data: Dictionary containing run setup data to update
+
         Returns:
-            Tuple[bool, dict]: (success, validation_results)
-                - success: True if all updates were applied successfully
-                - validation_results: Results from _validate_run_info() if validation was performed
+            None
         """
 
         if not run_setup_data:
@@ -211,6 +192,7 @@ class StateModel(QObject):
 
         self._set_dependent_data_from_config()
         self._validate_run_info()
+
 
     def _validate_run_info(self) -> None:
         """Validate all run info fields and update completion status.
@@ -276,6 +258,17 @@ class StateModel(QObject):
                 self.run_info_ready.emit()
             else:
                 self.run_info_not_ready.emit()
+
+    @property
+    def run_description(self) -> str:
+        return self._run_info.run_description
+
+    @run_description.setter
+    def run_description(self, value: str):
+        if self._run_info.run_description != value:
+            self.mark_as_unvalidated()
+            self._run_info.run_description = value
+            self.run_description_changed.emit(value)
 
     @staticmethod
     def _current_date_as_string():
@@ -363,7 +356,6 @@ class StateModel(QObject):
 
         # self._check_run_info_complete()
 
-
     def _check_run_info_complete(self) -> None:
         """Validate that all required run info fields are populated.
         
@@ -414,21 +406,45 @@ class StateModel(QObject):
 
         return lengths.min(), lengths.max()
 
-    def update_index_lengths(self):
+    @staticmethod
+    def _get_unique_strings_explode(series: pd.Series) -> List[str]:
+        """
+        Alternative approach using pandas explode() method.
+
+        Args:
+            series: A pandas Series where each element is a list of strings
+
+        Returns:
+            A list of unique strings found across all lists in the series
+        """
+        return series.explode().dropna().unique().tolist()
+
+    def update_aggregate_sample_data(self):
         """Update the minimum and maximum lengths of index sequences from the sample model."""
         df = self._sample_model.to_dataframe()
 
         # Get lengths for both index columns
         i7_min, i7_max = self._get_str_lengths_in_df_col(df["IndexI7"])
-
         i5_min, i5_max = self._get_str_lengths_in_df_col(df["IndexI5"])
 
+        used_applications = self._get_unique_strings_explode(df["ApplicationProfile"])
 
         # Update the state model
         self.sample_index1_minlen = int(i7_min)
         self.sample_index1_maxlen = int(i7_max)
         self.sample_index2_minlen = int(i5_min)
         self.sample_index2_maxlen = int(i5_max)
+
+    @property
+    def sample_application_profile_names(self) -> List[str]:
+        return self._run_info.sample_application_profile_names
+
+    # @sample_application_profile_names.setter
+    # def sample_application_profile_names(self, sample_application_profile_name: List[str]):
+    #     if set(sample_application_profile_name) != set(self._run_info.sample_application_profile_names):
+    #         self._run_info.sample_application_profile_names = sample_application_profile_name
+    #         self.sample_application_profile_changed.emit(sample_application_profile_name)
+    #         self.mark_as_unvalidated()
 
     @property
     def is_validated(self):
@@ -443,6 +459,13 @@ class StateModel(QObject):
         """Mark the current state as validated."""
         if not self._run_info.is_validated:
             self._run_info.is_validated = True
+            self.validation_status.emit(True)
+
+    def mark_as_unvalidated(self) -> None:
+        """Mark the current state as validated."""
+        if self._run_info.is_validated:
+            self._run_info.is_validated = False
+            self.validation_status.emit(False)
 
     @property
     def assess_color_balance(self):
@@ -457,6 +480,20 @@ class StateModel(QObject):
         self._run_info.assess_color_balance = assess_color_balance
         self.mark_as_unvalidated()
         self.assess_color_balance_changed.emit(assess_color_balance)
+
+
+    @property
+    def instrument(self):
+        return self._run_info.instrument
+
+    @instrument.setter
+    def instrument(self, instrument: str):
+        if self._run_info.instrument == instrument:
+            return
+
+        self._run_info.instrument = instrument
+        self.mark_as_unvalidated()
+        self.instrument_changed.emit(instrument)
 
     @property
     def base_colors(self):

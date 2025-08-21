@@ -5,7 +5,6 @@ from pprint import pprint
 import pandas as pd
 from PySide6.QtCore import Signal, QObject, Slot
 
-from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.state.state_model import StateModel
 
 

@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from PySide6.QtCore import QObject, Signal
 
-from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.state.state_model import StateModel
 from modules.utils.utils import explode_df_lane_column
 

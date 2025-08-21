@@ -3,7 +3,7 @@ from PySide6.QtCore import QObject, Signal
 
 from modules.models.application.application_manager import ApplicationManager
 from modules.models.rundata.rundata_model import RunDataModel
-from modules.models.sample.sample_model import SampleModel
+from modules.models.sample.sample_model import StateModel
 from modules.utils.utils import json_to_obj
 
 
@@ -12,7 +12,7 @@ class DataStateModel(QObject):
     freeze_state_changed = Signal(bool)
 
     def __init__(self,
-                 sample_model: SampleModel,
+                 sample_model: StateModel,
                  rundata_model: RunDataModel,
                  application_manager: ApplicationManager,
                  logger: Logger):

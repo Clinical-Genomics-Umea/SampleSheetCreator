@@ -86,6 +86,13 @@ class ApplicationManager:
             The application name if found, None otherwise
         """
         return self._profile_name_to_application_name.get(app_profile)
+
+    def profile_name_to_data_fields(self, profile_name: str) -> Dict[str, Any]:
+        return self._profile_name_to_data_fields.get(profile_name, [])
+
+    def lane_explode_by_profile_name(self, profile_name: str) -> bool:
+        profile = self._profile_name_to_profile.get(profile_name)
+        return profile.get("LaneExplode", False)
     
     def application_name_to_application_type(self, application_name: str) -> Optional[str]:
         """Get the application type for a given application name.
@@ -150,3 +157,16 @@ class ApplicationManager:
             The full application profile dictionary if found, None otherwise
         """
         return self._profile_name_to_profile.get(profile_name)
+
+    def profile_name_to_application(self, profile_name: str) -> Optional[Dict[str, Any]]:
+        """Get the full application profile object.
+
+        Args:
+            profile_name: The application profile name
+
+        Returns:
+            The full application profile dictionary if found, None otherwise
+        """
+        profile = self._profile_name_to_profile.get(profile_name)
+
+        return profile.get("ApplicationName")

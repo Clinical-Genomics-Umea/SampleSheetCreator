@@ -14,7 +14,6 @@ from PySide6.QtWidgets import (
 )
 
 from modules.models.configuration.configuration_manager import ConfigurationManager
-from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.sample.samplesheet_fns import to_json
 from modules.models.state.state_model import StateModel
 from modules.views.export.export_tree_widget import JsonTreeWidget

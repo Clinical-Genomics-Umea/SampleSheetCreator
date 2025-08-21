@@ -2,8 +2,6 @@ import re
 from logging import Logger
 
 from PySide6.QtCore import Signal, QObject, Slot
-from modules.models.dataset.dataset_manager import DataSetManager
-from modules.models.datastate.datastate_model import DataStateModel
 from modules.models.state.state_model import StateModel
 
 

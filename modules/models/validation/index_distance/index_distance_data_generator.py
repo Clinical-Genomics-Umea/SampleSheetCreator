@@ -2,7 +2,6 @@ from logging import Logger
 
 from PySide6.QtCore import QObject, QThread, Slot, Signal
 
-from modules.models.dataset.dataset_manager import DataSetManager
 from modules.models.sample.sample_model import SampleModel
 from modules.models.state.state_model import StateModel
 from modules.models.validation.index_distance.index_distance_data_worker import IndexDistanceDataWorker

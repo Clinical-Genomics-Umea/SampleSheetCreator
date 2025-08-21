@@ -16,7 +16,7 @@ from modules.models.validation.compatibility_tester import CompatibilityTester
 from modules.models.validation.sample_data_overview.sample_data_overview import SampleDataOverviewGenerator
 from modules.models.validation.index_distance.index_distance_data_generator import IndexDistanceDataGenerator
 from modules.models.validation.main_validator import MainValidator
-from modules.models.validation.prevalidation.generalvalidator import GeneralValidator
+from modules.models.validation.general_validation.general_validator import GeneralValidator
 from modules.views.config.configuration_widget import ConfigurationWidget
 from modules.views.export.export import ExportWidget
 from modules.views.application.application_container import ApplicationContainerWidget
@@ -35,8 +35,9 @@ from modules.views.validation.color_balance_widget import ColorBalanceValidation
 from modules.views.validation.sample_data_overview_widget import SampleDataOverviewWidget
 from modules.views.validation.index_distance_overview_widget import IndexDistanceOverviewWidget
 from modules.views.validation.main_validation_widget import MainValidationWidget
-from modules.views.validation.prevalidation_widget import GeneralValidationWidget
+from modules.views.validation.general_validation_widget import GeneralValidationWidget
 
+from PySide6.QtTest import QSignalSpy
 
 class MainController(QObject):
     def __init__(self):
@@ -73,14 +74,14 @@ class MainController(QObject):
 
         # validation widgets
 
-        self._prevalidation_widget = GeneralValidationWidget()
+        self._general_validation_widget = GeneralValidationWidget()
         self._sample_data_overview_widget = SampleDataOverviewWidget()
         self._index_distance_overview_widget = IndexDistanceOverviewWidget()
         self._color_balance_overview_widget = ColorBalanceValidationWidget(self._state_model)
 
         # validation models
 
-        self._prevalidator = GeneralValidator(
+        self._general_validator = GeneralValidator(
             self._configuration_manager,
             self._application_manager,
             self._state_model,
@@ -103,7 +104,7 @@ class MainController(QObject):
         )
 
         self._main_validator = MainValidator(
-            self._prevalidator,
+            self._general_validator,
             self._sample_data_overview_generator,
             self._index_distance_data_generator,
             self._color_balance_data_generator,
@@ -113,11 +114,11 @@ class MainController(QObject):
 
         # widgets
 
-        self._validation_widget = MainValidationWidget(self._prevalidation_widget,
-                                                       self._sample_data_overview_widget,
-                                                       self._index_distance_overview_widget,
-                                                       self._color_balance_overview_widget,
-                                                       self._main_validator)
+        self._main_validation_widget = MainValidationWidget(self._general_validation_widget,
+                                                            self._sample_data_overview_widget,
+                                                            self._index_distance_overview_widget,
+                                                            self._color_balance_overview_widget,
+                                                            self._main_validator)
 
         self._override_widget = OverrideCyclesWidget(self._override_cycles_model)
         self._lane_widget = LanesWidget(self._state_model)
@@ -141,7 +142,7 @@ class MainController(QObject):
             self._samples_widget,
             self._run_setup_widget,
             self._run_info_view,
-            self._validation_widget,
+            self._main_validation_widget,
             self._index_toolbox_widget,
             self._applications_container_widget,
             self._config_widget,
@@ -167,7 +168,6 @@ class MainController(QObject):
         self._connect_validation_signals()
         self._connect_override_pattern_signals()
         self._connect_application_signal()
-        self._connect_drop_paste_signals()
         self._connect_lane_signals()
         self._connect_toolbar_signal()
         self._connect_datastate_signals()
@@ -185,7 +185,8 @@ class MainController(QObject):
         )
 
     def _connect_sample_model_signals(self):
-        self._sample_model.dataChanged.connect(self._state_model.update_index_lengths)
+        self._sample_model.dataChanged.connect(self._state_model.update_aggregate_sample_data)
+
 
     def _connect_datastate_signals(self):
         self._state_model.freeze_state_changed.connect(
@@ -226,6 +227,8 @@ class MainController(QObject):
         self._state_model.run_info_ready.connect(self._samples_widget.enable)
         self._state_model.run_info_ready.connect(self._index_kit_manager.on_run_cycles_changed)
 
+        self._state_model.validation_status.connect(self._toolbar.set_validation_state)
+
     def _connect_index_kit_signals(self):
         self._index_kit_manager.index_kits_changed.connect(
             self._index_toolbox_widget.set_index_kits
@@ -242,19 +245,6 @@ class MainController(QObject):
             self._samples_widget.sample_view.remove_application
         )
 
-    def _connect_drop_paste_signals(self):
-        self._sample_model.dropped_data.connect(
-            self._compatibility_tester.index_drop_check
-        )
-        self._compatibility_tester.index_drop_ok.connect(
-            self._sample_model.set_dropped_index_data
-        )
-
-    # def _connect_file_signals(self):
-    #     self._file_widget.worksheet_filepath_ready.connect(
-    #         self._worksheet_importer.load_worksheet
-    #     )
-
     def _connect_toolbar_signal(self):
         """Connect UI signals to controller slots"""
         # Connect toolbar signal to handler
@@ -262,34 +252,23 @@ class MainController(QObject):
 
     def _connect_validation_signals(self):
         """Connect UI signals to validation slots"""
+        # Set up the sample model in the validation widget
+        self._main_validation_widget.set_sample_model(self._sample_model)
 
-        self._validation_widget.validate_button.clicked.connect(
-            self._main_validator.pre_validate
+        self._main_validation_widget.validate_button.clicked.connect(
+            self._main_validator.general_validate
         )
-        self._prevalidator.prevalidation_results_ready.connect(
-            self._prevalidation_widget.populate
+        self._general_validator.general_validation_results_ready.connect(
+            self._general_validation_widget.populate
         )
 
-        self._prevalidator.success.connect(self._main_validator.populate_manual_overview_widgets)
+        self._general_validator.success.connect(self._main_validator.populate_manual_overview_widgets)
         self._sample_data_overview_generator.data_ready.connect(self._sample_data_overview_widget.populate)
         self._index_distance_data_generator.data_ready.connect(self._index_distance_overview_widget.populate)
         self._color_balance_data_generator.data_ready.connect(self._color_balance_overview_widget.populate)
 
-        self._sample_model.dataChanged.connect(self._validation_widget.clear_validation_widgets)
-
-
-        # self._validation_widget.validate_button.clicked.connect(
-        #     self._main_validator.validate
-        # )
-        # self._main_validator.clear_validator_widgets.connect(
-        #     self._validation_widget.clear_validation_widgets
-        # )
-        # self._main_validator.prevalidation_failed.connect(
-        #     self._state_model.mark_as_unvalidated
-        # )
-        # self._main_validator.prevalidation_success.connect(
-        #     self._state_model.mark_as_validated
-        # )
+        self._general_validator.success.connect(self._state_model.mark_as_validated)
+        self._general_validator.fail.connect(self._index_distance_overview_widget.populate)
 
     def _connect_override_pattern_signals(self):
         self._samples_widget.sample_view.override_patterns_ready.connect(
@@ -301,29 +280,6 @@ class MainController(QObject):
         self._override_widget.custom_override_pattern_ready.connect(
             self._samples_widget.sample_view.set_override_pattern
         )
-
-    # def _connect_run_signals(self):
-        # self._configuration_manager.users_changed.connect(
-        #     self._run_setup_widget._populate_investigators
-        # )
-        # self._configuration_manager.run_data_error.connect(
-        #     self._run_setup_widget.show_error
-        # )
-        # self._run_setup_widget.setup_commited.connect(
-        #     self._rundata_model.set_run_data
-        # )
-        # self._rundata_model.run_data_ready.connect(
-        #     self._run_info_widget.set_data
-        # )
-        # self._rundata_model.run_data_ready.connect(
-        #     self._lane_widget.set_lanes
-        # )
-        # self._rundata_model.index_lens_ready.connect(
-        #     self._index_toolbox_widget.set_index_kit_status
-        # )
-        # self._rundata_model.run_data_ready.connect(
-        #     self._toolbar.on_rundata_set
-        # )
 
     def _connect_lane_signals(self):
         self._lane_widget.lanes_ready.connect(

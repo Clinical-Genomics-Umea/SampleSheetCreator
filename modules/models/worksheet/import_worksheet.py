@@ -6,12 +6,12 @@ from PySide6.QtCore import QObject, Slot
 
 from modules.models.application.application_manager import ApplicationManager
 from modules.models.methods.method_manager import MethodManager
-from modules.models.sample.sample_model import SampleModel
+from modules.models.sample.sample_model import StateModel
 
 
 class WorkSheetImporter(QObject):
     def __init__(self,
-                 sample_model: SampleModel,
+                 sample_model: StateModel,
                  method_manager: MethodManager,
                  application_manager: ApplicationManager,
                  logger: Logger):

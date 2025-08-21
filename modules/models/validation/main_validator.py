@@ -1,6 +1,7 @@
 from logging import Logger
 
 from PySide6.QtCore import QObject, Signal
+from pydantic_core.core_schema import general_wrap_validator_function
 
 from modules.models.state.state_model import StateModel
 from modules.models.validation.color_balance.color_balance_data_generator import ColorBalanceDataGenerator
@@ -8,7 +9,7 @@ from modules.models.validation.sample_data_overview.sample_data_overview import 
 from modules.models.validation.index_distance.index_distance_data_generator import (
     IndexDistanceDataGenerator,
 )
-from modules.models.validation.prevalidation.generalvalidator import GeneralValidator
+from modules.models.validation.general_validation.general_validator import GeneralValidator
 
 
 class MainValidator(QObject):
@@ -18,7 +19,7 @@ class MainValidator(QObject):
     prevalidation_success = Signal()
 
     def __init__(self,
-                 prevalidator: GeneralValidator,
+                 general_validator: GeneralValidator,
                  sample_data_overview_generator: SampleDataOverviewGenerator,
                  index_distance_data_generator: IndexDistanceDataGenerator,
                  color_balance_data_generator: ColorBalanceDataGenerator,
@@ -28,16 +29,16 @@ class MainValidator(QObject):
 
         super().__init__()
 
-        self._prevalidator = prevalidator
+        self._general_validator = general_validator
         self._sample_data_overview_generator = sample_data_overview_generator
         self._index_distance_data_generator = index_distance_data_generator
         self._color_balance_data_generator = color_balance_data_generator
         self._state_model = state_model
         self._logger = logger
 
-    def pre_validate(self):
+    def general_validate(self):
         self.clear_validator_widgets.emit()
-        self._prevalidator.validate()
+        self._general_validator.validate()
 
     def populate_manual_overview_widgets(self):
 

@@ -85,6 +85,8 @@ class RunInfoView(QGroupBox):
         self._index2_minlen_lbl = QLabel("0")
         self._index2_maxlen_lbl = QLabel("0")
 
+        self._sample_applications_lbl = QLabel("None")
+
         self._setup()
 
     def _setup(self):
@@ -149,14 +151,15 @@ class RunInfoView(QGroupBox):
         self.content_layout.addLayout(form_colors)
 
         # Sample Index lengths
-        form_colors = QFormLayout()
-        form_colors.setContentsMargins(0, 0, 0, 0)
-        form_colors.addRow(QLabel("Sample index lengths"))
+        form_sample_data = QFormLayout()
+        form_sample_data.setContentsMargins(0, 0, 0, 0)
+        form_sample_data.addRow(QLabel("Sample agg data"))
 
-        form_colors.addRow(QLabel("Index1 min:"), self._index1_minlen_lbl)
-        form_colors.addRow(QLabel("Index1 max:"), self._index1_maxlen_lbl)
-        form_colors.addRow(QLabel("Index2 min:"), self._index2_minlen_lbl)
-        form_colors.addRow(QLabel("Index2 max:"), self._index2_maxlen_lbl)
+        form_sample_data.addRow(QLabel("Index1 min:"), self._index1_minlen_lbl)
+        form_sample_data.addRow(QLabel("Index1 max:"), self._index1_maxlen_lbl)
+        form_sample_data.addRow(QLabel("Index2 min:"), self._index2_minlen_lbl)
+        form_sample_data.addRow(QLabel("Index2 max:"), self._index2_maxlen_lbl)
+        form_sample_data.addRow(QLabel("Sample apps:"), self._sample_applications_lbl)
         self.content_layout.addLayout(form_colors)
 
         self.content_layout.addStretch()

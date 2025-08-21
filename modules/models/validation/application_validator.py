@@ -26,17 +26,20 @@ def keys_with_different_values(list_of_dicts):
     return diff_keys
 
 
-def application_settings_check(state_model: StateModel, application_manager: ApplicationManager) -> ValidationResult:
+def application_settings_check(sample_df: pd.DataFrame, application_manager: ApplicationManager) -> ValidationResult:
     """Check application settings consistency.
     
     Args:
-        state_model: The application state model
+        sample_df:
         application_manager: The application manager
         
     Returns:
         ValidationResult indicating the result of the check
+        
+    Note:
+        The state_model should contain a sample_df attribute with an 'ApplicationProfile' column
     """
-    sample_df = state_model.sample_df
+
     name = "application settings check"
 
     if sample_df is None or 'ApplicationProfile' not in sample_df.columns:

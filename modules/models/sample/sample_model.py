@@ -1,3 +1,5 @@
+import ast
+import re
 
 import pandas as pd
 from PySide6.QtCore import Qt, QSortFilterProxyModel, Signal
@@ -96,7 +98,7 @@ class SampleModel(QStandardItemModel):
 
         Parameters:
             data (MimeData): The mime data object being dropped.
-            action (str): The action being performed on the mime data.
+            action (str): The action being performed on the data.
             row (int): The row in which the data is to be dropped.
             column (int): The column in which the data is to be dropped.
             parent (QObject): The parent object of the data.
@@ -256,50 +258,126 @@ class SampleModel(QStandardItemModel):
             except Exception:
                 return value
 
-    def to_dataframe(self) -> pd.DataFrame:
+    def get_index_length_stats(self) -> dict:
         """
-        Convert the data in the model to a DataFrame.
+        Optimized version to calculate min/max lengths of IndexI5 and IndexI7 columns.
 
         Returns:
-            DataFrame: A DataFrame containing the data from the model.
+            dict: {
+                'IndexI5': {'min_len': int, 'max_len': int},
+                'IndexI7': {'min_len': int, 'max_len': int}
+            }
         """
-        # Get the number of rows and columns in the model
-        rows = self.rowCount()
-        columns = self.columnCount()
+        stats = {
+            'IndexI5': {'min_len': float('inf'), 'max_len': 0},
+            'IndexI7': {'min_len': float('inf'), 'max_len': 0}
+        }
 
-        # Initialize a list to hold the data
-        data = []
+        try:
+            i5_col = self.fields.index("IndexI5")
+            i7_col = self.fields.index("IndexI7")
+        except ValueError:
+            return {
+                'IndexI5': {'min_len': 0, 'max_len': 0},
+                'IndexI7': {'min_len': 0, 'max_len': 0}
+            }
 
-        # Loop through the rows and columns to extract the data
-        for row in range(rows):
-            row_data = []
-            for column in range(columns):
-                item = self.item(row, column)
-                # If the item is None, use None as the value
-                # Otherwise, use the text of the item and convert string lists to actual lists
-                cell_value = item.text() if item is not None else None
-                if cell_value is not None:
-                    cell_value = self._convert_string_to_list(cell_value)
-                row_data.append(cell_value)
-            data.append(row_data)
+        # Pre-fetch all items to reduce method calls
+        row_count = self.rowCount()
+        i5_items = [self.item(row, i5_col) for row in range(row_count)]
+        i7_items = [self.item(row, i7_col) for row in range(row_count)]
 
-        # Create a DataFrame from the extracted data
-        df = pd.DataFrame(data)
+        # Process IndexI5
+        i5_min = float('inf')
+        i5_max = 0
 
-        # Set the column headers
-        headers = [self.headerData(i, Qt.Horizontal) for i in range(columns)]
-        df.columns = headers
+        for item in i5_items:
+            if item and (text := item.text().strip()):
+                length = len(text)
+                if length < i5_min:
+                    i5_min = length
+                if length > i5_max:
+                    i5_max = length
 
-        # Calculate the reverse complement of the IndexI5 column if it exists
+        # Process IndexI7
+        i7_min = float('inf')
+        i7_max = 0
+
+        for item in i7_items:
+            if item and (text := item.text().strip()):
+                length = len(text)
+                if length < i7_min:
+                    i7_min = length
+                if length > i7_max:
+                    i7_max = length
+
+        # Update stats with found values or 0 if none found
+        if i5_min != float('inf'):
+            stats['IndexI5'] = {'min_len': i5_min, 'max_len': i5_max}
+        if i7_min != float('inf'):
+            stats['IndexI7'] = {'min_len': i7_min, 'max_len': i7_max}
+
+        return stats
+
+    def to_dataframe(self) -> pd.DataFrame:
+        # Get all data at once using list comprehension
+        data = [
+            [self.item(row, col).text() if self.item(row, col) is not None else None
+             for col in range(self.columnCount())]
+            for row in range(self.rowCount())
+        ]
+
+        # Create DataFrame in one go
+        headers = [self.headerData(i, Qt.Horizontal) for i in range(self.columnCount())]
+        df = pd.DataFrame(data, columns=headers)
+
+        # Early return for empty DataFrames
+        if df.empty:
+            return df
+
+        # Calculate reverse complement if needed
         if "IndexI5" in df.columns:
             df["IndexI5RC"] = df["IndexI5"].apply(self.reverse_complement)
 
-        # Replace empty strings and whitespace-only strings with NaN
-        # and drop any rows that contain only NaN values
-        df.replace("", pd.NA, inplace=True)
-        df.replace(r"^\s*$", pd.NA, regex=True, inplace=True)
-        df.dropna(how="all", inplace=True)
+        # Clean data
+        df = df.replace("", pd.NA).replace(r"^\s*$", pd.NA, regex=True)
+        df = df.dropna(how="all")
+
+        # Apply conversions only to non-NA values
+        if not df.empty:
+            if "BarcodeMismatchesIndex1" in df.columns:
+                df["BarcodeMismatchesIndex1"] = df["BarcodeMismatchesIndex1"].apply(self.safe_convert_numeric)
+            if "BarcodeMismatchesIndex2" in df.columns:
+                df["BarcodeMismatchesIndex2"] = df["BarcodeMismatchesIndex2"].apply(self.safe_convert_numeric)
+            if "Lane" in df.columns:
+                df["Lane"] = df["Lane"].apply(self.safe_literal_eval)
+            if "ApplicationProfile" in df.columns:
+                df["ApplicationProfile"] = df["ApplicationProfile"].apply(self.safe_literal_eval)
+
         return df
+
+    @staticmethod
+    def safe_convert_numeric(x):
+
+        if not isinstance(x, str):
+            return pd.NA
+
+        try:
+            return int(x)
+
+        except Exception as e:
+            return pd.NA
+
+
+    @staticmethod
+    def safe_literal_eval(x):
+        if pd.isna(x):  # This catches <NA>, NaN, None
+            return None  # or return [] for empty list, or whatever default you want
+        try:
+            return ast.literal_eval(x)
+        except (ValueError, SyntaxError):
+            return None  # Handle other malformed strings
+
 
     @staticmethod
     def reverse_complement(sequence):
