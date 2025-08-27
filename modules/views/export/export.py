@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -14,14 +15,14 @@ from PySide6.QtWidgets import (
 )
 
 from modules.models.configuration.configuration_manager import ConfigurationManager
-from modules.models.sample.samplesheet_fns import to_json
 from modules.models.state.state_model import StateModel
-from modules.views.export.export_tree_widget import JsonTreeWidget
-
-from modules.models.export.samplesheet_v2 import samplesheet_v2
 
 
 class ExportWidget(QWidget):
+
+    samplesheet_v2_export_path_ready = Signal(object)
+    json_export_path_ready = Signal(object)
+
     def __init__(
         self, state_model: StateModel, configuration_manager: ConfigurationManager, parent=None
     ):
@@ -40,53 +41,56 @@ class ExportWidget(QWidget):
         self._tab_widget = QTabWidget()
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        self._json_tree = None
-        self._samplesheet = None
+        self._samplesheet_v2_textedit = QTextEdit()
+        self._json_textedit = QTextEdit()
 
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
-        self._show_json_btn = QPushButton("View Data")
-        self._export_json_btn = QPushButton("Export Json")
-        self._export_samplesheet_v2_btn = QPushButton("Export SampleSheet V2")
-        self._fastq_extract_cb = QComboBox()
+        self.generate_btn = QPushButton("Generate")
+        self._samplesheet_v2_export_btn = QPushButton("Export SampleSheet V2")
+        self._json_export_btn = QPushButton("Export JSON")
+        self._package_export_btn = QPushButton("Export SampleSheet V2 JSON package (zip)")
 
-        hbox.addWidget(self._show_json_btn)
-        hbox.addWidget(self._fastq_extract_cb)
-        hbox.addWidget(self._export_json_btn)
-        hbox.addWidget(self._export_samplesheet_v2_btn)
 
+        # hbox.addWidget(self._fastq_extract_cb)
+        hbox.addWidget(self.generate_btn)
+        hbox.addWidget(self._samplesheet_v2_export_btn)
+        hbox.addWidget(self._json_export_btn)
+        hbox.addWidget(self._package_export_btn)
         hbox.addStretch()
 
         self.layout.addLayout(hbox)
         self.layout.addWidget(self._tab_widget)
-        self._show_json_btn.clicked.connect(self._show_data_tree)
-        self._export_samplesheet_v2_btn.clicked.connect(self._export_samplesheet_v2)
-        self._export_json_btn.clicked.connect(self._export_json)
 
-        self._populate_fastq_extract_tool()
+        samplesheet_v2_layout = QVBoxLayout()
+        samplesheet_v2_layout.addWidget(self._samplesheet_v2_export_btn)
+        samplesheet_v2_layout.addWidget(self._samplesheet_v2_textedit)
 
-    def _populate_fastq_extract_tool(self):
-        self._fastq_extract_cb.addItems(self._configuration_manager.fastq_extract_tool)
+        samplesheet_v2_tab = QWidget()
+        samplesheet_v2_tab.setLayout(samplesheet_v2_layout)
+        self._tab_widget.addTab(samplesheet_v2_tab, "SampleSheet V2")
 
-    def del_data_tree(self):
-        if self._json_tree:
-            self._json_tree.deleteLater()
-            self._json_tree = None
+        json_tree_layout = QVBoxLayout()
+        json_tree_layout.addWidget(self._json_export_btn)
+        json_tree_layout.addWidget(self._json_textedit)
 
-    def _show_data_tree(self):
-        if self._json_tree:
-            self._json_tree.deleteLater()
+        json_tree_tab = QWidget()
+        json_tree_tab.setLayout(json_tree_layout)
+        self._tab_widget.addTab(json_tree_tab, "JSON Data Structure")
 
-        data = self._state_model.data_obj()
+        self._samplesheet_v2_export_btn.clicked.connect(self._export_samplesheet_v2)
+        self._json_export_btn.clicked.connect(self._export_json)
 
-        self._json_tree = JsonTreeWidget(data)
-        header = self._json_tree.header()
-        header.setSectionResizeMode(QHeaderView.ResizeToContents)
-        self._tab_widget.addTab(self._json_tree, "Data Structure")
+    def populate_samplesheet_v2_text(self):
+
+        text = self._state_model.samplesheet_v2
+
+        self._samplesheet_v2_textedit.setText(text)
+
+    def populate_json_text(self, text):
+        self._json_textedit.setText(text)
 
     def _export_samplesheet_v2(self):
-
-        fastq_extract_tool = self._fastq_extract_cb.currentText()
 
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getSaveFileName(
@@ -98,12 +102,7 @@ class ExportWidget(QWidget):
         )
 
         if file_path:
-            f_obj = Path(file_path)
-
-            data = self._state_model.data_obj()
-            ss = samplesheet_v2(data, self._fastq_extract_cb.currentText())
-
-            f_obj.write_text(ss)
+            self.samplesheet_v2_export_path_ready.emit(Path(file_path))
 
     def _export_json(self):
         options = QFileDialog.Options()
@@ -116,28 +115,6 @@ class ExportWidget(QWidget):
         )
 
         if file_path:
-            f_obj = Path(file_path)
-            json_data = self._state_model.json_data()
-            f_obj.write_text(json_data)
+            if file_path:
+                self.json_export_path_ready.emit(Path(file_path))
 
-    def _export_samplesheet_v1(self):
-        options = QFileDialog.Options()
-        file_path, _ = QFileDialog.getSaveFileName(
-            None,
-            "Save SampleSheet V1 file (json)",
-            "",
-            "SampleSheet Files (*.csv);;All Files (*)",
-            options=options,
-        )
-
-        if file_path:
-            f_obj = Path(file_path)
-            data = self._state_model.samplesheet_obj()
-            json_str = to_json(data)
-            f_obj.write_text(json_str)
-
-
-class SampleSheetWidget(QTextEdit):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setReadOnly(True)

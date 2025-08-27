@@ -85,3 +85,39 @@ class OverrideCyclesModel(QObject):
             preset_oc_len += int(m[1:])
 
         return preset_oc_len
+
+    def pattern_to_cycles(self, override_cycles_pattern: str) -> str:
+        read1_pattern, index1_pattern, index2_pattern, read2_pattern = override_cycles_pattern.split("-")
+
+        read1_non_variable_oc = self._nonvariable_oc_len("Read1Cycles", read1_pattern)
+        read1_rc = self._state_model.read1_cycles
+        read1_variable_oc = read1_rc - read1_non_variable_oc
+        read_1_oc = read1_pattern.replace("{r}", str(read1_variable_oc))
+
+        read2_non_variable_oc = self._nonvariable_oc_len("Read2Cycles", read2_pattern)
+        read2_rc = self._state_model.read2_cycles
+        read2_variable_oc = read2_rc - read2_non_variable_oc
+        read_2_oc = read1_pattern.replace("{r}", str(read2_variable_oc))
+
+        index1_non_variable_oc = self._nonvariable_oc_len("Index1Cycles", index1_pattern)
+        index1_ic = self._state_model.index1_cycles
+        index1_variable_oc = index1_ic - index1_non_variable_oc
+        index_1_oc = index1_pattern.replace("{i}", str(index1_variable_oc))
+
+        index2_non_variable_oc = self._nonvariable_oc_len("Index2Cycles", index2_pattern)
+        index2_ic = self._state_model.index2_cycles
+        index2_variable_oc = index2_ic - index2_non_variable_oc
+        index_2_oc = index2_pattern.replace("{i}", str(index2_variable_oc))
+
+        return f"{read_1_oc}-{index_1_oc}-{index_2_oc}-{read_2_oc}"
+
+
+
+
+        non_variable_oc_index1_len = self._nonvariable_oc_len("Index1Cycles", index1_pattern)
+        non_variable_oc_index2_len = self._nonvariable_oc_len("Index2Cycles", index2_pattern)
+        non_variable_oc_read2_len = self._nonvariable_oc_len("Read2Cycles", read2_pattern)
+
+
+
+

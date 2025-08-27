@@ -276,7 +276,6 @@ def overall_sample_data_validator(sample_df: pd.DataFrame) -> ValidationResult:
                 continue
 
         if not isinstance(barcode_mismatches_index1, int):
-            print(idx, barcode_mismatches_index1)
             errors.append(f"Row {idx+1}: 'BarcodeMismatchesIndex1' must be an int")
             continue
 

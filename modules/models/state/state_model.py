@@ -5,7 +5,7 @@ This class manages the application's state including run information, sample dat
 instrument configuration, and validation states. It provides a reactive interface
 using Qt signals to notify about state changes.
 """
-
+import json
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from enum import Enum, auto
@@ -65,6 +65,9 @@ class RunInfo:
     dragen_app_version: str = ""
     sample_application_profile_names: List[str] = field(default_factory=list)
 
+    samplesheet_v2: str = ""
+    json: str = ""
+
     is_validated: bool = False
 
 
@@ -123,6 +126,9 @@ class StateModel(QObject):
 
     run_info_ready = Signal()
     run_info_not_ready = Signal()
+
+    samplesheet_v2_changed = Signal(str)
+    json_changed = Signal(str)
 
     validation_status = Signal(bool)
 
@@ -356,6 +362,23 @@ class StateModel(QObject):
 
         # self._check_run_info_complete()
 
+
+    def set_json(self):
+
+        run_info_dict = asdict(self._run_info)
+        run_info_dict.update({"json": ""})
+
+        samples_dict = self.sample_df.to_dict(orient="records")
+
+        json_dict = {
+            "run_info": run_info_dict,
+            "samples": samples_dict
+        }
+
+        json_str = json.dumps(json_dict, indent=4)
+        self.json = json_str
+
+
     def _check_run_info_complete(self) -> None:
         """Validate that all required run info fields are populated.
         
@@ -427,24 +450,50 @@ class StateModel(QObject):
         i7_min, i7_max = self._get_str_lengths_in_df_col(df["IndexI7"])
         i5_min, i5_max = self._get_str_lengths_in_df_col(df["IndexI5"])
 
-        used_applications = self._get_unique_strings_explode(df["ApplicationProfile"])
-
         # Update the state model
         self.sample_index1_minlen = int(i7_min)
         self.sample_index1_maxlen = int(i7_max)
         self.sample_index2_minlen = int(i5_min)
         self.sample_index2_maxlen = int(i5_max)
 
+        set_profile_names = self._get_unique_strings_explode(df["ApplicationProfile"])
+
+        print(set_profile_names)
+
+        self.sample_application_profile_names = set_profile_names
+
+
+    @property
+    def samplesheet_v2(self) -> str:
+        return self._run_info.samplesheet_v2
+
+    @samplesheet_v2.setter
+    def samplesheet_v2(self, samplesheet: str):
+        if self._run_info.samplesheet_v2 != samplesheet:
+            self._run_info.samplesheet_v2 = samplesheet
+            self.samplesheet_v2_changed.emit(samplesheet)
+
+    @property
+    def json(self) -> str:
+        return self._run_info.json
+
+    @json.setter
+    def json(self, json: str):
+        if self._run_info.json != json:
+            self._run_info.json = json
+            self.json_changed.emit(json)
+
+
     @property
     def sample_application_profile_names(self) -> List[str]:
         return self._run_info.sample_application_profile_names
 
-    # @sample_application_profile_names.setter
-    # def sample_application_profile_names(self, sample_application_profile_name: List[str]):
-    #     if set(sample_application_profile_name) != set(self._run_info.sample_application_profile_names):
-    #         self._run_info.sample_application_profile_names = sample_application_profile_name
-    #         self.sample_application_profile_changed.emit(sample_application_profile_name)
-    #         self.mark_as_unvalidated()
+    @sample_application_profile_names.setter
+    def sample_application_profile_names(self, sample_application_profile_name: List[str]):
+        if set(sample_application_profile_name) != set(self._run_info.sample_application_profile_names):
+            self._run_info.sample_application_profile_names = sample_application_profile_name
+            self.sample_application_profile_changed.emit(sample_application_profile_name)
+            self.mark_as_unvalidated()
 
     @property
     def is_validated(self):

@@ -38,6 +38,7 @@ class ApplicationManager:
         self._profile_name_to_data_fields: Dict[str, Dict[str, Any]] = {}
         self._profile_name_to_profile: Dict[str, Dict[str, Any]] = {}
         self._hierarchy: Dict[str, Dict[str, Dict[str, Any]]] = {}
+        self._profile_name_to_translate: Dict[str, str] = {}
         
         self._initialize_lookups()
     
@@ -51,6 +52,7 @@ class ApplicationManager:
                 application_name = profile.get("ApplicationName")
                 application_type = profile.get("ApplicationType")
                 application_profile_version = profile.get("ApplicationProfileVersion")
+                translate = profile.get("Translate")
                 
                 # Skip invalid entries
                 if not all([profile_name, application_name, application_type, application_profile_version]):
@@ -64,9 +66,8 @@ class ApplicationManager:
                 self._profile_name_to_data[profile_name] = profile.get("Data", {})
                 self._profile_name_to_data_fields[profile_name] = profile.get("DataFields", {})
                 self._profile_name_to_profile[profile_name] = profile
+                self._profile_name_to_translate[profile_name] = translate
 
-                print("initialize_lookups", profile_name, profile)
-                
                 # Build hierarchy
                 if application_type not in self._hierarchy:
                     self._hierarchy[application_type] = {}
@@ -104,7 +105,10 @@ class ApplicationManager:
             The application type if found, None otherwise
         """
         return self._application_name_to_application_type.get(application_name)
-    
+
+    def profile_name_to_translate(self, profile_name: str) -> Optional[str]:
+        return self._profile_name_to_translate[profile_name]
+
     @property
     def application_hierarchy(self) -> Dict[str, Dict[str, Dict[str, Any]]]:
         """Get the application hierarchy.
@@ -135,18 +139,8 @@ class ApplicationManager:
             The data dictionary for the profile, or empty dict if not found
         """
         return self._profile_name_to_data.get(profile_name, {})
-    
-    def profile_name_to_data_fields(self, profile_name: str) -> Dict[str, Any]:
-        """Get data fields for an application profile.
-        
-        Args:
-            profile_name: The application profile name
-            
-        Returns:
-            The data fields dictionary for the profile, or empty dict if not found
-        """
-        return self._profile_name_to_data_fields.get(profile_name, {})
-    
+
+
     def profile_name_to_profile(self, profile_name: str) -> Optional[Dict[str, Any]]:
         """Get the full application profile object.
         
@@ -158,7 +152,7 @@ class ApplicationManager:
         """
         return self._profile_name_to_profile.get(profile_name)
 
-    def profile_name_to_application(self, profile_name: str) -> Optional[Dict[str, Any]]:
+    def profile_name_to_application_name(self, profile_name: str) -> Optional[Dict[str, Any]]:
         """Get the full application profile object.
 
         Args:
@@ -167,6 +161,6 @@ class ApplicationManager:
         Returns:
             The full application profile dictionary if found, None otherwise
         """
-        profile = self._profile_name_to_profile.get(profile_name)
+        profile = self.profile_name_to_profile(profile_name)
 
         return profile.get("ApplicationName")

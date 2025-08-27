@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime
+from pprint import pprint
 from typing import Dict, List, Optional, Union
 from pathlib import Path
 
@@ -49,7 +50,7 @@ class IlluminaSampleSheetV2:
                         'CustomIndex2Primer',
                         'CustomRead1Primer',
                         'CustomRead2Primer',
-                        'LibraryPrepKit',
+                        'LibraryPrepKits',
         ]
 
     def set_header_field(self, key: str, value: str) -> None:
@@ -60,10 +61,9 @@ class IlluminaSampleSheetV2:
         if key in self._sequencing_fields:
             self._sequencing[key] = value
 
-
     def set_read_field(self, key: str, value: str) -> None:
         if key in self._read_fields:
-            self._sequencing[key] = value
+            self._reads[key] = value
 
     def set_application(self, application_name: str, settings: dict, data: pd.DataFrame) -> None:
         application = {
@@ -71,11 +71,12 @@ class IlluminaSampleSheetV2:
             'Settings': settings,
             'Data': data
         }
+
+        pprint(application)
+
         self._applications.append(application)
 
-
-    @property
-    def samplesheet_v2(self) -> str:
+    def generate(self) -> str:
 
         rows = list()
 
@@ -94,8 +95,10 @@ class IlluminaSampleSheetV2:
             rows.append(f'{key},{value}')
 
         for application in self._applications:
-            application_name = application.get('ApplicationName')
 
+            print(application)
+
+            application_name = application.get('ApplicationName')
             settings_name = f'{application_name}_Settings'
             data_name = f'{application_name}_Data'
 

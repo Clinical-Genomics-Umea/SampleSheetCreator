@@ -5,6 +5,7 @@ from PySide6.QtCore import QObject, Qt
 
 from modules.models.application.application_manager import ApplicationManager
 from modules.models.configuration.configuration_manager import ConfigurationManager
+from modules.models.export.export import ExportModel
 from modules.models.indexes.index_kit_manager import IndexKitManager
 from modules.models.logging.log_widget_handler import LogWidgetHandler
 from modules.models.logging.statusbar_handler import StatusBarLogHandler
@@ -71,6 +72,11 @@ class MainController(QObject):
         self._application_manager = ApplicationManager(self._configuration_manager, self._logger)
 
         self._override_cycles_model = OverrideCyclesModel(self._state_model, self._logger)
+
+        self._export_model = ExportModel(self._state_model,
+                                         self._configuration_manager,
+                                         self._application_manager,
+                                         self._override_cycles_model)
 
         # validation widgets
 
@@ -176,6 +182,13 @@ class MainController(QObject):
 
         self._connect_sample_model_signals()
 
+        self._connect_export_signals()
+
+
+    def _connect_export_signals(self):
+        self._export_widget.generate_btn.clicked.connect(self._export_model.generate)
+
+
     def _connect_run_setup_signals(self):
         self._run_setup_widget.run_setup_data_ready.connect(self._state_model.set_run_setup_data)
 
@@ -228,6 +241,9 @@ class MainController(QObject):
         self._state_model.run_info_ready.connect(self._index_kit_manager.on_run_cycles_changed)
 
         self._state_model.validation_status.connect(self._toolbar.set_validation_state)
+        self._state_model.samplesheet_v2_changed.connect(self._export_widget.populate_samplesheet_v2_text)
+        self._state_model.json_changed.connect(self._export_widget.populate_json_text)
+
 
     def _connect_index_kit_signals(self):
         self._index_kit_manager.index_kits_changed.connect(
