@@ -1,4 +1,3 @@
-from pprint import pprint
 
 import pandas as pd
 from PySide6.QtWidgets import QWidget, QHBoxLayout

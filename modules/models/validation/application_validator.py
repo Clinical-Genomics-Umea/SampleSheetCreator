@@ -1,13 +1,9 @@
-from pprint import pprint
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
 from modules.models.application.application_manager import ApplicationManager
-from modules.models.state.state_model import StateModel
 from modules.models.validation.validation_result import ValidationResult, StatusLevel
-from modules.utils.utils import explode_df_application_profile_column
-
 
 def keys_with_different_values(list_of_dicts):
     key_values = {}
@@ -66,7 +62,7 @@ def application_settings_check(sample_df: pd.DataFrame, application_manager: App
         
         # Group settings by application type
         app_settings: Dict[str, List[Dict[str, Any]]] = {}
-        pprint(unique_profile_names)
+
         for profile_name in unique_profile_names:
             try:
                 profile = application_manager.profile_name_to_profile(profile_name)

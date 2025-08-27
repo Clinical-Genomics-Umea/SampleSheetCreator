@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from PySide6.QtCore import Signal, Slot
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSpacerItem, QSizePolicy
 
@@ -45,8 +43,6 @@ class ApplicationContainerWidget(QWidget):
         self._vertical_layout.setContentsMargins(0, 0, 0, 0)
 
         application_hierarchy = self._application_manager.application_hierarchy
-
-        pprint(application_hierarchy)
 
         for application_type in application_hierarchy:
             type_label = QLabel(application_type)

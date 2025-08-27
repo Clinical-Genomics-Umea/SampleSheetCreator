@@ -2,18 +2,17 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from pprint import pprint
-from typing import Optional, Generator
+from typing import Optional
 from datetime import datetime
 from enum import Enum
 from logging import Logger
 from pathlib import Path
-from typing import Any, Dict, List, TypeVar, Type, Tuple, TypedDict
+from typing import Any, Dict, List, TypeVar, Tuple
 
 import yaml
 from PySide6.QtCore import QSettings, QObject, Signal, Slot
 
-from modules.utils.utils import read_yaml_file, uuid
+from modules.utils.utils import uuid
 
 # Default configuration paths (relative to application root)
 DEFAULT_CONFIG_PATHS = {

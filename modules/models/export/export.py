@@ -87,8 +87,6 @@ class ExportModel(QObject):
 
         for profile_name in self._state_model.sample_application_profile_names:
 
-            print(profile_name)
-
             application_name = self._application_manager.application_profile_to_app(profile_name)
             settings = self._application_manager.profile_name_to_settings(profile_name)
             translate = self._application_manager.profile_name_to_translate(profile_name)

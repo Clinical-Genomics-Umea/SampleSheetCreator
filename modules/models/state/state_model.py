@@ -443,8 +443,6 @@ class StateModel(QObject):
 
         set_profile_names = self._get_unique_strings_explode(df["ApplicationProfile"])
 
-        print(set_profile_names)
-
         self.sample_application_profile_names = set_profile_names
 
     @property

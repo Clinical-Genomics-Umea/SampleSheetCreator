@@ -1,9 +1,3 @@
-import csv
-from datetime import datetime
-from pprint import pprint
-from typing import Dict, List, Optional, Union
-from pathlib import Path
-
 import pandas as pd
 
 
@@ -72,8 +66,6 @@ class IlluminaSampleSheetV2:
             'Data': data
         }
 
-        pprint(application)
-
         self._applications.append(application)
 
     def generate(self) -> str:
@@ -95,8 +87,6 @@ class IlluminaSampleSheetV2:
             rows.append(f'{key},{value}')
 
         for application in self._applications:
-
-            print(application)
 
             application_name = application.get('ApplicationName')
             settings_name = f'{application_name}_Settings'

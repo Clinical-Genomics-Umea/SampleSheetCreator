@@ -44,41 +44,46 @@ class ExportWidget(QWidget):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self._samplesheet_v2_textedit = QTextEdit()
+        self._samplesheet_v2_textedit.setReadOnly(True)
         self._json_textedit = QTextEdit()
+        self._json_textedit.setReadOnly(True)
 
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
         self.generate_btn = QPushButton("Generate")
-        self._samplesheet_v2_export_btn = QPushButton("Export SampleSheet V2")
-        self._json_export_btn = QPushButton("Export JSON")
-        self._package_export_btn = QPushButton("Export SampleSheet V2 JSON package (zip)")
 
+        hbox2 = QHBoxLayout()
+        hbox2.setContentsMargins(0, 0, 0, 0)
+
+        self._samplesheet_v2_export_btn = QPushButton("Export SampleSheet v2")
+        self._json_export_btn = QPushButton("Export Json")
+        self._package_export_btn = QPushButton("Export package")
 
         # hbox.addWidget(self._fastq_extract_cb)
         hbox.addWidget(self.generate_btn)
-        hbox.addWidget(self._samplesheet_v2_export_btn)
-        hbox.addWidget(self._json_export_btn)
-        hbox.addWidget(self._package_export_btn)
         hbox.addStretch()
+        hbox2.addWidget(self._samplesheet_v2_export_btn)
+        hbox2.addWidget(self._json_export_btn)
+        hbox2.addWidget(self._package_export_btn)
+        hbox2.addStretch()
 
         self.layout.addLayout(hbox)
+        self.layout.addLayout(hbox2)
         self.layout.addWidget(self._tab_widget)
 
         samplesheet_v2_layout = QVBoxLayout()
-        samplesheet_v2_layout.addWidget(self._samplesheet_v2_export_btn)
         samplesheet_v2_layout.addWidget(self._samplesheet_v2_textedit)
 
         samplesheet_v2_tab = QWidget()
         samplesheet_v2_tab.setLayout(samplesheet_v2_layout)
-        self._tab_widget.addTab(samplesheet_v2_tab, "SampleSheet V2")
+        self._tab_widget.addTab(samplesheet_v2_tab, "SampleSheet v2")
 
         json_tree_layout = QVBoxLayout()
-        json_tree_layout.addWidget(self._json_export_btn)
         json_tree_layout.addWidget(self._json_textedit)
 
         json_tree_tab = QWidget()
         json_tree_tab.setLayout(json_tree_layout)
-        self._tab_widget.addTab(json_tree_tab, "JSON Data Structure")
+        self._tab_widget.addTab(json_tree_tab, "Json")
 
         self._samplesheet_v2_export_btn.clicked.connect(self._export_samplesheet_v2)
         self._json_export_btn.clicked.connect(self._export_json)

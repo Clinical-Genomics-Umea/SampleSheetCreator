@@ -1,6 +1,5 @@
 import re
 from logging import Logger
-from pprint import pprint
 
 import pandas as pd
 from PySide6.QtCore import Signal, QObject, Slot
