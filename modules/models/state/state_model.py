@@ -148,7 +148,7 @@ class StateModel(QObject):
         self._sample_model = sample_model
         self._configuration_manager = configuration_manager
         self._instrument_data = self._configuration_manager.instrument_data
-        
+
         # State tracking
         self._state = RunState.UNINITIALIZED
         self._frozen = False
@@ -158,10 +158,10 @@ class StateModel(QObject):
         self._run_info = RunInfo()
         
 
-    @property
-    def run_info(self) -> dict:
-        """Get a copy of the current run information."""
-        return asdict(self._run_info)
+    # @property
+    # def run_info(self) -> dict:
+    #     """Get a copy of the current run information."""
+    #     return asdict(self._run_info)
     
     def set_run_setup_data(self, run_setup_data: dict) -> None:
         """
@@ -363,21 +363,6 @@ class StateModel(QObject):
         # self._check_run_info_complete()
 
 
-    def set_json(self):
-
-        run_info_dict = asdict(self._run_info)
-        run_info_dict.update({"json": ""})
-
-        samples_dict = self.sample_df.to_dict(orient="records")
-
-        json_dict = {
-            "run_info": run_info_dict,
-            "samples": samples_dict
-        }
-
-        json_str = json.dumps(json_dict, indent=4)
-        self.json = json_str
-
 
     def _check_run_info_complete(self) -> None:
         """Validate that all required run info fields are populated.
@@ -461,6 +446,10 @@ class StateModel(QObject):
         print(set_profile_names)
 
         self.sample_application_profile_names = set_profile_names
+
+    @property
+    def run_info(self) -> RunInfo:
+        return self._run_info
 
 
     @property

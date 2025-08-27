@@ -76,7 +76,8 @@ class MainController(QObject):
         self._export_model = ExportModel(self._state_model,
                                          self._configuration_manager,
                                          self._application_manager,
-                                         self._override_cycles_model)
+                                         self._override_cycles_model,
+                                         self._logger)
 
         # validation widgets
 

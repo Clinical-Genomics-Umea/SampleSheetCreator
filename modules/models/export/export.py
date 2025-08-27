@@ -1,5 +1,6 @@
 import json
 import zipfile
+from dataclasses import asdict
 from datetime import datetime
 from logging import Logger
 from pathlib import Path
@@ -43,7 +44,26 @@ class ExportModel(QObject):
 
     def generate(self):
         self.generate_samplesheet_v2()
-        self._state_model.set_json()
+        self.generate_json()
+
+    def generate_json(self):
+
+        run_info_dict = asdict(self._state_model.run_info)
+        run_info_dict.update({"json": ""})
+        run_info_dict.update({"samplesheet_v2": ""})
+
+        df = self._state_model.sample_df.copy()
+        df["OverrideCycles"] = df["OverrideCyclesPattern"].apply(self._override_cycles_model.pattern_to_cycles)
+
+        df = df.to_dict(orient="records")
+
+        json_dict = {
+            "run_info": run_info_dict,
+            "samples": df
+        }
+
+        json_str = json.dumps(json_dict, indent=4)
+        self._state_model.json = json_str
 
     def generate_samplesheet_v2(self):
 

@@ -16,6 +16,8 @@ from PySide6.QtWidgets import (
 
 from modules.models.configuration.configuration_manager import ConfigurationManager
 from modules.models.state.state_model import StateModel
+from modules.views.export.json_highlighter import JsonHighlighter
+from modules.views.export.samplesheet_v2_highlighter import IlluminaSamplesheetV2Highlighter
 
 
 class ExportWidget(QWidget):
@@ -86,9 +88,17 @@ class ExportWidget(QWidget):
         text = self._state_model.samplesheet_v2
 
         self._samplesheet_v2_textedit.setText(text)
+        IlluminaSamplesheetV2Highlighter(self._samplesheet_v2_textedit.document())
 
     def populate_json_text(self, text):
-        self._json_textedit.setText(text)
+
+        self._json_textedit.setPlainText(text)
+        # font = self._json_textedit.font()
+        # font.setPointSize(12)
+        # self._json_textedit.setFont(font)
+
+        JsonHighlighter(self._json_textedit.document())
+
 
     def _export_samplesheet_v2(self):
 
