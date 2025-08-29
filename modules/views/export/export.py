@@ -24,6 +24,7 @@ class ExportWidget(QWidget):
 
     samplesheet_v2_export_path_ready = Signal(object)
     json_export_path_ready = Signal(object)
+    package_export_path_ready = Signal(object)
 
     def __init__(
         self, state_model: StateModel, configuration_manager: ConfigurationManager, parent=None
@@ -59,6 +60,10 @@ class ExportWidget(QWidget):
         self._json_export_btn = QPushButton("Export Json")
         self._package_export_btn = QPushButton("Export package")
 
+        self._samplesheet_v2_export_btn.setEnabled(False)
+        self._json_export_btn.setEnabled(False)
+        self._package_export_btn.setEnabled(False)
+
         # hbox.addWidget(self._fastq_extract_cb)
         hbox.addWidget(self.generate_btn)
         hbox.addStretch()
@@ -87,6 +92,17 @@ class ExportWidget(QWidget):
 
         self._samplesheet_v2_export_btn.clicked.connect(self._export_samplesheet_v2)
         self._json_export_btn.clicked.connect(self._export_json)
+        self._package_export_btn.clicked.connect(self._export_package)
+
+    def clear_text_edits(self, status):
+        if not status:
+            self._samplesheet_v2_textedit.clear()
+            self._json_textedit.clear()
+
+    def set_export_buttons_status(self, status: bool):
+        self._samplesheet_v2_export_btn.setEnabled(status)
+        self._json_export_btn.setEnabled(status)
+        self._package_export_btn.setEnabled(status)
 
     def populate_samplesheet_v2_text(self):
 
@@ -117,6 +133,7 @@ class ExportWidget(QWidget):
         )
 
         if file_path:
+            print(file_path)
             self.samplesheet_v2_export_path_ready.emit(Path(file_path))
 
     def _export_json(self):
@@ -130,6 +147,20 @@ class ExportWidget(QWidget):
         )
 
         if file_path:
-            if file_path:
-                self.json_export_path_ready.emit(Path(file_path))
+            print(file_path)
+            self.json_export_path_ready.emit(Path(file_path))
+
+    def _export_package(self):
+        options = QFileDialog.Options()
+        file_path, _ = QFileDialog.getSaveFileName(
+            None,
+            "Save ZIP file (zip)",
+            "",
+            "Zip Files (*.zip);;All Files (*)",
+            options=options,
+        )
+
+        if file_path:
+            print(file_path)
+            self.package_export_path_ready.emit(Path(file_path))
 

@@ -10,6 +10,7 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from enum import Enum, auto
 from logging import Logger
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
@@ -17,6 +18,7 @@ from PySide6.QtCore import QObject, Signal, Slot
 
 from modules.models.configuration.configuration_manager import ConfigurationManager
 from modules.models.sample.sample_model import SampleModel
+from modules.utils.utils import uuid
 
 
 # from modules.models.sample.sample_model import StateModel
@@ -42,6 +44,7 @@ class RunInfo:
     lanes: List[int] = field(default_factory=list)
     chemistry: str = ""
     reagent_kit: str = ""
+    uuid: str = ""
 
     read1_cycles: int = 0
     index1_cycles: int = 0
@@ -67,6 +70,8 @@ class RunInfo:
 
     samplesheet_v2: str = ""
     json: str = ""
+
+    file_data_generated: bool = False
 
     is_validated: bool = False
 
@@ -94,6 +99,9 @@ class StateModel(QObject):
     lanes_changed = Signal(list)  # More specific type hint
     chemistry_changed = Signal(str)
     reagent_kit_changed = Signal(str)
+    uuid_changed = Signal(str)
+
+
     run_cycles_changed = Signal(int, int, int, int) # read1_cycles, index1_cycles, index2_cycles, read2_cycles
     read1_cycles_changed = Signal(int)
     index1_cycles_changed = Signal(int)
@@ -131,6 +139,7 @@ class StateModel(QObject):
     json_changed = Signal(str)
 
     validation_status = Signal(bool)
+    file_data_status_signal = Signal(bool)
 
 
     def __init__(self, sample_model: SampleModel, configuration_manager: ConfigurationManager, logger: Logger):
@@ -415,7 +424,7 @@ class StateModel(QObject):
         return lengths.min(), lengths.max()
 
     @staticmethod
-    def _get_unique_strings_explode(series: pd.Series) -> List[str]:
+    def _get_unique_strings_explode(series: pd.Series) -> str:
         """
         Alternative approach using pandas explode() method.
 
@@ -425,6 +434,8 @@ class StateModel(QObject):
         Returns:
             A list of unique strings found across all lists in the series
         """
+        series.explode().dropna().unique().tolist()
+
         return series.explode().dropna().unique().tolist()
 
     def update_aggregate_sample_data(self):
@@ -445,6 +456,7 @@ class StateModel(QObject):
 
         self.sample_application_profile_names = set_profile_names
 
+
     @property
     def run_info(self) -> RunInfo:
         return self._run_info
@@ -459,6 +471,7 @@ class StateModel(QObject):
         if self._run_info.samplesheet_v2 != samplesheet:
             self._run_info.samplesheet_v2 = samplesheet
             self.samplesheet_v2_changed.emit(samplesheet)
+            self.mark_as_generated()
 
     @property
     def json(self) -> str:
@@ -469,17 +482,28 @@ class StateModel(QObject):
         if self._run_info.json != json:
             self._run_info.json = json
             self.json_changed.emit(json)
+            self.mark_as_generated()
 
 
     @property
-    def sample_application_profile_names(self) -> List[str]:
+    def uuid(self):
+        return self._run_info.uuid
+
+    @uuid.setter
+    def uuid(self, uuid):
+        if uuid != self._run_info.uuid:
+            self._run_info.uuid = uuid
+            self.uuid_changed.emit(uuid)
+
+    @property
+    def sample_application_profile_names(self) -> list:
         return self._run_info.sample_application_profile_names
 
     @sample_application_profile_names.setter
-    def sample_application_profile_names(self, sample_application_profile_name: List[str]):
-        if set(sample_application_profile_name) != set(self._run_info.sample_application_profile_names):
-            self._run_info.sample_application_profile_names = sample_application_profile_name
-            self.sample_application_profile_changed.emit(sample_application_profile_name)
+    def sample_application_profile_names(self, sample_application_profile_names: list):
+        if set(sample_application_profile_names) != set(self._run_info.sample_application_profile_names):
+            self._run_info.sample_application_profile_names = sample_application_profile_names
+            self.sample_application_profile_changed.emit(sample_application_profile_names)
             self.mark_as_unvalidated()
 
     @property
@@ -495,13 +519,26 @@ class StateModel(QObject):
         """Mark the current state as validated."""
         if not self._run_info.is_validated:
             self._run_info.is_validated = True
+            self.uuid = uuid()
             self.validation_status.emit(True)
 
     def mark_as_unvalidated(self) -> None:
         """Mark the current state as validated."""
         if self._run_info.is_validated:
             self._run_info.is_validated = False
+            self.uuid = "None"
             self.validation_status.emit(False)
+            self._run_info.file_data_generated = False
+            self.samplesheet_v2 = ""
+            self.json = ""
+
+    def mark_as_generated(self) -> None:
+        if not self.samplesheet_v2 or not self.json:
+            return
+
+        self._run_info.file_data_generated = True
+        self.file_data_status_signal.emit(True)
+
 
     @property
     def assess_color_balance(self):

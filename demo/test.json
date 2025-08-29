@@ -1,1 +1,201 @@
-{"Header": {"FileFormatVersion": 2, "InstrumentType": "NovaSeqX", "RunName": "asdf", "RunDescription": "asdf", "Custom_Flowcell": "1.5B", "Custom_UUID7": "019855fc-7bd9-70de-b3c9-64bd6173a66c"}, "Reads": {"Read1Cycles": 51, "Index1Cycles": 10, "Index2Cycles": 10, "Read2Cycles": 51}, "Applications": [{"ApplicationType": "Dragen", "Application": "BCLConvert", "Data": [{"Sample_ID": "asdf", "Lane": 1, "IndexI7": "AGATAGTAGC", "IndexI5": "GGCACGCCAT", "OverrideCycles": "Y51;I10;I10;Y51", "BarcodeMismatchesIndex1": "1", "BarcodeMismatchesIndex2": "1", "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA", "AdapterRead2": "CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA"}, {"Sample_ID": "asdf", "Lane": 2, "IndexI7": "AGATAGTAGC", "IndexI5": "GGCACGCCAT", "OverrideCycles": "Y51;I10;I10;Y51", "BarcodeMismatchesIndex1": "1", "BarcodeMismatchesIndex2": "1", "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA", "AdapterRead2": "CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA"}, {"Sample_ID": "sdfg", "Lane": 1, "IndexI7": "ATTAGAAGAC", "IndexI5": "GCAGGCTGGA", "OverrideCycles": "Y51;I10;I10;Y51", "BarcodeMismatchesIndex1": "1", "BarcodeMismatchesIndex2": "1", "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA", "AdapterRead2": "CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA"}, {"Sample_ID": "sdfg", "Lane": 2, "IndexI7": "ATTAGAAGAC", "IndexI5": "GCAGGCTGGA", "OverrideCycles": "Y51;I10;I10;Y51", "BarcodeMismatchesIndex1": "1", "BarcodeMismatchesIndex2": "1", "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA", "AdapterRead2": "CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA"}, {"Sample_ID": "dfgh", "Lane": 1, "IndexI7": "GCTCGCACAT", "IndexI5": "ATGGCTTAAT", "OverrideCycles": "Y51;I10;I10;Y51", "BarcodeMismatchesIndex1": "1", "BarcodeMismatchesIndex2": "1", "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA", "AdapterRead2": "CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA"}, {"Sample_ID": "dfgh", "Lane": 2, "IndexI7": "GCTCGCACAT", "IndexI5": "ATGGCTTAAT", "OverrideCycles": "Y51;I10;I10;Y51", "BarcodeMismatchesIndex1": "1", "BarcodeMismatchesIndex2": "1", "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA", "AdapterRead2": "CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA"}, {"Sample_ID": "fghj", "Lane": 1, "IndexI7": "AATATTGCCA", "IndexI5": "CGGTGACACC", "OverrideCycles": "Y51;I10;I10;Y51", "BarcodeMismatchesIndex1": "1", "BarcodeMismatchesIndex2": "1", "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA", "AdapterRead2": "CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA"}, {"Sample_ID": "fghj", "Lane": 2, "IndexI7": "AATATTGCCA", "IndexI5": "CGGTGACACC", "OverrideCycles": "Y51;I10;I10;Y51", "BarcodeMismatchesIndex1": "1", "BarcodeMismatchesIndex2": "1", "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA", "AdapterRead2": "CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA"}, {"Sample_ID": "ghkj", "Lane": 1, "IndexI7": "TCGTGCATTC", "IndexI5": "GCGTTGGTAT", "OverrideCycles": "Y51;I10;I10;Y51", "BarcodeMismatchesIndex1": "1", "BarcodeMismatchesIndex2": "1", "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA", "AdapterRead2": "CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA"}, {"Sample_ID": "ghkj", "Lane": 2, "IndexI7": "TCGTGCATTC", "IndexI5": "GCGTTGGTAT", "OverrideCycles": "Y51;I10;I10;Y51", "BarcodeMismatchesIndex1": "1", "BarcodeMismatchesIndex2": "1", "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA", "AdapterRead2": "CTGTCTCTTATACACATCTCGCAGGGGATAGTCAGATGACGCTGCCGACGA+ATGTGTATAAGAGACA"}], "Settings": {"SoftwareVersion": "4.1.23", "FastqCompressionFormat": "gzip"}}, {"ApplicationType": "Dragen", "Application": "DragenEnrichment", "Data": [{"Sample_ID": "asdf", "ReferenceGenomeDir": "hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2", "BedFile": "gms560_hg38.BedFile", "GermlineOrSomatic": "germline", "AuxNoiseBaselineFile": "na", "AuxCnvPanelOfNormalsFile": "na", "VariantCallingMode": "AllVariantCallers"}, {"Sample_ID": "sdfg", "ReferenceGenomeDir": "hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2", "BedFile": "gms560_hg38.BedFile", "GermlineOrSomatic": "germline", "AuxNoiseBaselineFile": "na", "AuxCnvPanelOfNormalsFile": "na", "VariantCallingMode": "AllVariantCallers"}, {"Sample_ID": "dfgh", "ReferenceGenomeDir": "hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2", "BedFile": "gms560_hg38.BedFile", "GermlineOrSomatic": "germline", "AuxNoiseBaselineFile": "na", "AuxCnvPanelOfNormalsFile": "na", "VariantCallingMode": "AllVariantCallers"}, {"Sample_ID": "fghj", "ReferenceGenomeDir": "hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2", "BedFile": "gms560_hg38.BedFile", "GermlineOrSomatic": "germline", "AuxNoiseBaselineFile": "na", "AuxCnvPanelOfNormalsFile": "na", "VariantCallingMode": "AllVariantCallers"}, {"Sample_ID": "ghkj", "ReferenceGenomeDir": "hg38-alt_masked.cnv.graph.hla.rna-8-1667497097-2", "BedFile": "gms560_hg38.BedFile", "GermlineOrSomatic": "germline", "AuxNoiseBaselineFile": "na", "AuxCnvPanelOfNormalsFile": "na", "VariantCallingMode": "AllVariantCallers"}], "Settings": {"SoftwareVersion": "4.1.23", "AppVersion": "1.2.1", "MapAlignOutFormat": "bam", "KeepFastq": true}}], "SampleSheetConfig": {"InstrumentType": "NovaSeqX", "I5SeqOrientation": "rc", "I5SampleSheetOrientation": {"BCL2Fastq": "rc", "BCLConvert": "rc"}}}
+{
+    "run_info": {
+        "date": "2025-08-28",
+        "investigator": "test",
+        "run_name": "asdf",
+        "run_description": "asdf",
+        "instrument": "NovaSeqX",
+        "flowcell": "1.5B",
+        "lanes": [
+            1,
+            2
+        ],
+        "chemistry": "xleap",
+        "reagent_kit": "2x50",
+        "uuid": "0198f0dc-98ab-798d-a864-57e7ccdd16cf",
+        "read1_cycles": 51,
+        "index1_cycles": 10,
+        "index2_cycles": 10,
+        "read2_cycles": 51,
+        "custom_cycles": false,
+        "sample_index1_maxlen": 10,
+        "sample_index2_maxlen": 10,
+        "sample_index1_minlen": 10,
+        "sample_index2_minlen": 10,
+        "i5_seq_orientation": {
+            "BCL2Fastq": "rc",
+            "BCLConvert": "fwd"
+        },
+        "i5_samplesheet_orientation_bcl2fastq": "rc",
+        "i5_samplesheet_orientation_bclconvert": "fwd",
+        "color_a": [
+            "blue"
+        ],
+        "color_t": [
+            "green"
+        ],
+        "color_g": [
+            "dark"
+        ],
+        "color_c": [
+            "green",
+            "blue"
+        ],
+        "assess_color_balance": true,
+        "dragen_app_version": "",
+        "sample_application_profile_names": [
+            "BCLConvertNextera",
+            "DragenEnrichmentGermline"
+        ],
+        "samplesheet_v2": "",
+        "json": "",
+        "file_data_generated": false,
+        "is_validated": true
+    },
+    "samples": [
+        {
+            "Lane": [
+                1,
+                2
+            ],
+            "Sample_ID": "asfd",
+            "Pos": "1",
+            "IndexI7Name": "UDP0289V2",
+            "IndexI7": "AGATAGTAGC",
+            "IndexI5Name": "UDP0289V2",
+            "IndexI5": "GGCACGCCAT",
+            "IndexKitName": "Ilmn_DNA-RNA_CDI_Tag_PCR-Free2_SetD",
+            "OverrideCyclesPattern": "Y{r}-I{i}-I{i}-Y{r}",
+            "BarcodeMismatchesIndex1": 1,
+            "BarcodeMismatchesIndex2": 1,
+            "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
+            "AdapterRead2": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
+            "ApplicationProfile": [
+                "BCLConvertNextera",
+                "DragenEnrichmentGermline"
+            ],
+            "IndexI5RC": "ATGGCGTGCC",
+            "OverrideCycles": "Y51-I10-I10-Y51"
+        },
+        {
+            "Lane": [
+                1,
+                2
+            ],
+            "Sample_ID": "sdfg",
+            "Pos": "2",
+            "IndexI7Name": "UDP0290V2",
+            "IndexI7": "ATTAGAAGAC",
+            "IndexI5Name": "UDP0290V2",
+            "IndexI5": "GCAGGCTGGA",
+            "IndexKitName": "Ilmn_DNA-RNA_CDI_Tag_PCR-Free2_SetD",
+            "OverrideCyclesPattern": "Y{r}-I{i}-I{i}-Y{r}",
+            "BarcodeMismatchesIndex1": 1,
+            "BarcodeMismatchesIndex2": 1,
+            "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
+            "AdapterRead2": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
+            "ApplicationProfile": [
+                "BCLConvertNextera",
+                "DragenEnrichmentGermline"
+            ],
+            "IndexI5RC": "TCCAGCCTGC",
+            "OverrideCycles": "Y51-I10-I10-Y51"
+        },
+        {
+            "Lane": [
+                1,
+                2
+            ],
+            "Sample_ID": "dfgh",
+            "Pos": "3",
+            "IndexI7Name": "UDP0291V2",
+            "IndexI7": "GCTCGCACAT",
+            "IndexI5Name": "UDP0291V2",
+            "IndexI5": "ATGGCTTAAT",
+            "IndexKitName": "Ilmn_DNA-RNA_CDI_Tag_PCR-Free2_SetD",
+            "OverrideCyclesPattern": "Y{r}-I{i}-I{i}-Y{r}",
+            "BarcodeMismatchesIndex1": 1,
+            "BarcodeMismatchesIndex2": 1,
+            "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
+            "AdapterRead2": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
+            "ApplicationProfile": [
+                "BCLConvertNextera",
+                "DragenEnrichmentGermline"
+            ],
+            "IndexI5RC": "ATTAAGCCAT",
+            "OverrideCycles": "Y51-I10-I10-Y51"
+        },
+        {
+            "Lane": [
+                1,
+                2
+            ],
+            "Sample_ID": "fghj",
+            "Pos": "4",
+            "IndexI7Name": "UDP0292",
+            "IndexI7": "AATATTGCCA",
+            "IndexI5Name": "UDP0292",
+            "IndexI5": "CGGTGACACC",
+            "IndexKitName": "Ilmn_DNA-RNA_CDI_Tag_PCR-Free2_SetD",
+            "OverrideCyclesPattern": "Y{r}-I{i}-I{i}-Y{r}",
+            "BarcodeMismatchesIndex1": 1,
+            "BarcodeMismatchesIndex2": 1,
+            "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
+            "AdapterRead2": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
+            "ApplicationProfile": [
+                "BCLConvertNextera",
+                "DragenEnrichmentGermline"
+            ],
+            "IndexI5RC": "GGTGTCACCG",
+            "OverrideCycles": "Y51-I10-I10-Y51"
+        },
+        {
+            "Lane": [
+                1,
+                2
+            ],
+            "Sample_ID": "ghjk",
+            "Pos": "5",
+            "IndexI7Name": "UDP0293",
+            "IndexI7": "TCGTGCATTC",
+            "IndexI5Name": "UDP0293",
+            "IndexI5": "GCGTTGGTAT",
+            "IndexKitName": "Ilmn_DNA-RNA_CDI_Tag_PCR-Free2_SetD",
+            "OverrideCyclesPattern": "Y{r}-I{i}-I{i}-Y{r}",
+            "BarcodeMismatchesIndex1": 1,
+            "BarcodeMismatchesIndex2": 1,
+            "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
+            "AdapterRead2": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
+            "ApplicationProfile": [
+                "BCLConvertNextera",
+                "DragenEnrichmentGermline"
+            ],
+            "IndexI5RC": "ATACCAACGC",
+            "OverrideCycles": "Y51-I10-I10-Y51"
+        },
+        {
+            "Lane": [
+                1,
+                2
+            ],
+            "Sample_ID": "hjkl",
+            "Pos": "6",
+            "IndexI7Name": "UDP0294",
+            "IndexI7": "AAGATACACG",
+            "IndexI5Name": "UDP0294",
+            "IndexI5": "TGTGCTAACA",
+            "IndexKitName": "Ilmn_DNA-RNA_CDI_Tag_PCR-Free2_SetD",
+            "OverrideCyclesPattern": "Y{r}-I{i}-I{i}-Y{r}",
+            "BarcodeMismatchesIndex1": 1,
+            "BarcodeMismatchesIndex2": 1,
+            "AdapterRead1": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
+            "AdapterRead2": "CTGTCTCTTATACACATCTCCGAGCCCACGAGAC+ATGTGTATAAGAGACA",
+            "ApplicationProfile": [
+                "BCLConvertNextera",
+                "DragenEnrichmentGermline"
+            ],
+            "IndexI5RC": "TGTTAGCACA",
+            "OverrideCycles": "Y51-I10-I10-Y51"
+        }
+    ]
+}

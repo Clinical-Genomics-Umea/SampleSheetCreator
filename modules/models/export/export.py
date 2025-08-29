@@ -75,6 +75,7 @@ class ExportModel(QObject):
         illumina_samplesheet_v2.set_header_field("RunDescription", self._state_model.run_description)
         illumina_samplesheet_v2.set_header_field("FileFormatVersion", file_format_version)
         illumina_samplesheet_v2.set_header_field("InstrumentType", self._state_model.instrument)
+        illumina_samplesheet_v2.set_header_field("Custom_uuid", self._state_model.uuid)
 
         illumina_samplesheet_v2.set_read_field("Index1Cycles", str(self._state_model.index1_cycles))
         illumina_samplesheet_v2.set_read_field("Index2Cycles", str(self._state_model.index2_cycles))
@@ -120,7 +121,7 @@ class ExportModel(QObject):
         self._state_model.samplesheet_v2 = samplesheet_v2_data
 
 
-    def save_package(self, save_path: Path) -> bool:
+    def export_package(self, save_path: Path) -> bool:
         """Save samplesheet_v2 data to a zip file.
 
         Args:
@@ -133,11 +134,12 @@ class ExportModel(QObject):
             self._logger.warning("No samplesheet_v2 data available to save")
             return False
 
-        if not self._state_model.sample_json:
+        if not self._state_model.json:
             self._logger.warning("No sample json data available to save")
             return False
 
         try:
+            save_path = save_path.with_suffix(".zip")
             # Ensure the save directory exists
             save_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -150,7 +152,7 @@ class ExportModel(QObject):
             with zipfile.ZipFile(save_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
                 # Add the samplesheet as a file in the zip
                 zipf.writestr(samplesheet_filename, self._state_model.samplesheet_v2)
-                zipf.writestr(sample_json_filename, self._state_model.sample_json)
+                zipf.writestr(sample_json_filename, self._state_model.json)
 
                 # Add a README file with metadata
                 readme_content = f"""SampleSheet Package
@@ -160,7 +162,7 @@ class ExportModel(QObject):
     Run: {self._state_model.run_name}
     Instrument: {self._state_model.instrument}
     """
-                zipf.writestr("README.txt", readme_content)
+                zipf.writestr(readme_filename, readme_content)
 
             self._logger.info(f"Successfully saved package to {save_path}")
             return True
@@ -169,7 +171,13 @@ class ExportModel(QObject):
             self._logger.error(f"Failed to save package: {str(e)}")
             return False
 
+    def export_samplesheet_v2(self, path: Path):
+        path = path.with_suffix(".csv")
+        path.write_text(self._state_model.samplesheet_v2)
 
+    def export_json(self, path: Path):
+        path = path.with_suffix(".json")
+        path.write_text(self._state_model.json)
 
 
 # class MakeJson(QObject):

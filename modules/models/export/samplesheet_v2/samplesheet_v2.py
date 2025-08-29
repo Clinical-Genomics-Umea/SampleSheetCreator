@@ -30,7 +30,7 @@ class IlluminaSampleSheetV2:
                         'FileFormatVersion',
                         'InstrumentPlatform',
                         'InstrumentType',
-                        'Custom_FastqExtractionTool'
+                        'Custom_uuid'
         ]
         self._read_fields = [
                         'Index1Cycles',
@@ -85,6 +85,7 @@ class IlluminaSampleSheetV2:
         rows.append('[Sequencing]')
         for key, value in self._sequencing.items():
             rows.append(f'{key},{value}')
+        rows.append('')
 
         for application in self._applications:
 

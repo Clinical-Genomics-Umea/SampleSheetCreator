@@ -188,6 +188,9 @@ class MainController(QObject):
 
     def _connect_export_signals(self):
         self._export_widget.generate_btn.clicked.connect(self._export_model.generate)
+        self._export_widget.samplesheet_v2_export_path_ready.connect(self._export_model.export_samplesheet_v2)
+        self._export_widget.json_export_path_ready.connect(self._export_model.export_json)
+        self._export_widget.package_export_path_ready.connect(self._export_model.export_package)
 
 
     def _connect_run_setup_signals(self):
@@ -218,8 +221,12 @@ class MainController(QObject):
         self._state_model.chemistry_changed.connect(self._run_info_view.set_chemistry_label)
         self._state_model.reagent_kit_changed.connect(self._run_info_view.set_reagent_kit_label)
         self._state_model.i5_seq_orientation_changed.connect(self._run_info_view.set_i5_seq_orientation_label)
-        self._state_model.i5_samplesheet_orientation_bcl2fastq_changed.connect(self._run_info_view.set_bcl2fastq_ss_i5_orient_lbl)
-        self._state_model.i5_samplesheet_orientation_bclconvert_changed.connect(self._run_info_view.set_bclconvert_ss_i5_orient_lbl)
+        self._state_model.uuid_changed.connect(self._run_info_view.set_uuid)
+
+        # self._state_model.i5_samplesheet_orientation_bcl2fastq_changed.connect(self._run_info_view.set_bcl2fastq_ss_i5_orient_lbl)
+        # self._state_model.i5_samplesheet_orientation_bclconvert_changed.connect(self._run_info_view.set_bclconvert_ss_i5_orient_lbl)
+        self._state_model.sample_application_profile_changed.connect(self._run_info_view.set_profile_names)
+
         self._state_model.read1_cycles_changed.connect(self._run_info_view.set_read1_cycles_label)
         self._state_model.read2_cycles_changed.connect(self._run_info_view.set_read2_cycles_label)
         self._state_model.index1_cycles_changed.connect(self._run_info_view.set_index1_cycles_label)
@@ -242,8 +249,13 @@ class MainController(QObject):
         self._state_model.run_info_ready.connect(self._index_kit_manager.on_run_cycles_changed)
 
         self._state_model.validation_status.connect(self._toolbar.set_validation_state)
+        self._state_model.validation_status.connect(self._main_validation_widget.clear_validation_widgets)
+        self._state_model.validation_status.connect(self._export_widget.clear_text_edits)
+
         self._state_model.samplesheet_v2_changed.connect(self._export_widget.populate_samplesheet_v2_text)
         self._state_model.json_changed.connect(self._export_widget.populate_json_text)
+
+        self._state_model.file_data_status_signal.connect(self._export_widget.set_export_buttons_status)
 
 
     def _connect_index_kit_signals(self):
@@ -283,9 +295,8 @@ class MainController(QObject):
         self._sample_data_overview_generator.data_ready.connect(self._sample_data_overview_widget.populate)
         self._index_distance_data_generator.data_ready.connect(self._index_distance_overview_widget.populate)
         self._color_balance_data_generator.data_ready.connect(self._color_balance_overview_widget.populate)
-
         self._general_validator.success.connect(self._state_model.mark_as_validated)
-        self._general_validator.fail.connect(self._index_distance_overview_widget.populate)
+        # self._general_validator.fail.connect(self._index_distance_overview_widget.populate)
 
     def _connect_override_pattern_signals(self):
         self._samples_widget.sample_view.override_patterns_ready.connect(

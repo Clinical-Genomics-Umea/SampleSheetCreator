@@ -1,34 +1,13 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
 from typing import Optional
-from datetime import datetime
-from enum import Enum
 from logging import Logger
 from pathlib import Path
-from typing import Any, Dict, List, TypeVar, Tuple
-
+from typing import Any, Dict, List, Tuple
 import yaml
 from PySide6.QtCore import QSettings, QObject, Signal, Slot
 
-from modules.utils.utils import uuid
-
-# Default configuration paths (relative to application root)
-DEFAULT_CONFIG_PATHS = {
-    'index_config_root_path': 'config/indexes/data',
-    'index_schema_root_path': 'json_schemas/index',
-    'application_profiles_root_path': 'config/applications/application_profiles',
-    'method_config_root_path': 'config/methods',
-    'run_settings_file_path': 'config/run/run_settings.yaml',
-    'instrument_data_config_file_path': 'config/run/instrument_data.yaml',
-    'sample_settings_file_path': 'config/sample_settings.yaml',
-    'validation_settings_file_path': 'config/validation/validation_settings.yaml',
-    'samplesheet_v1_template_file_path': 'config/samplesheet_v1.yaml',
-}
-
-# Type variables for generic methods
-T = TypeVar('T')
 
 # Custom Exceptions
 class ConfigError(Exception):
@@ -48,54 +27,6 @@ class ConfigLoadError(ConfigError):
     def __init__(self, path: Path, message: str):
         super().__init__(f"Failed to load config from {path}: {message}")
         self.path = path
-
-# Enums
-class RunState(Enum):
-    """Enum representing the possible run states."""
-    UNINITIALIZED = "uninitialized"
-    CONFIGURING = "configuring"
-    READY = "ready"
-    FROZEN = "frozen"
-    ERROR = "error"
-
-# Data Classes
-@dataclass
-class RunData:
-    """Data class for run configuration.
-    
-    Attributes:
-        instrument: Name of the instrument
-        flowcell: Type of flowcell
-        run_name: Name of the run
-        run_description: Description of the run
-        read_cycles: String representation of read cycles (e.g., "151-8-8-151")
-        custom_read_cycles: Custom read cycles if applicable
-        sample_sheet_version: Version of the sample sheet format
-        date: Date of the run in YYYY-MM-DD format
-        uuid: Unique identifier for the run
-        i5_samplesheet_orientation: Orientation for i5 samplesheet
-        color_a: Color code for base A
-        color_t: Color code for base T
-        color_g: Color code for base G
-        color_c: Color code for base C
-        assess_color_balance: Whether to assess color balance
-    """
-    instrument: str = ""
-    flowcell: str = ""
-    run_name: str = ""
-    run_description: str = ""
-    read_cycles: str = ""
-    custom_read_cycles: str = ""
-    sample_sheet_version: str = "v1"
-    date: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d"))
-    uuid: str = field(default_factory=uuid)
-    i5_samplesheet_orientation: str = ""
-    color_a: str = ""
-    color_t: str = ""
-    color_g: str = ""
-    color_c: str = ""
-    assess_color_balance: bool = False
-
 
 class ConfigurationManager(QObject):
     """Centralized configuration manager for the application.
@@ -117,14 +48,32 @@ class ConfigurationManager(QObject):
     run_data_error = Signal(list)    # Emitted with list of invalid fields on validation error
     
     # Default configuration paths (relative to application root)
-    _DEFAULT_PATHS = DEFAULT_CONFIG_PATHS  # Use the module-level constant
-    
     # Regular expression for validating read cycles format (e.g., "151-8-8-151")
     _READ_CYCLES_PATTERN = re.compile(r'^\d+(-\d+)*$')
     
     # Application settings organization and name for QSettings
     _QT_ORGANIZATION = "Region Västerbotten"
     _QT_APPLICATION = "samplecheater"
+
+    # Default folder paths keys
+    _DEFAULT_FOLDER_PATHS = {
+        'export_samplesheet_path': 'default_paths/export_samplesheet',
+        'export_json_path': 'default_paths/export_json',
+        'export_package_path': 'default_paths/export_package'
+    }
+
+    # Default configuration paths (relative to application root)
+    _DEFAULT_CONFIG_PATHS = {
+        'index_config_root_path': 'config/indexes/data',
+        'index_schema_root_path': 'json_schemas/index',
+        'application_profiles_root_path': 'config/applications/application_profiles',
+        'method_config_root_path': 'config/methods',
+        'run_settings_file_path': 'config/run/run_settings.yaml',
+        'instrument_data_config_file_path': 'config/run/instrument_data.yaml',
+        'sample_settings_file_path': 'config/sample_settings.yaml',
+        'validation_settings_file_path': 'config/validation/validation_settings.yaml',
+        'samplesheet_v1_template_file_path': 'config/samplesheet_v1.yaml',
+    }
 
     def __init__(self, logger: Logger, config_paths: Optional[Dict[str, str]] = None):
         """Initialize the configuration manager.
@@ -155,8 +104,8 @@ class ConfigurationManager(QObject):
         self._load_configurations()
 
         # Initialize run data with defaults
-        self._run_data = RunData()
-        self._update_run_data(self._run_settings["RunDataDefaults"])
+        # self._run_data = RunData()
+        # self._update_run_data(self._run_settings["RunDataDefaults"])
 
         # Load application and method configs in parallel if possible
         self._application_configs = self._load_configs_from_dir(
@@ -184,7 +133,7 @@ class ConfigurationManager(QObject):
         self._logger.debug("Initializing configuration paths")
         paths: Dict[str, Path] = {}
 
-        for key, default_path in self._DEFAULT_PATHS.items():
+        for key, default_path in self._DEFAULT_CONFIG_PATHS.items():
             # Get path from custom paths or use default
             path_str = str(custom_paths.get(key, default_path))
             path = Path(path_str).resolve()
@@ -466,48 +415,48 @@ class ConfigurationManager(QObject):
         return self._run_settings.get("Lanes", [])
 
     @property
-    def samplesheet_header_data(self) -> Dict[str, str]:
-        """Generate header data for the sample sheet.
-        
-        Returns:
-            Dictionary containing header fields for the sample sheet
-        """
-        return {
-            "FileFormatVersion": self._run_data.sample_sheet_version,
-            "InstrumentType": self._run_data.instrument,
-            "RunName": self._run_data.run_name,
-            "RunDescription": self._run_data.run_description,
-            "Custom_Flowcell": self._run_data.flowcell,
-            "Custom_UUID7": self._run_data.uuid,
-        }
-
-    @property
-    def samplesheet_read_cycles(self) -> Dict[str, str]:
-        """Get read cycle information for the sample sheet.
-        
-        Returns:
-            Dictionary mapping read cycle types to their values
-            
-        Raises:
-            ConfigError: If the read cycles format is invalid
-        """
-        if not self._run_data.read_cycles:
-            return {}
-            
-        read_cycle_headers = [
-            "Read1Cycles",
-            "Index1Cycles",
-            "Index2Cycles",
-            "Read2Cycles",
-        ]
-        
-        read_cycles = self._run_data.read_cycles.strip()
-        cycle_parts = read_cycles.split("-")
-        
-        if len(cycle_parts) != len(read_cycle_headers):
-            raise ConfigError(f"Invalid read cycles format: {read_cycles}")
-            
-        return dict(zip(read_cycle_headers, cycle_parts))
+    # def samplesheet_header_data(self) -> Dict[str, str]:
+    #     """Generate header data for the sample sheet.
+    #
+    #     Returns:
+    #         Dictionary containing header fields for the sample sheet
+    #     """
+    #     return {
+    #         "FileFormatVersion": self._run_data.sample_sheet_version,
+    #         "InstrumentType": self._run_data.instrument,
+    #         "RunName": self._run_data.run_name,
+    #         "RunDescription": self._run_data.run_description,
+    #         "Custom_Flowcell": self._run_data.flowcell,
+    #         "Custom_UUID7": self._run_data.uuid,
+    #     }
+    #
+    # @property
+    # def samplesheet_read_cycles(self) -> Dict[str, str]:
+    #     """Get read cycle information for the sample sheet.
+    #
+    #     Returns:
+    #         Dictionary mapping read cycle types to their values
+    #
+    #     Raises:
+    #         ConfigError: If the read cycles format is invalid
+    #     """
+    #     if not self._run_data.read_cycles:
+    #         return {}
+    #
+    #     read_cycle_headers = [
+    #         "Read1Cycles",
+    #         "Index1Cycles",
+    #         "Index2Cycles",
+    #         "Read2Cycles",
+    #     ]
+    #
+    #     read_cycles = self._run_data.read_cycles.strip()
+    #     cycle_parts = read_cycles.split("-")
+    #
+    #     if len(cycle_parts) != len(read_cycle_headers):
+    #         raise ConfigError(f"Invalid read cycles format: {read_cycles}")
+    #
+    #     return dict(zip(read_cycle_headers, cycle_parts))
 
     @property
     def i5_samplesheet_orientation(self) -> str:
@@ -559,14 +508,14 @@ class ConfigurationManager(QObject):
         """
         return self._run_view_widgets_config
 
-    @property
-    def run_data(self) -> RunData:
-        """Get the current run data.
-        
-        Returns:
-            RunData object containing the current run configuration
-        """
-        return self._run_data
+    # @property
+    # def run_data(self) -> RunData:
+    #     """Get the current run data.
+    #
+    #     Returns:
+    #         RunData object containing the current run configuration
+    #     """
+    #     return self._run_data
 
     def validate_run_data(self, data: Dict[str, Any]) -> Tuple[bool, List[str]]:
         """Validate run data before updating the configuration.
@@ -625,101 +574,101 @@ class ConfigurationManager(QObject):
             
         return True, []
 
-    def _update_run_data(self, run_data: Dict[str, Any]) -> None:
-        """Update run data with values from the provided dictionary.
-        
-        Args:
-            run_data: Dictionary containing run data to update
-        """
-        for key, value in run_data.items():
-            if hasattr(self._run_data, key):
-                setattr(self._run_data, key, value)
-                
-    @Slot(dict)
-    def set_run_data(self, run_data: Dict[str, Any]) -> None:
-        """Set the run data configuration and validate it.
-
-        If the data is invalid, emits the run_data_error signal with a list of invalid fields.
-        Otherwise, updates the configuration and emits the run_data_changed signal.
-
-        Args:
-            run_data: Dictionary containing the run data to set
-        """
-        # Validate the run data
-        is_valid, error_fields = self.validate_run_data(run_data)
-        if not is_valid:
-            self.run_data_error.emit(error_fields)
-            return
-
-        try:
-            # Update the run data with the new values
-            self._update_run_data(run_data)
-            
-            # Apply instrument-specific settings
-            instrument = run_data["Instrument"]
-            flowcell = run_data.get("Flowcell")
-            
-            if instrument in self._instrument_data:
-                instrument_settings = self._instrument_data[instrument]
-                
-                # Apply base instrument settings
-                for key, value in instrument_settings.items():
-                    if not isinstance(value, dict) and hasattr(self._run_data, key.lower()):
-                        setattr(self._run_data, key.lower(), value)
-                
-                # Apply flowcell-specific settings if available
-                if flowcell and "Flowcell" in instrument_settings:
-                    flowcell_settings = instrument_settings["Flowcell"].get(flowcell, {})
-                    for key, value in flowcell_settings.items():
-                        if hasattr(self._run_data, key.lower()):
-                            setattr(self._run_data, key.lower(), value)
-                
-                # Apply color settings from fluorophores
-                if "Fluorophores" in instrument_settings:
-                    for base, color in instrument_settings["Fluorophores"].items():
-                        attr_name = f"color_{base.lower()}"
-                        if hasattr(self._run_data, attr_name):
-                            setattr(self._run_data, attr_name, color)
-            
-            # Update timestamps and UUID
-            self._run_data.date = datetime.now().strftime("%Y-%m-%d")
-            self._run_data.uuid = uuid()
-            
-            # Mark as set and emit change signal
-            self._run_data_is_set = True
-            self.run_data_changed.emit(self._run_data.__dict__)
-            
-        except Exception as e:
-            self._logger.error(f"Failed to update run data: {e}")
-            self.run_data_error.emit(["_system"])
-            raise ConfigError(f"Failed to update run data: {e}")
-
-    @property
-    def run_data_is_set(self) -> bool:
-        """Check if run data has been set.
-        
-        Returns:
-            True if run data has been set, False otherwise
-        """
-        return self._run_data_is_set
-
-    @property
-    def run_data_changed(self) -> Signal:
-        """Signal emitted when run data is changed.
-        
-        Returns:
-            Qt signal with the updated run data
-        """
-        return self._run_data_changed
-
-    @property
-    def run_data_error(self) -> Signal:
-        """Signal emitted when there's an error with run data.
-        
-        Returns:
-            Qt signal with a list of error fields
-        """
-        return self._run_data_error
+    # def _update_run_data(self, run_data: Dict[str, Any]) -> None:
+    #     """Update run data with values from the provided dictionary.
+    #
+    #     Args:
+    #         run_data: Dictionary containing run data to update
+    #     """
+    #     for key, value in run_data.items():
+    #         if hasattr(self._run_data, key):
+    #             setattr(self._run_data, key, value)
+    #
+    # @Slot(dict)
+    # def set_run_data(self, run_data: Dict[str, Any]) -> None:
+    #     """Set the run data configuration and validate it.
+    #
+    #     If the data is invalid, emits the run_data_error signal with a list of invalid fields.
+    #     Otherwise, updates the configuration and emits the run_data_changed signal.
+    #
+    #     Args:
+    #         run_data: Dictionary containing the run data to set
+    #     """
+    #     # Validate the run data
+    #     is_valid, error_fields = self.validate_run_data(run_data)
+    #     if not is_valid:
+    #         self.run_data_error.emit(error_fields)
+    #         return
+    #
+    #     try:
+    #         # Update the run data with the new values
+    #         self._update_run_data(run_data)
+    #
+    #         # Apply instrument-specific settings
+    #         instrument = run_data["Instrument"]
+    #         flowcell = run_data.get("Flowcell")
+    #
+    #         if instrument in self._instrument_data:
+    #             instrument_settings = self._instrument_data[instrument]
+    #
+    #             # Apply base instrument settings
+    #             for key, value in instrument_settings.items():
+    #                 if not isinstance(value, dict) and hasattr(self._run_data, key.lower()):
+    #                     setattr(self._run_data, key.lower(), value)
+    #
+    #             # Apply flowcell-specific settings if available
+    #             if flowcell and "Flowcell" in instrument_settings:
+    #                 flowcell_settings = instrument_settings["Flowcell"].get(flowcell, {})
+    #                 for key, value in flowcell_settings.items():
+    #                     if hasattr(self._run_data, key.lower()):
+    #                         setattr(self._run_data, key.lower(), value)
+    #
+    #             # Apply color settings from fluorophores
+    #             if "Fluorophores" in instrument_settings:
+    #                 for base, color in instrument_settings["Fluorophores"].items():
+    #                     attr_name = f"color_{base.lower()}"
+    #                     if hasattr(self._run_data, attr_name):
+    #                         setattr(self._run_data, attr_name, color)
+    #
+    #         # Update timestamps and UUID
+    #         self._run_data.date = datetime.now().strftime("%Y-%m-%d")
+    #         self._run_data.uuid = uuid()
+    #
+    #         # Mark as set and emit change signal
+    #         self._run_data_is_set = True
+    #         self.run_data_changed.emit(self._run_data.__dict__)
+    #
+    #     except Exception as e:
+    #         self._logger.error(f"Failed to update run data: {e}")
+    #         self.run_data_error.emit(["_system"])
+    #         raise ConfigError(f"Failed to update run data: {e}")
+    #
+    # @property
+    # def run_data_is_set(self) -> bool:
+    #     """Check if run data has been set.
+    #
+    #     Returns:
+    #         True if run data has been set, False otherwise
+    #     """
+    #     return self._run_data_is_set
+    #
+    # @property
+    # def run_data_changed(self) -> Signal:
+    #     """Signal emitted when run data is changed.
+    #
+    #     Returns:
+    #         Qt signal with the updated run data
+    #     """
+    #     return self._run_data_changed
+    #
+    # @property
+    # def run_data_error(self) -> Signal:
+    #     """Signal emitted when there's an error with run data.
+    #
+    #     Returns:
+    #         Qt signal with a list of error fields
+    #     """
+    #     return self._run_data_error
 
     @property
     def user_list(self) -> list[str]:
@@ -821,3 +770,39 @@ class ConfigurationManager(QObject):
             Dictionary containing samples settings
         """
         return self._samples_settings
+
+    def get_folder_path(self, path_type: str) -> str:
+        """Get a saved folder path from settings.
+        
+        Args:
+            path_type: One of 'export_samplesheet_path', 'export_json_path', or 'export_package_path'
+            
+        Returns:
+            str: The saved path or empty string if not set
+            
+        Raises:
+            ValueError: If an invalid path_type is provided
+        """
+        if path_type not in self._DEFAULT_FOLDER_PATHS:
+            raise ValueError(f"Invalid path_type: {path_type}. Must be one of {list(self._DEFAULT_FOLDER_PATHS.keys())}")
+            
+        return self._qt_settings.value(self._DEFAULT_FOLDER_PATHS[path_type], "", type=str)
+    
+    def set_folder_path(self, path_type: str, path: str) -> bool:
+        """Save a folder path to settings.
+        
+        Args:
+            path_type: One of 'export_samplesheet_path', 'export_json_path', or 'export_package_path'
+            path: The path to save
+            
+        Returns:
+            bool: True if the path was saved successfully
+            
+        Raises:
+            ValueError: If an invalid path_type is provided
+        """
+        if path_type not in self._DEFAULT_FOLDER_PATHS:
+            raise ValueError(f"Invalid path_type: {path_type}. Must be one of {list(self._DEFAULT_FOLDER_PATHS.keys())}")
+            
+        self._qt_settings.setValue(self._DEFAULT_FOLDER_PATHS[path_type], path)
+        return True

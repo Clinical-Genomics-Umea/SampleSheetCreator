@@ -76,20 +76,22 @@ class MainValidationWidget(QWidget):
 
     def _on_data_changed(self, top_left, bottom_right, roles=None):
         """Handler for dataChanged signal from the sample model."""
-        self.clear_validation_widgets()
+        self.clear_validation_widgets(False)
 
-    def clear_validation_widgets(self):
+    def clear_validation_widgets(self, status):
         """Clear all validation widgets, temporarily disconnecting from the model."""
         # Disconnect from dataChanged signal to prevent recursive calls
-        self._disconnect_data_changed()
-        
-        try:
-            # Clear all widgets
-            self._general_validation_widget.clear()
-            self._sample_data_overview_widget.clear()
-            self._index_distance_overview_widget.clear()
-            self._color_balance_overview_widget.clear()
-        finally:
-            # Reconnect to dataChanged signal when done
-            self._connect_data_changed()
+
+        if not status:
+            self._disconnect_data_changed()
+
+            try:
+                # Clear all widgets
+                self._general_validation_widget.clear()
+                self._sample_data_overview_widget.clear()
+                self._index_distance_overview_widget.clear()
+                self._color_balance_overview_widget.clear()
+            finally:
+                # Reconnect to dataChanged signal when done
+                self._connect_data_changed()
 

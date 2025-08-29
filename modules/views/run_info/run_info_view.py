@@ -72,8 +72,7 @@ class RunInfoView(QGroupBox):
 
         self._assess_color_balance_lbl = QLabel("None")
 
-        self._bcl2fastq_ss_i5_orient_lbl = QLabel("None")
-        self._bclconvert_ss_i5_orient_lbl = QLabel("None")
+        self._uuid_lbl = QLabel("None")
 
         self._a_lbl = QLabel("None")
         self._t_lbl = QLabel("None")
@@ -85,7 +84,7 @@ class RunInfoView(QGroupBox):
         self._index2_minlen_lbl = QLabel("0")
         self._index2_maxlen_lbl = QLabel("0")
 
-        self._sample_applications_lbl = QLabel("None")
+        self._sample_profile_names_lbl = QLabel("None")
 
         self._setup()
 
@@ -98,6 +97,7 @@ class RunInfoView(QGroupBox):
         form_general.addRow(QLabel("Investigator:"), self._investigator_lbl)
         form_general.addRow(QLabel("RunName:"), self._run_name_lbl)
         form_general.addRow(QLabel("RunDescription:"), self._run_desc_lbl)
+        form_general.addRow(QLabel("UUID:"), self._uuid_lbl)
         self.content_layout.addLayout(form_general)
 
 
@@ -124,20 +124,14 @@ class RunInfoView(QGroupBox):
         form_read_cycles.addRow(QLabel("CustomCycles:"), self._custom_cycles_lbl)
         self.content_layout.addLayout(form_read_cycles)
 
-        # I5SampleSheetOrientation
-        form_i5_sheet_orient = QFormLayout()
-        form_i5_sheet_orient.setContentsMargins(0, 0, 0, 0)
-        form_i5_sheet_orient.addRow(QLabel("I5SampleSheetOrientation"))
-        form_i5_sheet_orient.addRow(QLabel("BCL2Fastq:"), self._bcl2fastq_ss_i5_orient_lbl)
-        form_i5_sheet_orient.addRow(QLabel("BCLConvert:"), self._bclconvert_ss_i5_orient_lbl)
-        self.content_layout.addLayout(form_i5_sheet_orient)
-
         # Validation
         form_validation = QFormLayout()
         form_validation.setContentsMargins(0, 0, 0, 0)
         form_validation.addRow(QLabel("Validation"))
-        form_validation.addRow(QLabel("AssessColorBalance:"), self._assess_color_balance_lbl)
+        form_validation.addRow(QLabel("ColorBalance:"), self._assess_color_balance_lbl)
         self.content_layout.addLayout(form_validation)
+
+
 
         # Colors
         form_colors = QFormLayout()
@@ -153,14 +147,14 @@ class RunInfoView(QGroupBox):
         # Sample Index lengths
         form_sample_data = QFormLayout()
         form_sample_data.setContentsMargins(0, 0, 0, 0)
-        form_sample_data.addRow(QLabel("Sample agg data"))
+        form_sample_data.addRow(QLabel("Sample overview"))
 
         form_sample_data.addRow(QLabel("Index1 min:"), self._index1_minlen_lbl)
         form_sample_data.addRow(QLabel("Index1 max:"), self._index1_maxlen_lbl)
         form_sample_data.addRow(QLabel("Index2 min:"), self._index2_minlen_lbl)
         form_sample_data.addRow(QLabel("Index2 max:"), self._index2_maxlen_lbl)
-        form_sample_data.addRow(QLabel("Sample apps:"), self._sample_applications_lbl)
-        self.content_layout.addLayout(form_colors)
+        form_sample_data.addRow(QLabel("Application profile names:"), self._sample_profile_names_lbl)
+        self.content_layout.addLayout(form_sample_data)
 
         self.content_layout.addStretch()
 
@@ -243,11 +237,14 @@ class RunInfoView(QGroupBox):
     def set_i5_seq_orientation_label(self, i5_seq_orientation: str):
         self._i5_seq_orientation_lbl.setText(i5_seq_orientation)
 
-    def set_bcl2fastq_ss_i5_orient_lbl(self, bcl2fastq_ss_i5_orient: str):
-        self._bcl2fastq_ss_i5_orient_lbl.setText(bcl2fastq_ss_i5_orient)
+    def set_uuid(self, uuid: str):
+        self._uuid_lbl.setText(uuid)
 
-    def set_bclconvert_ss_i5_orient_lbl(self, bclconvert_ss_i5_orient: str):
-        self._bclconvert_ss_i5_orient_lbl.setText(bclconvert_ss_i5_orient)
+    # def set_bcl2fastq_ss_i5_orient_lbl(self, bcl2fastq_ss_i5_orient: str):
+    #     self._bcl2fastq_ss_i5_orient_lbl.setText(bcl2fastq_ss_i5_orient)
+    #
+    # def set_bclconvert_ss_i5_orient_lbl(self, bclconvert_ss_i5_orient: str):
+    #     self._bclconvert_ss_i5_orient_lbl.setText(bclconvert_ss_i5_orient)
 
     def set_read1_cycles_label(self, read1_cycles: int):
         self._read1_cycles_lbl.setText(str(read1_cycles))
@@ -295,9 +292,14 @@ class RunInfoView(QGroupBox):
     def set_sample_index2_maxlen_label(self, current_index2_maxlen: int):
         self._index2_maxlen_lbl.setText(str(current_index2_maxlen))
 
-    def set_bcl2fastq_ss_i5_orient_label(self, bcl2fastq: str):
-        self._bcl2fastq_ss_i5_orient_lbl.setText(bcl2fastq)
+    # def set_bcl2fastq_ss_i5_orient_label(self, bcl2fastq: str):
+    #     self._bcl2fastq_ss_i5_orient_lbl.setText(bcl2fastq)
+    #
+    # def set_bclconvert_ss_i5_orient_label(self, bclconvert: str):
+    #     self._bclconvert_ss_i5_orient_lbl.setText(bclconvert)
 
-    def set_bclconvert_ss_i5_orient_label(self, bclconvert: str):
-        self._bclconvert_ss_i5_orient_lbl.setText(bclconvert)
-
+    def set_profile_names(self, profile_names: list[str]):
+        if isinstance(profile_names, list):
+            self._sample_profile_names_lbl.setText(", ".join(profile_names))
+        else:
+            self._sample_profile_names_lbl.setText(str(profile_names) if profile_names is not None else "None")
