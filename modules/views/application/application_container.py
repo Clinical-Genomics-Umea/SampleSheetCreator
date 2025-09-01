@@ -9,8 +9,8 @@ from modules.views.ui_components import HorizontalLine
 
 class ApplicationContainerWidget(QWidget):
 
-    add_application_profile_data = Signal(dict)
-    remove_application_profile = Signal(dict)
+    add_application_profile_data = Signal(object)
+    remove_application_profile = Signal(object)
 
     def __init__(
         self, application_manager: ApplicationManager, state_model: StateModel):
@@ -65,9 +65,10 @@ class ApplicationContainerWidget(QWidget):
         )
 
     @Slot(object)
-    def _handle_add_click(self, data: object):
-        self.add_application_profile_data.emit(data)
+    def _handle_add_click(self, application_profile: object):
+        print(application_profile)
+        self.add_application_profile_data.emit(application_profile)
 
     @Slot(object)
-    def _handle_remove_click(self, data):
-        self.remove_application_profile.emit(data)
+    def _handle_remove_click(self, application_profile):
+        self.remove_application_profile.emit(application_profile)

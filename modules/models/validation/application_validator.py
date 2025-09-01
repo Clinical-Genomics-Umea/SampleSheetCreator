@@ -33,25 +33,27 @@ def application_settings_check(sample_df: pd.DataFrame, application_manager: App
         ValidationResult indicating the result of the check
         
     Note:
-        The state_model should contain a sample_df attribute with an 'ApplicationProfile' column
+        The state_model should contain a sample_df attribute with an 'ApplicationProfileName' column
     """
 
     name = "application settings check"
 
-    if sample_df is None or 'ApplicationProfile' not in sample_df.columns:
+    if sample_df is None or 'ApplicationProfileName' not in sample_df.columns:
         return ValidationResult(
             name=name,
-            message="Missing required 'ApplicationProfile' column in sample data",
+            message="Missing required 'ApplicationProfileName' column in sample data",
             severity=StatusLevel.ERROR
         )
         
     try:
         # Create a copy to avoid modifying the original dataframe
-        profile_exploded_df = sample_df.explode("ApplicationProfile", ignore_index=True)
+        profile_exploded_df = sample_df.explode("ApplicationProfileName", ignore_index=True)
 
         # Get unique application profiles
-        unique_profile_names = [p for p in profile_exploded_df["ApplicationProfile"].unique()
+        unique_profile_names = [p for p in profile_exploded_df["ApplicationProfileName"].unique()
                          if pd.notna(p) and str(p).strip()]
+
+        print(unique_profile_names)
         
         if not unique_profile_names:
             return ValidationResult(

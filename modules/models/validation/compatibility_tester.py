@@ -4,6 +4,7 @@ from logging import Logger
 import pandas as pd
 from PySide6.QtCore import Signal, QObject, Slot
 
+from modules.models.application.application_profile import ApplicationProfile
 from modules.models.state.state_model import StateModel
 
 
@@ -59,31 +60,37 @@ class CompatibilityTester(QObject):
         self._logger.warning("Dropped indexes not compatible with run cycles.")
 
     @staticmethod
-    def _get_profile_dragen_version(application_profile: dict):
+    def _get_profile_dragen_version(application_profile: ApplicationProfile) -> str | None:
         if not application_profile:
             return None
 
-        if application_profile.get("ApplicationType") != "Dragen":
+        if application_profile.ApplicationType != "Dragen":
             return None
 
-        return application_profile.get("Settings", {}).get("DragenVersion")
+        settings = application_profile.Settings
+
+        return settings.get("DragenVersion", None)
 
     @Slot(object)
-    def verify_dragen_ver_compatibility(self, data):
+    def verify_dragen_ver_compatibility(self, application_profile):
 
-        new_application_dragen_version = self._get_profile_dragen_version(data)
-        prev_set_application_dragen_version = self._state_model.dragen_app_version
+        new_application_dragen_version = self._get_profile_dragen_version(application_profile)
+        existing_set_application_dragen_version = self._state_model.dragen_app_version
 
-        if not prev_set_application_dragen_version:
-            self.application_profile_ok.emit(data)
+        print("new", new_application_dragen_version)
+        print("existing", existing_set_application_dragen_version)
+
+
+        if not existing_set_application_dragen_version:
+            self.application_profile_ok.emit(application_profile)
             return
 
         if not new_application_dragen_version:
-            self.application_profile_ok.emit(data)
+            self.application_profile_ok.emit(application_profile)
             return
 
-        if prev_set_application_dragen_version == new_application_dragen_version:
-            self.application_profile_ok.emit(data)
+        if existing_set_application_dragen_version == new_application_dragen_version:
+            self.application_profile_ok.emit(application_profile)
             return
 
         self._logger.warning("Dropped application profile not compatible with previous profiles.")

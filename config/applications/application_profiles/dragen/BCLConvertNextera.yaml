@@ -23,8 +23,6 @@ DataFields:
   - AdapterRead1
   - AdapterRead2
 
-LaneExplode: True
-
 Translate:
   IndexI7: Index
   IndexI5: Index2

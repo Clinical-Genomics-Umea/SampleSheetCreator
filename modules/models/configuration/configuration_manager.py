@@ -1,5 +1,3 @@
-# from __future__ import annotations
-
 import re
 from typing import Optional
 from logging import Logger
@@ -67,7 +65,7 @@ class ConfigurationManager(QObject):
         'index_config_root_path': 'config/indexes/data',
         'index_schema_root_path': 'json_schemas/index',
         'application_profiles_root_path': 'config/applications/application_profiles',
-        'method_config_root_path': 'config/methods',
+        'test_profiles_root_path': 'config/tests/test_profiles',
         'run_settings_file_path': 'config/run/run_settings.yaml',
         'instrument_data_config_file_path': 'config/run/instrument_data.yaml',
         'sample_settings_file_path': 'config/sample_settings.yaml',
@@ -87,10 +85,11 @@ class ConfigurationManager(QObject):
             ConfigError: If there's an error loading or validating the configuration.
         """
         super().__init__()
-        
+
         # Use provided logger (required)
         if logger is None:
             raise ValueError("Logger must be provided to ConfigurationManager")
+
         self._logger = logger
         self._qt_settings = QSettings(self._QT_ORGANIZATION, self._QT_APPLICATION)
         self._run_data_is_set = False
@@ -103,16 +102,12 @@ class ConfigurationManager(QObject):
         # Load all configurations
         self._load_configurations()
 
-        # Initialize run data with defaults
-        # self._run_data = RunData()
-        # self._update_run_data(self._run_settings["RunDataDefaults"])
-
         # Load application and method configs in parallel if possible
         self._application_configs = self._load_configs_from_dir(
             self._paths['application_profiles_root_path']
         )
-        self._method_configs = self._load_configs_from_dir(
-            self._paths['method_config_root_path']
+        self._test_configs = self._load_configs_from_dir(
+            self._paths['test_profiles_root_path']
         )
 
         self._logger.info("ConfigurationManager initialized successfully")
@@ -316,13 +311,13 @@ class ConfigurationManager(QObject):
         return self._instrument_data
         
     @property
-    def method_configs(self) -> List[Dict[str, Any]]:
+    def test_profiles_dict_list(self) -> List[Dict[str, Any]]:
         """Get all method configurations.
         
         Returns:
             List of method configuration dictionaries
         """
-        return self._method_configs
+        return self._test_configs
         
     @property
     def application_configs(self) -> List[Dict[str, Any]]:
@@ -332,15 +327,6 @@ class ConfigurationManager(QObject):
             List of application configuration dictionaries
         """
         return self._application_configs
-
-    @property
-    def fastq_extract_tool(self) -> str:
-        """Get the configured FASTQ extraction tool.
-        
-        Returns:
-            Name of the FASTQ extraction tool
-        """
-        return self._run_settings.get("FastqExtractTool", "bcl2fastq")
 
     @property
     def index_kits_root(self) -> Path:

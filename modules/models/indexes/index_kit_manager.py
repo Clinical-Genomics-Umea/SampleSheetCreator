@@ -192,81 +192,81 @@ class IndexKitManager(QObject):
             self._logger.error("Validation failed for %s: %s", file_path, e)
             return False
     
-    def get_kit_by_name(self, name: str) -> Optional[IndexKitModel]:
-        """Get an index kit by its name.
-        
-        Args:
-            name: The name of the index kit to find.
-            
-        Returns:
-            The matching IndexKit or None if not found.
-        """
-        for kit in self._index_kit_widgets:
-            if kit.name == name:
-                return kit
-        return None
+    # def get_kit_by_name(self, name: str) -> Optional[IndexKitModel]:
+    #     """Get an index kit by its name.
+    #
+    #     Args:
+    #         name: The name of the index kit to find.
+    #
+    #     Returns:
+    #         The matching IndexKit or None if not found.
+    #     """
+    #     for kit in self._index_kit_widgets:
+    #         if kit.name == name:
+    #             return kit
+    #     return None
     
-    def get_kits_by_type(self, kit_type: str) -> List[IndexKitModel]:
-        """Get all index kits of a specific type.
-        
-        Args:
-            kit_type: The type of index kits to find.
-            
-        Returns:
-            List of matching IndexKit objects.
-        """
-        return [kit for kit in self._index_kit_widgets if kit.type == kit_type]
+    # def get_kits_by_type(self, kit_type: str) -> List[IndexKitModel]:
+    #     """Get all index kits of a specific type.
+    #
+    #     Args:
+    #         kit_type: The type of index kits to find.
+    #
+    #     Returns:
+    #         List of matching IndexKit objects.
+    #     """
+    #     return [kit for kit in self._index_kit_widgets if kit.type == kit_type]
     
-    def get_kits_by_layout(self, layout: str) -> List[IndexKitModel]:
-        """Get all index kits with a specific layout.
-        
-        Args:
-            layout: The layout of index kits to find.
-            
-        Returns:
-            List of matching IndexKit objects.
-        """
-        return [kit for kit in self._index_kit_widgets if kit._layout == layout]
+    # def get_kits_by_layout(self, layout: str) -> List[IndexKitModel]:
+    #     """Get all index kits with a specific layout.
+    #
+    #     Args:
+    #         layout: The layout of index kits to find.
+    #
+    #     Returns:
+    #         List of matching IndexKit objects.
+    #     """
+    #     return [kit for kit in self._index_kit_widgets if kit._layout == layout]
     
-    def get_all_kit_types(self) -> List[str]:
-        """Get a list of all unique kit types.
-        
-        Returns:
-            List of unique kit type names.
-        """
-        return list({kit.type for kit in self._index_kit_widgets})
+    # def get_all_kit_types(self) -> List[str]:
+    #     """Get a list of all unique kit types.
+    #
+    #     Returns:
+    #         List of unique kit type names.
+    #     """
+    #     return list({kit.type for kit in self._index_kit_widgets})
     
-    def get_all_layouts(self) -> List[str]:
-        """Get a list of all unique layouts.
-        
-        Returns:
-            List of unique layout names.
-        """
-        return list({kit._layout for kit in self._index_kit_widgets})
+    # def get_all_layouts(self) -> List[str]:
+    #     """Get a list of all unique layouts.
+    #
+    #     Returns:
+    #         List of unique layout names.
+    #     """
+    #     return list({kit._layout for kit in self._index_kit_widgets})
     
-    @property
-    def index_kit_objects(self) -> List[IndexKitModel]:
-        """Get all loaded index kit objects.
-        
-        Returns:
-            List of all IndexKit objects.
-        """
-        return self._index_kit_widgets
+    # @property
+    # def index_kit_objects(self) -> List[IndexKitModel]:
+    #     """Get all loaded index kit objects.
+    #
+    #     Returns:
+    #         List of all IndexKit objects.
+    #     """
+    #     return self._index_kit_widgets
     
-    @property
-    def index_kit_data(self) -> List[Dict[str, Any]]:
-        """Get the raw index kit data.
-        
-        Returns:
-            List of raw index kit data dictionaries.
-        """
-        return self._index_kit_data
+    # @property
+    # def index_kit_data(self) -> List[Dict[str, Any]]:
+    #     """Get the raw index kit data.
+    #
+    #     Returns:
+    #         List of raw index kit data dictionaries.
+    #     """
+    #     return self._index_kit_data
     
-    @property
-    def index_schemas(self) -> Dict[str, Dict[str, Any]]:
-        """Get the loaded schema definitions.
-        
-        Returns:
-            Dictionary mapping schema names to their definitions.
-        """
-        return self._index_schemas
+    # @property
+    # def index_schemas(self) -> Dict[str, Dict[str, Any]]:
+    #     """Get the loaded schema definitions.
+    #
+    #     Returns:
+    #         Dictionary mapping schema names to their definitions.
+    #     """
+    #     return self._index_schemas

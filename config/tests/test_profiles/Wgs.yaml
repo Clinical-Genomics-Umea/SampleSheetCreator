@@ -1,13 +1,13 @@
 ---
-MethodType: WGS
-Method: WGS
+TestType: WGS
+TestName: WGS
 Description: Whole Genome Sequencing
 Version: 1.0
 
 ApplicationProfiles:
-  - ApplicationProfile: BCLConvertNextera
+  - ApplicationProfileName: BCLConvertNextera
     ApplicationProfileVersion: 1.0
 
-  - ApplicationProfile: DragenGermlineIdtWgs
+  - ApplicationProfileName: DragenGermlineIdtWgs
     ApplicationProfileVersion: 1.0
 

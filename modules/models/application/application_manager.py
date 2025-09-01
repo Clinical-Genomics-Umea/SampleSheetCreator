@@ -2,19 +2,9 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Any
 from logging import Logger
 
+from modules.models.application.application_profile import ApplicationProfile
 from modules.models.configuration.configuration_manager import ConfigurationManager
 
-
-@dataclass
-class ApplicationProfile:
-    """Represents an application profile configuration."""
-    application_profile_name: str
-    application_name: str
-    application_type: str
-    application_profile_version: str
-    settings: Dict[str, Any]
-    data: Dict[str, Any]
-    data_fields: Dict[str, Any]
 
 
 class ApplicationManager:
@@ -28,7 +18,8 @@ class ApplicationManager:
             logger: Logger instance for logging messages
         """
         self._logger = logger
-        self._profiles: List[Dict[str, Any]] = config_manager.application_configs
+        self._config_manager = config_manager
+        self._application_profiles = []
         
         # Create lookup dictionaries
         self._profile_name_to_application_name: Dict[str, str] = {}
@@ -39,40 +30,55 @@ class ApplicationManager:
         self._profile_name_to_profile: Dict[str, Dict[str, Any]] = {}
         self._hierarchy: Dict[str, Dict[str, Dict[str, Any]]] = {}
         self._profile_name_to_translate: Dict[str, str] = {}
-        
+
+        self._setup()
+
         self._initialize_lookups()
-    
+
+    def _setup(self):
+        data = self._config_manager.application_configs
+
+        for app_profile_dict in data:
+            self._application_profiles.append(ApplicationProfile(**app_profile_dict))
+
+        print(self._application_profiles)
+
     def _initialize_lookups(self) -> None:
         """Initialize lookup dictionaries for faster access."""
         self._hierarchy = {}
         
-        for profile in self._profiles:
+        for profile in self._application_profiles:
             try:
-                profile_name = profile.get("ApplicationProfileName")
-                application_name = profile.get("ApplicationName")
-                application_type = profile.get("ApplicationType")
-                application_profile_version = profile.get("ApplicationProfileVersion")
-                translate = profile.get("Translate")
+                print("profile", profile)
+                application_profile_name = profile.ApplicationProfileName
+                application_name = profile.ApplicationName
+                application_type = profile.ApplicationType
+                application_profile_version = profile.ApplicationProfileVersion
+                translate = profile.Translate
+                settings = profile.Settings
+                data = profile.Data
+                data_fields = profile.DataFields
+
                 
                 # Skip invalid entries
-                if not all([profile_name, application_name, application_type, application_profile_version]):
+                if not all([application_profile_name, application_name, application_type, application_profile_version]):
                     self._logger.warning(f"Skipping invalid application object: {profile}")
                     continue
                 
                 # Populate lookups
-                self._profile_name_to_application_name[profile_name] = application_name
+                self._profile_name_to_application_name[application_profile_name] = application_name
                 self._application_name_to_application_type[application_name] = application_type
-                self._profile_name_to_settings[profile_name] = profile.get("Settings", {})
-                self._profile_name_to_data[profile_name] = profile.get("Data", {})
-                self._profile_name_to_data_fields[profile_name] = profile.get("DataFields", {})
-                self._profile_name_to_profile[profile_name] = profile
-                self._profile_name_to_translate[profile_name] = translate
+                self._profile_name_to_settings[application_profile_name] = settings
+                self._profile_name_to_data[application_profile_name] = data
+                self._profile_name_to_data_fields[application_profile_name] = data_fields
+                self._profile_name_to_profile[application_profile_name] = profile
+                self._profile_name_to_translate[application_profile_name] = translate
 
                 # Build hierarchy
                 if application_type not in self._hierarchy:
                     self._hierarchy[application_type] = {}
 
-                self._hierarchy[application_type][profile_name] = profile
+                self._hierarchy[application_type][application_profile_name] = profile
                 
             except KeyError as e:
                 self._logger.error(f"Error processing application object {profile}: {str(e)}")
@@ -164,3 +170,12 @@ class ApplicationManager:
         profile = self.profile_name_to_profile(profile_name)
 
         return profile.get("ApplicationName")
+
+
+    def has_profile_name_and_version(self, profile_name: str, profile_version: str) -> bool:
+
+        for profile in self._application_profiles:
+            if profile.get("ApplicationProfileName") == profile_name and profile.get("ApplicationProfileVersion") == profile_version:
+                return True
+
+        return False

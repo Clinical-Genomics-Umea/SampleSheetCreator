@@ -3,12 +3,14 @@ import yaml
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QDialog, QVBoxLayout, QTextEdit
 
+from modules.models.application.application_profile import ApplicationProfile
+
 
 class ClickableLabel(QLabel):
-    def __init__(self, text: str, profile: dict, parent=None):
+    def __init__(self, text: str, profile: ApplicationProfile, parent=None):
         super().__init__(text, parent)
         self._profile = profile
-        self.name = profile["ApplicationProfileName"]
+        self.name = profile.ApplicationProfileName
         self.setCursor(Qt.PointingHandCursor)  # Change the cursor to a hand pointer
 
     def mousePressEvent(self, event):

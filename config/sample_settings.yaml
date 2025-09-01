@@ -18,7 +18,9 @@ fields:
     - AdapterRead1
     - AdapterRead2
   ApplicationProfile:
-    - ApplicationProfile
+    - ApplicationProfileName
+  TestProfile:
+    - TestProfileName
 
 required_fields:
   - Lane

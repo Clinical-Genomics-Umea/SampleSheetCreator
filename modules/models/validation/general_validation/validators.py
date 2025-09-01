@@ -233,9 +233,9 @@ def overall_sample_data_validator(sample_df: pd.DataFrame) -> ValidationResult:
         "Lane", "Sample_ID", "Pos", "IndexI7Name", "IndexI7",
         "IndexI5Name", "IndexI5", "IndexKitName", "OverrideCyclesPattern",
         "BarcodeMismatchesIndex1", "BarcodeMismatchesIndex2",
-        "AdapterRead1", "AdapterRead2", "ApplicationProfile"
+        "AdapterRead1", "AdapterRead2", "ApplicationProfileName"
     ]
-    required_fields = ["Lane", "Sample_ID", "IndexI7", "ApplicationProfile"]
+    required_fields = ["Lane", "Sample_ID", "IndexI7", "ApplicationProfileName"]
 
     # --- Column presence check ---
     missing_columns = [col for col in all_fields if col not in sample_df.columns]
@@ -257,7 +257,7 @@ def overall_sample_data_validator(sample_df: pd.DataFrame) -> ValidationResult:
         sample_id = row["Sample_ID"].strip()
         index_i7_name = row["IndexI7Name"].strip()
         index_i7 = row["IndexI7"].strip()
-        application_profile = row["ApplicationProfile"]
+        application_profile = row["ApplicationProfileName"]
         index_i5_name = row["IndexI5Name"].strip()
         index_i5 = row["IndexI5"].strip()
         adapter_read1 = row["AdapterRead1"].strip()

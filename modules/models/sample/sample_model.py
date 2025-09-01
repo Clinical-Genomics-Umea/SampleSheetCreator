@@ -1,5 +1,4 @@
 import ast
-import re
 
 import pandas as pd
 from PySide6.QtCore import Qt, QSortFilterProxyModel, Signal
@@ -185,30 +184,36 @@ class SampleModel(QStandardItemModel):
             bool: True if the drop was successful, False otherwise.
         """
 
-        json_data_qba = data._profile("application/json")
+        print(data)
+
+        json_data_qba = data.data("application/json")
+
+        print(json_data_qba)
+
         decoded_data = decode_bytes_json(json_data_qba)
 
+        print(decoded_data)
 
         data = {"start_row": parent.row(), "decoded_data": decoded_data}
         self.dropped_data.emit(data)
 
-        # self.blockSignals(True)
-        #
-        # for i, row_data in enumerate(decoded_data):
-        #     for key, value in row_data.items():
-        #         row = parent.row() + i
-        #         if key in self.fields:
-        #             column = self.fields.index(key)
-        #             self.setData(self.index(row, column), value)
-        #
-        # self.blockSignals(False)
-        #
-        # self.dataChanged.emit(
-        #     self.index(0, 0),
-        #     self.index(self.rowCount() - 1, self.columnCount() - 1),
-        #     Qt.DisplayRole,
-        # )
-        #
+        self.blockSignals(True)
+
+        for i, row_data in enumerate(decoded_data):
+            for key, value in row_data.items():
+                row = parent.row() + i
+                if key in self.fields:
+                    column = self.fields.index(key)
+                    self.setData(self.index(row, column), value)
+
+        self.blockSignals(False)
+
+        self.dataChanged.emit(
+            self.index(0, 0),
+            self.index(self.rowCount() - 1, self.columnCount() - 1),
+            Qt.DisplayRole,
+        )
+
         return True
 
     def flags(self, index):
@@ -351,8 +356,8 @@ class SampleModel(QStandardItemModel):
                 df["BarcodeMismatchesIndex2"] = df["BarcodeMismatchesIndex2"].apply(self.safe_convert_numeric)
             if "Lane" in df.columns:
                 df["Lane"] = df["Lane"].apply(self.safe_literal_eval)
-            if "ApplicationProfile" in df.columns:
-                df["ApplicationProfile"] = df["ApplicationProfile"].apply(self.safe_literal_eval)
+            if "ApplicationProfileName" in df.columns:
+                df["ApplicationProfileName"] = df["ApplicationProfileName"].apply(self.safe_literal_eval)
 
         return df
 
@@ -403,3 +408,4 @@ class CustomProxyModel(QSortFilterProxyModel):
     def set_filter_text(self, text):
         self.filter_text = text
         self.invalidateFilter()
+

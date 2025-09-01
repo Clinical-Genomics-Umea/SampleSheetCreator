@@ -65,7 +65,7 @@ class RunInfo:
     color_g: Any = None
     color_c: Any = None
     assess_color_balance: bool = False
-    dragen_app_version: str = ""
+    dragen_app_version: Any = None
     sample_application_profile_names: List[str] = field(default_factory=list)
 
     samplesheet_v2: str = ""
@@ -452,7 +452,7 @@ class StateModel(QObject):
         self.sample_index2_minlen = int(i5_min)
         self.sample_index2_maxlen = int(i5_max)
 
-        set_profile_names = self._get_unique_strings_explode(df["ApplicationProfile"])
+        set_profile_names = self._get_unique_strings_explode(df["ApplicationProfileName"])
 
         self.sample_application_profile_names = set_profile_names
 

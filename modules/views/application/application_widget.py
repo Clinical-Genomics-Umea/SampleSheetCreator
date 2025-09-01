@@ -7,6 +7,8 @@ from PySide6.QtWidgets import (
 )
 
 from PySide6.QtCore import Signal
+
+from modules.models.application.application_profile import ApplicationProfile
 from modules.views.application.clickable_label import ClickableLabel
 
 
@@ -15,7 +17,7 @@ class ApplicationWidget(QWidget):
     add_app = Signal(object)
     rem_app = Signal(object)
 
-    def __init__(self, profile: dict):
+    def __init__(self, profile: ApplicationProfile):
         super().__init__()
 
         self._profile = profile
@@ -24,7 +26,7 @@ class ApplicationWidget(QWidget):
         self._remove_button = QPushButton("-")
         self._remove_button.setMaximumWidth(50)
 
-        self.app_label = ClickableLabel(profile["ApplicationProfileName"], profile)
+        self.app_label = ClickableLabel(profile.ApplicationProfileName, profile)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)

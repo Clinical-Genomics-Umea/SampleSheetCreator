@@ -30,6 +30,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
+from modules.models.application.application_profile import ApplicationProfile
 from modules.utils.utils import json_to_obj, obj_to_json
 
 from modules.models.sample.sample_model import CustomProxyModel
@@ -330,7 +331,10 @@ class SampleTableView(QTableView):
         self.model().removeRows(selected_rows[0].row(), len(selected_rows))
 
     @Slot(dict)
-    def remove_application(self, application_object: dict) -> None:
+    def remove_application(self, application_profile: ApplicationProfile) -> None:
+
+        print("remove", application_profile)
+
         proxy_model = self.model()
         source_model = proxy_model.sourceModel()
         selection_model = self.selectionModel()
@@ -341,10 +345,10 @@ class SampleTableView(QTableView):
 
         header_index_map = header_to_index_map(proxy_model)
 
-        appname_column = header_index_map["ApplicationProfile"]
-        appname = application_object["ApplicationProfile"]
-        application = application_object["Application"]
-        application_data = application_object["Data"]
+        appname_column = header_index_map["ApplicationProfileName"]
+        appname = application_profile.ApplicationProfileName
+        application = application_profile.ApplicationName
+        application_data = application_profile.Data
 
         source_model.blockSignals(True)
 
@@ -382,8 +386,8 @@ class SampleTableView(QTableView):
 
         # self._set_dynamic_column_width()
 
-    @Slot(dict)
-    def set_application(self, application_object: dict) -> None:
+    @Slot(object)
+    def set_application(self, application_profile: ApplicationProfile) -> None:
         """
         Sets the application data for the selected rows in the model.
 
@@ -401,7 +405,10 @@ class SampleTableView(QTableView):
         Returns:
         - None
         """
-        application_data = application_object["Data"]
+
+        print("application_profile", application_profile)
+
+        data = application_profile.Data
 
         proxy_model = self.model()
         source_model = proxy_model.sourceModel()
@@ -412,9 +419,10 @@ class SampleTableView(QTableView):
             return
 
         header_index_map = header_to_index_map(proxy_model)
-        app_name_column = header_index_map["ApplicationProfile"]
-        app_name = application_object["ApplicationProfile"]
-        application = application_object["Application"]
+
+        app_name_column = header_index_map["ApplicationProfileName"]
+        app_name = application_profile.ApplicationProfileName
+        application = application_profile.ApplicationName
 
         source_model.blockSignals(True)
 
@@ -423,7 +431,7 @@ class SampleTableView(QTableView):
 
             if application == "BCLConvert":
                 self._set_bclconvert_data(
-                    proxy_model, row, header_index_map, application_data
+                    proxy_model, row, header_index_map, data
                 )
 
         source_model.blockSignals(False)
@@ -538,7 +546,7 @@ class SampleTableView(QTableView):
         array. If the cell is currently empty, it will be initialized with an
         empty list.
         """
-        current_data = model._profile(model.index(row, column), Qt.DisplayRole) or "[]"
+        current_data = model.data(model.index(row, column), Qt.DisplayRole) or "[]"
         data = json_to_obj(current_data)
         if value not in data:
             data.append(value)
