@@ -10,7 +10,7 @@ class ClickableLabel(QLabel):
     def __init__(self, text: str, profile: ApplicationProfile, parent=None):
         super().__init__(text, parent)
         self._profile = profile
-        self.name = profile.ApplicationProfileName
+        self.id = profile.id
         self.setCursor(Qt.PointingHandCursor)  # Change the cursor to a hand pointer
 
     def mousePressEvent(self, event):
@@ -20,7 +20,7 @@ class ClickableLabel(QLabel):
     def _show_popup(self):
         # Create a popup dialog
         dialog = QDialog(self)
-        dialog.setWindowTitle(self.name)
+        dialog.setWindowTitle(self.id)
         dialog.setWindowIcon(qta.icon("msc.symbol-method", options=[{"draw": "image"}]))
 
         # Add content to the popup dialog

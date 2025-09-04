@@ -1,29 +1,30 @@
-from dataclasses import dataclass
-from typing import List
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
+from packaging.version import Version, parse
 
 from modules.models.test.test_application_profile import TestApplicationProfile
 
 
 @dataclass
 class TestProfile:
-    TestType: str
-    TestName: str
-    Description: str
-    Version: str
-    TestApplicationProfiles: List[TestApplicationProfile]
+    test_type: str
+    test_name: str
+    description: str
+    _v: str = ""
+    test_application_profiles: List[TestApplicationProfile] = field(default_factory=list)
+    application_profile_ids: List[str] = field(default_factory=list)
+    version: Version = field(default=Version)
+    id: str = ""
 
-    def has_application_profile(self, application_profile_name: str, application_profile_version: str) -> bool:
-        """Check if this test profile has an application profile with the specified name and version.
+    def __post_init__(self):
+        self.test_application_profiles = [TestApplicationProfile(**ap_profile)
+                                          for ap_profile in self.test_application_profiles]
+        self.application_profile_ids = [ap_profile.id for ap_profile in self.test_application_profiles]
+        self.id = f"{self.test_name}_{self._v}"
+        self.version = parse(str(self._v))
 
-        Args:
-            application_profile_name: Name of the application profile to check for
-            application_profile_version: Version of the application profile to check for
+    def has_application_profile_id(self, application_profile_id: str) -> bool:
+        if application_profile_id in self.application_profile_ids:
+            return True
 
-        Returns:
-            bool: True if a matching application profile is found, False otherwise
-        """
-        for test_app_profile in self.TestApplicationProfiles:
-            if (test_app_profile.ApplicationProfileName == application_profile_name and
-                    test_app_profile.ApplicationProfileVersion == application_profile_version):
-                return True
         return False

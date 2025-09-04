@@ -12,12 +12,14 @@ from modules.models.logging.statusbar_handler import StatusBarLogHandler
 from modules.models.override_cycles.OverrideCyclesModel import OverrideCyclesModel
 from modules.models.sample.sample_model import SampleModel, CustomProxyModel
 from modules.models.state.state_model import StateModel
+from modules.models.test.test_profile_manager import TestProfileManager
 from modules.models.validation.color_balance.color_balance_data_generator import ColorBalanceDataGenerator
 from modules.models.validation.compatibility_tester import CompatibilityTester
 from modules.models.validation.sample_data_overview.sample_data_overview import SampleDataOverviewGenerator
 from modules.models.validation.index_distance.index_distance_data_generator import IndexDistanceDataGenerator
 from modules.models.validation.main_validator import MainValidator
 from modules.models.validation.general_validation.general_validator import GeneralValidator
+from modules.models.import_model.import_model import ImportModel
 from modules.views.config.configuration_widget import ConfigurationWidget
 from modules.views.export.export import ExportWidget
 from modules.views.application.application_container import ApplicationContainerWidget
@@ -39,6 +41,8 @@ from modules.views.validation.main_validation_widget import MainValidationWidget
 from modules.views.validation.general_validation_widget import GeneralValidationWidget
 
 from PySide6.QtTest import QSignalSpy
+
+
 
 class MainController(QObject):
     def __init__(self):
@@ -70,6 +74,9 @@ class MainController(QObject):
         self._state_model = StateModel(self._sample_model, self._configuration_manager, self._logger)
         self._index_kit_manager = IndexKitManager(self._configuration_manager, self._state_model, self._logger)
         self._application_manager = ApplicationManager(self._configuration_manager, self._logger)
+        
+        self._test_profile_manager = TestProfileManager(self._configuration_manager, self._application_manager, self._logger)
+        self._import_model = ImportModel(self._test_profile_manager, self._logger)
 
         self._override_cycles_model = OverrideCyclesModel(self._state_model, self._logger)
 
@@ -186,6 +193,9 @@ class MainController(QObject):
         self._connect_export_signals()
 
 
+    def _connect_import_signals(self):
+        self._import_model.sample_test_data_ready.connect(self._sample_model.populate_from_dataframe)
+
     def _connect_export_signals(self):
         self._export_widget.generate_btn.clicked.connect(self._export_model.generate)
         self._export_widget.samplesheet_v2_export_path_ready.connect(self._export_model.export_samplesheet_v2)
@@ -268,10 +278,10 @@ class MainController(QObject):
             self._compatibility_tester.verify_dragen_ver_compatibility
         )
         self._compatibility_tester.application_profile_ok.connect(
-            self._samples_widget.sample_view.set_application
+            self._samples_widget.sample_view.set_application_profile_id
         )
         self._applications_container_widget.remove_application_profile.connect(
-            self._samples_widget.sample_view.remove_application
+            self._samples_widget.sample_view.remove_application_profile_id
         )
 
     def _connect_toolbar_signal(self):

@@ -389,6 +389,44 @@ class SampleModel(QStandardItemModel):
         complement = {"A": "T", "T": "A", "C": "G", "G": "C"}
         return "".join(complement[base] for base in reversed(sequence))
 
+    def populate_from_dataframe(self, df: pd.DataFrame) -> None:
+        """
+        Populate the model from a pandas DataFrame, starting from the first empty row in Sample_ID.
+        
+        Args:
+            df: DataFrame containing data to populate. Column names should match model headers.
+        """
+        if df.empty:
+            return
+            
+        # Find the first empty row in Sample_ID column
+        sample_id_col = self.fields.index("Sample_ID")
+        start_row = 0
+        for row in range(self.rowCount()):
+            if not self.index(row, sample_id_col).data():
+                start_row = row
+                break
+        
+        # If no empty rows found, append new rows
+        if start_row == 0 and self.index(0, sample_id_col).data():
+            start_row = self.rowCount()
+            self.setRowCount(start_row + len(df))
+        
+        # Populate data
+        for df_row, (_, row_data) in enumerate(df.iterrows()):
+            target_row = start_row + df_row
+            if target_row >= self.rowCount():
+                self.insertRow(target_row)
+                
+            for col, field in enumerate(self.fields):
+                if field in row_data and pd.notna(row_data[field]):
+                    value = row_data[field]
+                    if pd.api.types.is_list_like(value) and not isinstance(value, str):
+                        value = ", ".join(map(str, value))
+                    self.setData(self.index(target_row, col), str(value))
+        
+        self.layoutChanged.emit()
+
 
 class CustomProxyModel(QSortFilterProxyModel):
     def __init__(self, parent=None):
@@ -408,4 +446,3 @@ class CustomProxyModel(QSortFilterProxyModel):
     def set_filter_text(self, text):
         self.filter_text = text
         self.invalidateFilter()
-

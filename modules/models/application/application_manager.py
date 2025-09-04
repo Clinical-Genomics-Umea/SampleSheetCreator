@@ -39,7 +39,7 @@ class ApplicationManager:
         data = self._config_manager.application_configs
 
         for app_profile_dict in data:
-            self._application_profiles.append(ApplicationProfile(**app_profile_dict))
+            self._application_profiles.append(ApplicationProfile.from_dict(app_profile_dict))
 
         print(self._application_profiles)
 
@@ -50,14 +50,14 @@ class ApplicationManager:
         for profile in self._application_profiles:
             try:
                 print("profile", profile)
-                application_profile_name = profile.ApplicationProfileName
-                application_name = profile.ApplicationName
-                application_type = profile.ApplicationType
-                application_profile_version = profile.ApplicationProfileVersion
-                translate = profile.Translate
-                settings = profile.Settings
-                data = profile.Data
-                data_fields = profile.DataFields
+                application_profile_name = profile.id
+                application_name = profile.application_name
+                application_type = profile.application_type
+                application_profile_version = profile.version
+                translate = profile.translate
+                settings = profile.settings
+                data = profile.data
+                data_fields = profile.data_fields
 
                 
                 # Skip invalid entries

@@ -64,10 +64,10 @@ class CompatibilityTester(QObject):
         if not application_profile:
             return None
 
-        if application_profile.ApplicationType != "Dragen":
+        if application_profile.application_type != "Dragen":
             return None
 
-        settings = application_profile.Settings
+        settings = application_profile.settings
 
         return settings.get("DragenVersion", None)
 

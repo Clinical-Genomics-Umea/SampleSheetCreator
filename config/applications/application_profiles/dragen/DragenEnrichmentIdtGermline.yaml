@@ -1,8 +1,8 @@
 ---
-ApplicationType: Dragen
-ApplicationName: DragenEnrichment
 ApplicationProfileName: DragenEnrichmentGermline
 ApplicationProfileVersion: 1.0
+ApplicationType: Dragen
+ApplicationName: DragenEnrichment
 
 Settings:
   SoftwareVersion: 4.1.23

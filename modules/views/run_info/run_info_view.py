@@ -84,7 +84,7 @@ class RunInfoView(QGroupBox):
         self._index2_minlen_lbl = QLabel("0")
         self._index2_maxlen_lbl = QLabel("0")
 
-        self._sample_profile_names_lbl = QLabel("None")
+        self._sample_app_profile_ids_lbl = QLabel("None")
 
         self._setup()
 
@@ -153,7 +153,7 @@ class RunInfoView(QGroupBox):
         form_sample_data.addRow(QLabel("Index1 max:"), self._index1_maxlen_lbl)
         form_sample_data.addRow(QLabel("Index2 min:"), self._index2_minlen_lbl)
         form_sample_data.addRow(QLabel("Index2 max:"), self._index2_maxlen_lbl)
-        form_sample_data.addRow(QLabel("Application profile names:"), self._sample_profile_names_lbl)
+        form_sample_data.addRow(QLabel("App profile ids:"), self._sample_app_profile_ids_lbl)
         self.content_layout.addLayout(form_sample_data)
 
         self.content_layout.addStretch()
@@ -300,6 +300,6 @@ class RunInfoView(QGroupBox):
 
     def set_profile_names(self, profile_names: list[str]):
         if isinstance(profile_names, list):
-            self._sample_profile_names_lbl.setText(", ".join(profile_names))
+            self._sample_app_profile_ids_lbl.setText(", ".join(profile_names))
         else:
-            self._sample_profile_names_lbl.setText(str(profile_names) if profile_names is not None else "None")
+            self._sample_app_profile_ids_lbl.setText(str(profile_names) if profile_names is not None else "None")

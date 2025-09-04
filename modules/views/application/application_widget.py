@@ -17,16 +17,16 @@ class ApplicationWidget(QWidget):
     add_app = Signal(object)
     rem_app = Signal(object)
 
-    def __init__(self, profile: ApplicationProfile):
+    def __init__(self, application_profile: ApplicationProfile):
         super().__init__()
 
-        self._profile = profile
+        self._profile = application_profile
         self._add_button = QPushButton("+")
         self._add_button.setMaximumWidth(50)
         self._remove_button = QPushButton("-")
         self._remove_button.setMaximumWidth(50)
 
-        self.app_label = ClickableLabel(profile.ApplicationProfileName, profile)
+        self.app_label = ClickableLabel(application_profile.id, application_profile)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)

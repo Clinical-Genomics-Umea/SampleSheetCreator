@@ -86,7 +86,7 @@ class ExportModel(QObject):
 
         df_base = self._state_model.sample_df
 
-        for profile_name in self._state_model.sample_application_profile_names:
+        for profile_name in self._state_model.sample_application_profile_ids:
 
             application_name = self._application_manager.application_profile_to_app(profile_name)
             settings = self._application_manager.profile_name_to_settings(profile_name)
@@ -94,8 +94,8 @@ class ExportModel(QObject):
 
             data_fields = self._application_manager.profile_name_to_data_fields(profile_name)
 
-            exploded_app_df = df_base.explode("ApplicationProfileName")
-            exploded_app_profile_df = exploded_app_df[exploded_app_df["ApplicationProfileName"] == profile_name].copy()
+            exploded_app_df = df_base.explode("ApplicationProfileId")
+            exploded_app_profile_df = exploded_app_df[exploded_app_df["ApplicationProfileId"] == profile_name].copy()
 
             if "Lane" in data_fields:
                 exploded_app_profile_df = exploded_app_profile_df.explode("Lane")

@@ -331,7 +331,7 @@ class SampleTableView(QTableView):
         self.model().removeRows(selected_rows[0].row(), len(selected_rows))
 
     @Slot(dict)
-    def remove_application(self, application_profile: ApplicationProfile) -> None:
+    def remove_application_profile_id(self, application_profile: ApplicationProfile) -> None:
 
         print("remove", application_profile)
 
@@ -345,33 +345,33 @@ class SampleTableView(QTableView):
 
         header_index_map = header_to_index_map(proxy_model)
 
-        appname_column = header_index_map["ApplicationProfileName"]
-        appname = application_profile.ApplicationProfileName
-        application = application_profile.ApplicationName
-        application_data = application_profile.Data
+        appname_column = header_index_map["ApplicationProfileId"]
+        application_profile_id = application_profile.id
+        application_name = application_profile.application_name
+        application_profile_data = application_profile.data
 
         source_model.blockSignals(True)
 
         for row in selected_rows:
-            appnames_json = (
+            app_profile_ids_json = (
                 proxy_model.data(proxy_model.index(row, appname_column), Qt.DisplayRole)
                 or "[]"
             )
-            appnames_list = json_to_obj(appnames_json)
-            if appname in appnames_list:
-                appnames_list.remove(appname)
+            app_profile_ids_list = json_to_obj(app_profile_ids_json)
+            if application_profile_id in app_profile_ids_list:
+                app_profile_ids_list.remove(application_profile_id)
 
-            appnames_json = obj_to_json(appnames_list)
+            app_profile_ids_json = obj_to_json(app_profile_ids_list)
 
             proxy_model.setData(
                 proxy_model.index(row, appname_column),
-                appnames_json,
+                app_profile_ids_json,
                 Qt.EditRole,
             )
 
-            if application == "BCLConvert":
+            if application_name == "BCLConvert":
                 self._set_bclconvert_data_empty(
-                    proxy_model, row, header_index_map, application_data
+                    proxy_model, row, header_index_map, application_profile_data
                 )
 
         source_model.blockSignals(False)
@@ -387,20 +387,20 @@ class SampleTableView(QTableView):
         # self._set_dynamic_column_width()
 
     @Slot(object)
-    def set_application(self, application_profile: ApplicationProfile) -> None:
+    def set_application_profile_id(self, application_profile: ApplicationProfile) -> None:
         """
-        Sets the application data for the selected rows in the model.
+        Sets the application_name data for the selected rows in the model.
 
-        This method updates the specified rows in the proxy model with the application data
-        provided in the application_object. If the application is already set in the selection,
+        This method updates the specified rows in the proxy model with the application_name data
+        provided in the application_object. If the application_name is already set in the selection,
         a warning dialog is displayed. Special handling is performed for the "BCLConvert"
-        application to set additional data.
+        application_name to set additional data.
 
         Parameters:
-        - application_object (dict): A dictionary containing the application details, including:
-            - "Data": The data to be set for the application.
-            - "ApplicationName": The name of the application.
-            - "Application": The type of application.
+        - application_object (dict): A dictionary containing the application_name details, including:
+            - "Data": The data to be set for the application_name.
+            - "ApplicationName": The name of the application_name.
+            - "Application": The type of application_name.
 
         Returns:
         - None
@@ -408,7 +408,7 @@ class SampleTableView(QTableView):
 
         print("application_profile", application_profile)
 
-        data = application_profile.Data
+        data = application_profile.data
 
         proxy_model = self.model()
         source_model = proxy_model.sourceModel()
@@ -420,16 +420,16 @@ class SampleTableView(QTableView):
 
         header_index_map = header_to_index_map(proxy_model)
 
-        app_name_column = header_index_map["ApplicationProfileName"]
-        app_name = application_profile.ApplicationProfileName
-        application = application_profile.ApplicationName
+        app_name_column = header_index_map["ApplicationProfileId"]
+        app_profile_id = application_profile.id
+        application_name = application_profile.application_name
 
         source_model.blockSignals(True)
 
         for row in selected_rows:
-            self._set_str_to_json(proxy_model, row, app_name_column, app_name)
+            self._set_str_to_json(proxy_model, row, app_name_column, app_profile_id)
 
-            if application == "BCLConvert":
+            if application_name == "BCLConvert":
                 self._set_bclconvert_data(
                     proxy_model, row, header_index_map, data
                 )

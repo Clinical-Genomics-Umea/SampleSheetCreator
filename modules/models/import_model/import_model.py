@@ -1,14 +1,20 @@
 from logging import Logger
 
 import pandas as pd
+from PySide6.QtCore import Signal
 
 from modules.models.test.test_profile_manager import TestProfileManager
 
 
 class ImportModel:
+
+    sample_test_data_ready = Signal(object)
+
     def __init__(self, test_profile_manager: TestProfileManager, logger: Logger):
         self._test_profile_manager = test_profile_manager
         self._logger = logger
+        self._test_profile_col_name = "Test"
+        self._required_worksheet_columns = ["Sample_ID", self._test_profile_col_name]
 
     def import_worksheet(self, file_path: str) -> None:
         df = pd.read_csv(file_path)
@@ -17,7 +23,22 @@ class ImportModel:
             self._logger.error("worksheet data could not be imported.")
             return
 
+        df = df[self._required_worksheet_columns]
+        df["TestProfileId"] = None
+        df["ApplicationProfileId"] = None
 
+        for index, row in df.iterrows():
+            ws_test_id = row[self._test_profile_col_name]
+            test_profile_id = self._test_profile_manager.latest_test_profile_id_by_worksheet_test(ws_test_id)
+            if test_profile_id is None:
+                self._logger.error(f"Invalid TestProfile value found: {ws_test_id}")
+                return
+            df.at[index, "TestProfileId"] = test_profile_id
+
+            application_profile_ids = self._test_profile_manager.application_profile_ids_by_test_profile_id(test_profile_id)
+            df.at[index, "ApplicationProfileId"] = application_profile_ids
+
+        self.sample_test_data_ready.emit(df)
 
     def _validate_worksheet_data(self, df: pd.DataFrame) -> bool:
         """
@@ -30,8 +51,8 @@ class ImportModel:
             bool: True if validation passes, False otherwise
         """
         # Check required columns
-        required_columns = ["Sample_ID", "TestProfile"]
-        for column in required_columns:
+
+        for column in self._required_worksheet_columns:
             if column not in df.columns:
                 self._logger.error(f"Required column '{column}' does not exist in worksheet")
                 return False
@@ -47,16 +68,12 @@ class ImportModel:
             self._logger.error("Sample_ID cannot be empty")
             return False
 
-        # Check if all TestProfile values are valid
-        valid_test_profiles = self._get_valid_test_profiles()
-        invalid_profiles = set(df['TestProfile']) - valid_test_profiles
-
-        if invalid_profiles:
-            self._logger.error(
-                f"Invalid TestProfile values found: {', '.join(invalid_profiles)}. "
-                f"Valid profiles are: {', '.join(valid_test_profiles)}"
-            )
-            return False
+        for index, row in df.iterrows():
+            test_profile_version = row['TestProfile']
+            test_profile, test_version = test_profile_version.split('.')
+            if not self._test_profile_manager.has_test_profile(test_profile, test_version):
+                self._logger.error(f"Invalid TestProfile value found: {test_profile}")
+                return False
 
         return True
 

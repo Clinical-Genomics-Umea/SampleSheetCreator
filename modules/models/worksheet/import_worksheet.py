@@ -30,7 +30,7 @@ class WorkSheetImporter(QObject):
             self._logger.error(f"required column Sample_ID does not exist in worksheet")
             return False
 
-        if "TestProfile" not in df.columns:
+        if "TestProfileNameVersion" not in df.columns:
             self._logger.error(f"required column TestProfile does not exist in worksheet")
             return False
 
@@ -40,7 +40,7 @@ class WorkSheetImporter(QObject):
             self._logger.error(f"no rows in worksheet dataframe")
             return False
 
-        missing_values = df[df[['Sample_ID', 'TestProfile']].isnull().any(axis=1)]
+        missing_values = df[df[['Sample_ID', 'TestProfileNameVersion']].isnull().any(axis=1)]
 
         if not missing_values.empty:
             self._logger.error("samplesheet data is incomplete, missing data.")
@@ -52,39 +52,43 @@ class WorkSheetImporter(QObject):
             self._logger.error("duplicate Sample_ID values exist in samplesheet.")
             return False
 
+        for _, row in df.iterrows():
+            test_profile_name_version = row['TestProfileNameVersion']
+
+            parts = test_profile_name_version.split('.')
+            test_profile_name = parts[0]
+            test_profile_main_version = parts[1]
+
+            if not self._test_profile_manager.has_test_profile(test_profile_name, test_profile_main_version):
+                return False
+
         return True
 
     def load_worksheet(self, path: Path):
         """Load a worksheet from a csv file, validate it, and import it into the sample model."""
         df = pd.read_csv(path)
 
-        test_profile_data_list = []
-
         if not self._worksheet_validation(df):
             self._logger.error("worksheet data could not be imported.")
             return
 
+        df["ApplicationProfileNameVersion"] = None
+
         for _, row in df.iterrows():
-            test_profile_name_version = row['TestProfileName']
+            test_profile_name_version = row['TestProfileNameVersion']
 
-            test_profile_name = test_profile_name_version.split('_')[0]
-            test_profile_version = test_profile_name_version.split('_')[1]
+            parts = test_profile_name_version.split('.')
+            test_profile_name = parts[0]
+            test_profile_main_version = parts[1]
 
-            if self._test_profile_manager.has_test_profile(test_profile_name, test_profile_version):
-                application_profile_names = self._test_profile_manager.get_application_profile_names(test_profile_name, test_profile_version)
-                test_profile_data = {
-                    'TestProfileName': test_profile_name,
-                    'TestProfileVersion': test_profile_version
-                    'ApplicationProfiles': [
-
-                    ]
-                }
+            if self._test_profile_manager.has_test_profile(test_profile_name, test_profile_main_version):
+                test_profiles = self._test_profile_manager.get_test_application_profiles(test_profile_name, test_profile_main_version)
 
 
-
-            self._test_profiles.append(test_profile)
-
-
+    def _get_application_profile_name_versions(self, test_profile_name, test_profile_main_version):
+        application_profile_name_versions = []
+        for test_profile in self._test_profile_manager.get_test_application_profiles(test_profile_name, test_profile_main_version):
+            application_profile_name_versions.append(test_profile.application_profile_name)
 
 
         # profile_data_keys = set()

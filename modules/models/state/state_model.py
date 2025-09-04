@@ -452,9 +452,7 @@ class StateModel(QObject):
         self.sample_index2_minlen = int(i5_min)
         self.sample_index2_maxlen = int(i5_max)
 
-        set_profile_names = self._get_unique_strings_explode(df["ApplicationProfileName"])
-
-        self.sample_application_profile_names = set_profile_names
+        self.sample_application_profile_ids = self._get_unique_strings_explode(df["ApplicationProfileId"])
 
 
     @property
@@ -496,11 +494,11 @@ class StateModel(QObject):
             self.uuid_changed.emit(uuid)
 
     @property
-    def sample_application_profile_names(self) -> list:
+    def sample_application_profile_ids(self) -> list:
         return self._run_info.sample_application_profile_names
 
-    @sample_application_profile_names.setter
-    def sample_application_profile_names(self, sample_application_profile_names: list):
+    @sample_application_profile_ids.setter
+    def sample_application_profile_ids(self, sample_application_profile_names: list):
         if set(sample_application_profile_names) != set(self._run_info.sample_application_profile_names):
             self._run_info.sample_application_profile_names = sample_application_profile_names
             self.sample_application_profile_changed.emit(sample_application_profile_names)

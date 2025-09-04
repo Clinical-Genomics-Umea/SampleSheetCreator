@@ -1,8 +1,8 @@
 ---
-ApplicationName: DragenEnrichment
-ApplicationType: Dragen
 ApplicationProfileName: DragenEnrichmentSomatic
 ApplicationProfileVersion: 1.0
+ApplicationName: DragenEnrichment
+ApplicationType: Dragen
 
 Settings:
   SoftwareVersion: 4.1.23
