@@ -73,12 +73,16 @@ class TestProfileManager(QObject):
     def _setup(self):
         test_profile_dict_list = self._configuration_manager.test_profiles_dict_list
 
+        print(test_profile_dict_list)
+
         for test_profile_dict in test_profile_dict_list:
 
-            test_application_profiles = [TestApplicationProfile(**ap_profile_dict)
+            test_application_profiles = [TestApplicationProfile.from_dict(ap_profile_dict)
                                          for ap_profile_dict in test_profile_dict.get("TestApplicationProfiles")]
 
-            app_profile_ids = [ap_profile.id for ap_profile in test_profile_dict.get("TestApplicationProfiles")]
+            print(test_application_profiles)
+
+            app_profile_ids = [ap_profile.id for ap_profile in test_application_profiles]
 
             test_profile = TestProfile(
                 test_type=test_profile_dict.get("TestType"),

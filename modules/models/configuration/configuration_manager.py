@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Tuple
 import yaml
 from PySide6.QtCore import QSettings, QObject, Signal, Slot
 
+import keyring
 
 # Custom Exceptions
 class ConfigError(Exception):
@@ -111,6 +112,19 @@ class ConfigurationManager(QObject):
         )
 
         self._logger.info("ConfigurationManager initialized successfully")
+
+    @staticmethod
+    def set_lims_api_key(service_name: str, user_name: str, api_key: str):
+        keyring.set_password(service_name, user_name, api_key)
+
+    @staticmethod
+    def get_lims_api_key(service_name: str, user_name: str) -> str:
+        return keyring.get_password(service_name, user_name)
+
+    @staticmethod
+    def delete_lims_api_key(service_name: str, user_name: str):
+        keyring.delete_password(service_name, user_name)
+
 
     def _init_paths(self, custom_paths: Dict[str, str]) -> Dict[str, Path]:
         """Initialize and validate all configuration paths.
