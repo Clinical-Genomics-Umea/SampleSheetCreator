@@ -20,6 +20,7 @@ from modules.models.validation.index_distance.index_distance_data_generator impo
 from modules.models.validation.main_validator import MainValidator
 from modules.models.validation.general_validation.general_validator import GeneralValidator
 from modules.models.import_model.import_model import ImportModel
+from modules.models.workdata.workdata_model import WorkDataModel
 from modules.views.config.configuration_widget import ConfigurationWidget
 from modules.views.export.export import ExportWidget
 from modules.views.application.application_container import ApplicationContainerWidget
@@ -42,6 +43,7 @@ from modules.views.validation.general_validation_widget import GeneralValidation
 
 from PySide6.QtTest import QSignalSpy
 
+from modules.views.workdata.workdata_view import FetchWorkDataView
 
 
 class MainController(QObject):
@@ -85,6 +87,9 @@ class MainController(QObject):
                                          self._application_manager,
                                          self._override_cycles_model,
                                          self._logger)
+
+
+        self._workdata_model = WorkDataModel(self._logger)
 
         # validation widgets
 
@@ -136,7 +141,8 @@ class MainController(QObject):
 
         self._override_widget = OverrideCyclesWidget(self._override_cycles_model)
         self._lane_widget = LanesWidget(self._state_model)
-        self._file_widget = FileView()
+
+        self._file_widget = FileView(self._workdata_model)
         self._samples_widget = SamplesWidget(self._configuration_manager.samples_settings)
         self._run_setup_widget = RunSetupWidget(self._configuration_manager, self._state_model)
         self._run_info_view = RunInfoView()
@@ -178,6 +184,7 @@ class MainController(QObject):
         """
         Connect UI signals to controller slots.
         """
+        self._connect_file_signals()
         self._connect_run_setup_signals()
         self._connect_validation_signals()
         self._connect_override_pattern_signals()
@@ -192,6 +199,9 @@ class MainController(QObject):
 
         self._connect_export_signals()
 
+
+    def _connect_file_signals(self):
+        pass
 
     def _connect_import_signals(self):
         self._import_model.sample_test_data_ready.connect(self._sample_model.populate_from_dataframe)
