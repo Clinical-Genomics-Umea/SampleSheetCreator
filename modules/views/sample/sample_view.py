@@ -287,7 +287,7 @@ class SampleTableView(QTableView):
         self.setSelectionBehavior(QTableView.SelectItems)
         self.setSelectionMode(QTableView.ExtendedSelection)
 
-        self.clipboard = QClipboard()
+        self.clipboard = QApplication.clipboard()
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self._table_popup)
