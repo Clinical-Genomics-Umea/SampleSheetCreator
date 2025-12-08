@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 import yaml
 from PySide6.QtCore import QSettings, QObject, Signal, Slot
-
+import getpass
 import keyring
 
 # Custom Exceptions
@@ -114,17 +114,16 @@ class ConfigurationManager(QObject):
         self._logger.info("ConfigurationManager initialized successfully")
 
     @staticmethod
-    def set_lims_api_key(service_name: str, user_name: str, api_key: str):
+    def set_igene_key(api_key: str):
+        service_name = "igene"
+        user_name = getpass.getuser()
         keyring.set_password(service_name, user_name, api_key)
 
-    @staticmethod
-    def get_lims_api_key(service_name: str, user_name: str) -> str:
+    @property
+    def igene_key(self):
+        service_name = "igene"
+        user_name = getpass.getuser()
         return keyring.get_password(service_name, user_name)
-
-    @staticmethod
-    def delete_lims_api_key(service_name: str, user_name: str):
-        keyring.delete_password(service_name, user_name)
-
 
     def _init_paths(self, custom_paths: Dict[str, str]) -> Dict[str, Path]:
         """Initialize and validate all configuration paths.

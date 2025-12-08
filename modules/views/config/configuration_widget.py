@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 from modules.views.config.configuration_paths_widget import ConfigPathsWidget
 from modules.views.config.users_widget import UsersWidget
 from modules.views.config.default_folders import DefaultFoldersPathsWidget
+from modules.views.config.igene_key import IgeneKeyWidget
 
 
 class ConfigurationWidget(QWidget):
@@ -32,11 +33,13 @@ class ConfigurationWidget(QWidget):
         self.paths_widget = ConfigPathsWidget(self.configuration_manager)
         self.folders_widget = DefaultFoldersPathsWidget(self.configuration_manager)
         self.users_widget = UsersWidget(self.configuration_manager)
+        self.igene_key_widget = IgeneKeyWidget(self.configuration_manager)
         
         # Add widgets with section dividers
         self._add_section("Configuration Paths", self.paths_widget)
         self._add_section("Default Folders", self.folders_widget)
         self._add_section("User Management", self.users_widget)
+        self._add_section("iGene Key", self.igene_key_widget)
         
         # Add stretch to push content to the top
         self.main_layout.addStretch()

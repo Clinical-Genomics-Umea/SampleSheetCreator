@@ -1,6 +1,5 @@
 from PySide6.QtGui import (
     QKeyEvent,
-    QClipboard,
     QCursor,
     QStandardItemModel,
 )

@@ -1,3 +1,8 @@
+# nuitka-project: --mode=standalone
+# nuitka-project: --enable-plugin=pyside6
+
+
+
 import sys
 
 from PySide6.QtWidgets import QApplication

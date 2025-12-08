@@ -7,3 +7,6 @@ __pycache__
 
 /.venv/
 /old/
+/main.build/
+/main.dist/
+/api_test.py
