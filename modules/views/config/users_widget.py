@@ -1,4 +1,4 @@
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QSize
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -18,8 +18,6 @@ class UsersWidget(QWidget):
     def __init__(self, configuration_manager: ConfigurationManager):
         super().__init__()
         self._configuration_manager = configuration_manager
-
-        self.setFixedSize(500, 300)
 
         self.layout = QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -47,6 +45,17 @@ class UsersWidget(QWidget):
         self.remove_user_button.clicked.connect(self._remove_user)
 
         self._setup()
+
+        self.setMinimumHeight(200)  # Set a minimum height to prevent compression
+        self.setSizePolicy(
+            QSizePolicy.Expanding,  # Horizontal policy
+            QSizePolicy.MinimumExpanding  # Vertical policy - will expand as needed
+        )
+
+    def sizeHint(self) -> QSize:
+        """Return a size hint that ensures the widget is tall enough."""
+        size = super().sizeHint()
+        return QSize(size.width(), max(200, size.height()))
 
     def _setup(self):
         users = self._configuration_manager.users

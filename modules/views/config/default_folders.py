@@ -19,8 +19,6 @@ class DefaultFoldersPathsWidget(QWidget):
         super().__init__()
         self._configuration_manager = configuration_manager
 
-        self.setFixedSize(500, 300)
-
         self.layout = QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
@@ -41,7 +39,7 @@ class DefaultFoldersPathsWidget(QWidget):
 
         self.layout.addLayout(self.form)
         hbox = QHBoxLayout()
-        hbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        hbox.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         hbox.addWidget(self.save_button)
         self.layout.addLayout(hbox)
         self.layout.addStretch()

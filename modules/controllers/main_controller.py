@@ -20,7 +20,8 @@ from modules.models.validation.index_distance.index_distance_data_generator impo
 from modules.models.validation.main_validator import MainValidator
 from modules.models.validation.general_validation.general_validator import GeneralValidator
 from modules.models.import_model.import_model import ImportModel
-from modules.models.workdata.workdata_model import WorkDataModel
+from modules.models.workdata.worksheet_manager import WorkDataManager
+from modules.models.workdata.worksheets_models import WorksheetPandasModel
 from modules.views.config.configuration_widget import ConfigurationWidget
 from modules.views.export.export import ExportWidget
 from modules.views.application.application_container import ApplicationContainerWidget
@@ -43,7 +44,7 @@ from modules.views.validation.general_validation_widget import GeneralValidation
 
 from PySide6.QtTest import QSignalSpy
 
-from modules.views.workdata.workdata_view import FetchWorkDataView
+from modules.views.import_worksheet.import_worksheet_view import FetchWorksheetView
 
 
 class MainController(QObject):
@@ -89,7 +90,8 @@ class MainController(QObject):
                                          self._logger)
 
 
-        self._workdata_model = WorkDataModel(self._logger)
+        self._worksheet_model = WorksheetPandasModel(self._logger)
+
 
         # validation widgets
 
@@ -131,6 +133,8 @@ class MainController(QObject):
             self._logger
         )
 
+        self._workdata_manager = WorkDataManager(self._configuration_manager, self._logger)
+
         # widgets
 
         self._main_validation_widget = MainValidationWidget(self._general_validation_widget,
@@ -142,7 +146,9 @@ class MainController(QObject):
         self._override_widget = OverrideCyclesWidget(self._override_cycles_model)
         self._lane_widget = LanesWidget(self._state_model)
 
-        self._file_widget = FileView(self._workdata_model)
+        self._worksheet_view = FetchWorksheetView(self._worksheet_model)
+        self._file_widget = FileView(self._worksheet_view)
+
         self._samples_widget = SamplesWidget(self._configuration_manager.samples_settings)
         self._run_setup_widget = RunSetupWidget(self._configuration_manager, self._state_model)
         self._run_info_view = RunInfoView()
@@ -199,12 +205,18 @@ class MainController(QObject):
 
         self._connect_export_signals()
 
+        self._connect_workdata_signals()
+
+    def _connect_workdata_signals(self):
+        self._worksheet_view.fetch_button.clicked.connect(self._workdata_manager.get_data)
+        self._workdata_manager.worksheet_data_ready.connect(self._worksheet_model.set_dataframe)
+        self._worksheet_model.model_changed.connect(self._worksheet_view.update_worksheet_visibility)
 
     def _connect_file_signals(self):
         pass
 
-    def _connect_import_signals(self):
-        self._import_model.sample_test_data_ready.connect(self._sample_model.populate_from_dataframe)
+    # def _connect_import_signals(self):
+    #     self._import_model.sample_test_data_ready.connect(self._sample_model.populate_from_dataframe)
 
     def _connect_export_signals(self):
         self._export_widget.generate_btn.clicked.connect(self._export_model.generate)

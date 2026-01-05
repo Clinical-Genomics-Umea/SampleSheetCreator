@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QFormLayout,
     QSpacerItem,
-    QSizePolicy,
+    QSizePolicy, QLineEdit,
 )
 
 
@@ -29,4 +29,6 @@ class ConfigPathsWidget(QWidget):
     def _setup(self):
         paths_dict = self.configuration_manager.all_config_paths
         for name, path in paths_dict.items():
-            self.form_layout.addRow(name, QLabel(str(path)))
+            path_edit = QLineEdit(str(path))
+            path_edit.setReadOnly(True)
+            self.form_layout.addRow(name, path_edit)

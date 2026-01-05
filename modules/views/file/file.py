@@ -6,9 +6,9 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QFileDialog, QDialog,
 )
 
-from modules.models.workdata.workdata_model import WorkDataModel
+from modules.models.workdata.worksheets_models import WorksheetPandasModel
 from modules.views.ui_components import HorizontalLine
-from modules.views.workdata.workdata_view import FetchWorkDataView
+from modules.views.import_worksheet.import_worksheet_view import FetchWorksheetView
 
 
 
@@ -16,10 +16,10 @@ class FileView(QWidget):
 
     worksheet_filepath_ready = Signal(object)
 
-    def __init__(self, workdata_model: WorkDataModel):
+    def __init__(self, worksheet_view: FetchWorksheetView):
         super().__init__()
 
-        self._workdata_model = workdata_model
+        self._worksheet_view = worksheet_view
 
         profiles_label = QLabel("File")
         profiles_label.setStyleSheet("font-weight: bold")
@@ -62,5 +62,4 @@ class FileView(QWidget):
             self.worksheet_filepath_ready.emit(file_path)
 
     def _fetch_work_data(self):
-        self._workdata_view = FetchWorkDataView(self._workdata_model)
-        self._workdata_view.show()
+        self._worksheet_view.show()

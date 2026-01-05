@@ -115,13 +115,25 @@ class ConfigurationManager(QObject):
 
     @staticmethod
     def set_igene_key(api_key: str):
-        service_name = "igene"
+        service_name = "igene_key"
         user_name = getpass.getuser()
         keyring.set_password(service_name, user_name, api_key)
 
     @property
     def igene_key(self):
-        service_name = "igene"
+        service_name = "igene_key"
+        user_name = getpass.getuser()
+        return keyring.get_password(service_name, user_name)
+
+    @staticmethod
+    def set_igene_url(api_key: str):
+        service_name = "igene_url"
+        user_name = getpass.getuser()
+        keyring.set_password(service_name, user_name, api_key)
+
+    @property
+    def igene_url(self):
+        service_name = "igene_url"
         user_name = getpass.getuser()
         return keyring.get_password(service_name, user_name)
 
