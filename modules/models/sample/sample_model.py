@@ -6,6 +6,7 @@ from PySide6.QtGui import QStandardItemModel, QStandardItem
 
 from modules.models.configuration.configuration_manager import ConfigurationManager
 from modules.models.sample.samplesheet_fns import to_json
+from modules.models.workdata.workdata_manager import WorkDataManager
 from modules.utils.utils import decode_bytes_json
 
 
@@ -25,9 +26,10 @@ class SampleModel(QStandardItemModel):
     dropped_data = Signal(object)
     index_minmax_ready = Signal(int, int, int, int)
 
-    def __init__(self, configuration_manager: ConfigurationManager):
+    def __init__(self, configuration_manager: ConfigurationManager, workdata_manager: WorkDataManager):
         super(SampleModel, self).__init__()
         self._configuration_manager = configuration_manager
+        self._workdata_manager = workdata_manager
 
         self.sections_fields = self._configuration_manager.samples_settings["fields"]
         self.row_count = self._configuration_manager.samples_settings["row_count"]
@@ -43,6 +45,9 @@ class SampleModel(QStandardItemModel):
         self.refresh_view()
 
         self.dataChanged.connect(self._index_minmax_sender)
+
+    def import_from_api(self):
+        print("import_from_api")
 
     def _index_minmax_sender(self):
 
@@ -342,7 +347,8 @@ class SampleModel(QStandardItemModel):
 
         # Calculate reverse complement if needed
         if "IndexI5" in df.columns:
-            df["IndexI5RC"] = df["IndexI5"].apply(self.reverse_complement)
+            # Use loc to avoid SettingWithCopyWarning
+            df.loc[:, "IndexI5RC"] = df["IndexI5"].apply(self.reverse_complement)
 
         # Clean data
         df = df.replace("", pd.NA).replace(r"^\s*$", pd.NA, regex=True)

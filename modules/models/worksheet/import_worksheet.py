@@ -10,7 +10,7 @@ from modules.models.state.state_model import StateModel
 from modules.models.test.test_profile_manager import TestProfileManager
 
 
-class WorkSheetImporter(QObject):
+class WorkDataImporter(QObject):
     def __init__(self,
                  sample_model: StateModel,
                  index_kit_manager: IndexKitManager,

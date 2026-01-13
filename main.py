@@ -1,5 +1,6 @@
 # nuitka-project: --mode=standalone
 # nuitka-project: --enable-plugin=pyside6
+# nuitka-project: --include-data-dir=config=config
 
 
 
@@ -13,7 +14,7 @@ class Application(QApplication):
         super().__init__(argv)
 
         self.setApplicationName("SampleCheater")
-        self.setApplicationVersion("1.0.0")
+        self.setApplicationVersion("2.0.0")
         self.setOrganizationName("Region Västerbotten")
         self.setOrganizationDomain("regionvasterbotten.se")
 

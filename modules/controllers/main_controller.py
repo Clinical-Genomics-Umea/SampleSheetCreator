@@ -20,8 +20,8 @@ from modules.models.validation.index_distance.index_distance_data_generator impo
 from modules.models.validation.main_validator import MainValidator
 from modules.models.validation.general_validation.general_validator import GeneralValidator
 from modules.models.import_model.import_model import ImportModel
-from modules.models.workdata.worksheet_manager import WorkDataManager
-from modules.models.workdata.worksheets_models import WorksheetPandasModel
+from modules.models.workdata.workdata_manager import WorkDataManager
+from modules.models.workdata.worksheets_models import WorksheetSamplesModel, WorksheetIDModel
 from modules.views.config.configuration_widget import ConfigurationWidget
 from modules.views.export.export import ExportWidget
 from modules.views.application.application_container import ApplicationContainerWidget
@@ -41,36 +41,42 @@ from modules.views.validation.sample_data_overview_widget import SampleDataOverv
 from modules.views.validation.index_distance_overview_widget import IndexDistanceOverviewWidget
 from modules.views.validation.main_validation_widget import MainValidationWidget
 from modules.views.validation.general_validation_widget import GeneralValidationWidget
+from modules.models.logging.logger import get_logger
 
-from PySide6.QtTest import QSignalSpy
 
 from modules.views.import_worksheet.import_worksheet_view import FetchWorksheetView
 
 
 class MainController(QObject):
-    def __init__(self):
+    def __init__(self, /):
         """
         Initialize main controller, setting up models, views, and connections.
         """
+        # Initialize UI components first
         super().__init__()
-
-        self._logger = logging.getLogger(__name__)
-        self._logger.setLevel(logging.DEBUG)
-
         self._status_bar = StatusBar()
         self._log_widget = LogWidget()
-
-        self._file_handler = logging.FileHandler(Path("log/log.txt"))
+        
+        # Get logger instance which will create the log directory and file if needed
+        self._logger = get_logger(__name__)
+        
+        # Add additional handlers for UI components
         self._status_handler = StatusBarLogHandler(self._status_bar)
         self._log_widget_handler = LogWidgetHandler(self._log_widget)
-        self._logger.addHandler(self._file_handler)
         self._logger.addHandler(self._status_handler)
         self._logger.addHandler(self._log_widget_handler)
 
         self._toolbar = ToolBar()
         self._configuration_manager = ConfigurationManager(self._logger)
 
-        self._sample_model = SampleModel(self._configuration_manager)
+        self._worksheet_samples_model = WorksheetSamplesModel(self._logger)
+        self._worksheet_id_model = WorksheetIDModel(self._logger)
+        self._workdata_manager = WorkDataManager(self._configuration_manager,
+                                                 self._worksheet_samples_model,
+                                                 self._worksheet_id_model,
+                                                 self._logger)
+
+        self._sample_model = SampleModel(self._configuration_manager, self._workdata_manager)
         self._sample_proxy_model = CustomProxyModel()
         self._sample_proxy_model.setSourceModel(self._sample_model)
 
@@ -90,7 +96,6 @@ class MainController(QObject):
                                          self._logger)
 
 
-        self._worksheet_model = WorksheetPandasModel(self._logger)
 
 
         # validation widgets
@@ -133,8 +138,6 @@ class MainController(QObject):
             self._logger
         )
 
-        self._workdata_manager = WorkDataManager(self._configuration_manager, self._logger)
-
         # widgets
 
         self._main_validation_widget = MainValidationWidget(self._general_validation_widget,
@@ -146,7 +149,7 @@ class MainController(QObject):
         self._override_widget = OverrideCyclesWidget(self._override_cycles_model)
         self._lane_widget = LanesWidget(self._state_model)
 
-        self._worksheet_view = FetchWorksheetView(self._worksheet_model)
+        self._worksheet_view = FetchWorksheetView(self._workdata_manager)
         self._file_widget = FileView(self._worksheet_view)
 
         self._samples_widget = SamplesWidget(self._configuration_manager.samples_settings)
@@ -208,9 +211,10 @@ class MainController(QObject):
         self._connect_workdata_signals()
 
     def _connect_workdata_signals(self):
-        self._worksheet_view.fetch_button.clicked.connect(self._workdata_manager.get_data)
-        self._workdata_manager.worksheet_data_ready.connect(self._worksheet_model.set_dataframe)
-        self._worksheet_model.model_changed.connect(self._worksheet_view.update_worksheet_visibility)
+        self._worksheet_view.fetch_button.clicked.connect(self._workdata_manager.fetch_data)
+        self._workdata_manager.loading_state_changed.connect(self._worksheet_view.on_loading_state_changed)
+        self._worksheet_view.selected_worklist_id.connect(self._workdata_manager.set_current_worklist_id)
+        self._worksheet_view.import_button.clicked.connect(self._sample_model.import_from_api)
 
     def _connect_file_signals(self):
         pass

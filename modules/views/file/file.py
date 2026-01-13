@@ -3,10 +3,9 @@ from PySide6.QtWidgets import (
     QWidget,
     QPushButton,
     QLabel,
-    QVBoxLayout, QFileDialog, QDialog,
+    QVBoxLayout, QFileDialog
 )
 
-from modules.models.workdata.worksheets_models import WorksheetPandasModel
 from modules.views.ui_components import HorizontalLine
 from modules.views.import_worksheet.import_worksheet_view import FetchWorksheetView
 
